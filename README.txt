@@ -16,8 +16,9 @@
 	Выбрать из папки виртуального окружения, которую создали. 
 	Интерпретатор лежит тут: ...your_path_to_venv/venv/bin/python3
 6) Установка всех пакетов. Находимся в директории SGUplatform (где лежит файл requirements.txt):
-	команда: pip3 install -r requirements.txt 
-7) Запуск проекта. Находимся в директории SGUplatform (где лежит файл manage.py)
+	команда: pip3 install -r requirements.txt
+7) Создаем .env в корне по образцу .env.example
+8) Запуск проекта. Находимся в директории SGUplatform (где лежит файл manage.py)
 	команда: python3 manage.py runserver
 
 	или настроить автоматический запуск (PyCharm - через EditConfigurations с параметром runserver VSCode - через добавление launch.json )
@@ -44,7 +45,8 @@
 5) Переходим в папку проекта SGUevents
 6) Установить пакеты с помощью команды 
 	команда: pip install -r requirements.txt
-7) Запуск проекта. Находимся в директории SGUevents (где лежит файл manage.py)
+7) Создаем .env в корне по образцу .env.example
+8) Запуск проекта. Находимся в директории SGUevents (где лежит файл manage.py)
 	python manage.py runserver 
 
 	или настроить автоматический запуск (PyCharm - через EditConfigurations с параметром runserver VSCode - через добавление launch.json )
