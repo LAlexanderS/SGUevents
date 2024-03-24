@@ -51,3 +51,9 @@
 
 	или настроить автоматический запуск (PyCharm - через EditConfigurations с параметром runserver VSCode - через добавление launch.json )
 	
+Запуск из докера (пока локально на винде):
+Windows - зпускаем Docker desktop
+docker-compose build
+docker-compose up -d
+docker-compose exec web python manage.py migrate
+docker-compose exec web python manage.py createsuperuser
