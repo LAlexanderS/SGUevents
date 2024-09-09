@@ -94,31 +94,36 @@
             </form>
         </div>
     </div>
-
-    <!-- Фильтрация по спикерам -->
-    <div class="col-lg-2">
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Спикеры
-            </button>
-            <form action="{% url 'main:index' %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
-                <div class="form-check text-white mx-3">
-                    {% for speaker in speakers %}
-                        <input class="form-check-input" type="checkbox" name="f_speakers" id="flexCheckDefault{{ forloop.counter }}" value="{{ speaker }}" {% if request.GET.f_speakers == speaker %}checked{% endif %}>
-                        <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ speaker }}</label><br>
-                    {% endfor %}
-                </div>
-                <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-
-                <!-- Сохранение остальных фильтров -->
-                {% for key, value in request.GET.items %}
-                    {% if key != 'f_speakers' %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endif %}
-                {% endfor %}
-            </form>
-        </div>
-    </div>
+	<div class="col-lg-2">
+		<div class="dropdown">
+			<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				Спикеры
+			</button>
+			<form action="{% url 'main:index' %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
+				<div class="form-check text-white mx-3">
+					{% for speaker in speakers %}
+						{# Приводим объект speaker к строковому значению полного имени #}
+						{% with full_name=speaker.first_name|add:" "|add:speaker.middle_name|add:" "|add:speaker.last_name %}
+							<input class="form-check-input" type="checkbox" name="f_speakers" id="flexCheckDefault{{ forloop.counter }}" value="{{ full_name }}"
+								{% if full_name in f_speakers %}checked{% endif %}>
+							<label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ full_name }}</label><br>
+						{% endwith %}
+					{% endfor %}
+				</div>
+				<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+	
+				<!-- Сохранение остальных фильтров -->
+				{% for key, value in request.GET.items %}
+					{% if key != 'f_speakers' %}
+						<input type="hidden" name="{{ key }}" value="{{ value }}">
+					{% endif %}
+				{% endfor %}
+			</form>
+		</div>
+	</div>
+	
+	
+	
 
 	<!-- Фильтрация по тегам -->
 <!-- Фильтрация по тегам -->
@@ -165,7 +170,8 @@
 
 {% block content %}
 <!-- Контент на странице -->
- 
+
+
 {% if events.category  == 'Онлайн' %}
 	{% if events.id in registered.online %}
 		<a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.online|get_item:events.id }}">

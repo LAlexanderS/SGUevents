@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from datetime import datetime
+from django.db.models import Value
+from django.db.models.functions import Concat
 
 
 from main.utils import q_search_all
@@ -37,6 +39,13 @@ def index(request):
         
         all_content = list(chain(available, available1, cultural, cultural1))
 
+    # Получаем всех спикеров из онлайн и оффлайн мероприятий
+    speakers_online = User.objects.filter(speaker_online__in=available).distinct()
+    speakers_offline = User.objects.filter(speaker_offline__in=available1).distinct()
+
+    # Объединяем всех спикеров в один список (чтобы избежать дублирования)
+    all_speakers = list(set(chain(speakers_online, speakers_offline)))
+
     page = request.GET.get('page', 1)
     f_all = request.GET.get('f_all', None)
     f_speakers = request.GET.getlist('f_speakers', None)
@@ -45,6 +54,7 @@ def index(request):
     query = request.GET.get('q', None)
     date_start = request.GET.get('date_start', None)
     date_end = request.GET.get('date_end', None)
+    f_date = request.GET.get('f_date', None)
 
     # Фильтрация по запросу
     if not query:
@@ -63,18 +73,27 @@ def index(request):
 
     # Фильтрация по спикерам
     if f_speakers:
-        speaker_objects = User.objects.filter(
-            Q(first_name__in=[name.split()[0] for name in f_speakers]) &
-            Q(last_name__in=[name.split()[1] for name in f_speakers])
+        # Аннотируем пользователей полным именем
+        speakers_with_full_name = User.objects.annotate(
+            full_name=Concat('first_name', Value(' '), 'middle_name', Value(' '), 'last_name')
         )
-        events_all = [event for event in events_all if any(speaker in event.speakers.all() for speaker in speaker_objects)]
+
+        # Фильтруем пользователей по полным именам из f_speakers
+        speakers_objects = speakers_with_full_name.filter(full_name__in=f_speakers)
+
+        # Фильтруем только те события, которые имеют поле `speakers`
+        events_all = [
+            event for event in events_all
+            if hasattr(event, 'speakers') and any(speaker in event.speakers.all() for speaker in speakers_objects)
+        ]
+
 
     # Фильтрация по тегам
     if f_tags:
         events_all = [event for event in events_all if event.tags and any(tag in event.tags for tag in f_tags)]
 
     # Фильтрация по месяцу
-    if f_all:
+    if f_date:
         events_all = [event for event in events_all if event.date.month == 1]
 
     # Сортировка
@@ -127,6 +146,8 @@ def index(request):
     'registered': registered_dict,
     'tags': list(set(tag for event in all_content if event.tags for tag in event.tags.split(','))),
     'f_tags': f_tags, 
+    'speakers': all_speakers,
+    'f_speakers': f_speakers,  
 }
 
     return render(request, 'main/index.html', context)

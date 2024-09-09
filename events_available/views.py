@@ -35,6 +35,7 @@ def online(request):
     speakers_set = set()
     for event in all_info:
         for speaker in event.speakers.all():
+            # Используем полное имя (Имя Отчество Фамилия) для спикера
             speakers_set.add(speaker.get_full_name())
 
     speakers = list(speakers_set)
@@ -74,15 +75,24 @@ def online(request):
 
     
 
+    # Фильтрация по спикерам
     if f_speakers:
-    # Преобразуем имена спикеров в объекты User
-        speakers_objects = User.objects.filter(
-            Q(first_name__in=[name.split()[0] for name in f_speakers]) &
-            Q(last_name__in=[name.split()[1] for name in f_speakers])
-        )
+        # Преобразуем имена спикеров в объекты User, учитывая Имя, Отчество, и Фамилию
+        speakers_objects = []
+        for name in f_speakers:
+            # Разбиваем на три части: Имя, Отчество и Фамилия
+            split_name = name.split()
+            if len(split_name) == 3:  # Если есть имя, отчество и фамилия
+                first_name, middle_name, last_name = split_name
+                users = User.objects.filter(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name
+                )
+                speakers_objects.extend(users)
+        
+        # Применяем фильтр по спикерам
         events_available = events_available.filter(speakers__in=speakers_objects)
-
-    tags = [event.tags for event in all_info]
      
     if f_tags:
         tags_query = Q()
