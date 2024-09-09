@@ -64,8 +64,8 @@ def online(request):
     if f_date:
         events_available = events_available.filter(date__month=1)
 
-    if f_speakers:
-        events_available = events_available.filter(speakers__in=f_speakers)
+    # if f_speakers:
+    #     events_available = events_available.filter(speakers__in=f_speakers)
     # if f_speakers:
     #     speakers_query = Q()
     #     for speaker in f_speakers:
@@ -74,6 +74,14 @@ def online(request):
 
     tags = [event.tags for event in all_info]
 
+    if f_speakers:
+    # Преобразуем имена спикеров в объекты User
+        speakers_objects = User.objects.filter(
+            Q(first_name__in=[name.split()[0] for name in f_speakers]) &
+            Q(last_name__in=[name.split()[1] for name in f_speakers])
+        )
+        events_available = events_available.filter(speakers__in=speakers_objects)
+        
     if f_tags:
         tags_query = Q()
         for tag in f_tags:
@@ -225,7 +233,14 @@ def offline(request):
 
 
     if f_speakers:
-        events_available = events_available.filter(speakers__in=f_speakers)
+        # Преобразуем имена спикеров в объекты User
+        speakers_objects = User.objects.filter(
+            Q(first_name__in=[name.split()[0] for name in f_speakers]) &
+            Q(last_name__in=[name.split()[1] for name in f_speakers])
+        )
+        events_available = events_available.filter(speakers__in=speakers_objects)
+    # if f_speakers:
+    #     events_available = events_available.filter(speakers__in=f_speakers)
     # if f_speakers:
     #     speakers_query = Q()
     #     for speaker in f_speakers:
