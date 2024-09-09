@@ -20,6 +20,7 @@ def attractions(request):
     order_by = request.GET.get('order_by', None)
     query = request.GET.get('q', None)
     user = request.user
+    f_tags = request.GET.getlist('f_tags', None)
     
     all_info = Attractions.objects.all()
     # Получаем всех админов через отношение ManyToMany
@@ -46,6 +47,14 @@ def attractions(request):
 
     if f_attractions:
         events_cultural = events_cultural.filter(date__month=1)
+
+    tags = [event.tags for event in all_info]
+     
+    if f_tags:
+        tags_query = Q()
+        for tag in f_tags:
+            tags_query |= Q(tags__icontains=tag)
+        events_cultural = events_cultural.filter(tags_query)
     
     if order_by and order_by != "default":
         events_cultural = events_cultural.order_by(order_by)
@@ -69,6 +78,11 @@ def attractions(request):
         'favorites': favorites_dict,
         'reviews': reviews, 
         'events_admin': events_admin,
+        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
+
+        'f_tags': f_tags,
+        
+
     }
     return render(request, 'events_cultural/attractions.html', context)
 
@@ -105,6 +119,8 @@ def events_for_visiting(request):
     order_by = request.GET.get('order_by', None)
     query = request.GET.get('q', None)
     user = request.user
+    f_tags = request.GET.getlist('f_tags', None)
+
 
     all_info = Events_for_visiting.objects.all()
     # Получаем всех админов через отношение ManyToMany
@@ -122,6 +138,7 @@ def events_for_visiting(request):
 
     if f_events_for_visiting:
         events_cultural = events_cultural.filter(date__month=1)
+
     
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -134,6 +151,14 @@ def events_for_visiting(request):
 
     if order_by and order_by != "default":
         events_cultural = events_cultural.order_by(order_by)
+
+    tags = [event.tags for event in all_info]
+     
+    if f_tags:
+        tags_query = Q()
+        for tag in f_tags:
+            tags_query |= Q(tags__icontains=tag)
+        events_cultural = events_cultural.filter(tags_query)
 
     paginator = Paginator(events_cultural, 3)
     current_page = paginator.page(int(page))
@@ -156,6 +181,8 @@ def events_for_visiting(request):
         'registered': registered_dict,
         'reviews': reviews,
         'events_admin': events_admin,
+        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
+        
     }
     return render(request, 'events_cultural/events_for_visiting.html', context)
 
@@ -184,6 +211,8 @@ def for_visiting_card(request, event_slug=False, event_id=False):
         'reviews': reviews,
         'registered': registered_dict,
         'favorites': favorites_dict, 
+        
+
     }
     return render(request, 'events_cultural/card.html', context=context)
 

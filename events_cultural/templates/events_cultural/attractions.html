@@ -71,6 +71,12 @@
 									Сначала старые
 							</label>
 					</div>
+					<!-- Сохранение других параметров фильтрации -->
+					{% for key, value in request.GET.items %}
+						{% if key != 'f_events_for_visiting' %}
+							<input type="hidden" name="{{ key }}" value="{{ value }}">
+						{% endif %}
+					{% endfor %}
 					<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
 				</form>
 			</div>
@@ -138,34 +144,35 @@
 	</div>
 	
 	<div class="col-lg-2">
-		<div class="row">
-			<div class="dropdown">
-				<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Теги
-				</button>
-				<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" checked>
-							<label class="form-check-label" for="flexRadioDefault1">
-									По умолчанию
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="">
-							<label class="form-check-label" for="flexRadioDefault2">
-									Сначала новые
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="">
-							<label class="form-check-label" for="flexRadioDefault3">
-									Сначала старые
-							</label>
-					</div>
-					<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-				</form>
-			</div>
+		<div class="dropdown">
+			<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				Теги
+			</button>
+			<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
+				<div class="form-check text-white mx-3">
+					{% for tag in tags %}
+						<input class="form-check-input" type="checkbox" name="f_tags" id="flexCheckDefault{{ forloop.counter }}" value="{{ tag }}"
+							   {% if request.GET.f_tags == tag %}checked{% endif %}>
+						<label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ tag }}</label>
+						<br>
+					{% endfor %}
+				</div>
+	
+				<!-- Сохранение других параметров фильтрации -->
+				{% for key, value in request.GET.items %}
+					{% if key != 'f_tags' %}
+						<input type="hidden" name="{{ key }}" value="{{ value }}">
+					{% endif %}
+				{% endfor %}
+	
+				<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+			</form>
 		</div>
+	</div>
+	<div class="col-lg-2">
+        <form action="{% url 'events_cultural:attractions' %}" method="get">
+        	<button class="btn btn-primary" type="submit">Сбросить</button>
+    	</form>
 	</div>
 </div>
 {% endblock filters %}

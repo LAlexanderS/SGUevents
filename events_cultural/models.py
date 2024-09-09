@@ -30,6 +30,8 @@ class Attractions(models.Model):
     start_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время начала')
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
+    tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
+
 
     class Meta:
         db_table = 'attractions'
@@ -76,6 +78,8 @@ class Events_for_visiting(models.Model):
     start_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время начала')
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
+    tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
+
 
     class Meta:
         db_table = 'Events_for_visiting'

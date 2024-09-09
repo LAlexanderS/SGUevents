@@ -72,7 +72,7 @@ def online(request):
     #         speakers_query |= Q(speakers__icontains=speaker)
     #     events_available = events_available.filter(speakers_query)
 
-    tags = [event.tags for event in all_info]
+    
 
     if f_speakers:
     # Преобразуем имена спикеров в объекты User
@@ -81,7 +81,9 @@ def online(request):
             Q(last_name__in=[name.split()[1] for name in f_speakers])
         )
         events_available = events_available.filter(speakers__in=speakers_objects)
-        
+
+    tags = [event.tags for event in all_info]
+     
     if f_tags:
         tags_query = Q()
         for tag in f_tags:
@@ -118,7 +120,7 @@ def online(request):
         'event_card_views': current_page,
         'speakers': speakers,
         'events_admin': events_admin,
-        'tags': tags,
+        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
         'favorites': favorites_dict,
         'registered': registered_dict,
         'reviews': reviews,
@@ -285,7 +287,7 @@ def offline(request):
         'event_card_views': current_page,
         'speakers': speakers,
         'events_admin': events_admin,
-        'tags': tags,
+        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
         'favorites': favorites_dict,
         'registered': registered_dict,
         'reviews': reviews,
