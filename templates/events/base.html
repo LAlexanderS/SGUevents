@@ -228,7 +228,7 @@
                                     sortSection.style.display = 'none';
                                 }
                             });
-                            
+                        
                             // Скрываем или показываем фильтры при нажатии на кнопку фильтров
                             filterToggle.addEventListener('click', function() {
                                 if (filterSection.style.display === 'none' || filterSection.style.display === '') {
@@ -237,7 +237,7 @@
                                     filterSection.style.display = 'none';  // Скрываем фильтры
                                 }
                             });
-                    
+                        
                             // Закрываем сортировку при клике вне области
                             document.addEventListener('click', function(event) {
                                 const isCalendarClick = Array.from(flatpickrContainers).some(container => container.contains(event.target));
@@ -246,21 +246,19 @@
                                     sortSection.style.display = 'none';
                                 }
                             });
-                            
+                        
                             // Предотвращаем закрытие фильтра при взаимодействии с календарем
                             document.querySelectorAll('.flatpickr-calendar').forEach(function(calendar) {
                                 calendar.addEventListener('click', function(event) {
-                                    event.stopPropagation();  // Останавливаем всплытие события клика для календаря
-                                });
-                            });
-                            
-                            // Предотвращаем закрытие фильтра при взаимодействии с календарем (при переключении месяца)
-                            document.querySelectorAll('.flatpickr-monthDropdown-months, .flatpickr-next-month, .flatpickr-prev-month').forEach(function(element) {
-                                element.addEventListener('click', function(event) {
-                                    event.stopPropagation();  // Останавливаем всплытие события для переключения месяца
+                                    // Останавливаем всплытие только для кликов по датам, но не по стрелкам переключения месяцев
+                                    if (!event.target.classList.contains('flatpickr-prev-month') &&
+                                        !event.target.classList.contains('flatpickr-next-month')) {
+                                        event.stopPropagation();
+                                    }
                                 });
                             });
                         });
+                        
                     </script>
                     
                         
