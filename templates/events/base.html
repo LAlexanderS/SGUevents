@@ -145,52 +145,7 @@
                     {% block filters %}{% endblock filters %}
                     {% block sort %}{% endblock sort %}
                     {% comment %} РАСКРЫТИЕ ФИЛЬТРОВ {% endcomment %}
-                    {% comment %} БЛОКИРОВКА ЗАКРЫТИЯ КАЛЕНДАРЯ {% endcomment %}
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const dateDropdown = document.getElementById('dateDropdown');
-                            const dateStartInput = document.getElementById('date_start');
-                            const dateEndInput = document.getElementById('date_end');
-                            const dropdownMenu = document.querySelector('.dropdown-menu');
-                        
-                            // Оставляем выпадающее меню открытым при взаимодействии с календарем
-                            dropdownMenu.addEventListener('click', function(event) {
-                                event.stopPropagation();  // Останавливаем всплытие события, чтобы меню не закрывалось
-                            });
-                        
-                            // Для Flatpickr предотвращаем закрытие меню при выборе или переключении месяца
-                            flatpickr("#date_start", {
-                                dateFormat: "d/m/Y",  // Формат отображения
-                                onOpen: function() {
-                                    dropdownMenu.classList.add('keep-open'); // Устанавливаем флаг для предотвращения закрытия при открытии календаря
-                                }
-                            });
-                        
-                            flatpickr("#date_end", {
-                                dateFormat: "d/m/Y",  // Формат отображения
-                                onOpen: function() {
-                                    dropdownMenu.classList.add('keep-open');
-                                }
-                            });
-                        
-                            // Закрываем меню при клике вне его области, если нужно
-                            document.addEventListener('click', function(event) {
-                                const isInsideDropdown = dropdownMenu.contains(event.target);
-                                const isDateButton = event.target.id === 'dateFilterButton';
-                                
-                                if (!isInsideDropdown && !isDateButton) {
-                                    dropdownMenu.classList.remove('show');  // Закрываем меню при клике вне области
-                                }
-                            });
-                        
-                            // Отмена автоматического закрытия при работе с календарем
-                            document.querySelectorAll('.flatpickr-calendar').forEach(function(calendar) {
-                                calendar.addEventListener('click', function(event) {
-                                    event.stopPropagation();  // Останавливаем всплытие события клика для календаря
-                                });
-                            });
-                        });
-                        </script>
+                    
 
                     {% comment %} ФОРМАТ ВВОДА ДАТЫ {% endcomment %}
                     <script>
@@ -243,13 +198,11 @@
                             const filterToggle = document.getElementById('filter-toggle');
                             const filterSection = document.getElementById('filter-section');
                             const resetFiltersContainer = document.getElementById('reset-filters-container');
+                            const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar'); // Календари Flatpickr
                             
-                            // Добавляем элемент календаря в качестве исключения для закрытия фильтров
-                            const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar');
-                        
                             // Проверяем, были ли применены какие-либо фильтры
                             const queryString = new URLSearchParams(window.location.search);
-                        
+                            
                             const filtersApplied = queryString.has('q') || 
                                                    queryString.has('date_start') || 
                                                    queryString.has('date_end') || 
@@ -258,7 +211,7 @@
                                                    queryString.has('f_tags') || 
                                                    queryString.has('time_to_start') || 
                                                    queryString.has('time_to_end');
-                        
+                            
                             // Если фильтры применены, отображаем кнопку "Сбросить" и фильтры
                             if (filtersApplied) {
                                 resetFiltersContainer.style.display = 'block';
@@ -266,7 +219,7 @@
                             } else {
                                 filterSection.style.display = 'none';  // Скрываем фильтры, если фильтры не были применены
                             }
-                        
+                            
                             // Скрываем или показываем панель сортировки при нажатии на иконку
                             sortToggle.addEventListener('click', function() {
                                 if (sortSection.style.display === 'none' || sortSection.style.display === '') {
@@ -275,7 +228,7 @@
                                     sortSection.style.display = 'none';
                                 }
                             });
-                        
+                            
                             // Скрываем или показываем фильтры при нажатии на кнопку фильтров
                             filterToggle.addEventListener('click', function() {
                                 if (filterSection.style.display === 'none' || filterSection.style.display === '') {
@@ -284,7 +237,7 @@
                                     filterSection.style.display = 'none';  // Скрываем фильтры
                                 }
                             });
-                        
+                    
                             // Закрываем сортировку при клике вне области
                             document.addEventListener('click', function(event) {
                                 const isCalendarClick = Array.from(flatpickrContainers).some(container => container.contains(event.target));
@@ -293,9 +246,23 @@
                                     sortSection.style.display = 'none';
                                 }
                             });
+                            
+                            // Предотвращаем закрытие фильтра при взаимодействии с календарем
+                            document.querySelectorAll('.flatpickr-calendar').forEach(function(calendar) {
+                                calendar.addEventListener('click', function(event) {
+                                    event.stopPropagation();  // Останавливаем всплытие события клика для календаря
+                                });
+                            });
+                            
+                            // Предотвращаем закрытие фильтра при взаимодействии с календарем (при переключении месяца)
+                            document.querySelectorAll('.flatpickr-monthDropdown-months, .flatpickr-next-month, .flatpickr-prev-month').forEach(function(element) {
+                                element.addEventListener('click', function(event) {
+                                    event.stopPropagation();  // Останавливаем всплытие события для переключения месяца
+                                });
+                            });
                         });
-                        
-                        </script>
+                    </script>
+                    
                         
                     
 
