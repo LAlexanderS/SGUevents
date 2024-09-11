@@ -36,10 +36,6 @@
                 Дата
             </button>
             <form action="{% url 'main:index' %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-                <div class="form-check text-white mx-3">
-                    <input class="form-check-input" type="checkbox" name="f_date" id="flexCheckDefault" value="on" {% if request.GET.f_date == 'on' %}checked{% endif %}>
-                    <label class="form-check-label" for="flexCheckDefault">Январь</label>
-                </div>
                 <div class="form-check text-white">
                     Дата начала <br/>
                     <label class="form-check-label">

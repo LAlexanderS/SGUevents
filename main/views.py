@@ -87,14 +87,9 @@ def index(request):
             if hasattr(event, 'speakers') and any(speaker in event.speakers.all() for speaker in speakers_objects)
         ]
 
-
     # Фильтрация по тегам
     if f_tags:
         events_all = [event for event in events_all if event.tags and any(tag in event.tags for tag in f_tags)]
-
-    # Фильтрация по месяцу
-    if f_date:
-        events_all = [event for event in events_all if event.date.month == 1]
 
     # Сортировка
     if order_by and order_by != "default":

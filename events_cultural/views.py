@@ -45,9 +45,6 @@ def attractions(request):
         else:
             events_cultural = events_cultural.filter(secret__isnull=True).distinct()
 
-    if f_attractions:
-        events_cultural = events_cultural.filter(date__month=1)
-
     tags = [event.tags for event in all_info]
      
     if f_tags:
@@ -135,10 +132,6 @@ def events_for_visiting(request):
         events_cultural = Events_for_visiting.objects.order_by('time_start')
     else:
         events_cultural = q_search_events_for_visiting(query)
-
-    if f_events_for_visiting:
-        events_cultural = events_cultural.filter(date__month=1)
-
     
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:

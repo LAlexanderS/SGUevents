@@ -41,16 +41,6 @@
 				</button>
 				<form action="{% if request.GET.q %}{% url "events_cultural:search_attractions" %}{% else %}{% url "events_cultural:attractions" %}{% endif %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
 					<div class="form-check text-white mx-3">
-						<input class="form-check-input" type="checkbox" name="f_attractions" id="flexCheckDefault" value="on" 
-						{% if request.GET.f_attractions == 'on' %}checked{% endif %}>
-						{% if request.GET.q %}
-							<input type="hidden" name="q" value="{{ request.GET.q }}"> 
-						{% endif %}
-						<label class="form-check-label" for="flexCheckDefault">
-							Январь
-						</label>
-					</div>
-					<div class="form-check text-white mx-3">
 							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default"
 							{% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
 							<label class="form-check-label" for="flexRadioDefault1">

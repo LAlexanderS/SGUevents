@@ -3,170 +3,187 @@
 {% load events_available_tags %}
 {% block title %} <title>Онлайн мероприятия</title> {% endblock %}
 {% block filters %}
-<div class="row filter-events-row mt-2">
-    <div class="col-lg-2">
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Название
-            </button>
-            <form action="{% if name_page == 'Онлайн' %}{% url 'events_available:search_online' %}{% elif name_page == 'Оффлайн' %}{% url 'events_available:search_offline' %}{% elif name_page == 'Доступные к посещению' %}{% url 'events_cultural:search_events_for_visiting' %}{% elif name_page == 'Достопримечательности' %}{% url 'events_cultural:search_attractions' %}{% elif name_page == 'Все мероприятия' %}{% url 'main:search_all' %}{% endif %}" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
-                <div class="form-check text-white">
-                    <input class="form-control me-3" type="search" name="q" placeholder="Search" aria-label="Search">
-                </div>
-
-                <button class="btn btn-outline-success d-inline" type="submit">
-                    Найти <img src="{% static 'general/icons/search.svg' %}" alt="S">
+<!-- Секция фильтров, которая будет отображаться/скрываться -->
+<div id="filter-section" class="row filter-events-row mt-2" style="display: none;">
+    <!-- Оставляем остальные фильтры так же, как у вас -->
+    <div class="row filter-events-row">
+        <div class="col-lg-2">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Название
                 </button>
-            </form>
+                <form action="{% if name_page == 'Онлайн' %}{% url 'events_available:search_online' %}{% elif name_page == 'Оффлайн' %}{% url 'events_available:search_offline' %}{% elif name_page == 'Доступные к посещению' %}{% url 'events_cultural:search_events_for_visiting' %}{% elif name_page == 'Достопримечательности' %}{% url 'events_cultural:search_attractions' %}{% elif name_page == 'Все мероприятия' %}{% url 'main:search_all' %}{% endif %}" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
+                    <div class="form-check text-white">
+                        <input class="form-control me-3" type="search" name="q" placeholder="Search" aria-label="Search">
+                    </div>
+    
+                    <button class="btn btn-outline-success d-inline" type="submit">
+                        Найти <img src="{% static 'general/icons/search.svg' %}" alt="S">
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
-    <div class="col-lg-2">
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Дата
-            </button>
-            <form action="{% if request.GET.q %}{% url 'events_available:search_online' %}{% else %}{% url 'events_available:online' %}{% endif %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-                <div class="form-check text-white mx-3">
-                    <input class="form-check-input" type="checkbox" name="f_date" id="flexCheckDefault" value="on" {% if request.GET.f_date == 'on' %}checked{% endif %}>
-                    {% if request.GET.q %}
-                        <input type="hidden" name="q" value="{{ request.GET.q }}">
-                    {% endif %}
-                    <label class="form-check-label" for="flexCheckDefault">Январь</label>
-                </div>
-                <div class="form-check text-white">
-                    Дата начала <br/>
-                    <label class="form-check-label" for="flexCheckDefault">
-                        <input type="date" id="date_start" name="date_start" value="date_low">
-                    </label>
-                </div>
-                <div class="form-check text-white">
-                    Дата окончания <br/>
-                    <label class="form-check-label" for="flexCheckDefault">
-                        <input type="date" id="date_end" name="date_end" value="date_last">
-                    </label>
-                </div>
-                <div class="form-check text-white mx-3">
-                    <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" {% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
-                    <label class="form-check-label" for="flexRadioDefault1">По умолчанию</label>
-                </div>
-                <div class="form-check text-white mx-3">
-                    <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="-date" {% if request.GET.order_by == '-date' %}checked{% endif %}>
-                    <label class="form-check-label" for="flexRadioDefault2">Сначала новые</label>
-                </div>
-                <div class="form-check text-white mx-3">
-                    <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="date" {% if request.GET.order_by == 'date' %}checked{% endif %}>
-                    <label class="form-check-label" for="flexRadioDefault3">Сначала старые</label>
-                </div>
-
-                {% comment %} Для объединения фильтров {% endcomment %}
-                {% for key, value in request.GET.items %}
-                    {% if key != 'f_date' and key != 'date_start' and key != 'date_end' %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endif %}
-                {% endfor %}
-
-
-
-                <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-            </form>
-        </div>
-    </div>
-    <div class="col-lg-2">
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Время
-            </button>
-            <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-                <div class="form-check text-white">
-                    Время начала <br/>
-                    <label class="form-check-label" for="flexCheckDefault">
-                        <input type="time" id="time_to_start" name="time_to_start" value="hh-mm-ss">
-                    </label>
-                </div>
-                <div class="form-check text-white">
-                    Время окончания <br/>
-                    <label class="form-check-label" for="flexCheckDefault">
-                        <input type="time" id="time_to_end" name="time_to_end" value="hh-mm-ss">
-                    </label>
-                </div>
-                <div class="form-check text-white mx-3">
-                    <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" {% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
-                    <label class="form-check-label" for="flexRadioDefault1">По умолчанию</label>
-                </div>
-                <div class="form-check text-white mx-3">
-                    <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="time_start" {% if request.GET.order_by == 'time_start' %}checked{% endif %}>
-                    <label class="form-check-label" for="flexRadioDefault2">Раньше</label>
-                </div>
-                <div class="form-check text-white mx-3">
-                    <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="-time_start" {% if request.GET.order_by == '-time_start' %}checked{% endif %}>
-                    <label class="form-check-label" for="flexRadioDefault3">Позже</label>
-                </div>
-                <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-            </form>
-        </div>
-    </div>
-    <div class="col-lg-2">
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Спикеры
-            </button>
-            <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
-                <div class="form-check text-white mx-3">
-                    {% for speaker in speakers %}
-                        <input class="form-check-input" type="checkbox" name="f_speakers" id="flexCheckDefault{{ forloop.counter }}" value="{{ speaker }}" {% if request.GET.f_speakers == speaker %}checked{% endif %}>
-                        {% if request.GET.q %}
-                            <input type="hidden" name="q" value="{{ request.GET.q }}">
-                        {% endif %}
-                        <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ speaker }}</label>
-						<br>
-                    {% endfor %}
-                </div>
-
-                {% comment %} Для объединения фильтров {% endcomment %}
-                {% for key, value in request.GET.items %}
-                    {% if key != 'f_speakers' %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endif %}
-                {% endfor %}
+        <div class="col-lg-2">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+                    Дата
+                </button>
+                <form action="{% if request.GET.q %}{% url 'events_available:search_online' %}{% else %}{% url 'events_available:online' %}{% endif %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" id="dateDropdown">
+                    <div class="form-check text-white">
+                        Дата начала <br/>
+                        <label class="form-check-label" for="flexCheckDefault">
+                            <input type="date" id="date_start" name="date_start" value="{{ date_start|default_if_none:'' }}" placeholder="дд/мм/гггг">
+                        </label>
+                    </div>
+                    <div class="form-check text-white">
+                        Дата окончания <br/>
+                        <label class="form-check-label" for="flexCheckDefault">
+                            <input type="date" id="date_end" name="date_end" value="{{ date_end|default_if_none:'' }}" placeholder="дд/мм/гггг">
+                        </label>
+                    </div>
                 
-                <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-            </form>
-        </div>
-    </div>
-    <div class="col-lg-2">
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Теги
-            </button>
-            <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
-                <div class="form-check text-white mx-3">
-                    {% for tag in tags %}
-                        <input class="form-check-input" type="checkbox" name="f_tags" id="flexCheckDefault{{ forloop.counter }}" value="{{ tag }}" {% if request.GET.f_tags == tag %}checked{% endif %}>
-                        {% if request.GET.q %}
-                            <input type="hidden" name="q" value="{{ request.GET.q }}">
+                    {% comment %} Для объединения фильтров {% endcomment %}
+                    {% for key, value in request.GET.items %}
+                        {% if key != 'f_date' and key != 'date_start' and key != 'date_end' %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
                         {% endif %}
-                        <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ tag }}</label>
-						<br>
                     {% endfor %}
-                </div>
-
-                {% for key, value in request.GET.items %}
-                    {% if key != 'f_tags' %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endif %}
-                {% endfor %}
-
-                <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-            </form>
+                
+                    <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+                </form>
+            </div>
         </div>
-    </div>
-    <div class="col-lg-2">
-        <form action="{% url 'events_available:online' %}" method="get">
-        <button class="btn btn-primary" type="submit">Сбросить</button>
-    </form>
+        <div class="col-lg-2">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Время
+                </button>
+                <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
+                    <div class="form-check text-white">
+                        Время начала <br/>
+                        <label class="form-check-label" for="flexCheckDefault">
+                            <input type="time" id="time_to_start" name="time_to_start" value="{{ time_to_start|default_if_none:'' }}">
+                        </label>
+                    </div>
+                    <div class="form-check text-white">
+                        Время окончания <br/>
+                        <label class="form-check-label" for="flexCheckDefault">
+                            <input type="time" id="time_to_end" name="time_to_end" value="{{ time_to_end|default_if_none:'' }}">
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Спикеры
+                </button>
+                <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
+                    <div class="form-check text-white mx-3">
+                        {% for speaker in speakers %}
+                            <input class="form-check-input" type="checkbox" name="f_speakers" id="flexCheckDefault{{ forloop.counter }}" value="{{ speaker }}" {% if request.GET.f_speakers == speaker %}checked{% endif %}>
+                            {% if request.GET.q %}
+                                <input type="hidden" name="q" value="{{ request.GET.q }}">
+                            {% endif %}
+                            <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ speaker }}</label>
+                            <br>
+                        {% endfor %}
+                    </div>
+    
+                    {% comment %} Для объединения фильтров {% endcomment %}
+                    {% for key, value in request.GET.items %}
+                        {% if key != 'f_speakers' %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Теги
+                </button>
+                <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
+                    <div class="form-check text-white mx-3">
+                        {% for tag in tags %}
+                            <input class="form-check-input" type="checkbox" name="f_tags" id="flexCheckDefault{{ forloop.counter }}" value="{{ tag }}" {% if request.GET.f_tags == tag %}checked{% endif %}>
+                            {% if request.GET.q %}
+                                <input type="hidden" name="q" value="{{ request.GET.q }}">
+                            {% endif %}
+                            <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ tag }}</label>
+                            <br>
+                        {% endfor %}
+                    </div>
+    
+                    {% for key, value in request.GET.items %}
+                        {% if key != 'f_tags' %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+    
+                    <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+                </form>
+            </div>
+        </div>
+        
     </div>
 </div>
+
+
+
+
 {% endblock filters %}
+
+{% block sort %}
+<!-- Секция сортировки -->
+<div id="sort-section" class="dropdown-menu bg-dark" style="display: none;">
+    <h6 class="dropdown-header text-white">Сортировка по времени</h6>
+    <form action="" method="get">
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-default" value="default" {% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-default">По умолчанию</label>
+        </div>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-earlier" value="time_start" {% if request.GET.order_by == 'time_start' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-earlier">Раньше</label>
+        </div>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-later" value="-time_start" {% if request.GET.order_by == '-time_start' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-later">Позже</label>
+        </div>
+
+        <h6 class="dropdown-header text-white">Сортировка по дате</h6>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-date-default" value="default" {% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-date-default">По умолчанию</label>
+        </div>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-date-newest" value="-date" {% if request.GET.order_by == '-date' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-date-newest">Сначала новые</label>
+        </div>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-date-oldest" value="date" {% if request.GET.order_by == 'date' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-date-oldest">Сначала старые</label>
+        </div>
+
+        <!-- Кнопка для применения сортировки -->
+        <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+    </form>
+</div>
+
+
+
+{% endblock sort %}
+
+
+
+
 {% block content %}
 <!-- Контент на странице -->
 {% if events.id in registered %}

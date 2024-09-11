@@ -60,20 +60,7 @@ def online(request):
         if user.department:
             events_available = events_available.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
         else:
-            events_available = events_available.filter(secret__isnull=True).distinct()
-
-    if f_date:
-        events_available = events_available.filter(date__month=1)
-
-    # if f_speakers:
-    #     events_available = events_available.filter(speakers__in=f_speakers)
-    # if f_speakers:
-    #     speakers_query = Q()
-    #     for speaker in f_speakers:
-    #         speakers_query |= Q(speakers__icontains=speaker)
-    #     events_available = events_available.filter(speakers_query)
-
-    
+            events_available = events_available.filter(secret__isnull=True).distinct()  
 
     # Фильтрация по спикерам
     if f_speakers:
@@ -103,13 +90,25 @@ def online(request):
     if order_by and order_by != "default":
         events_available = events_available.order_by(order_by)
 
+
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
+        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
         events_available = events_available.filter(date__gt=date_start_formatted)
 
     if date_end:
-        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
+        date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
         events_available = events_available.filter(date__lt=date_end_formatted)
+
+
+        # Фильтрация по времени начала
+    if time_to_start:
+        time_start_formatted = datetime.strptime(time_to_start, '%H:%M').time()  # Преобразование строки в объект времени
+        events_available = events_available.filter(time_start__gte=time_start_formatted)
+
+    # Фильтрация по времени окончания
+    if time_to_end:
+        time_end_formatted = datetime.strptime(time_to_end, '%H:%M').time()  # Преобразование строки в объект времени
+        events_available = events_available.filter(time_end__lte=time_end_formatted)
 
     paginator = Paginator(events_available, 3)
     current_page = paginator.page(int(page))
@@ -134,6 +133,10 @@ def online(request):
         'favorites': favorites_dict,
         'registered': registered_dict,
         'reviews': reviews,
+        'time_to_start': time_to_start,
+        'time_to_end': time_to_end,
+        "date_start": date_start,
+        "date_end": date_end,
     }
 
     return render(request, 'events_available/online_events.html', context=context)
@@ -226,9 +229,6 @@ def offline(request):
             events_available = events_available.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
         else:
             events_available = events_available.filter(secret__isnull=True).distinct()
-
-    if f_date:
-        events_available = events_available.filter(date__month=1)
 
     if date_start:
         date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
