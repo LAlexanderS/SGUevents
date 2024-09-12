@@ -302,31 +302,47 @@
                     </style> 
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
+                            const sortToggle = document.getElementById('sort-toggle');
+                            const sortSection = document.getElementById('sort-section');
+                            const filterToggle = document.getElementById('filter-toggle');
+                            const filterSection = document.getElementById('filter-section');
+                            const resetFiltersContainer = document.getElementById('reset-filters-container');
+                            const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar'); // Календари Flatpickr
+                    
                             const input = document.getElementById('event-name-search');
                             const resultsContainer = document.getElementById('autocomplete-results');
                             const form = input.closest('form');  // Получаем форму, в которой находится поле ввода
-                            const resetFiltersContainer = document.getElementById('reset-filters-container');
                     
-                            // Проверка на наличие фильтров в URL
+                            // Проверка на наличие фильтров и сортировки в URL
                             const queryString = new URLSearchParams(window.location.search);
                     
                             // Проверяем, были ли применены фильтры (включая фильтр по названию)
                             const filtersApplied = queryString.has('q') || 
-                                                   queryString.has('name_search') ||  // Проверяем, применен ли фильтр по названию
-                                                   queryString.has('f_tags') || 
+                                                   queryString.has('name_search') || 
                                                    queryString.has('date_start') || 
-                                                   queryString.has('date_end') ||
+                                                   queryString.has('date_end') || 
+                                                   queryString.has('f_speakers') || 
+                                                   queryString.has('f_tags') || 
                                                    queryString.has('time_to_start') || 
                                                    queryString.has('time_to_end');
                     
-                            // Если фильтры или сортировка применены, показываем кнопку "Сбросить"
-                            if (filtersApplied) {
-                                resetFiltersContainer.style.display = 'block';  // Показываем кнопку сброса фильтров
+                            const sortApplied = queryString.has('order_by');  // Проверка на наличие сортировки
+                    
+                            // Если применены фильтры или сортировка, отображаем кнопку "Сбросить"
+                            if (filtersApplied || sortApplied) {
+                                resetFiltersContainer.style.display = 'block';
                             } else {
-                                resetFiltersContainer.style.display = 'none';  // Скрываем кнопку сброса фильтров, если фильтры не были применены
+                                resetFiltersContainer.style.display = 'none';
                             }
                     
-                            // Логика автокомплита
+                            // Если фильтры применены, отображаем фильтры
+                            if (filtersApplied) {
+                                filterSection.style.display = 'flex';  // Отображаем фильтры
+                            } else {
+                                filterSection.style.display = 'none';  // Скрываем фильтры, если фильтры не были применены
+                            }
+                    
+                            // Логика автокомплита для фильтра по названию
                             input.addEventListener('input', function() {
                                 const query = input.value;
                     
@@ -355,49 +371,7 @@
                                     resultsContainer.innerHTML = '';  // Если меньше двух символов, очищаем результаты
                                 }
                             });
-                        });
-                    </script>
                     
-
-                    
-
-                    {% comment %} СКРИПТЫ НА ФИЛЬТРЫ {% endcomment %}
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const sortToggle = document.getElementById('sort-toggle');
-                            const sortSection = document.getElementById('sort-section');
-                            const filterToggle = document.getElementById('filter-toggle');
-                            const filterSection = document.getElementById('filter-section');
-                            const resetFiltersContainer = document.getElementById('reset-filters-container');
-                            const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar'); // Календари Flatpickr
-                        
-                            // Проверяем, были ли применены фильтры или сортировка
-                            const queryString = new URLSearchParams(window.location.search);
-                        
-                            const filtersApplied = queryString.has('q') || 
-                                                   queryString.has('date_start') || 
-                                                   queryString.has('date_end') || 
-                                                   queryString.has('f_speakers') || 
-                                                   queryString.has('f_tags') || 
-                                                   queryString.has('time_to_start') || 
-                                                   queryString.has('time_to_end');
-                        
-                            const sortApplied = queryString.has('order_by');  // Проверка на наличие сортировки
-                        
-                            // Если применены фильтры или сортировка, отображаем кнопку "Сбросить"
-                            if (filtersApplied || sortApplied) {
-                                resetFiltersContainer.style.display = 'block';
-                            } else {
-                                resetFiltersContainer.style.display = 'none';
-                            }
-                        
-                            // Если фильтры применены, отображаем фильтры
-                            if (filtersApplied) {
-                                filterSection.style.display = 'flex';  // Отображаем фильтры
-                            } else {
-                                filterSection.style.display = 'none';  // Скрываем фильтры, если фильтры не были применены
-                            }
-                        
                             // Скрываем или показываем панель сортировки при нажатии на иконку
                             sortToggle.addEventListener('click', function() {
                                 if (sortSection.style.display === 'none' || sortSection.style.display === '') {
@@ -406,7 +380,7 @@
                                     sortSection.style.display = 'none';
                                 }
                             });
-                        
+                    
                             // Скрываем или показываем фильтры при нажатии на кнопку фильтров
                             filterToggle.addEventListener('click', function() {
                                 if (filterSection.style.display === 'none' || filterSection.style.display === '') {
@@ -415,16 +389,16 @@
                                     filterSection.style.display = 'none';  // Скрываем фильтры
                                 }
                             });
-                        
+                    
                             // Закрываем сортировку при клике вне области
                             document.addEventListener('click', function(event) {
                                 const isCalendarClick = Array.from(flatpickrContainers).some(container => container.contains(event.target));
-                                
+                    
                                 if (!sortToggle.contains(event.target) && !sortSection.contains(event.target) && !isCalendarClick) {
                                     sortSection.style.display = 'none';
                                 }
                             });
-                        
+                    
                             // Предотвращаем закрытие фильтра при взаимодействии с календарем
                             document.querySelectorAll('.flatpickr-calendar').forEach(function(calendar) {
                                 calendar.addEventListener('click', function(event) {
@@ -435,9 +409,9 @@
                                     }
                                 });
                             });
-                        });  
-                        
+                        });
                     </script>
+                    
                          
 					{% if request.GET.q %}
 						<h3 class="mt-4">Результаты поиска по запросу {{ request.GET.q }}</h3>
