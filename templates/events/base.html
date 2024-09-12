@@ -278,6 +278,65 @@
                     </style>
                     
 
+                    {% comment %} АВТОКОМПЛИТ В ФИЛЬТРЕ НАЗВАНИЯХ {% endcomment %}
+                    <style>
+                        .autocomplete-results {
+                            border: 1px solid #ccc;
+                            background-color: white;
+                            max-height: 200px;
+                            overflow-y: auto;
+                            position: absolute;
+                            z-index: 1000;
+                            width: 100%;
+                        }
+                        
+                        .autocomplete-item {
+                            padding: 8px;
+                            cursor: pointer;
+                        }
+                        
+                        .autocomplete-item:hover {
+                            background-color: #f0f0f0;
+                        }
+                        
+                    </style> 
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const input = document.getElementById('event-name-search');
+                            const resultsContainer = document.getElementById('autocomplete-results');
+                        
+                            input.addEventListener('input', function() {
+                                const query = input.value;
+                        
+                                if (query.length >= 2) {  // Автокомплит начинает работать после ввода двух символов
+                                    fetch(`/events_available/autocomplete/event-name/?term=${query}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            console.log("Received data:", data);  // Логирование для отладки
+                                            resultsContainer.innerHTML = '';  // Очищаем старые результаты
+                                            if (data.length === 0) {
+                                                resultsContainer.innerHTML = '<div class="autocomplete-item">No results found</div>';
+                                            } else {
+                                                data.forEach(eventName => {
+                                                    const option = document.createElement('div');
+                                                    option.classList.add('autocomplete-item');
+                                                    option.innerHTML = eventName;
+                                                    option.addEventListener('click', function() {
+                                                        input.value = eventName;  // При выборе названия заполняем поле
+                                                        resultsContainer.innerHTML = '';  // Очищаем результаты
+                                                    });
+                                                    resultsContainer.appendChild(option);
+                                                });
+                                            }
+                                        });
+                                } else {
+                                    resultsContainer.innerHTML = '';  // Если меньше двух символов, очищаем результаты
+                                }
+                            });
+                        });
+                        
+                    </script> 
+
                     
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
@@ -451,9 +510,10 @@
                                                         {% url "events_cultural:events_for_visiting_card" events.slug %}
                                                     {% endif %}">
                                                     {% autoescape off %}
-                                                        {% if events.headline %}{{ events.headline }}{% else %}{{ events.name }}{% endif %}
+                                                        {% if events.headline_name %}{{ events.headline_name|safe }}{% else %}{{ events.name }}{% endif %}
                                                     {% endautoescape %}
-                                                </a></h5>
+                                                    </a>
+                                                </h5>
                                                 <h6 class="card-date"> 
                                                     <split class="card-day"><b>{{ events.date }}</b></split> 
                                                     <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> </h6> 
@@ -467,12 +527,13 @@
                                                       
                                                 {% comment %} <h7 class="event-place"> <strong>Администратор: {{ events.events_admin }}</strong>  </h7> {% endcomment %}
                                                 {% autoescape off %}
-                                                    {% if events.bodyline %}
-                                                        {{ events.bodyline }}
+                                                    {% if events.headline_description %}
+                                                        {{ events.headline_description|safe }}
                                                     {% else %}
                                                         <p class="card-text">{{ events.description|truncatechars:625 }}</p>
                                                     {% endif %}
                                                 {% endautoescape %}
+
                                                 
                                                 <p class="card-text">
                                                     <small class="text-muted">{% if events.tags %} 

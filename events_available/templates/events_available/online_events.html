@@ -12,17 +12,13 @@
                 <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Название
                 </button>
-                <form action="{% if name_page == 'Онлайн' %}{% url 'events_available:search_online' %}{% elif name_page == 'Оффлайн' %}{% url 'events_available:search_offline' %}{% elif name_page == 'Доступные к посещению' %}{% url 'events_cultural:search_events_for_visiting' %}{% elif name_page == 'Достопримечательности' %}{% url 'events_cultural:search_attractions' %}{% elif name_page == 'Все мероприятия' %}{% url 'main:search_all' %}{% endif %}" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
-                    <div class="form-check text-white">
-                        <input class="form-control me-3" type="search" name="q" placeholder="Search" aria-label="Search">
-                    </div>
-    
-                    <button class="btn btn-outline-success d-inline" type="submit">
-                        Найти <img src="{% static 'general/icons/search.svg' %}" alt="S">
-                    </button>
+                <form class="dropdown-menu bg-dark" data-bs-theme="dark" style="padding: 10px;">
+                    <input id="event-name-search" class="form-control" type="text" placeholder="Введите название события">
+                    <div id="autocomplete-results" class="autocomplete-results"></div>  <!-- Контейнер для результатов автокомплита -->
                 </form>
             </div>
         </div>
+        
         <div class="col-lg-2">
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">

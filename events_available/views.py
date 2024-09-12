@@ -53,8 +53,10 @@ def online(request):
     events_admin = list(events_admin_set)
     
     if not query:
+        # Если нет запроса, возвращаем все события, отсортированные по дате
         events_available = Events_online.objects.order_by('date')
     else:
+        # Если есть запрос, выполняем поиск
         events_available = q_search_online(query)
 
     #Фильтрация по скрытым мероприятиям
@@ -407,3 +409,15 @@ def submit_review(request, event_id):
             'formatted_date': review.formatted_date()
         })
     return JsonResponse({'success': False, 'message': 'Некорректный запрос'}, status=400)
+
+
+def autocomplete_event_name(request):
+    term = request.GET.get('term', '')  # Получаем параметр запроса
+    if term:
+        matching_events = Events_online.objects.filter(name__icontains=term)[:10]  # Поиск по названию
+        suggestions = list(matching_events.values_list('name', flat=True))  # Преобразуем в список
+        return JsonResponse(suggestions, safe=False)
+    return JsonResponse([], safe=False)
+
+
+
