@@ -29,7 +29,8 @@ def online(request):
     time_to_end = request.GET.get('time_to_end', None)
     # sort_time = request.GET.get('sort_time', 'default') 
     # sort_date = request.GET.get('sort_date', 'default')  
-    query = request.GET.get('q', None)
+    query = request.GET.get('q', None)  # Поиск через навигационную панель
+    name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     user = request.user
 
     all_info = Events_online.objects.all()
@@ -52,12 +53,19 @@ def online(request):
 
     events_admin = list(events_admin_set)
     
-    if not query:
-        # Если нет запроса, возвращаем все события, отсортированные по дате
-        events_available = Events_online.objects.order_by('date')
-    else:
-        # Если есть запрос, выполняем поиск
+    filters_applied = False  # По умолчанию считаем, что фильтры не применен
+
+    if name_search:
+        # Фильтр только по названию
+        events_available = Events_online.objects.filter(name__icontains=name_search).order_by('date')
+        filters_applied = True
+    elif query:
+        # Полный поиск по названию и описанию через навигационную панель
         events_available = q_search_online(query)
+        filters_applied = True
+    else:
+        # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
+        events_available = Events_online.objects.order_by('date')
 
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -167,6 +175,7 @@ def online(request):
         'time_to_end': time_to_end,
         "date_start": date_start,
         "date_end": date_end,
+        'filters_applied': filters_applied,
     }
 
     return render(request, 'events_available/online_events.html', context=context)
@@ -413,11 +422,10 @@ def submit_review(request, event_id):
 
 def autocomplete_event_name(request):
     term = request.GET.get('term', '')  # Получаем параметр запроса
-    if term:
-        matching_events = Events_online.objects.filter(name__icontains=term)[:10]  # Поиск по названию
-        suggestions = list(matching_events.values_list('name', flat=True))  # Преобразуем в список
-        return JsonResponse(suggestions, safe=False)
-    return JsonResponse([], safe=False)
+    matching_events = Events_online.objects.filter(name__icontains=term)[:10]  # Ищем только по названию
+    suggestions = list(matching_events.values_list('name', flat=True))  # Преобразуем в список только имена
+    return JsonResponse(suggestions, safe=False)
+
 
 
 

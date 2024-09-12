@@ -12,12 +12,19 @@
                 <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Название
                 </button>
-                <form class="dropdown-menu bg-dark" data-bs-theme="dark" style="padding: 10px;">
-                    <input id="event-name-search" class="form-control" type="text" placeholder="Введите название события">
-                    <div id="autocomplete-results" class="autocomplete-results"></div>  <!-- Контейнер для результатов автокомплита -->
+                <form action="" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
+                    <div class="form-check text-white">
+                        <input class="form-control me-3" type="search" id="event-name-search" name="name_search" placeholder="Введите название">
+                    </div>
+                    <div id="autocomplete-results" class="autocomplete-results"></div>
+                    <div class="text-center">
+                        <button class="btn btn-outline-success" type="submit">Применить</button>
+                    </div>
                 </form>
             </div>
         </div>
+        
+        
         
         <div class="col-lg-2">
             <div class="dropdown">

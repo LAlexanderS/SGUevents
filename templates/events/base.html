@@ -304,15 +304,36 @@
                         document.addEventListener('DOMContentLoaded', function() {
                             const input = document.getElementById('event-name-search');
                             const resultsContainer = document.getElementById('autocomplete-results');
-                        
+                            const form = input.closest('form');  // Получаем форму, в которой находится поле ввода
+                            const resetFiltersContainer = document.getElementById('reset-filters-container');
+                    
+                            // Проверка на наличие фильтров в URL
+                            const queryString = new URLSearchParams(window.location.search);
+                    
+                            // Проверяем, были ли применены фильтры (включая фильтр по названию)
+                            const filtersApplied = queryString.has('q') || 
+                                                   queryString.has('name_search') ||  // Проверяем, применен ли фильтр по названию
+                                                   queryString.has('f_tags') || 
+                                                   queryString.has('date_start') || 
+                                                   queryString.has('date_end') ||
+                                                   queryString.has('time_to_start') || 
+                                                   queryString.has('time_to_end');
+                    
+                            // Если фильтры или сортировка применены, показываем кнопку "Сбросить"
+                            if (filtersApplied) {
+                                resetFiltersContainer.style.display = 'block';  // Показываем кнопку сброса фильтров
+                            } else {
+                                resetFiltersContainer.style.display = 'none';  // Скрываем кнопку сброса фильтров, если фильтры не были применены
+                            }
+                    
+                            // Логика автокомплита
                             input.addEventListener('input', function() {
                                 const query = input.value;
-                        
+                    
                                 if (query.length >= 2) {  // Автокомплит начинает работать после ввода двух символов
                                     fetch(`/events_available/autocomplete/event-name/?term=${query}`)
                                         .then(response => response.json())
                                         .then(data => {
-                                            console.log("Received data:", data);  // Логирование для отладки
                                             resultsContainer.innerHTML = '';  // Очищаем старые результаты
                                             if (data.length === 0) {
                                                 resultsContainer.innerHTML = '<div class="autocomplete-item">No results found</div>';
@@ -324,6 +345,7 @@
                                                     option.addEventListener('click', function() {
                                                         input.value = eventName;  // При выборе названия заполняем поле
                                                         resultsContainer.innerHTML = '';  // Очищаем результаты
+                                                        form.submit();  // Автоматически отправляем форму
                                                     });
                                                     resultsContainer.appendChild(option);
                                                 });
@@ -334,10 +356,12 @@
                                 }
                             });
                         });
-                        
-                    </script> 
+                    </script>
+                    
 
                     
+
+                    {% comment %} СКРИПТЫ НА ФИЛЬТРЫ {% endcomment %}
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
                             const sortToggle = document.getElementById('sort-toggle');
