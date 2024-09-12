@@ -159,24 +159,49 @@
                     <style>
                         /* Ограничиваем ширину полей ввода для дат */
                         input[type="date"] {
-                            width: 100%;  /* Заполняет весь доступный контейнер */
+                            width: 100%;  /* Полная ширина контейнера */
                             max-width: 180px;  /* Ограничиваем максимальную ширину */
+                            box-sizing: border-box;  /* Учитываем отступы и границы в общей ширине */
                         }
-                    
-                        /* Альтернативный стиль для адаптации к родительскому контейнеру */
+
+                        /* Унифицированные стили для контейнеров фильтров */
                         .form-check-label {
-                            display: block;  /* Поле ввода будет на всю ширину родителя */
-                            width: 100%;     /* Полная ширина контейнера */
+                            display: block;
+                            width: 100%;  /* Полная ширина контейнера */
                         }
-                    
+
+                        /* Ограничение ширины выпадающих меню */
                         .dropdown-menu {
-                            min-width: 220px;  /* Минимальная ширина, чтобы вместить фильтры */
+                            min-width: 230px;
+                            max-width: 230px;  /* Фиксированная ширина для всех dropdown */
                         }
+
+                        /* Настройки для календаря */
                         .flatpickr-calendar {
-                            z-index: 9999 !important;  /* Повышаем z-index для календаря */
-                        }
+                            z-index: 9999 !important;
+}
+
+
                     </style>
 
+                    {% comment %} ФИЛЬТР ВРЕМЕНИ {% endcomment %}
+                    <style>
+                        .dropdown-menu-custom {
+                            min-width: 150px;  /* Минимальная ширина */
+                            width: 170px;  /* Установленная фиксированная ширина */
+                        }
+                    
+                        .dropdown-menu-custom .form-check {
+                            padding-left: 10px;  /* Добавим небольшой отступ для чекбоксов */
+                        }
+                    
+                        .dropdown-menu-custom input[type="time"] {
+                            width: 90%;  /* Уменьшаем ширину полей для времени */
+                            max-width: 180px;  /* Ограничение по максимальной ширине */
+                        }
+                    </style>
+                    
+                    
                     {% comment %} СОРТИРОВКА  {% endcomment %}
                     <style>
                         
@@ -188,6 +213,71 @@
                             }
                     
                     </style> 
+                    
+                    {% comment %} ПОСИК В СПИКЕРАХ {% endcomment %}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const searchInput = document.getElementById('search-speakers');
+                            const speakerItems = document.querySelectorAll('.speaker-item');
+                            
+                            searchInput.addEventListener('input', function() {
+                                const searchQuery = searchInput.value.toLowerCase();
+                                
+                                speakerItems.forEach(function(item) {
+                                    const speakerName = item.textContent.toLowerCase();
+                                    
+                                    if (speakerName.includes(searchQuery)) {
+                                        item.style.display = 'block';  // Показываем, если совпадает
+                                    } else {
+                                        item.style.display = 'none';   // Скрываем, если нет совпадений
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+                    <style>
+                        .form-check.text-white input#search-speakers {
+                            width: calc(100% - 10px); /* Полная ширина минус внутренние отступы */
+                            margin-left: 0px; /* Смещение для того, чтобы выровнять с остальными элементами */
+                            margin-bottom: 10px; /* Нижний отступ для визуального разделения */
+                            padding: 0px;
+                        }
+                    </style>
+                    
+
+                    {% comment %} ПОИСК В ТЕГАХ {% endcomment %}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const searchInput = document.getElementById('search-tags');
+                            const tagItems = document.querySelectorAll('#tags-list .tag-item');
+                    
+                            // Функция для фильтрации тегов
+                            searchInput.addEventListener('input', function () {
+                                const filter = searchInput.value.toLowerCase();
+                    
+                                tagItems.forEach(function (item) {
+                                    const label = item.querySelector('label').textContent.toLowerCase();
+                    
+                                    if (label.includes(filter)) {
+                                        item.style.display = '';
+                                    } else {
+                                        item.style.display = 'none';
+                                    }
+                                });
+                            });
+                        });
+                    </script>                    
+                    <style>
+                        .form-check.text-white input#search-tags {
+                            width: calc(100% - 30px); /* Полная ширина минус внутренние отступы */
+                            margin-left: 0px; /* Смещение для того, чтобы выровнять с остальными элементами */
+                            margin-bottom: 10px; /* Нижний отступ для визуального разделения */
+                            padding: 0px;
+
+                        }
+                    </style>
+                    
+
                     
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {

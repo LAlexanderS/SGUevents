@@ -27,6 +27,8 @@ def online(request):
     date_end = request.GET.get('date_end', None)
     time_to_start = request.GET.get('time_to_start', None)
     time_to_end = request.GET.get('time_to_end', None)
+    # sort_time = request.GET.get('sort_time', 'default') 
+    # sort_date = request.GET.get('sort_date', 'default')  
     query = request.GET.get('q', None)
     user = request.user
 
@@ -35,10 +37,12 @@ def online(request):
     speakers_set = set()
     for event in all_info:
         for speaker in event.speakers.all():
-            # Используем полное имя (Имя Отчество Фамилия) для спикера
-            speakers_set.add(speaker.get_full_name())
+            # Явно формируем строку с Фамилией, Именем и Отчеством
+            full_name = f"{speaker.last_name} {speaker.first_name} {speaker.middle_name if speaker.middle_name else ''}".strip()
+            speakers_set.add(full_name)
 
     speakers = list(speakers_set)
+
 
     # Получаем всех админов через отношение ManyToMany
     events_admin_set = set()
@@ -62,15 +66,26 @@ def online(request):
         else:
             events_available = events_available.filter(secret__isnull=True).distinct()  
 
+    # Инициализируем пустой список для спикеров, чтобы избежать ошибки, если фильтры по спикерам не применяются
+    speakers_objects = []
+
     # Фильтрация по спикерам
     if f_speakers:
-        # Преобразуем имена спикеров в объекты User, учитывая Имя, Отчество, и Фамилию
-        speakers_objects = []
+        # Преобразуем имена спикеров в объекты User, учитывая Фамилию, Имя, и Отчество
         for name in f_speakers:
-            # Разбиваем на три части: Имя, Отчество и Фамилия
+            # Разбиваем на части: Фамилия Имя Отчество
             split_name = name.split()
-            if len(split_name) == 3:  # Если есть имя, отчество и фамилия
-                first_name, middle_name, last_name = split_name
+            
+            if len(split_name) == 2:  # Если есть только фамилия и имя
+                last_name, first_name = split_name
+                users = User.objects.filter(
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                speakers_objects.extend(users)
+            
+            elif len(split_name) == 3:  # Если есть фамилия, имя и отчество
+                last_name, first_name, middle_name = split_name
                 users = User.objects.filter(
                     first_name=first_name,
                     middle_name=middle_name,
@@ -78,9 +93,10 @@ def online(request):
                 )
                 speakers_objects.extend(users)
         
-        # Применяем фильтр по спикерам
-        events_available = events_available.filter(speakers__in=speakers_objects)
-     
+        # Применяем фильтр по спикерам, если есть результаты
+        if speakers_objects:
+            events_available = events_available.filter(speakers__in=speakers_objects)
+
     if f_tags:
         tags_query = Q()
         for tag in f_tags:
@@ -109,6 +125,18 @@ def online(request):
     if time_to_end:
         time_end_formatted = datetime.strptime(time_to_end, '%H:%M').time()  # Преобразование строки в объект времени
         events_available = events_available.filter(time_end__lte=time_end_formatted)
+
+    # Применение сортировки по времени
+    # if sort_time == 'time_start':
+    #     events_available = events_available.order_by('time_start')
+    # elif sort_time == '-time_start':
+    #     events_available = events_available.order_by('-time_start')
+
+    # Применение сортировки по дате
+    # if sort_date == '-date':
+    #     events_available = events_available.order_by('-date')
+    # elif sort_date == 'date':
+    #     events_available = events_available.order_by('date')
 
     paginator = Paginator(events_available, 3)
     current_page = paginator.page(int(page))
