@@ -144,9 +144,7 @@
                     
                     {% block filters %}{% endblock filters %}
                     {% block sort %}{% endblock sort %}
-                    {% comment %} РАСКРЫТИЕ ФИЛЬТРОВ {% endcomment %}
-                    
-
+                
                     {% comment %} ФОРМАТ ВВОДА ДАТЫ {% endcomment %}
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
@@ -199,27 +197,34 @@
                             const filterSection = document.getElementById('filter-section');
                             const resetFiltersContainer = document.getElementById('reset-filters-container');
                             const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar'); // Календари Flatpickr
-                            
-                            // Проверяем, были ли применены какие-либо фильтры
+                        
+                            // Проверяем, были ли применены фильтры или сортировка
                             const queryString = new URLSearchParams(window.location.search);
-                            
+                        
                             const filtersApplied = queryString.has('q') || 
                                                    queryString.has('date_start') || 
                                                    queryString.has('date_end') || 
-                                                   queryString.has('order_by') ||
                                                    queryString.has('f_speakers') || 
                                                    queryString.has('f_tags') || 
                                                    queryString.has('time_to_start') || 
                                                    queryString.has('time_to_end');
-                            
-                            // Если фильтры применены, отображаем кнопку "Сбросить" и фильтры
-                            if (filtersApplied) {
+                        
+                            const sortApplied = queryString.has('order_by');  // Проверка на наличие сортировки
+                        
+                            // Если применены фильтры или сортировка, отображаем кнопку "Сбросить"
+                            if (filtersApplied || sortApplied) {
                                 resetFiltersContainer.style.display = 'block';
+                            } else {
+                                resetFiltersContainer.style.display = 'none';
+                            }
+                        
+                            // Если фильтры применены, отображаем фильтры
+                            if (filtersApplied) {
                                 filterSection.style.display = 'flex';  // Отображаем фильтры
                             } else {
                                 filterSection.style.display = 'none';  // Скрываем фильтры, если фильтры не были применены
                             }
-                            
+                        
                             // Скрываем или показываем панель сортировки при нажатии на иконку
                             sortToggle.addEventListener('click', function() {
                                 if (sortSection.style.display === 'none' || sortSection.style.display === '') {
@@ -257,14 +262,10 @@
                                     }
                                 });
                             });
-                        });
+                        });  
                         
                     </script>
-                    
-                        
-                    
-
-
+                         
 					{% if request.GET.q %}
 						<h3 class="mt-4">Результаты поиска по запросу {{ request.GET.q }}</h3>
 						{% if not event_card_views %}
@@ -276,8 +277,7 @@
                     
                     {% block form_events %}{% endblock form_events %}
                     {% for events in event_card_views %}
-                        
-                        
+                         
                         <div class="row mt-2 event_cards">
                             <div class="col-lg-12">
                                 <div class="card mb-3">
@@ -374,8 +374,7 @@
                                                         {{admin}}
                                                     {% endfor %}
                                                 </h6>
-                                                    
-                                                
+                                                      
                                                 {% comment %} <h7 class="event-place"> <strong>Администратор: {{ events.events_admin }}</strong>  </h7> {% endcomment %}
                                                 {% autoescape off %}
                                                     {% if events.bodyline %}

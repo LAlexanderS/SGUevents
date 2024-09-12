@@ -122,7 +122,7 @@
                     </div>
     
                     {% for key, value in request.GET.items %}
-                        {% if key != 'f_tags' %}
+                        {% if key != 'f_tags' and key != 'date_start' and key != 'date_end' %}
                             <input type="hidden" name="{{ key }}" value="{{ value }}">
                         {% endif %}
                     {% endfor %}
@@ -171,6 +171,13 @@
             <input class="form-check-input" type="radio" name="order_by" id="sort-date-oldest" value="date" {% if request.GET.order_by == 'date' %}checked{% endif %}>
             <label class="form-check-label" for="sort-date-oldest">Сначала старые</label>
         </div>
+
+        <!-- Передаем активные фильтры (исключаем текущий параметр сортировки) -->
+        {% for key, value in request.GET.items %}
+            {% if key != 'order_by' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
 
         <!-- Кнопка для применения сортировки -->
         <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
