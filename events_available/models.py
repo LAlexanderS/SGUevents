@@ -5,6 +5,7 @@ from datetime import datetime
 from django.utils.timezone import make_aware, get_default_timezone
 from django.contrib.contenttypes.fields import GenericRelation
 from users.models import Department, User
+from django.contrib.postgres.indexes import GinIndex
 
 
 class Events_online(models.Model):
@@ -35,6 +36,10 @@ class Events_online(models.Model):
         db_table = 'Events_online'
         verbose_name = 'Онлайн мероприятие'
         verbose_name_plural = 'Онлайн мероприятия'
+        indexes = [
+            GinIndex(fields=["name"], opclasses=["gin_trgm_ops"], name="name_trgm_idx"),
+            GinIndex(fields=["description"], opclasses=["gin_trgm_ops"], name="description_trgm_idx"),
+        ]
 
     def __str__(self):
         return self.name

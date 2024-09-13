@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from users.models import Department, User
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
+from django.contrib.postgres.indexes import GinIndex
 
 class Attractions(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')

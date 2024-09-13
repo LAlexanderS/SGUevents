@@ -35,9 +35,41 @@ def recreate_postgres_db():
         print(f"Ошибка при перезапуске базы данных PostgreSQL: {e}")
         sys.exit(1)
 
-# Перезапуск
+def create_extensions():
+    try:
+        conn = psycopg2.connect(
+            dbname=os.getenv("LOCAL_DB_NAME"),  
+            user=os.getenv("LOCAL_DB_USER"),
+            password=os.getenv("LOCAL_DB_PASSWORD"),
+            host=os.getenv("LOCAL_DB_HOST"),
+            port=os.getenv("LOCAL_DB_PORT")
+        )
+        conn.autocommit = True
+        cursor = conn.cursor()
+
+        # Устанавливаем расширение pg_trgm
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+
+        # Устанавливаем расширение unaccent и создаем конфигурацию russian_conf
+        cursor.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")
+        cursor.execute("CREATE TEXT SEARCH CONFIGURATION russian_conf ( COPY = russian );")
+        cursor.execute("ALTER TEXT SEARCH CONFIGURATION russian_conf "
+                       "ALTER MAPPING FOR hword, hword_part, word WITH unaccent, russian_stem;")
+
+        cursor.close()
+        conn.close()
+        print("Расширения pg_trgm и unaccent, а также конфигурация russian_conf успешно созданы.")
+    except Exception as e:
+        print(f"Ошибка при создании расширений и конфигураций: {e}")
+        sys.exit(1)
+
+# Перезапуск базы данных
 recreate_postgres_db()
 
+# Установка расширений
+create_extensions()
+
+# Выполнение остальных команд
 run_command('python3 delete_migrations.py')
 run_command('python3 manage.py makemigrations')
 run_command('python3 manage.py migrate')

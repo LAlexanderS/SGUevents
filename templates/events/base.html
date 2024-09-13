@@ -525,12 +525,21 @@
                                                       
                                                 {% comment %} <h7 class="event-place"> <strong>Администратор: {{ events.events_admin }}</strong>  </h7> {% endcomment %}
                                                 {% autoescape off %}
-                                                    {% if events.headline_description %}
-                                                        {{ events.headline_description|safe }}
+                                                    {% if events.headline_name %}
+                                                        {{ events.headline_name }}
                                                     {% else %}
-                                                        <p class="card-text">{{ events.description|truncatechars:625 }}</p>
+                                                        {{ events.name }}
                                                     {% endif %}
                                                 {% endautoescape %}
+
+                                                {% autoescape off %}
+                                                    {% if events.headline_description %}
+                                                        {{ events.headline_description|truncatechars:250 }}
+                                                    {% else %}
+                                                        {{ events.description|truncatechars:250 }}
+                                                    {% endif %}
+                                                {% endautoescape %}
+
 
                                                 
                                                 <p class="card-text">
