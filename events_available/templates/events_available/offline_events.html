@@ -3,97 +3,105 @@
 {% load events_available_tags %}
 {% block title %} <title>Оффлайн мероприятия</title> {% endblock %}
 {% block filters %}
-<div class="row filter-events-row mt-2">
+<div class="row mt-3 mb-3 name-for-events">
+    <div class="col-lg-9">
+        <h2> {{ name_page }} </h2>
+    </div>
+
+    <div class="col-lg-3 text-end d-flex justify-content-end align-items-center">
+        <!-- Кнопка сброса фильтров, которая будет скрыта по умолчанию -->
+        <div id="reset-filters-container" class="me-2" style="display: none;">
+            <form action="{% url 'events_available:offline' %}" method="get">
+                <button class="btn btn-primary" type="submit">Сбросить</button>
+            </form>
+        </div>
+
+        <!-- Кнопка для открытия фильтров -->
+        <button id="filter-toggle" class="btn btn-primary me-2">
+            <img src="{% static 'general/icons/filters.png' %}" alt="Фильтры" style="width: 24px; height: 24px;">
+        </button>
+
+        <!-- Кнопка для сортировки -->
+        <div id="sort-toggle" class="btn btn-primary">
+            <img src="{% static 'general/icons/sort.png' %}" alt="Сортировка" style="width: 24px; height: 24px;">
+        </div>
+    </div>
+</div>
+
+<div id="filter-section" class="row filter-events-row mt-2" style="display: none;">  <!-- добавляем id и скрываем фильтры -->
+    <!-- Фильтры по названию, дате и остальным параметрам -->
     <div class="col-lg-2">
-        <div class="row">
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Название 
-                </button>
-                <form action="{% if name_page == 'Онлайн' %}{% url "events_available:search_online" %}{% elif name_page == 'Оффлайн' %}{% url "events_available:search_offline" %}{% elif name_page == 'Доступные к посещению' %}{% url "events_cultural:search_events_for_visiting" %}{% elif name_page == 'Достопримечательности' %}{% url "events_cultural:search_attractions" %}{% elif name_page == 'Все мероприятия' %}{% url "main:search_all" %}{% endif %}" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
-                    <div class="form-check text-white">
-                        <input class="form-control me-3 " type="search" name="qn" placeholder="Search" aria-label="Search" >
-                    </div>
-                    <button class="btn btn-outline-success d-inline" type="submit">
-                        Найти <img src="{% static "general/icons/search.svg" %}" alt="S">
-                    </button>
-                </form>
-            </div>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Название
+            </button>
+            <form action="" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
+                <div class="form-check text-white">
+                    <input class="form-control me-3" type="search" id="event-name-search" name="name_search" placeholder="Введите название">
+                </div>
+                <div id="autocomplete-results" class="autocomplete-results"></div>
+                <div class="text-center">
+                    <button class="btn btn-outline-success" type="submit">Применить</button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="col-lg-2">
         <div class="row">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false"> 
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
                     Дата
                 </button>
-                <form action="#" method="get" class="dropdown-menu bg-dark ca" data-bs-theme="dark" style="">
+                <form action="{% if request.GET.q %}{% url 'events_available:search_offline' %}{% else %}{% url 'events_available:offline' %}{% endif %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" id="dateDropdown">
                     <div class="form-check text-white">
                         Дата начала  <br/>							
                         <label class="form-check-label" for="flexCheckDefault">
-                            <input type="date" id="date_start" name="date_start" value="date_low">
+                            <input type="date" id="date_start" name="date_start" value="{{ date_start|default_if_none:'' }}" placeholder="дд/мм/гггг">
                         </label>
                     </div>
                     <div class="form-check text-white">	
                         Дата окончания <br/>
                         <label class="form-check-label" for="flexCheckDefault">
-                            <input type="date" id="date_end" name="date_end" value="date_last">
+                            <input type="date" id="date_end" name="date_end" value="{{ date_end|default_if_none:'' }}" placeholder="дд/мм/гггг">
                         </label>
                     </div>
-                    <div class="form-check text-white mx-3">
-                        <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default"
-                        {% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
-                        <label class="form-check-label" for="flexRadioDefault1">По умолчанию</label>
+                    
+                    {% for key, value in request.GET.items %}
+                        {% if key != 'f_date' and key != 'date_start' and key != 'date_end' %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary mt-3">Применить</button>
                     </div>
-                    <div class="form-check text-white mx-3">
-                        <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="-date" 
-                        {% if request.GET.order_by == '-date' %}checked{% endif %}>
-                        <label class="form-check-label" for="flexRadioDefault2">Сначала новые</label>
-                    </div>
-                    <div class="form-check text-white mx-3">
-                        <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="date" 
-                        {% if request.GET.order_by == 'date' %}checked{% endif %}>
-                        <label class="form-check-label" for="flexRadioDefault3">Сначала старые</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
                 </form>
             </div>
         </div>
     </div>
     <div class="col-lg-2">
-        <div class="row">
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Время
-                </button>
-                <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-                    <div class="form-check text-white">
-                        Время начала  <br/>							
-                        <label class="form-check-label" for="flexCheckDefault">
-                            <input type="time" id="time_to_start" name="time_to_start" value="hh-mm-ss">
-                        </label>
-                    </div>
-                    <div class="form-check text-white">
-                        Время окончания  <br/>							
-                        <label class="form-check-label" for="flexCheckDefault">
-                            <input type="time" id="time_to_end" name="time_to_end" value="hh-mm-ss">
-                        </label>
-                    </div>
-                    <div class="form-check text-white mx-3">
-                        <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" {% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
-                        <label class="form-check-label" for="flexRadioDefault1">По умолчанию</label>
-                    </div>
-                    <div class="form-check text-white mx-3">
-                        <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="time_start" {% if request.GET.order_by == 'time_start' %}checked{% endif %}>
-                        <label class="form-check-label" for="flexRadioDefault2">Раньше</label>
-                    </div>
-                    <div class="form-check text-white mx-3">
-                        <input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="-time_start" {% if request.GET.order_by == '-time_start' %}checked{% endif %}>
-                        <label class="form-check-label" for="flexRadioDefault3">Позже</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-                </form>
-            </div>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Время
+            </button>
+            <form action="" method="get" class="dropdown-menu bg-dark dropdown-menu-custom" data-bs-theme="dark">
+                <div class="form-check text-white">
+                    Время начала <br/>
+                    <label class="form-check-label" for="flexCheckDefault">
+                        <input type="time" id="time_to_start" name="time_to_start" value="{{ time_to_start|default_if_none:'' }}">
+                    </label>
+                </div>
+                <div class="form-check text-white">
+                    Время окончания <br/>
+                    <label class="form-check-label" for="flexCheckDefault">
+                        <input type="time" id="time_to_end" name="time_to_end" value="{{ time_to_end|default_if_none:'' }}">
+                    </label>
+                </div>
+        
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary mt-3">Применить</button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="col-lg-2">
@@ -117,79 +125,149 @@
         </div>
     </div>
     
+    
+    
+    
     <div class="col-lg-2">
-        <div class="row">
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Спикеры
-                </button>
-                <form action="#" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
-                    <div class="form-check text-white mx-3">
-                        {% for speaker in speakers %}
-                            <input class="form-check-input" type="checkbox" name="f_speakers" id="flexCheckDefault{{ forloop.counter }}" value="{{ speaker }}" 
-                            {% if request.GET.f_offline == speaker %}checked{% endif %}>
-                            {% if request.GET.q %}
-                                <input type="hidden" name="q" value="{{ request.GET.q }}"> 
-                            {% endif %}
-                            <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">
-                                {{ speaker }}
-                            </label>
-                            <br>
-                        {% endfor %}
-                    </div>
-
-                        {% comment %} Для объединения фильтров {% endcomment %}
-                    {% for key, value in request.GET.items %}
-                        {% if key != 'f_speakers' %}
-                            <input type="hidden" name="{{ key }}" value="{{ value }}">
-                        {% endif %}
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Спикеры
+            </button>
+            <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto; width:300px;">
+                <!-- Поле для ввода, которое будет использоваться для поиска -->
+                <div class="form-check text-white" style="margin-left: 15px; margin-right:15px; padding: 0px;">
+                    <input class="form-control w-100" id="search-speakers" type="text" placeholder="Поиск спикеров..." style="height: 35px;" >
+                </div>
+    
+                <!-- Список спикеров, который будет фильтроваться по мере ввода текста -->
+                <div id="speakers-list">
+                    {% for speaker in speakers %}
+                        <div class="form-check text-white mx-3 speaker-item">
+                            <input class="form-check-input" type="checkbox" name="f_speakers" id="flexCheckDefault{{ forloop.counter }}" value="{{ speaker }}" {% if request.GET.f_speakers == speaker %}checked{% endif %}>
+                            <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ speaker }}</label>
+                        </div>
                     {% endfor %}
-
-                    <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-                </form>
-            </div>
+                </div>
+        
+                {% comment %} Для объединения фильтров {% endcomment %}
+                {% for key, value in request.GET.items %}
+                    {% if key != 'f_speakers' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary mt-3">Применить</button>
+                </div>
+            </form>
         </div>
     </div>
+    
+    
+    
     <div class="col-lg-2">
-        <div class="row">
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Теги
-                </button>
-                <form action="#" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
-                    <div class="form-check text-white mx-3">
-                        {% for tag in tags %}
-                            <input class="form-check-input" type="checkbox" name="f_tags" id="flexCheckDefault{{ forloop.counter }}" value="{{ tag }}" 
-                            {% if request.GET.f_offline == tag %}checked{% endif %}>
-                            {% if request.GET.q %}
-                                <input type="hidden" name="q" value="{{ request.GET.q }}"> 
-                            {% endif %}
-                            <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">
-                                {{ tag }}
-                            </label>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Теги
+            </button>
+            <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto; width:170px;">
+                <!-- Поле для поиска тегов -->
+                <div class="form-check text-white" style="margin-left: 15px; margin-right:15px; padding: 0px;">
+                    <input class="form-control w-100" id="search-tags" type="text" placeholder="Поиск тегов..." style="height: 35px;">
+                </div>
+    
+                <!-- Список тегов -->
+                <div id="tags-list">
+                    {% for tag in tags %}
+                        <div class="form-check text-white mx-3 tag-item" style="height: 5px;">
+                            <input class="form-check-input" type="checkbox" name="f_tags" id="flexCheckDefault{{ forloop.counter }}" value="{{ tag }}" {% if request.GET.f_tags == tag %}checked{% endif %}>
+                            <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ tag }}</label>
                             <br>
-                        {% endfor %}
-                    </div>
-
-                        {% comment %} Для объединения фильтров {% endcomment %}
-                    {% for key, value in request.GET.items %}
-                        {% if key != 'f_speakers' %}
-                            <input type="hidden" name="{{ key }}" value="{{ value }}">
-                        {% endif %}
+                        </div>
                     {% endfor %}
-
-                    <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-                </form>
-            </div>
+                </div>
+    
+                <!-- Для сохранения других фильтров -->
+                {% for key, value in request.GET.items %}
+                    {% if key != 'f_tags' and key != 'date_start' and key != 'date_end' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+    
+                <!-- Кнопка для применения тегов -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary mt-3">Применить</button>
+                </div>
+            </form>
         </div>
-    </div>
-    <div class="col-lg-2">
-        <form action="{% url 'events_available:offline' %}" method="get">
-        <button class="btn btn-primary" type="submit">Сбросить</button>
-    </form>
     </div>
 </div>
 {% endblock filters %}
+
+{% block sort %}
+<!-- Кнопка сортировки и выпадающая секция сортировки -->
+
+<div id="sort-section" class="dropdown-menu bg-dark" style="display: none;">
+    <form action="" method="get">
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-default" value="default" 
+            {% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-default">По умолчанию</label>
+        </div>
+
+        <h6 class="dropdown-header text-white">Сортировка по времени</h6>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-earlier" value="time_start" 
+            {% if request.GET.order_by == 'time_start' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-earlier">Раньше</label>
+        </div>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-later" value="-time_start" 
+            {% if request.GET.order_by == '-time_start' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-later">Позже</label>
+        </div>
+
+        <h6 class="dropdown-header text-white">Сортировка по дате</h6>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-date-newest" value="-date" 
+            {% if request.GET.order_by == '-date' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-date-newest">Сначала новые</label>
+        </div>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-date-oldest" value="date" 
+            {% if request.GET.order_by == 'date' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-date-oldest">Сначала старые</label>
+        </div>
+
+        <!-- Передаем активные фильтры (исключаем текущий параметр сортировки) -->
+        {% for key, value in request.GET.items %}
+            {% if key != 'order_by' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
+
+        <!-- Кнопка для применения сортировки -->
+        <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+    </form>
+</div>
+
+
+<style>
+    #sort-section {
+        display: block !important;  /* Принудительное отображение для диагностики */
+        position: absolute !important;
+        top: 100% !important;
+        right: 0 !important;
+        z-index: 1000 !important;
+        background-color: #343a40 !important;
+        padding: 10px !important;
+        min-width: 200px !important;
+    }
+    
+
+</style>
+{% endblock sort %}
+
 
 {% block content %}
 <!-- Контент на странице -->
@@ -207,3 +285,214 @@
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="offline">Оставить отзыв</button>
 
 {% endblock content %}
+
+
+{% block script_js %}
+{% comment %} КАЛЕНДАРЬ И ФИЛЬТР ПО ДАТЕ {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Подключаем Flatpickr к полям для ввода даты
+        const flatpickrStart = flatpickr("#date_start", {
+            dateFormat: "d/m/Y",  // Формат отображения даты: день/месяц/год
+        });
+
+        const flatpickrEnd = flatpickr("#date_end", {
+            dateFormat: "d/m/Y",  // Формат отображения даты: день/месяц/год
+        });
+
+        const filterDropdown = document.querySelector('.dropdown-menu.ca');  // Находим выпадающий фильтр даты
+        const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar');  // Находим календари
+
+        document.addEventListener('click', function(event) {
+            const isClickInsideFilter = filterDropdown.contains(event.target);  // Проверка, если клик внутри фильтра
+            const isClickInsideCalendar = Array.from(flatpickrContainers).some(container => container.contains(event.target));  // Проверка, если клик внутри календаря
+
+            if (!isClickInsideFilter && !isClickInsideCalendar) {
+                // Если клик был не внутри фильтра или календаря, закрываем фильтр
+                filterDropdown.style.display = 'none';
+            }
+        });
+
+        // Открываем фильтр по клику на кнопку фильтра
+        const filterButton = document.querySelector('#dateFilterButton');
+        filterButton.addEventListener('click', function() {
+            if (filterDropdown.style.display === 'none' || filterDropdown.style.display === '') {
+                filterDropdown.style.display = 'block';
+            } else {
+                filterDropdown.style.display = 'none';
+            }
+        });
+
+        // Останавливаем закрытие фильтра при клике на календарь
+        flatpickrContainers.forEach(function(calendar) {
+            calendar.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
+    });
+</script>
+<style>
+    /* Ограничиваем ширину полей ввода для дат */
+    input[type="date"] {
+        width: 100%;  /* Полная ширина контейнера */
+        max-width: 180px;  /* Ограничиваем максимальную ширину */
+        box-sizing: border-box;  /* Учитываем отступы и границы в общей ширине */
+    }
+
+    /* Унифицированные стили для контейнеров фильтров */
+    .form-check-label {
+        display: block;
+        width: 100%;  /* Полная ширина контейнера */
+    }
+
+    /* Ограничение ширины выпадающих меню */
+    .dropdown-menu {
+        min-width: 230px;
+        max-width: 230px;  /* Фиксированная ширина для всех dropdown */
+    }
+
+    /* Настройки для календаря */
+    .flatpickr-calendar {
+        z-index: 9999 !important;
+}
+
+
+</style>
+
+
+
+{% comment %} ФИЛЬТР ПО НАЗВАНИЮ И АВТОКОМПЛИТ {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('event-name-search');
+        const resultsContainer = document.getElementById('autocomplete-results');
+        const form = input.closest('form');  // Получаем форму, в которой находится поле ввода
+    
+        input.addEventListener('input', function() {
+            const query = input.value;
+    
+            if (query.length >= 2) {  // Автокомплит начинает работать после ввода двух символов
+                fetch(`/events_available/autocomplete/event-name/?term=${query}&is_online=false`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultsContainer.innerHTML = '';  // Очищаем старые результаты
+                        if (data.length === 0) {
+                            resultsContainer.innerHTML = '<div class="autocomplete-item">No results found</div>';
+                        } else {
+                            data.forEach(eventName => {
+                                const option = document.createElement('div');
+                                option.classList.add('autocomplete-item');
+                                option.innerHTML = eventName;
+                                option.addEventListener('click', function() {
+                                    input.value = eventName;  // При выборе названия заполняем поле
+                                    resultsContainer.innerHTML = '';  // Очищаем результаты
+                                    form.submit();  // Автоматически отправляем форму
+                                });
+                                resultsContainer.appendChild(option);
+                            });
+                        }
+                    });
+            } else {
+                resultsContainer.innerHTML = '';  // Если меньше двух символов, очищаем результаты
+            }
+        });
+    });
+    
+</script>
+
+<style>
+    .autocomplete-results {
+        border: 1px solid #ccc;
+        background-color: white;
+        max-height: 200px;
+        overflow-y: auto;
+        position: absolute;
+        z-index: 1000;
+        width: 100%;
+    }
+    
+    .autocomplete-item {
+        padding: 8px;
+        cursor: pointer;
+    }
+    
+    .autocomplete-item:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+
+{% comment %} ФИЛЬТРАЦИЯ И СОРТИРОВКА  {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterToggle = document.getElementById('filter-toggle');
+        const filterSection = document.getElementById('filter-section');
+        const resetFiltersContainer = document.getElementById('reset-filters-container');
+        const sortToggle = document.getElementById('sort-toggle');
+        const sortSection = document.getElementById('sort-section');
+    
+        // Проверка на наличие фильтров или сортировки в URL
+        const queryString = new URLSearchParams(window.location.search);
+        const filtersApplied = queryString.has('name_search') || 
+                               queryString.has('date_start') || 
+                               queryString.has('date_end') || 
+                               queryString.has('f_speakers') || 
+                               queryString.has('f_tags') || 
+                               queryString.has('f_place') || 
+                               queryString.has('time_to_start') || 
+                               queryString.has('time_to_end');
+        const sortApplied = queryString.has('order_by');
+    
+        // Если фильтры или сортировка применены, показываем кнопку сброса
+        if (filtersApplied || sortApplied) {
+            resetFiltersContainer.style.display = 'block';
+        } else {
+            resetFiltersContainer.style.display = 'none';
+        }
+    
+        // Изначально скрываем секции фильтров и сортировки
+        filterSection.style.display = 'none';
+        sortSection.style.display = 'none';
+    
+        // Логика показа/скрытия фильтров
+        filterToggle.addEventListener('click', function(event) {
+            event.stopPropagation();  // Остановить распространение события, чтобы избежать закрытия секции
+            if (filterSection.style.display === 'none' || filterSection.style.display === '') {
+                filterSection.style.display = 'flex';  // Отображаем секцию фильтров
+            } else {
+                filterSection.style.display = 'none';  // Скрываем секцию фильтров
+            }
+        });
+    
+        // Логика показа/скрытия сортировки
+        sortToggle.addEventListener('click', function(event) {
+            event.stopPropagation();  // Остановить распространение события
+            if (sortSection.style.display === 'none' || sortSection.style.display === '') {
+                sortSection.style.display = 'block';  // Отображаем секцию сортировки
+            } else {
+                sortSection.style.display = 'none';  // Скрываем секцию сортировки
+            }
+        });
+    
+        // Закрываем секцию сортировки при клике вне ее области
+        document.addEventListener('click', function(event) {
+            if (!sortToggle.contains(event.target) && !sortSection.contains(event.target)) {
+                sortSection.style.display = 'none';  // Закрываем секцию сортировки
+            }
+        });
+    });
+    
+        
+</script> 
+
+<style>
+    #filter-section {
+        display: none; /* Скрыт по умолчанию */
+    }
+    
+    #sort-section {
+        display: none; /* Скрыт по умолчанию */
+    }
+    
+</style> 
+{% endblock script_js %}
+

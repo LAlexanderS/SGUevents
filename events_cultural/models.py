@@ -38,6 +38,7 @@ class Attractions(models.Model):
         db_table = 'attractions'
         verbose_name = 'Достопримечательности'
         verbose_name_plural = 'Достопримечательности'
+        
 
     def __str__(self):
         return self.name
@@ -86,6 +87,7 @@ class Events_for_visiting(models.Model):
         db_table = 'Events_for_visiting'
         verbose_name = 'Доступные к посещению'
         verbose_name_plural = 'Доступные к посещению'
+        
 
     def __str__(self):
         return self.name

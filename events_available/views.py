@@ -224,6 +224,9 @@ def offline(request):
     query_name = request.GET.get('qn', None)
     date_start = request.GET.get('date_start', None)
     date_end = request.GET.get('date_end', None)
+    time_to_start = request.GET.get('time_to_start', None)
+    time_to_end = request.GET.get('time_to_end', None)
+    name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     user = request.user
 
     all_info = Events_offline.objects.all()
@@ -231,15 +234,10 @@ def offline(request):
     speakers_set = set()
     for event in all_info:
         for speaker in event.speakers.all():
-            speakers_set.add(speaker.get_full_name())
+            # Явно формируем строку с Фамилией, Именем и Отчеством
+            full_name = f"{speaker.last_name} {speaker.first_name} {speaker.middle_name if speaker.middle_name else ''}".strip()
+            speakers_set.add(full_name)
 
-    speakers = list(speakers_set)
-
-    for name in speakers:
-        names_list = name.split()
-        for i in range(0, len(names_list), 3):
-            speakers_set.add(' '.join(names_list[i:i+3]))
-    
     speakers = list(speakers_set)
 
     # Получаем всех админов через отношение ManyToMany
@@ -250,15 +248,19 @@ def offline(request):
 
     events_admin = list(events_admin_set)
 
-    if not query_name:
-        events_available = Events_offline.objects.order_by('time_start')
-    else:
-        events_available = q_search_name_offline(query_name)
+    filters_applied = False  # По умолчанию считаем, что фильтры не применен
 
-    if not query:
-        events_available = events_available.order_by('time_start')
-    else:
+    if name_search:
+        # Фильтр только по названию
+        events_available = Events_offline.objects.filter(name__icontains=name_search).order_by('date')
+        filters_applied = True
+    elif query:
+        # Полный поиск по названию и описанию через навигационную панель
         events_available = q_search_offline(query)
+        filters_applied = True
+    else:
+        # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
+        events_available = Events_offline.objects.order_by('date')
 
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -269,36 +271,37 @@ def offline(request):
         else:
             events_available = events_available.filter(secret__isnull=True).distinct()
 
-    if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
-        events_available = events_available.filter(date__gte=date_start_formatted) 
 
-    if date_end:
-        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
-        events_available = events_available.filter(date__lte=date_end_formatted)
+    # Инициализируем пустой список для спикеров, чтобы избежать ошибки, если фильтры по спикерам не применяются
+    speakers_objects = []
 
-    if f_place:
-        events_available = events_available.annotate(
-            full_place=Concat('town', Value(' '), 'street', Value(' '), 'house', Value(' '), 'cabinet', output_field=CharField())
-        ).filter(full_place__icontains=f_place)
-
-
+    # Фильтрация по спикерам
     if f_speakers:
-        # Преобразуем имена спикеров в объекты User
-        speakers_objects = User.objects.filter(
-            Q(first_name__in=[name.split()[0] for name in f_speakers]) &
-            Q(last_name__in=[name.split()[1] for name in f_speakers])
-        )
-        events_available = events_available.filter(speakers__in=speakers_objects)
-    # if f_speakers:
-    #     events_available = events_available.filter(speakers__in=f_speakers)
-    # if f_speakers:
-    #     speakers_query = Q()
-    #     for speaker in f_speakers:
-    #         speakers_query |= Q(speakers__icontains=speaker)
-    #     events_available = events_available.filter(speakers_query)
-
-    tags = [event.tags for event in all_info]
+        # Преобразуем имена спикеров в объекты User, учитывая Фамилию, Имя, и Отчество
+        for name in f_speakers:
+            # Разбиваем на части: Фамилия Имя Отчество
+            split_name = name.split()
+            
+            if len(split_name) == 2:  # Если есть только фамилия и имя
+                last_name, first_name = split_name
+                users = User.objects.filter(
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                speakers_objects.extend(users)
+            
+            elif len(split_name) == 3:  # Если есть фамилия, имя и отчество
+                last_name, first_name, middle_name = split_name
+                users = User.objects.filter(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name
+                )
+                speakers_objects.extend(users)
+        
+        # Применяем фильтр по спикерам, если есть результаты
+        if speakers_objects:
+            events_available = events_available.filter(speakers__in=speakers_objects)
 
     if f_tags:
         tags_query = Q()
@@ -308,8 +311,30 @@ def offline(request):
 
     if order_by and order_by != "default":
         events_available = events_available.order_by(order_by)
+  
+    if date_start:
+        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
+        events_available = events_available.filter(date__gt=date_start_formatted)
 
-    
+    if date_end:
+        date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
+        events_available = events_available.filter(date__lt=date_end_formatted)
+
+        # Фильтрация по времени начала
+    if time_to_start:
+        time_start_formatted = datetime.strptime(time_to_start, '%H:%M').time()  # Преобразование строки в объект времени
+        events_available = events_available.filter(time_start__gte=time_start_formatted)
+
+    # Фильтрация по времени окончания
+    if time_to_end:
+        time_end_formatted = datetime.strptime(time_to_end, '%H:%M').time()  # Преобразование строки в объект времени
+        events_available = events_available.filter(time_end__lte=time_end_formatted)
+
+
+    if f_place:
+        events_available = events_available.annotate(
+            full_place=Concat('town', Value(' '), 'street', Value(' '), 'house', Value(' '), 'cabinet', output_field=CharField())
+        ).filter(full_place__icontains=f_place)
 
     paginator = Paginator(events_available, 3)
     current_page = paginator.page(int(page))
@@ -341,6 +366,11 @@ def offline(request):
         'registered': registered_dict,
         'reviews': reviews,
         "results":results,
+        'time_to_start': time_to_start,
+        'time_to_end': time_to_end,
+        "date_start": date_start,
+        "date_end": date_end,
+        'filters_applied': filters_applied,
 
     }
 
@@ -422,9 +452,16 @@ def submit_review(request, event_id):
 
 def autocomplete_event_name(request):
     term = request.GET.get('term', '')  # Получаем параметр запроса
-    matching_events = Events_online.objects.filter(name__icontains=term)[:10]  # Ищем только по названию
+    is_online = request.GET.get('is_online', 'true')  # Получаем параметр, который указывает, онлайн это мероприятие или оффлайн
+
+    if is_online == 'true':
+        matching_events = Events_online.objects.filter(name__icontains=term)[:10]  # Поиск в онлайн мероприятиях
+    else:
+        matching_events = Events_offline.objects.filter(name__icontains=term)[:10]  # Поиск в оффлайн мероприятиях
+
     suggestions = list(matching_events.values_list('name', flat=True))  # Преобразуем в список только имена
     return JsonResponse(suggestions, safe=False)
+
 
 
 
