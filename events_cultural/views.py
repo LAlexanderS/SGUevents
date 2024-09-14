@@ -12,62 +12,121 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import redirect
 from users.models import User, Department
 from django.db.models import Q
+from django.db.models import CharField, Value
+from django.db.models.functions import Concat
+
+from django.http import JsonResponse
+from django.shortcuts import render, get_list_or_404, get_object_or_404
+from django.core.paginator import Paginator
+from bookmarks.models import Favorite, Registered
+from events_cultural.models import Attractions
+from bookmarks.models import Review
+from events_cultural.utils import q_search_attractions
+from datetime import datetime
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q, CharField, Value
+from django.db.models.functions import Concat
 
 @login_required
 def attractions(request):
     page = request.GET.get('page', 1)
-    f_attractions = request.GET.get('f_attractions', None)
-    order_by = request.GET.get('order_by', None)
-    query = request.GET.get('q', None)
-    user = request.user
+    f_date = request.GET.get('f_date', None)
     f_tags = request.GET.getlist('f_tags', None)
-    
+    order_by = request.GET.get('order_by', None)
+    date_start = request.GET.get('date_start', None)
+    date_end = request.GET.get('date_end', None)
+    time_to_start = request.GET.get('time_to_start', None)
+    time_to_end = request.GET.get('time_to_end', None)
+    query = request.GET.get('q', None)  # Поиск через навигационную панель
+    name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
+    user = request.user
+
+    # Получаем все достопримечательности
     all_info = Attractions.objects.all()
-    # Получаем всех админов через отношение ManyToMany
+
+    # Получаем всех администраторов через отношение ManyToMany
     events_admin_set = set()
     for event in all_info:
         for admin in event.events_admin.all():
             events_admin_set.add(admin.get_full_name())
-
     events_admin = list(events_admin_set)
 
-    if not query:
-        events_cultural = Attractions.objects.order_by('time_start')
-    else:
-        events_cultural = q_search_attractions(query)
+    filters_applied = False  # По умолчанию считаем, что фильтры не применены
+    
+    if name_search or query or date_start or date_end or time_to_start or time_to_end or f_tags:
+        filters_applied = True
 
-    #Фильтрация по скрытым мероприятиям
-    if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
-        pass 
+    # Фильтрация по названию
+    if name_search:
+        events_cultural = Attractions.objects.filter(name__icontains=name_search).order_by('date')
+        filters_applied = True
+    elif query:
+        # Полный поиск по названию и описанию через навигационную панель
+        events_cultural = q_search_attractions(query)
+        filters_applied = True
     else:
+        # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
+        events_cultural = Attractions.objects.order_by('date')
+
+    # Фильтрация по скрытым мероприятиям
+    if not user.is_superuser and not user.department.department_name in ['Administration', 'Superuser']:
         if user.department:
             events_cultural = events_cultural.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
         else:
             events_cultural = events_cultural.filter(secret__isnull=True).distinct()
 
-    tags = [event.tags for event in all_info]
-     
+    # Фильтрация по тегам
     if f_tags:
         tags_query = Q()
         for tag in f_tags:
             tags_query |= Q(tags__icontains=tag)
         events_cultural = events_cultural.filter(tags_query)
-    
+        filters_applied = True
+
+    # Фильтрация по дате
+    if date_start:
+        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
+        events_cultural = events_cultural.filter(date__gte=date_start_formatted)
+        filters_applied = True
+
+    if date_end:
+        date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
+        events_cultural = events_cultural.filter(date__lte=date_end_formatted)
+        filters_applied = True
+
+    # Фильтрация по времени
+    if time_to_start:
+        time_start_formatted = datetime.strptime(time_to_start, '%H:%M').time()
+        events_cultural = events_cultural.filter(time_start__gte=time_start_formatted)
+        filters_applied = True
+
+    if time_to_end:
+        time_end_formatted = datetime.strptime(time_to_end, '%H:%M').time()
+        events_cultural = events_cultural.filter(time_end__lte=time_end_formatted)
+        filters_applied = True
+
+    # Сортировка
     if order_by and order_by != "default":
         events_cultural = events_cultural.order_by(order_by)
 
+    # Пагинация
     paginator = Paginator(events_cultural, 3)
     current_page = paginator.page(int(page))
 
+    # Получаем избранные мероприятия пользователя
     favorites = Favorite.objects.filter(user=request.user, attractions__in=current_page)
     favorites_dict = {favorite.attractions.id: favorite.id for favorite in favorites}
 
-    events = Attractions.objects.all()
-    
+    # Получение отзывов
     reviews = {}
-    for event in events:
+    for event in current_page:
         content_type = ContentType.objects.get_for_model(event)
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
+
+    # Список тегов
+    tags = list(set(tag for event in all_info if event.tags for tag in event.tags.split(',')))
 
     context = {
         'name_page': 'Достопримечательности',
@@ -75,13 +134,16 @@ def attractions(request):
         'favorites': favorites_dict,
         'reviews': reviews, 
         'events_admin': events_admin,
-        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
-
-        'f_tags': f_tags,
-        
-
+        'tags': tags,
+        'time_to_start': time_to_start,
+        'time_to_end': time_to_end,
+        "date_start": date_start,
+        "date_end": date_end,
+        'filters_applied': filters_applied,
     }
+
     return render(request, 'events_cultural/attractions.html', context)
+
 
 @login_required
 def attractions_card(request, event_slug=False, event_id=False):
@@ -243,3 +305,16 @@ def submit_review(request, event_id):
 @login_required
 def index(request):
     return render(request, 'events_cultural/index.html')
+
+
+def autocomplete_event_name(request):
+    term = request.GET.get('term', '')  # Получаем параметр запроса
+    is_attractions = request.GET.get('is_attractions', 'true')  # Получаем параметр, который указывает, онлайн это мероприятие или оффлайн
+
+    if is_attractions == 'true':
+        matching_events = Attractions.objects.filter(name__icontains=term)[:10]  # Поиск в онлайн мероприятиях
+    else:
+        matching_events = Events_for_visiting.objects.filter(name__icontains=term)[:10]  # Поиск в оффлайн мероприятиях
+
+    suggestions = list(matching_events.values_list('name', flat=True))  # Преобразуем в список только имена
+    return JsonResponse(suggestions, safe=False)
