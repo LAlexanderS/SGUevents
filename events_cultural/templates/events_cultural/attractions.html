@@ -32,20 +32,21 @@
 	
 	<!-- Фильтр по названию -->
 	<div class="col-lg-2">
-			<div class="dropdown">
-					<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Название
-					</button>
-					<form action="" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
-							<div class="form-check text-white">
-									<input class="form-control me-3" type="search" id="event-name-search" name="name_search" placeholder="Введите название">
-							</div>
-							<div id="autocomplete-results" class="autocomplete-results"></div>
-							<div class="text-center">
-									<button class="btn btn-outline-success" type="submit">Применить</button>
-							</div>
-					</form>
-			</div>
+		<div class="dropdown">
+			<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				Название
+			</button>
+			<form action="" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
+				<div class="form-check text-white">
+					<input class="form-control me-3" type="search" id="event-name-search" name="name_search" placeholder="Введите название">
+				</div>
+				<!-- Контейнер для отображения результатов автокомплита -->
+				<div id="autocomplete-results" class="autocomplete-results"></div>
+				<div class="text-center">
+					<button class="btn btn-outline-success" type="submit">Применить</button>
+				</div>
+			</form>
+		</div>
 	</div>
 	
 	<!-- Фильтр по дате -->
@@ -182,6 +183,45 @@
 </div>
 
 
+{% comment %} АВТОКОМПЛИТ {% endcomment %}
+<style>
+	.autocomplete-results {
+		border: 1px solid #ccc;
+		background-color: white;
+		max-height: 200px;
+		overflow-y: auto;
+		position: absolute;
+		z-index: 1000;
+		width: 100%;
+	}
+
+	.autocomplete-item {
+		padding: 8px;
+		cursor: pointer;
+	}
+
+	.autocomplete-item:hover {
+		background-color: #f0f0f0;
+	}
+</style>
+
+<style>
+	#dateDropdown {
+    position: absolute;
+    z-index: 9999 !important; /* Устанавливаем максимальный z-index */
+    display: none;
+    left: 0; /* Выравниваем по левой стороне по умолчанию */
+}
+
+.dropdown-menu {
+    top: 100%; /* Располагаем под кнопкой */
+    left: 0; /* Выравниваем по левой части кнопки */
+    margin-top: 0; /* Убираем любой отступ сверху */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Добавляем тень для меню */
+}
+
+</style> 
+
 <style>
 	
     #filter-section {
@@ -200,7 +240,7 @@
     }
 
 
-</style> 
+</> 
 
 {% comment %} ФИЛЬТР ВРЕМЕНИ {% endcomment %}
 <style>
@@ -275,82 +315,132 @@
 
 
 {% block script_js %}
+{% comment %} АВТОКОМПЛИТ {% endcomment %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Проверяем, если применены фильтры и отображаем кнопку сброса
-        const queryString = new URLSearchParams(window.location.search);
-        const filtersApplied = queryString.has('name_search') || queryString.has('date_start') || queryString.has('f_tags');
-        const resetFiltersContainer = document.getElementById('reset-filters-container');
-        if (filtersApplied) {
-            resetFiltersContainer.style.display = 'block';
-        } else {
-            resetFiltersContainer.style.display = 'none';
-        }
+	document.addEventListener('DOMContentLoaded', function() {
+		const input = document.getElementById('event-name-search');
+		const resultsContainer = document.getElementById('autocomplete-results');
+		const form = input.closest('form');
 
-        // Логика открытия/закрытия фильтров
-        const filterToggle = document.getElementById('filter-toggle');
-        const filterSection = document.getElementById('filter-section');
-        filterToggle.addEventListener('click', function() {
-            if (filterSection.style.display === 'none' || filterSection.style.display === '') {
-                filterSection.style.display = 'flex';
-            } else {
-                filterSection.style.display = 'none';
-            }
-        });
+		input.addEventListener('input', function() {
+			const query = input.value;
 
-        // Логика открытия/закрытия сортировки
-        const sortToggle = document.getElementById('sort-toggle');
-        const sortSection = document.getElementById('sort-section');
-        sortToggle.addEventListener('click', function() {
-            if (sortSection.style.display === 'none' || sortSection.style.display === '') {
-                sortSection.style.display = 'block';
-            } else {
-                sortSection.style.display = 'none';
-            }
-        });
-
-        // Подключаем Flatpickr для полей даты
-        const flatpickrStart = flatpickr("#date_start", {
-            dateFormat: "d/m/Y",  // Формат отображения даты: день/месяц/год
-            onOpen: function() {
-                document.getElementById('dateDropdown').style.display = 'block';
-            }
-        });
-
-        const flatpickrEnd = flatpickr("#date_end", {
-            dateFormat: "d/m/Y",  // Формат отображения даты: день/месяц/год
-            onOpen: function() {
-                document.getElementById('dateDropdown').style.display = 'block';
-            }
-        });
-
-        // Открытие/закрытие фильтра по дате
-        const dateFilterButton = document.getElementById('dateFilterButton');
-        const dateDropdown = document.getElementById('dateDropdown');
-
-        dateFilterButton.addEventListener('click', function(event) {
-            event.stopPropagation();  // Останавливаем событие клика на кнопке
-            if (dateDropdown.style.display === 'block') {
-                dateDropdown.style.display = 'none';
-            } else {
-                dateDropdown.style.display = 'block';
-            }
-        });
-
-        // Закрытие фильтра при клике вне его области
-        document.addEventListener('click', function(event) {
-            if (!dateDropdown.contains(event.target) && event.target !== dateFilterButton) {
-                dateDropdown.style.display = 'none';
-            }
-        });
-
-        // Убедимся, что элементы внутри календаря (включая стрелки) работают корректно
-        const flatpickrContainer = document.querySelectorAll('.flatpickr-calendar');
-        flatpickrContainer.forEach(function(container) {
-            container.addEventListener('click', function(event) {
-                event.stopPropagation();  // Останавливаем закрытие при клике на элементы календаря, но не блокируем взаимодействие
-            });
-        });
-    });
+			if (query.length >= 2) {  // Начинаем поиск после ввода двух символов
+				fetch(`/events_cultural/autocomplete/event-name/?term=${query}&is_attractions=true`)
+					.then(response => response.json())
+					.then(data => {
+						resultsContainer.innerHTML = '';  // Очищаем предыдущие результаты
+						if (data.length === 0) {
+							resultsContainer.innerHTML = '<div class="autocomplete-item">Ничего не найдено</div>';
+						} else {
+							data.forEach(eventName => {
+								const option = document.createElement('div');
+								option.classList.add('autocomplete-item');
+								option.innerHTML = eventName;
+								option.addEventListener('click', function() {
+									input.value = eventName;  // Устанавливаем значение в поле
+									resultsContainer.innerHTML = '';  // Очищаем результаты
+									form.submit();  // Отправляем форму
+								});
+								resultsContainer.appendChild(option);
+							});
+						}
+					});
+			} else {
+				resultsContainer.innerHTML = '';  // Очищаем результаты, если введено меньше символов
+			}
+		});
+	});
 </script>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		// Проверяем, если применены фильтры и отображаем кнопку сброса
+		const queryString = new URLSearchParams(window.location.search);
+		const filtersApplied = queryString.has('name_search') || queryString.has('date_start') || queryString.has('f_tags');
+		const resetFiltersContainer = document.getElementById('reset-filters-container');
+		if (filtersApplied) {
+			resetFiltersContainer.style.display = 'block';
+		} else {
+			resetFiltersContainer.style.display = 'none';
+		}
+
+		// Логика открытия/закрытия фильтров
+		const filterToggle = document.getElementById('filter-toggle');
+		const filterSection = document.getElementById('filter-section');
+		filterToggle.addEventListener('click', function() {
+			if (filterSection.style.display === 'none' || filterSection.style.display === '') {
+				filterSection.style.display = 'flex';
+			} else {
+				filterSection.style.display = 'none';
+			}
+		});
+
+		// Логика открытия/закрытия сортировки
+		const sortToggle = document.getElementById('sort-toggle');
+		const sortSection = document.getElementById('sort-section');
+		sortToggle.addEventListener('click', function() {
+			if (sortSection.style.display === 'none' || sortSection.style.display === '') {
+				sortSection.style.display = 'block';
+			} else {
+				sortSection.style.display = 'none';
+			}
+		});
+
+		// Подключаем Flatpickr для полей даты
+		const flatpickrStart = flatpickr("#date_start", {
+			dateFormat: "d/m/Y",
+			onOpen: function() {
+				setDropdownPosition(); // Обновляем позицию при открытии календаря
+				document.getElementById('dateDropdown').style.display = 'block';
+			}
+		});
+
+		const flatpickrEnd = flatpickr("#date_end", {
+			dateFormat: "d/m/Y",
+			onOpen: function() {
+				setDropdownPosition(); // Обновляем позицию при открытии календаря
+				document.getElementById('dateDropdown').style.display = 'block';
+			}
+		});
+
+		// Открытие/закрытие фильтра по дате
+		const dateFilterButton = document.getElementById('dateFilterButton');
+		const dateDropdown = document.getElementById('dateDropdown');
+		dateFilterButton.addEventListener('click', function(event) {
+			event.stopPropagation(); // Останавливаем событие клика на кнопке
+			if (dateDropdown.style.display === 'block') {
+				dateDropdown.style.display = 'none'; // Закрываем меню
+			} else {
+				setDropdownPosition(); // Устанавливаем позицию меню под кнопкой
+				dateDropdown.style.display = 'block'; // Показываем меню
+			}
+		});
+
+		// Закрытие фильтра при клике вне его области
+		document.addEventListener('click', function(event) {
+			if (!dateDropdown.contains(event.target) && event.target !== dateFilterButton) {
+				dateDropdown.style.display = 'none'; // Закрываем меню при клике вне его области
+			}
+		});
+
+		// Убедимся, что элементы внутри календаря (включая стрелки) работают корректно
+		const flatpickrContainer = document.querySelectorAll('.flatpickr-calendar');
+		flatpickrContainer.forEach(function(container) {
+			container.addEventListener('click', function(event) {
+				event.stopPropagation(); // Останавливаем всплытие события для элементов календаря
+			});
+		});
+
+		// Функция для установки позиции выпадающего фильтра по дате под кнопкой
+		function setDropdownPosition() {
+			const rect = dateFilterButton.getBoundingClientRect(); // Получаем положение кнопки на экране
+			dateDropdown.style.top = `${rect.bottom + window.scrollY}px`; // Позиционируем меню под кнопкой
+			dateDropdown.style.left = `${rect.left + window.scrollX}px`;  // Выравниваем меню по левому краю кнопки
+			dateDropdown.style.position = 'absolute'; // Обязательно делаем абсолютное позиционирование
+			dateDropdown.style.zIndex = '9999'; // Устанавливаем z-index для отображения перед другими элементами
+		}
+	});
+</script>
+
 {% endblock script_js %}

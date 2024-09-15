@@ -21,4 +21,7 @@ urlpatterns = [
 	path('events_for_visiting/<slug:event_slug>/', views.for_visiting_card, name='events_for_visiting_card'),
 
 	path('submit_review/<int:event_id>/', views.submit_review, name='submit_review'),
+ 
+ path('autocomplete/event-name/', views.autocomplete_event_name, name='autocomplete_event_name'),
+
 ]

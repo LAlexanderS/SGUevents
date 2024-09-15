@@ -309,12 +309,12 @@ def index(request):
 
 def autocomplete_event_name(request):
     term = request.GET.get('term', '')  # Получаем параметр запроса
-    is_attractions = request.GET.get('is_attractions', 'true')  # Получаем параметр, который указывает, онлайн это мероприятие или оффлайн
+    is_attractions = request.GET.get('is_attractions', 'true')  # Указывает, что это поиск в Attractions
 
     if is_attractions == 'true':
-        matching_events = Attractions.objects.filter(name__icontains=term)[:10]  # Поиск в онлайн мероприятиях
+        matching_events = Attractions.objects.filter(name__icontains=term)[:10]  # Поиск по названию в Attractions
     else:
-        matching_events = Events_for_visiting.objects.filter(name__icontains=term)[:10]  # Поиск в оффлайн мероприятиях
+        matching_events = Events_for_visiting.objects.filter(name__icontains=term)[:10]  # Поиск по названию в Events_for_visiting
 
     suggestions = list(matching_events.values_list('name', flat=True))  # Преобразуем в список только имена
     return JsonResponse(suggestions, safe=False)
