@@ -207,18 +207,25 @@
 
 <style>
 	#dateDropdown {
-    position: absolute;
-    z-index: 9999 !important; /* Устанавливаем максимальный z-index */
-    display: none;
-    left: 0; /* Выравниваем по левой стороне по умолчанию */
-}
-
-.dropdown-menu {
-    top: 100%; /* Располагаем под кнопкой */
-    left: 0; /* Выравниваем по левой части кнопки */
-    margin-top: 0; /* Убираем любой отступ сверху */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Добавляем тень для меню */
-}
+		position: absolute;
+		z-index: 9999 !important; /* Устанавливаем приоритетный z-index */
+		display: none; /* Скрываем по умолчанию */
+		left: 0; /* Выравниваем по левой стороне */
+		top: 100%; /* Обеспечиваем расположение прямо под кнопкой */
+		background-color: #343a40; /* Убедитесь, что фон применён */
+		padding: 15px;
+		box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Добавляем тень для визуальной иерархии */
+	}
+	
+	.dropdown-menu {
+		position: absolute;
+		left: 0; /* Убедимся, что меню выровнено слева под кнопкой */
+		top: 100%; /* Обеспечим отображение под кнопкой */
+		margin: 0; /* Уберём любые отступы */
+		display: block;
+		transform: none; /* Убираем любые стили, связанные с трансформацией */
+	}
+	
 
 </style> 
 
@@ -240,7 +247,7 @@
     }
 
 
-</> 
+</style> 
 
 {% comment %} ФИЛЬТР ВРЕМЕНИ {% endcomment %}
 <style>
@@ -315,16 +322,46 @@
 
 
 {% block script_js %}
+{% comment %} ФЛАТПИКЕ {% endcomment %}
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		// Подключаем Flatpickr для полей даты
+		const flatpickrStart = flatpickr("#date_start", {
+			dateFormat: "d/m/Y",
+			onOpen: function() {
+				setDropdownPosition(); // Устанавливаем позицию при открытии
+				document.getElementById('dateDropdown').style.display = 'block'; // Показываем меню при открытии
+			}
+		});
+	
+		const flatpickrEnd = flatpickr("#date_end", {
+			dateFormat: "d/m/Y",
+			onOpen: function() {
+				setDropdownPosition(); // Устанавливаем позицию при открытии
+				document.getElementById('dateDropdown').style.display = 'block'; // Показываем меню при открытии
+			}
+		});
+	
+		// Остановка всплытия событий внутри Flatpickr
+		const flatpickrContainer = document.querySelectorAll('.flatpickr-calendar');
+		flatpickrContainer.forEach(function(container) {
+			container.addEventListener('click', function(event) {
+				event.stopPropagation(); // Останавливаем всплытие событий для календаря
+			});
+		});
+	});
+	
+</script>
 {% comment %} АВТОКОМПЛИТ {% endcomment %}
 <script>
 	document.addEventListener('DOMContentLoaded', function() {
 		const input = document.getElementById('event-name-search');
 		const resultsContainer = document.getElementById('autocomplete-results');
 		const form = input.closest('form');
-
+	
 		input.addEventListener('input', function() {
-			const query = input.value;
-
+			const query = input.value.trim();
+	
 			if (query.length >= 2) {  // Начинаем поиск после ввода двух символов
 				fetch(`/events_cultural/autocomplete/event-name/?term=${query}&is_attractions=true`)
 					.then(response => response.json())
@@ -351,64 +388,35 @@
 			}
 		});
 	});
+	
 </script>
 
+{% comment %} СБРОСИТЬ {% endcomment %}
 <script>
 	document.addEventListener('DOMContentLoaded', function() {
 		// Проверяем, если применены фильтры и отображаем кнопку сброса
 		const queryString = new URLSearchParams(window.location.search);
 		const filtersApplied = queryString.has('name_search') || queryString.has('date_start') || queryString.has('f_tags');
 		const resetFiltersContainer = document.getElementById('reset-filters-container');
+	
 		if (filtersApplied) {
-			resetFiltersContainer.style.display = 'block';
+			resetFiltersContainer.style.display = 'block'; // Показываем кнопку сброса
 		} else {
-			resetFiltersContainer.style.display = 'none';
+			resetFiltersContainer.style.display = 'none'; // Скрываем кнопку сброса
 		}
+	});
+	
+</script>
 
-		// Логика открытия/закрытия фильтров
-		const filterToggle = document.getElementById('filter-toggle');
-		const filterSection = document.getElementById('filter-section');
-		filterToggle.addEventListener('click', function() {
-			if (filterSection.style.display === 'none' || filterSection.style.display === '') {
-				filterSection.style.display = 'flex';
-			} else {
-				filterSection.style.display = 'none';
-			}
-		});
-
-		// Логика открытия/закрытия сортировки
-		const sortToggle = document.getElementById('sort-toggle');
-		const sortSection = document.getElementById('sort-section');
-		sortToggle.addEventListener('click', function() {
-			if (sortSection.style.display === 'none' || sortSection.style.display === '') {
-				sortSection.style.display = 'block';
-			} else {
-				sortSection.style.display = 'none';
-			}
-		});
-
-		// Подключаем Flatpickr для полей даты
-		const flatpickrStart = flatpickr("#date_start", {
-			dateFormat: "d/m/Y",
-			onOpen: function() {
-				setDropdownPosition(); // Обновляем позицию при открытии календаря
-				document.getElementById('dateDropdown').style.display = 'block';
-			}
-		});
-
-		const flatpickrEnd = flatpickr("#date_end", {
-			dateFormat: "d/m/Y",
-			onOpen: function() {
-				setDropdownPosition(); // Обновляем позицию при открытии календаря
-				document.getElementById('dateDropdown').style.display = 'block';
-			}
-		});
-
-		// Открытие/закрытие фильтра по дате
+{% comment %} Выпадающие меню {% endcomment %}
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
 		const dateFilterButton = document.getElementById('dateFilterButton');
 		const dateDropdown = document.getElementById('dateDropdown');
+	
+		// Логика открытия/закрытия фильтра по дате
 		dateFilterButton.addEventListener('click', function(event) {
-			event.stopPropagation(); // Останавливаем событие клика на кнопке
+			event.stopPropagation(); // Останавливаем всплытие события
 			if (dateDropdown.style.display === 'block') {
 				dateDropdown.style.display = 'none'; // Закрываем меню
 			} else {
@@ -416,31 +424,28 @@
 				dateDropdown.style.display = 'block'; // Показываем меню
 			}
 		});
-
+	
+		// Функция для установки позиции выпадающего фильтра по дате под кнопкой
+		function setDropdownPosition() {
+			const rect = dateFilterButton.getBoundingClientRect(); // Получаем положение кнопки
+			dateDropdown.style.top = `${rect.bottom + window.scrollY}px`; // Позиционируем меню под кнопкой
+			dateDropdown.style.left = `${rect.left + window.scrollX}px`; // Выравниваем меню по левому краю кнопки
+			dateDropdown.style.position = 'absolute'; // Обязательно делаем абсолютное позиционирование
+			dateDropdown.style.zIndex = '9999'; // Устанавливаем z-index
+		}
+	
 		// Закрытие фильтра при клике вне его области
 		document.addEventListener('click', function(event) {
 			if (!dateDropdown.contains(event.target) && event.target !== dateFilterButton) {
 				dateDropdown.style.display = 'none'; // Закрываем меню при клике вне его области
 			}
 		});
-
-		// Убедимся, что элементы внутри календаря (включая стрелки) работают корректно
-		const flatpickrContainer = document.querySelectorAll('.flatpickr-calendar');
-		flatpickrContainer.forEach(function(container) {
-			container.addEventListener('click', function(event) {
-				event.stopPropagation(); // Останавливаем всплытие события для элементов календаря
-			});
+	
+		// Остановка всплытия событий внутри выпадающего меню
+		dateDropdown.addEventListener('click', function(event) {
+			event.stopPropagation(); // Останавливаем событие клика внутри выпадающего меню
 		});
-
-		// Функция для установки позиции выпадающего фильтра по дате под кнопкой
-		function setDropdownPosition() {
-			const rect = dateFilterButton.getBoundingClientRect(); // Получаем положение кнопки на экране
-			dateDropdown.style.top = `${rect.bottom + window.scrollY}px`; // Позиционируем меню под кнопкой
-			dateDropdown.style.left = `${rect.left + window.scrollX}px`;  // Выравниваем меню по левому краю кнопки
-			dateDropdown.style.position = 'absolute'; // Обязательно делаем абсолютное позиционирование
-			dateDropdown.style.zIndex = '9999'; // Устанавливаем z-index для отображения перед другими элементами
-		}
 	});
+	
 </script>
-
 {% endblock script_js %}
