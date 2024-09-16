@@ -16,7 +16,7 @@ services:
       - my_network
 
   backend:
-    image: la5er/events:latest
+    image: lalexanders/events:latest
     command: gunicorn SGUevents.wsgi:application --bind 0.0.0.0:8887
     restart: always
     volumes:
@@ -32,7 +32,7 @@ services:
       - my_network
 
   bot:
-    image: la5er/events:latest
+    image: lalexanders/events:latest
     command: python /code/bot/main.py
     restart: always
     working_dir: /code/bot
@@ -45,7 +45,7 @@ services:
       - my_network
 
   celery:
-    image: la5er/events:latest
+    image: lalexanders/events:latest
     command: bash -c "celery -A SGUevents purge -f && celery -A SGUevents worker --loglevel=info"
     restart: always
     depends_on:
@@ -57,7 +57,7 @@ services:
       - my_network
 
   celery_beat:
-    image: la5er/events:latest
+    image: lalexanders/events:latest
     command: celery -A SGUevents beat --loglevel=info
     restart: always
     depends_on:
@@ -87,6 +87,7 @@ services:
 volumes:
   postgres_data:
   static_value:
+
 
 networks:
   my_network:
