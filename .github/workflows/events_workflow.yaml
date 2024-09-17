@@ -60,7 +60,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/event.larin.work
+            cd /home/dockerhub
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/events:latest
             sudo docker-compose stop
             sudo docker-compose rm -f backend
