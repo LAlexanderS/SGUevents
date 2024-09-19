@@ -22,6 +22,7 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 DEV_BOT_NAME = os.getenv('DEV_BOT_NAME')
+BOT_NAME = os.getenv('BOT_NAME')
 
 def home(request):
     return render(request, 'users/home.html')
@@ -52,10 +53,10 @@ def register(request):
             return redirect('users:login')
     else:
         form = RegistrationForm()
-
+    print (f'TG BOT USERNAME: {telegram_bot_username}')
     context = {
         'form': form,
-        'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else 'Event_sgu_bot',
+        'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else 'EventsSGUbot',
     }
     return render(request, 'users/register.html', context)
 
@@ -71,7 +72,7 @@ def login_view(request):
         else:
             messages.error(request, "Неверный логин или пароль.")
     context = {
-        'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else 'Event_sgu_bot'
+        'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
     }
     return render(request, 'users/login.html', context)
 
