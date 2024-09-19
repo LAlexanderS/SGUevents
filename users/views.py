@@ -27,7 +27,6 @@ BOT_NAME = os.getenv('BOT_NAME')
 def home(request):
     return render(request, 'users/home.html')
 
-
 def register(request):
     if request.method == "POST":
         form = RegistrationForm(request.POST, request.FILES)
@@ -53,7 +52,7 @@ def register(request):
             return redirect('users:login')
     else:
         form = RegistrationForm()
-        
+
     context = {
         'form': form,
         'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else 'EventsSGUbot',

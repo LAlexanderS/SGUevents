@@ -158,6 +158,11 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://sguevents.ru',
+]
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
