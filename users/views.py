@@ -53,7 +53,7 @@ def register(request):
             return redirect('users:login')
     else:
         form = RegistrationForm()
-    print (f'TG BOT USERNAME: {telegram_bot_username}')
+        
     context = {
         'form': form,
         'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else 'EventsSGUbot',
