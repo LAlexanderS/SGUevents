@@ -4,201 +4,182 @@
 {% block title %} <title>Доступные к посещению</title> {% endblock %}
 
 {% block filters %}
-<div class="row filter-events-row mt-2">
-	<div class="col-lg-2">
-		<div class="row">
-			<div class="dropdown">
-				<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Название 
-				</button>
-				<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" checked>
-							<label class="form-check-label" for="flexRadioDefault1">
-									По умолчанию
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="">
-							<label class="form-check-label" for="flexRadioDefault2">
-									Сначала новые
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="">
-							<label class="form-check-label" for="flexRadioDefault3">
-									Сначала старые
-							</label>
-					</div>
-					<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-				</form>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-2">
-		<div class="row">
-			<div class="dropdown">
-				<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false"> 
-					Дата
-				</button>
-				<form action="{% if request.GET.q %}{% url "events_cultural:search_events_for_visiting" %}{% else %}{% url "events_cultural:events_for_visiting" %}{% endif %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-					<div class="form-check text-white mx-3">
-						<input class="form-check-input" type="checkbox" name="f_events_for_visiting" id="flexCheckDefault" value="on" 
-						{% if request.GET.f_events_for_visiting == 'on' %}checked{% endif %}>
-						{% if request.GET.q %}
-							<input type="hidden" name="q" value="{{ request.GET.q }}"> 
-						{% endif %}
-						<label class="form-check-label" for="flexCheckDefault">
-							Январь
-						</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default"
-							{% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
-							<label class="form-check-label" for="flexRadioDefault1">
-									По умолчанию
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="-date" 
-							{% if request.GET.order_by == '-date' %}checked{% endif %}>
-							<label class="form-check-label" for="flexRadioDefault2">
-									Сначала новые
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="date" 
-							{% if request.GET.order_by == 'date' %}checked{% endif %}>
-							<label class="form-check-label" for="flexRadioDefault3">
-									Сначала старые
-							</label>
-					</div>
-					<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-				</form>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-2">
-		<div class="row">
-			<div class="dropdown">
-				<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Время
-				</button>
-				<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" checked>
-							<label class="form-check-label" for="flexRadioDefault1">
-									По умолчанию
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="">
-							<label class="form-check-label" for="flexRadioDefault2">
-									Сначала новые
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="">
-							<label class="form-check-label" for="flexRadioDefault3">
-									Сначала старые
-							</label>
-					</div>
-					<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-				</form>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-2">
-		<div class="row">
-			<div class="dropdown">
-				<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Место проведения
-				</button>
-				<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" checked>
-							<label class="form-check-label" for="flexRadioDefault1">
-									По умолчанию
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="">
-							<label class="form-check-label" for="flexRadioDefault2">
-									Сначала новые
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="">
-							<label class="form-check-label" for="flexRadioDefault3">
-									Сначала старые
-							</label>
-					</div>
-					<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-				</form>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-2">
-		<div class="row">
-			<div class="dropdown">
-				<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Свободные места
-				</button>
-				<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" checked>
-							<label class="form-check-label" for="flexRadioDefault1">
-									По умолчанию
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="">
-							<label class="form-check-label" for="flexRadioDefault2">
-									Сначала новые
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="">
-							<label class="form-check-label" for="flexRadioDefault3">
-									Сначала старые
-							</label>
-					</div>
-					<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-				</form>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-2">
-		<div class="row">
-			<div class="dropdown">
-				<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Теги
-				</button>
-				<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault1" value="default" checked>
-							<label class="form-check-label" for="flexRadioDefault1">
-									По умолчанию
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault2" value="">
-							<label class="form-check-label" for="flexRadioDefault2">
-									Сначала новые
-							</label>
-					</div>
-					<div class="form-check text-white mx-3">
-							<input class="form-check-input" type="radio" name="order_by" id="flexRadioDefault3" value="">
-							<label class="form-check-label" for="flexRadioDefault3">
-									Сначала старые
-							</label>
-					</div>
-					<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
-				</form>
-			</div>
-		</div>
-	</div>
+<div class="row mt-3 mb-3 name-for-events">
+    <div class="col-lg-9">
+        <h2>{{ name_page }}</h2>
+    </div>
+
+    <div class="col-lg-3 text-end d-flex justify-content-end align-items-center">
+        <!-- Кнопка сброса фильтров, скрыта по умолчанию -->
+        <div id="reset-filters-container" class="me-2" style="display: none;">
+            <form action="{% url 'events_cultural:events_for_visiting' %}" method="get">
+                <button class="btn btn-primary" type="submit">Сбросить</button>
+            </form>
+        </div>
+
+        <!-- Кнопка для открытия фильтров -->
+        <button id="filter-toggle" class="btn btn-primary me-2">
+            <img src="{% static 'general/icons/filters.png' %}" alt="Фильтры" style="width: 24px; height: 24px;">
+        </button>
+
+        <!-- Кнопка для сортировки -->
+        <button id="sort-toggle" class="btn btn-primary">
+            <img src="{% static 'general/icons/sort.png' %}" alt="Сортировка" style="width: 24px; height: 24px;">
+        </button>
+    </div>
 </div>
+
+<!-- Секция фильтров -->
+<div id="filter-section" class="row filter-events-row mt-2" style="display: none;">
+    <!-- Фильтр по названию с автокомплитом -->
+    <div class="col-lg-2">
+			<div class="dropdown">
+					<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Название
+					</button>
+					<form action="" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark" data-is-attractions="true">
+							<div class="form-check text-white">
+									<input class="form-control me-3" type="search" id="event-name-search" name="name_search" placeholder="Введите название">
+							</div>
+							<!-- Контейнер для отображения результатов автокомплита -->
+							<div id="autocomplete-results" class="autocomplete-results"></div>
+							<div class="text-center">
+									<button class="btn btn-outline-success" type="submit">Применить</button>
+							</div>
+					</form>
+			</div>
+	</div>
+	
+
+    <!-- Фильтр по дате с Flatpickr -->
+    <div class="col-lg-2">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+                Дата
+            </button>
+            <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" id="dateDropdown">
+                <div class="form-check text-white">
+                    Дата начала <br/>
+                    <label class="form-check-label" for="date_start">
+                        <input type="text" id="date_start" name="date_start" value="{{ date_start|default_if_none:'' }}" placeholder="дд/мм/гггг">
+                    </label>
+                </div>
+                <div class="form-check text-white">
+                    Дата окончания <br/>
+                    <label class="form-check-label" for="date_end">
+                        <input type="text" id="date_end" name="date_end" value="{{ date_end|default_if_none:'' }}" placeholder="дд/мм/гггг">
+                    </label>
+                </div>
+
+                <!-- Сохранение остальных фильтров -->
+                {% for key, value in request.GET.items %}
+                    {% if key != 'date_start' and key != 'date_end' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary mt-3">Применить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Фильтр по времени -->
+    <div class="col-lg-2">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Время
+            </button>
+            <form action="" method="get" class="dropdown-menu bg-dark dropdown-menu-custom" data-bs-theme="dark">
+                <div class="form-check text-white">
+                    Время начала <br/>
+                    <label class="form-check-label" for="time_to_start">
+                        <input type="time" id="time_to_start" name="time_to_start" value="{{ time_to_start|default_if_none:'' }}">
+                    </label>
+                </div>
+                <div class="form-check text-white">
+                    Время окончания <br/>
+                    <label class="form-check-label" for="time_to_end">
+                        <input type="time" id="time_to_end" name="time_to_end" value="{{ time_to_end|default_if_none:'' }}">
+                    </label>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary mt-3">Применить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Фильтр по тегам -->
+    <div class="col-lg-2">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Теги
+            </button>
+            <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto; width:170px;">
+                <div class="form-check text-white" style="margin-left: 15px; margin-right:15px;">
+                    <input class="form-control w-100" id="search-tags" type="text" placeholder="Поиск тегов..." style="height: 35px;">
+                </div>
+
+                <!-- Список тегов -->
+                <div id="tags-list">
+                    {% for tag in tags %}
+                        <div class="form-check text-white mx-3 tag-item">
+                            <input class="form-check-input" type="checkbox" name="f_tags" id="flexCheckDefault{{ forloop.counter }}" value="{{ tag }}" {% if request.GET.f_tags == tag %}checked{% endif %}>
+                            <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ tag }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Сохранение остальных фильтров -->
+                {% for key, value in request.GET.items %}
+                    {% if key != 'f_tags' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary mt-3">Применить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<style>
+    /* Убираем padding для чекбоксов тегов */
+.tag-item {
+margin-bottom: 0px; /* Уменьшенный отступ между тегами */
+padding: 0px; /* Убираем внутренний отступ */
+}
+
+/* Уменьшаем отступ между чекбоксом и текстом */
+.form-check-input {
+height: 20px; /* Устанавливаем высоту для чекбокса */
+width: 20px; /* Можно также задать ширину для соответствия */
+margin-right: 5px; /* Уменьшаем отступ между чекбоксом и текстом */
+}
+
+/* Настройки для Dropdown Menu */
+.dropdown-menu {
+min-width: 150px;  /* Минимальная ширина */
+width: 170px;  /* Фиксированная ширина */
+padding: 10px 15px; /* Уменьшаем padding внутри Dropdown Menu */
+}
+
+/* Поле поиска внутри Dropdown */
+#search-tags {
+padding: 5px; /* Уменьшаем padding для поля поиска */
+margin-bottom: 10px; /* Добавляем небольшой отступ снизу */
+}
+.form-check-label {
+line-height: 25px; /* Устанавливаем высоту строки текста */
+font-size: 14px; /* Опционально: можно уменьшить размер шрифта */
+}
+
+</style> 
+
 {% endblock filters %}
 
 {% block content %}
@@ -214,3 +195,277 @@
 {% endif %}
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="for_visiting">Оставить отзыв </button>
 {% endblock content %}
+
+{% block script_js %}
+{% comment %} ФОРМАТ ВВОДА ДАТЫ {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#date_start", {
+            dateFormat: "d/m/Y",  // Формат отображения
+        });
+        flatpickr("#date_end", {
+            dateFormat: "d/m/Y",  // Формат отображения
+        });
+    });
+</script>
+<style>
+    /* Ограничиваем ширину полей ввода для дат */
+    input[type="date"] {
+        width: 100%;  /* Полная ширина контейнера */
+        max-width: 180px;  /* Ограничиваем максимальную ширину */
+        box-sizing: border-box;  /* Учитываем отступы и границы в общей ширине */
+    }
+
+    /* Унифицированные стили для контейнеров фильтров */
+    .form-check-label {
+        display: block;
+        width: 100%;  /* Полная ширина контейнера */
+    }
+
+    /* Ограничение ширины выпадающих меню */
+    .dropdown-menu {
+        min-width: 230px;
+        max-width: 230px;  /* Фиксированная ширина для всех dropdown */
+    }
+
+    /* Настройки для календаря */
+    .flatpickr-calendar {
+        z-index: 9999 !important;
+}
+
+
+</style>
+
+{% comment %} ФИЛЬТР ВРЕМЕНИ {% endcomment %}
+<style>
+    .dropdown-menu-custom {
+        min-width: 150px;  /* Минимальная ширина */
+        width: 170px;  /* Установленная фиксированная ширина */
+    }
+
+    .dropdown-menu-custom .form-check {
+        padding-left: 10px;  /* Добавим небольшой отступ для чекбоксов */
+    }
+
+    .dropdown-menu-custom input[type="time"] {
+        width: 90%;  /* Уменьшаем ширину полей для времени */
+        max-width: 180px;  /* Ограничение по максимальной ширине */
+    }
+</style>
+
+
+{% comment %} СОРТИРОВКА  {% endcomment %}
+<style>
+    
+        #sort-section {
+            position: absolute;
+            right: 0; /* Позиционирование относительно правого края */
+            z-index: 1000; /* Для того, чтобы меню не перекрывалось другими элементами */
+            display: none; /* Скрыто по умолчанию */
+        }
+
+</style> 
+
+{% comment %} ПОСИК В СПИКЕРАХ {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-speakers');
+        const speakerItems = document.querySelectorAll('.speaker-item');
+        
+        searchInput.addEventListener('input', function() {
+            const searchQuery = searchInput.value.toLowerCase();
+            
+            speakerItems.forEach(function(item) {
+                const speakerName = item.textContent.toLowerCase();
+                
+                if (speakerName.includes(searchQuery)) {
+                    item.style.display = 'block';  // Показываем, если совпадает
+                } else {
+                    item.style.display = 'none';   // Скрываем, если нет совпадений
+                }
+            });
+        });
+    });
+</script>
+<style>
+    .form-check.text-white input#search-speakers {
+        width: calc(100% - 10px); /* Полная ширина минус внутренние отступы */
+        margin-left: 0px; /* Смещение для того, чтобы выровнять с остальными элементами */
+        margin-bottom: 10px; /* Нижний отступ для визуального разделения */
+        padding: 0px;
+    }
+</style>
+
+
+{% comment %} ПОИСК В ТЕГАХ {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search-tags');
+        const tagItems = document.querySelectorAll('#tags-list .tag-item');
+
+        // Функция для фильтрации тегов
+        searchInput.addEventListener('input', function () {
+            const filter = searchInput.value.toLowerCase();
+
+            tagItems.forEach(function (item) {
+                const label = item.querySelector('label').textContent.toLowerCase();
+
+                if (label.includes(filter)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>                    
+<style>
+    .form-check.text-white input#search-tags {
+        width: calc(100% - 30px); /* Полная ширина минус внутренние отступы */
+        margin-left: 0px; /* Смещение для того, чтобы выровнять с остальными элементами */
+        margin-bottom: 10px; /* Нижний отступ для визуального разделения */
+        padding: 0px;
+
+    }
+</style>
+
+
+{% comment %} АВТОКОМПЛИТ В ФИЛЬТРЕ НАЗВАНИЯХ {% endcomment %}
+<style>
+    .autocomplete-results {
+        border: 1px solid #ccc;
+        background-color: white;
+        max-height: 200px;
+        overflow-y: auto;
+        position: absolute;
+        z-index: 1000;
+        width: 100%;
+    }
+    
+    .autocomplete-item {
+        padding: 8px;
+        cursor: pointer;
+    }
+    
+    .autocomplete-item:hover {
+        background-color: #f0f0f0;
+    }
+    
+</style> 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sortToggle = document.getElementById('sort-toggle');
+        const sortSection = document.getElementById('sort-section');
+        const filterToggle = document.getElementById('filter-toggle');
+        const filterSection = document.getElementById('filter-section');
+        const resetFiltersContainer = document.getElementById('reset-filters-container');
+        const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar'); // Календари Flatpickr
+
+        const input = document.getElementById('event-name-search');
+        const resultsContainer = document.getElementById('autocomplete-results');
+        const form = input.closest('form');  // Получаем форму, в которой находится поле ввода
+
+        // Проверка на наличие фильтров и сортировки в URL
+        const queryString = new URLSearchParams(window.location.search);
+
+        // Проверяем, были ли применены фильтры (включая фильтр по названию)
+        const filtersApplied = queryString.has('q') || 
+                               queryString.has('name_search') || 
+                               queryString.has('date_start') || 
+                               queryString.has('date_end') || 
+                               queryString.has('f_speakers') || 
+                               queryString.has('f_tags') || 
+                               queryString.has('time_to_start') || 
+                               queryString.has('time_to_end');
+
+        const sortApplied = queryString.has('order_by');  // Проверка на наличие сортировки
+
+        // Если применены фильтры или сортировка, отображаем кнопку "Сбросить"
+        if (filtersApplied || sortApplied) {
+            resetFiltersContainer.style.display = 'block';
+        } else {
+            resetFiltersContainer.style.display = 'none';
+        }
+
+        // Если фильтры применены, отображаем фильтры
+        if (filtersApplied) {
+            filterSection.style.display = 'flex';  // Отображаем фильтры
+        } else {
+            filterSection.style.display = 'none';  // Скрываем фильтры, если фильтры не были применены
+        }
+
+        // Логика автокомплита для фильтра по названию
+        input.addEventListener('input', function() {
+            const query = input.value;
+
+            // Определяем, находимся ли мы на странице оффлайн или онлайн мероприятий
+            const isAttractions = window.location.pathname.includes('attractions'); // Определяем по URL
+
+            if (query.length >= 2) {  // Автокомплит начинает работать после ввода двух символов
+                fetch(`/events_cultural/autocomplete/event-name/?term=${query}&is_attractions=${isAttractions}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultsContainer.innerHTML = '';  // Очищаем старые результаты
+                        if (data.length === 0) {
+                            resultsContainer.innerHTML = '<div class="autocomplete-item">No results found</div>';
+                        } else {
+                            data.forEach(eventName => {
+                                const option = document.createElement('div');
+                                option.classList.add('autocomplete-item');
+                                option.innerHTML = eventName;
+                                option.addEventListener('click', function() {
+                                    input.value = eventName;  // При выборе названия заполняем поле
+                                    resultsContainer.innerHTML = '';  // Очищаем результаты
+                                    form.submit();  // Автоматически отправляем форму
+                                });
+                                resultsContainer.appendChild(option);
+                            });
+                        }
+                    });
+            } else {
+                resultsContainer.innerHTML = '';  // Если меньше двух символов, очищаем результаты
+            }
+        });
+
+
+        // Скрываем или показываем панель сортировки при нажатии на иконку
+        sortToggle.addEventListener('click', function() {
+            if (sortSection.style.display === 'none' || sortSection.style.display === '') {
+                sortSection.style.display = 'block';
+            } else {
+                sortSection.style.display = 'none';
+            }
+        });
+
+        // Скрываем или показываем фильтры при нажатии на кнопку фильтров
+        filterToggle.addEventListener('click', function() {
+            if (filterSection.style.display === 'none' || filterSection.style.display === '') {
+                filterSection.style.display = 'flex';  // Отображаем фильтры в строку
+            } else {
+                filterSection.style.display = 'none';  // Скрываем фильтры
+            }
+        });
+
+        // Закрываем сортировку при клике вне области
+        document.addEventListener('click', function(event) {
+            const isCalendarClick = Array.from(flatpickrContainers).some(container => container.contains(event.target));
+
+            if (!sortToggle.contains(event.target) && !sortSection.contains(event.target) && !isCalendarClick) {
+                sortSection.style.display = 'none';
+            }
+        });
+
+        // Предотвращаем закрытие фильтра при взаимодействии с календарем
+        document.querySelectorAll('.flatpickr-calendar').forEach(function(calendar) {
+            calendar.addEventListener('click', function(event) {
+                // Останавливаем всплытие только для кликов по датам, но не по стрелкам переключения месяцев
+                if (!event.target.classList.contains('flatpickr-prev-month') &&
+                    !event.target.classList.contains('flatpickr-next-month')) {
+                    event.stopPropagation();
+                }
+            });
+        });
+    });
+</script>
+{% endblock script_js %}
+

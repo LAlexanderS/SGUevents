@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from users.models import Department, User
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
+from django.contrib.postgres.indexes import GinIndex
 
 class Attractions(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
@@ -30,11 +31,14 @@ class Attractions(models.Model):
     start_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время начала')
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
+    tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
+
 
     class Meta:
         db_table = 'attractions'
         verbose_name = 'Достопримечательности'
         verbose_name_plural = 'Достопримечательности'
+        
 
     def __str__(self):
         return self.name
@@ -76,11 +80,14 @@ class Events_for_visiting(models.Model):
     start_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время начала')
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
+    tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
+
 
     class Meta:
         db_table = 'Events_for_visiting'
         verbose_name = 'Доступные к посещению'
         verbose_name_plural = 'Доступные к посещению'
+        
 
     def __str__(self):
         return self.name

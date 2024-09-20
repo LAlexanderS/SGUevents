@@ -3,9 +3,171 @@
 {% load main_tags %}
 {% block title %} <title>Главная страница</title> {% endblock %} 
 
+{% block filters %}
+<div class="row filter-events-row mt-2">
+    <!-- Поиск по названию -->
+    <div class="col-lg-2">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Название
+            </button>
+            <form action="{% url 'main:index' %}" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
+                <div class="form-check text-white">
+                    <input class="form-control me-3" type="search" name="q" placeholder="Поиск по названию" aria-label="Search">
+                </div>
+                <button class="btn btn-outline-success d-inline" type="submit">
+                    Найти <img src="{% static 'general/icons/search.svg' %}" alt="S">
+                </button>
+
+                <!-- Добавляем скрытые поля для сохранения других фильтров -->
+                {% for key, value in request.GET.items %}
+                    {% if key != 'q' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Фильтрация по дате -->
+    <div class="col-lg-2">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Дата
+            </button>
+            <form action="{% url 'main:index' %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
+                <div class="form-check text-white">
+                    Дата начала <br/>
+                    <label class="form-check-label">
+                        <input type="date" id="date_start" name="date_start" value="{{ request.GET.date_start }}">
+                    </label>
+                </div>
+                <div class="form-check text-white">
+                    Дата окончания <br/>
+                    <label class="form-check-label">
+                        <input type="date" id="date_end" name="date_end" value="{{ request.GET.date_end }}">
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+
+                <!-- Сохранение остальных фильтров -->
+                {% for key, value in request.GET.items %}
+                    {% if key != 'f_date' and key != 'date_start' and key != 'date_end' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Фильтрация по времени -->
+    <div class="col-lg-2">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Время
+            </button>
+            <form action="{% url 'main:index' %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark">
+                <div class="form-check text-white">
+                    Время начала <br/>
+                    <label class="form-check-label">
+                        <input type="time" id="time_to_start" name="time_to_start" value="{{ request.GET.time_to_start }}">
+                    </label>
+                </div>
+                <div class="form-check text-white">
+                    Время окончания <br/>
+                    <label class="form-check-label">
+                        <input type="time" id="time_to_end" name="time_to_end" value="{{ request.GET.time_to_end }}">
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+
+                <!-- Сохранение остальных фильтров -->
+                {% for key, value in request.GET.items %}
+                    {% if key != 'time_to_start' and key != 'time_to_end' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+	<div class="col-lg-2">
+		<div class="dropdown">
+			<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				Спикеры
+			</button>
+			<form action="{% url 'main:index' %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
+				<div class="form-check text-white mx-3">
+					{% for speaker in speakers %}
+						{# Приводим объект speaker к строковому значению полного имени #}
+						{% with full_name=speaker.first_name|add:" "|add:speaker.middle_name|add:" "|add:speaker.last_name %}
+							<input class="form-check-input" type="checkbox" name="f_speakers" id="flexCheckDefault{{ forloop.counter }}" value="{{ full_name }}"
+								{% if full_name in f_speakers %}checked{% endif %}>
+							<label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ full_name }}</label><br>
+						{% endwith %}
+					{% endfor %}
+				</div>
+				<button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+	
+				<!-- Сохранение остальных фильтров -->
+				{% for key, value in request.GET.items %}
+					{% if key != 'f_speakers' %}
+						<input type="hidden" name="{{ key }}" value="{{ value }}">
+					{% endif %}
+				{% endfor %}
+			</form>
+		</div>
+	</div>
+	
+	
+	
+
+	<!-- Фильтрация по тегам -->
+<!-- Фильтрация по тегам -->
+<div class="col-lg-2">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Теги
+        </button>
+        <form action="{% url 'main:index' %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto;">
+            <div class="form-check text-white mx-3">
+                {% for tag in tags %}
+                    <input class="form-check-input" type="checkbox" name="f_tags" id="flexCheckDefault{{ forloop.counter }}" value="{{ tag }}"
+                           {% if tag in f_tags %}checked{% endif %}>
+                    <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ tag }}</label><br>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+
+            <!-- Сохранение остальных фильтров -->
+            {% for key, value in request.GET.items %}
+                {% if key != 'f_tags' %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+        </form>
+    </div>
+</div>
+
+
+
+
+    <!-- Сброс фильтров -->
+    <div class="col-lg-2">
+        <form action="{% url 'main:index' %}" method="get">
+            <button class="btn btn-primary" type="submit">Сбросить</button>
+        </form>
+    </div>
+</div>
+{% endblock filters %}
+
+
+
+
+
 {% block content %}
 <!-- Контент на странице -->
- 
+
+
 {% if events.category  == 'Онлайн' %}
 	{% if events.id in registered.online %}
 		<a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.online|get_item:events.id }}">

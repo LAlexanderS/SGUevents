@@ -7,8 +7,13 @@ from itertools import chain
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from datetime import datetime
+from django.db.models import Value
+from django.db.models.functions import Concat
+
 
 from main.utils import q_search_all
+from users.models import User
 
 @login_required
 def index(request):
@@ -34,22 +39,63 @@ def index(request):
         
         all_content = list(chain(available, available1, cultural, cultural1))
 
+    # Получаем всех спикеров из онлайн и оффлайн мероприятий
+    speakers_online = User.objects.filter(speaker_online__in=available).distinct()
+    speakers_offline = User.objects.filter(speaker_offline__in=available1).distinct()
+
+    # Объединяем всех спикеров в один список (чтобы избежать дублирования)
+    all_speakers = list(set(chain(speakers_online, speakers_offline)))
+
     page = request.GET.get('page', 1)
     f_all = request.GET.get('f_all', None)
+    f_speakers = request.GET.getlist('f_speakers', None)
+    f_tags = request.GET.getlist('f_tags', None)
     order_by = request.GET.get('order_by', None)
     query = request.GET.get('q', None)
+    date_start = request.GET.get('date_start', None)
+    date_end = request.GET.get('date_end', None)
+    f_date = request.GET.get('f_date', None)
 
+    # Фильтрация по запросу
     if not query:
         events_all = all_content
     else:
         events_all = q_search_all(query)
 
-    if f_all:
-        events_all = [event for event in events_all if event.date.month == 1]
-    
+    # Фильтрация по дате
+    if date_start:
+        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
+        events_all = [event for event in events_all if event.date >= date_start_formatted]
+
+    if date_end:
+        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
+        events_all = [event for event in events_all if event.date <= date_end_formatted]
+
+    # Фильтрация по спикерам
+    if f_speakers:
+        # Аннотируем пользователей полным именем
+        speakers_with_full_name = User.objects.annotate(
+            full_name=Concat('first_name', Value(' '), 'middle_name', Value(' '), 'last_name')
+        )
+
+        # Фильтруем пользователей по полным именам из f_speakers
+        speakers_objects = speakers_with_full_name.filter(full_name__in=f_speakers)
+
+        # Фильтруем только те события, которые имеют поле `speakers`
+        events_all = [
+            event for event in events_all
+            if hasattr(event, 'speakers') and any(speaker in event.speakers.all() for speaker in speakers_objects)
+        ]
+
+    # Фильтрация по тегам
+    if f_tags:
+        events_all = [event for event in events_all if event.tags and any(tag in event.tags for tag in f_tags)]
+
+    # Сортировка
     if order_by and order_by != "default":
         events_all = sorted(events_all, key=lambda x: getattr(x, order_by))
 
+    # Пагинация
     paginator = Paginator(events_all, 10)
     current_page = paginator.page(int(page))
 
@@ -81,18 +127,22 @@ def index(request):
         'attractions': {item[0]: item[1] for item in registered_attractions},
         'for_visiting': {item[0]: item[1] for item in registered_for_visiting},
     }
-    
+
     reviews = {}
     for event in current_page:
         content_type = ContentType.objects.get_for_model(event)
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
     context = {
-        'name_page': 'Главная',
-        'event_card_views': current_page,
-        'favorites': favorites_dict,
-        'reviews': reviews,
-        'registered': registered_dict,
-    }
+    'name_page': 'Главная',
+    'event_card_views': current_page,
+    'favorites': favorites_dict,
+    'reviews': reviews,
+    'registered': registered_dict,
+    'tags': list(set(tag for event in all_content if event.tags for tag in event.tags.split(','))),
+    'f_tags': f_tags, 
+    'speakers': all_speakers,
+    'f_speakers': f_speakers,  
+}
 
     return render(request, 'main/index.html', context)

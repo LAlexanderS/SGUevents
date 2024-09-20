@@ -5,6 +5,7 @@ from datetime import datetime
 from django.utils.timezone import make_aware, get_default_timezone
 from django.contrib.contenttypes.fields import GenericRelation
 from users.models import Department, User
+from django.contrib.postgres.indexes import GinIndex
 
 
 class Events_online(models.Model):
@@ -17,7 +18,7 @@ class Events_online(models.Model):
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
     speakers = models.ManyToManyField(User, blank=True, related_name='speaker_online', verbose_name='Спикеры')
     member =  models.ManyToManyField(User, blank=True, related_name='member_online', verbose_name='Участники')
-    tags = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Теги')
+    tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
     platform = models.CharField(max_length=50, unique=False, blank=False, null=False, verbose_name='Платформа')
     link = models.URLField(unique=False, blank=False, null=False, verbose_name='Ссылка')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
@@ -35,6 +36,10 @@ class Events_online(models.Model):
         db_table = 'Events_online'
         verbose_name = 'Онлайн мероприятие'
         verbose_name_plural = 'Онлайн мероприятия'
+        indexes = [
+            GinIndex(fields=["name"], opclasses=["gin_trgm_ops"], name="name_trgm_idx"),
+            GinIndex(fields=["description"], opclasses=["gin_trgm_ops"], name="description_trgm_idx"),
+        ]
 
     def __str__(self):
         return self.name
@@ -64,7 +69,7 @@ class Events_offline(models.Model):
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
     speakers = models.ManyToManyField(User, blank=True, related_name='speaker_offline', verbose_name='Спикеры')
     member =  models.ManyToManyField(User, blank=True, related_name='member_offline', verbose_name='Участники')
-    tags = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Теги')
+    tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
     town = models.CharField(max_length=200, unique=False, blank=False, null=False, verbose_name='Город')
     street = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Улица')
     house = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Дом')

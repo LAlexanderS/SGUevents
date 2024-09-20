@@ -174,6 +174,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+DATE_INPUT_FORMATS = ['%d/%m/%Y', '%d.%m.%Y', '%Y-%m-%d']
+
 LOGIN_URL = 'users:login'
 
 AUTH_USER_MODEL = 'users.User'

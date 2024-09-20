@@ -13,8 +13,7 @@
     <link rel="stylesheet" href="{% static 'general/css/events_available.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/jquery-ui.css' %}">
     <link rel="stylesheet" href="{% static 'scripts/select2.min.css' %}">
-
-    
+    <link rel="stylesheet" href="{% static 'flatpickr/flatpickr.min.css' %}">
 
     {% block title %}{% endblock title %}
 </head>
@@ -112,14 +111,13 @@
 				<div class="col-lg-1"></div>
 		
 				<div class="col-lg-10">
-					{% block filters %}{% endblock filters %}
 		
-					<div class="row mt-3 mb-3 name-for-events">
-						<div class="col-lg-12">
-							<h2> {{ name_page }} </h2>
-						</div>
-					</div>
-
+                    {% block filters %}{% endblock filters %}
+                    {% block sort %}{% endblock sort %}
+                
+                    {% block script_js %}{% endblock script_js %}
+                    
+                         
 					{% if request.GET.q %}
 						<h3 class="mt-4">Результаты поиска по запросу {{ request.GET.q }}</h3>
 						{% if not event_card_views %}
@@ -131,8 +129,7 @@
                     
                     {% block form_events %}{% endblock form_events %}
                     {% for events in event_card_views %}
-                        
-                        
+                         
                         <div class="row mt-2 event_cards">
                             <div class="col-lg-12">
                                 <div class="card mb-3">
@@ -216,9 +213,10 @@
                                                         {% url "events_cultural:events_for_visiting_card" events.slug %}
                                                     {% endif %}">
                                                     {% autoescape off %}
-                                                        {% if events.headline %}{{ events.headline }}{% else %}{{ events.name }}{% endif %}
+                                                        {% if events.headline_name %}{{ events.headline_name|safe }}{% else %}{{ events.name }}{% endif %}
                                                     {% endautoescape %}
-                                                </a></h5>
+                                                    </a>
+                                                </h5>
                                                 <h6 class="card-date"> 
                                                     <split class="card-day"><b>{{ events.date }}</b></split> 
                                                     <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> </h6> 
@@ -229,16 +227,25 @@
                                                         {{admin}}
                                                     {% endfor %}
                                                 </h6>
-                                                    
-                                                
+                                                      
                                                 {% comment %} <h7 class="event-place"> <strong>Администратор: {{ events.events_admin }}</strong>  </h7> {% endcomment %}
                                                 {% autoescape off %}
-                                                    {% if events.bodyline %}
-                                                        {{ events.bodyline }}
+                                                    {% if events.headline_name %}
+                                                        {{ events.headline_name }}
                                                     {% else %}
-                                                        <p class="card-text">{{ events.description|truncatechars:625 }}</p>
+                                                        {{ events.name }}
                                                     {% endif %}
                                                 {% endautoescape %}
+
+                                                {% autoescape off %}
+                                                    {% if events.headline_description %}
+                                                        {{ events.headline_description|truncatechars:250 }}
+                                                    {% else %}
+                                                        {{ events.description|truncatechars:250 }}
+                                                    {% endif %}
+                                                {% endautoescape %}
+
+
                                                 
                                                 <p class="card-text">
                                                     <small class="text-muted">{% if events.tags %} 
@@ -294,6 +301,7 @@
                     
 					
 				</div>
+
 				<div class="col-lg-1"></div>
 			</div>
 		</div>
@@ -346,8 +354,7 @@
     <script src="{% static 'js/bootstrap-datepicker.ru.min.js' %}"></script>
     <script src="{% static 'scripts/moment.min.js' %}"></script>
     <script src="{% static 'django_select2/django_select2.js' %}"></script>
-
-
+    <script src="{% static 'flatpickr/flatpickr.js' %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function() {
