@@ -17,6 +17,11 @@ from .forms import RegistrationForm
 from .models import Department, AdminRightRequest
 from .telegram_utils import send_login_details_sync
 from .telegram_utils import send_message_to_admin, send_confirmation_to_user
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from aiogram import types
+from asgiref.sync import async_to_sync
+from bot.main import handle_webhook
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -144,3 +149,9 @@ def logout(request):
 
 def general(request):
     return render(request, 'main/index.html')
+
+@csrf_exempt
+def telegram_webhook(request):
+    if request.method == 'POST':
+        return async_to_sync(handle_webhook)(request)  # Используем async_to_sync для вызова асинхронной функции
+    return JsonResponse({"error": "Invalid request method"}, status=400)
