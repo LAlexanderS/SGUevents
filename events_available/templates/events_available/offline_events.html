@@ -202,6 +202,40 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Убираем padding для чекбоксов тегов */
+.tag-item {
+margin-bottom: 0px; /* Уменьшенный отступ между тегами */
+padding: 0px; /* Убираем внутренний отступ */
+}
+
+/* Уменьшаем отступ между чекбоксом и текстом */
+.form-check-input {
+height: 20px; /* Устанавливаем высоту для чекбокса */
+width: 20px; /* Можно также задать ширину для соответствия */
+margin-right: 5px; /* Уменьшаем отступ между чекбоксом и текстом */
+}
+
+/* Настройки для Dropdown Menu */
+.dropdown-menu {
+min-width: 150px;  /* Минимальная ширина */
+width: 170px;  /* Фиксированная ширина */
+padding: 10px 15px; /* Уменьшаем padding внутри Dropdown Menu */
+}
+
+/* Поле поиска внутри Dropdown */
+#search-tags {
+padding: 5px; /* Уменьшаем padding для поля поиска */
+margin-bottom: 10px; /* Добавляем небольшой отступ снизу */
+}
+.form-check-label {
+line-height: 25px; /* Устанавливаем высоту строки текста */
+font-size: 14px; /* Опционально: можно уменьшить размер шрифта */
+}
+
+</style> 
+
 {% endblock filters %}
 
 {% block sort %}
@@ -251,21 +285,6 @@
     </form>
 </div>
 
-
-<style>
-    {% comment %} #sort-section {
-        display: block !important;  /* Принудительное отображение для диагностики */
-        position: absolute !important;
-        top: 100% !important;
-        right: 0 !important;
-        z-index: 1000 !important;
-        background-color: #343a40 !important;
-        padding: 10px !important;
-        min-width: 200px !important;
-    }
-     {% endcomment %}
-
-</style>
 {% endblock sort %}
 
 
@@ -288,46 +307,14 @@
 
 
 {% block script_js %}
-{% comment %} КАЛЕНДАРЬ И ФИЛЬТР ПО ДАТЕ {% endcomment %}
+{% comment %} ФОРМАТ ВВОДА ДАТЫ {% endcomment %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Подключаем Flatpickr к полям для ввода даты
-        const flatpickrStart = flatpickr("#date_start", {
-            dateFormat: "d/m/Y",  // Формат отображения даты: день/месяц/год
+        flatpickr("#date_start", {
+            dateFormat: "d/m/Y",  // Формат отображения
         });
-
-        const flatpickrEnd = flatpickr("#date_end", {
-            dateFormat: "d/m/Y",  // Формат отображения даты: день/месяц/год
-        });
-
-        const filterDropdown = document.querySelector('.dropdown-menu.ca');  // Находим выпадающий фильтр даты
-        const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar');  // Находим календари
-
-        document.addEventListener('click', function(event) {
-            const isClickInsideFilter = filterDropdown.contains(event.target);  // Проверка, если клик внутри фильтра
-            const isClickInsideCalendar = Array.from(flatpickrContainers).some(container => container.contains(event.target));  // Проверка, если клик внутри календаря
-
-            if (!isClickInsideFilter && !isClickInsideCalendar) {
-                // Если клик был не внутри фильтра или календаря, закрываем фильтр
-                filterDropdown.style.display = 'none';
-            }
-        });
-
-        // Открываем фильтр по клику на кнопку фильтра
-        const filterButton = document.querySelector('#dateFilterButton');
-        filterButton.addEventListener('click', function() {
-            if (filterDropdown.style.display === 'none' || filterDropdown.style.display === '') {
-                filterDropdown.style.display = 'block';
-            } else {
-                filterDropdown.style.display = 'none';
-            }
-        });
-
-        // Останавливаем закрытие фильтра при клике на календарь
-        flatpickrContainers.forEach(function(calendar) {
-            calendar.addEventListener('click', function(event) {
-                event.stopPropagation();
-            });
+        flatpickr("#date_end", {
+            dateFormat: "d/m/Y",  // Формат отображения
         });
     });
 </script>
@@ -359,20 +346,173 @@
 
 </style>
 
+{% comment %} ФИЛЬТР ВРЕМЕНИ {% endcomment %}
+<style>
+    .dropdown-menu-custom {
+        min-width: 150px;  /* Минимальная ширина */
+        width: 170px;  /* Установленная фиксированная ширина */
+    }
+
+    .dropdown-menu-custom .form-check {
+        padding-left: 10px;  /* Добавим небольшой отступ для чекбоксов */
+    }
+
+    .dropdown-menu-custom input[type="time"] {
+        width: 90%;  /* Уменьшаем ширину полей для времени */
+        max-width: 180px;  /* Ограничение по максимальной ширине */
+    }
+</style>
 
 
-{% comment %} ФИЛЬТР ПО НАЗВАНИЮ И АВТОКОМПЛИТ {% endcomment %}
+{% comment %} СОРТИРОВКА  {% endcomment %}
+<style>
+    
+        #sort-section {
+            position: absolute;
+            right: 0; /* Позиционирование относительно правого края */
+            z-index: 1000; /* Для того, чтобы меню не перекрывалось другими элементами */
+            display: none; /* Скрыто по умолчанию */
+        }
+
+</style> 
+
+{% comment %} ПОСИК В СПИКЕРАХ {% endcomment %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-speakers');
+        const speakerItems = document.querySelectorAll('.speaker-item');
+        
+        searchInput.addEventListener('input', function() {
+            const searchQuery = searchInput.value.toLowerCase();
+            
+            speakerItems.forEach(function(item) {
+                const speakerName = item.textContent.toLowerCase();
+                
+                if (speakerName.includes(searchQuery)) {
+                    item.style.display = 'block';  // Показываем, если совпадает
+                } else {
+                    item.style.display = 'none';   // Скрываем, если нет совпадений
+                }
+            });
+        });
+    });
+</script>
+<style>
+    .form-check.text-white input#search-speakers {
+        width: calc(100% - 10px); /* Полная ширина минус внутренние отступы */
+        margin-left: 0px; /* Смещение для того, чтобы выровнять с остальными элементами */
+        margin-bottom: 10px; /* Нижний отступ для визуального разделения */
+        padding: 0px;
+    }
+</style>
+
+
+{% comment %} ПОИСК В ТЕГАХ {% endcomment %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('search-tags');
+        const tagItems = document.querySelectorAll('#tags-list .tag-item');
+
+        // Функция для фильтрации тегов
+        searchInput.addEventListener('input', function () {
+            const filter = searchInput.value.toLowerCase();
+
+            tagItems.forEach(function (item) {
+                const label = item.querySelector('label').textContent.toLowerCase();
+
+                if (label.includes(filter)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>                    
+<style>
+    .form-check.text-white input#search-tags {
+        width: calc(100% - 30px); /* Полная ширина минус внутренние отступы */
+        margin-left: 0px; /* Смещение для того, чтобы выровнять с остальными элементами */
+        margin-bottom: 10px; /* Нижний отступ для визуального разделения */
+        padding: 0px;
+
+    }
+</style>
+
+
+{% comment %} АВТОКОМПЛИТ В ФИЛЬТРЕ НАЗВАНИЯХ {% endcomment %}
+<style>
+    .autocomplete-results {
+        border: 1px solid #ccc;
+        background-color: white;
+        max-height: 200px;
+        overflow-y: auto;
+        position: absolute;
+        z-index: 1000;
+        width: 100%;
+    }
+    
+    .autocomplete-item {
+        padding: 8px;
+        cursor: pointer;
+    }
+    
+    .autocomplete-item:hover {
+        background-color: #f0f0f0;
+    }
+    
+</style> 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sortToggle = document.getElementById('sort-toggle');
+        const sortSection = document.getElementById('sort-section');
+        const filterToggle = document.getElementById('filter-toggle');
+        const filterSection = document.getElementById('filter-section');
+        const resetFiltersContainer = document.getElementById('reset-filters-container');
+        const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar'); // Календари Flatpickr
+
         const input = document.getElementById('event-name-search');
         const resultsContainer = document.getElementById('autocomplete-results');
         const form = input.closest('form');  // Получаем форму, в которой находится поле ввода
-    
+
+        // Проверка на наличие фильтров и сортировки в URL
+        const queryString = new URLSearchParams(window.location.search);
+
+        // Проверяем, были ли применены фильтры (включая фильтр по названию)
+        const filtersApplied = queryString.has('q') || 
+                               queryString.has('name_search') || 
+                               queryString.has('date_start') || 
+                               queryString.has('date_end') || 
+                               queryString.has('f_speakers') || 
+                               queryString.has('f_tags') || 
+                               queryString.has('time_to_start') || 
+                               queryString.has('time_to_end');
+
+        const sortApplied = queryString.has('order_by');  // Проверка на наличие сортировки
+
+        // Если применены фильтры или сортировка, отображаем кнопку "Сбросить"
+        if (filtersApplied || sortApplied) {
+            resetFiltersContainer.style.display = 'block';
+        } else {
+            resetFiltersContainer.style.display = 'none';
+        }
+
+        // Если фильтры применены, отображаем фильтры
+        if (filtersApplied) {
+            filterSection.style.display = 'flex';  // Отображаем фильтры
+        } else {
+            filterSection.style.display = 'none';  // Скрываем фильтры, если фильтры не были применены
+        }
+
+        // Логика автокомплита для фильтра по названию
         input.addEventListener('input', function() {
             const query = input.value;
-    
+
+            // Определяем, находимся ли мы на странице оффлайн или онлайн мероприятий
+            const isOnline = window.location.pathname.includes('online'); // Определяем по URL
+
             if (query.length >= 2) {  // Автокомплит начинает работать после ввода двух символов
-                fetch(`/events_available/autocomplete/event-name/?term=${query}&is_online=false`)
+                fetch(`/events_available/autocomplete/event-name/?term=${query}&is_online=${isOnline}`)
                     .then(response => response.json())
                     .then(data => {
                         resultsContainer.innerHTML = '';  // Очищаем старые результаты
@@ -396,103 +536,46 @@
                 resultsContainer.innerHTML = '';  // Если меньше двух символов, очищаем результаты
             }
         });
-    });
-    
-</script>
 
-<style>
-    .autocomplete-results {
-        border: 1px solid #ccc;
-        background-color: white;
-        max-height: 200px;
-        overflow-y: auto;
-        position: absolute;
-        z-index: 1000;
-        width: 100%;
-    }
-    
-    .autocomplete-item {
-        padding: 8px;
-        cursor: pointer;
-    }
-    
-    .autocomplete-item:hover {
-        background-color: #f0f0f0;
-    }
-</style>
 
-{% comment %} ФИЛЬТРАЦИЯ И СОРТИРОВКА  {% endcomment %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterToggle = document.getElementById('filter-toggle');
-        const filterSection = document.getElementById('filter-section');
-        const resetFiltersContainer = document.getElementById('reset-filters-container');
-        const sortToggle = document.getElementById('sort-toggle');
-        const sortSection = document.getElementById('sort-section');
-    
-        // Проверка на наличие фильтров или сортировки в URL
-        const queryString = new URLSearchParams(window.location.search);
-        const filtersApplied = queryString.has('name_search') || 
-                               queryString.has('date_start') || 
-                               queryString.has('date_end') || 
-                               queryString.has('f_speakers') || 
-                               queryString.has('f_tags') || 
-                               queryString.has('f_place') || 
-                               queryString.has('time_to_start') || 
-                               queryString.has('time_to_end');
-        const sortApplied = queryString.has('order_by');
-    
-        // Если фильтры или сортировка применены, показываем кнопку сброса
-        if (filtersApplied || sortApplied) {
-            resetFiltersContainer.style.display = 'block';
-        } else {
-            resetFiltersContainer.style.display = 'none';
-        }
-    
-        // Изначально скрываем секции фильтров и сортировки
-        filterSection.style.display = 'none';
-        sortSection.style.display = 'none';
-    
-        // Логика показа/скрытия фильтров
-        filterToggle.addEventListener('click', function(event) {
-            event.stopPropagation();  // Остановить распространение события, чтобы избежать закрытия секции
-            if (filterSection.style.display === 'none' || filterSection.style.display === '') {
-                filterSection.style.display = 'flex';  // Отображаем секцию фильтров
-            } else {
-                filterSection.style.display = 'none';  // Скрываем секцию фильтров
-            }
-        });
-    
-        // Логика показа/скрытия сортировки
-        sortToggle.addEventListener('click', function(event) {
-            event.stopPropagation();  // Остановить распространение события
+        // Скрываем или показываем панель сортировки при нажатии на иконку
+        sortToggle.addEventListener('click', function() {
             if (sortSection.style.display === 'none' || sortSection.style.display === '') {
-                sortSection.style.display = 'block';  // Отображаем секцию сортировки
+                sortSection.style.display = 'block';
             } else {
-                sortSection.style.display = 'none';  // Скрываем секцию сортировки
+                sortSection.style.display = 'none';
             }
         });
-    
-        // Закрываем секцию сортировки при клике вне ее области
-        document.addEventListener('click', function(event) {
-            if (!sortToggle.contains(event.target) && !sortSection.contains(event.target)) {
-                sortSection.style.display = 'none';  // Закрываем секцию сортировки
+
+        // Скрываем или показываем фильтры при нажатии на кнопку фильтров
+        filterToggle.addEventListener('click', function() {
+            if (filterSection.style.display === 'none' || filterSection.style.display === '') {
+                filterSection.style.display = 'flex';  // Отображаем фильтры в строку
+            } else {
+                filterSection.style.display = 'none';  // Скрываем фильтры
             }
+        });
+
+        // Закрываем сортировку при клике вне области
+        document.addEventListener('click', function(event) {
+            const isCalendarClick = Array.from(flatpickrContainers).some(container => container.contains(event.target));
+
+            if (!sortToggle.contains(event.target) && !sortSection.contains(event.target) && !isCalendarClick) {
+                sortSection.style.display = 'none';
+            }
+        });
+
+        // Предотвращаем закрытие фильтра при взаимодействии с календарем
+        document.querySelectorAll('.flatpickr-calendar').forEach(function(calendar) {
+            calendar.addEventListener('click', function(event) {
+                // Останавливаем всплытие только для кликов по датам, но не по стрелкам переключения месяцев
+                if (!event.target.classList.contains('flatpickr-prev-month') &&
+                    !event.target.classList.contains('flatpickr-next-month')) {
+                    event.stopPropagation();
+                }
+            });
         });
     });
-    
-        
-</script> 
-
-<style>
-    #filter-section {
-        display: none; /* Скрыт по умолчанию */
-    }
-    
-    #sort-section {
-        display: none; /* Скрыт по умолчанию */
-    }
-    
-</style> 
+</script>
 {% endblock script_js %}
 

@@ -13,11 +13,7 @@
     <link rel="stylesheet" href="{% static 'general/css/events_available.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/jquery-ui.css' %}">
     <link rel="stylesheet" href="{% static 'scripts/select2.min.css' %}">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-    
+    <link rel="stylesheet" href="{% static 'flatpickr/flatpickr.min.css' %}">
 
     {% block title %}{% endblock title %}
 </head>
@@ -358,8 +354,7 @@
     <script src="{% static 'js/bootstrap-datepicker.ru.min.js' %}"></script>
     <script src="{% static 'scripts/moment.min.js' %}"></script>
     <script src="{% static 'django_select2/django_select2.js' %}"></script>
-
-
+    <script src="{% static 'flatpickr/flatpickr.js' %}"></script>
 
     <script type="text/javascript">
         $(document).ready(function() {
