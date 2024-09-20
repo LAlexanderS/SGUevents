@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import uuid
 import requests
 import json
@@ -33,8 +34,8 @@ dp = Dispatcher()
 router = Router()
 logger = logging.getLogger(__name__)
 
-WEBHOOK_HOST = 'https://civil-personally-mink.ngrok-free.app'  # URL вашего сервера
-WEBHOOK_PATH = '/webhook/'  # Уникальный путь для webhook
+WEBHOOK_HOST = os.getenv('WEBHOOK_HOST') # URL вашего сервера
+WEBHOOK_PATH = os.getenv('WEBHOOK_PATH')  # Уникальный путь для webhook
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 class SupportRequestForm(StatesGroup):
