@@ -17,7 +17,8 @@
 			"events_admin": "1",
 			"rating": "4.97",
 			"documents": "",
-			"category": "Достопримечательности"
+			"category": "Достопримечательности",
+			"tags": "#САДД"
 		}
 	},
 	{
@@ -38,7 +39,8 @@
 			"events_admin": "2",
 			"rating": "9.07",
 			"documents": "",
-			"category": "Достопримечательности"
+			"category": "Достопримечательности",
+			"tags": "#CITRIX"
 		}
 	},
 	{
@@ -59,7 +61,8 @@
 			"events_admin": "3",
 			"rating": "0.08",
 			"documents": "",
-			"category": "Достопримечательности"
+			"category": "Достопримечательности",
+			"tags": "#ITEL"
 		}
 	},
 	{
@@ -80,7 +83,8 @@
 			"events_admin": "4",
 			"rating": "0.09",
 			"documents": "",
-			"category": "Достопримечательности"
+			"category": "Достопримечательности",
+			"tags": "#ТЕГИМЕГИПЕГИ"
 		}
 	},
 	{
@@ -101,7 +105,8 @@
 			"events_admin": "5",
 			"rating": "-0.01",
 			"documents": "",
-			"category": "Достопримечательности"
+			"category": "Достопримечательности",
+			"tags": "#Пму"
 		}
 	},
 	{
@@ -122,7 +127,8 @@
 			"events_admin": "4",
 			"rating": "0.10",
 			"documents": "",
-			"category": "Достопримечательности"
+			"category": "Достопримечательности",
+			"tags": "#Деньги"
 		}
 	},
 	{
@@ -143,7 +149,8 @@
 			"events_admin": "5",
 			"rating": "1.50",
 			"documents": "",
-			"category": "Достопримечательности"
+			"category": "Достопримечательности",
+			"tags": "#Деньги"
 		}
 	}
 ]
