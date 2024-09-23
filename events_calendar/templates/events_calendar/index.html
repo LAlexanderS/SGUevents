@@ -4,28 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% comment %} <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css"> {% endcomment %}
+
     <link rel="stylesheet" href="{% static 'calendar/css/fullcalendar.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'daterangepicker/daterangepicker.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/general-page.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/events_available.css' %}">
     <link rel="stylesheet" href="{% static 'calendar/css/calendar.css' %}">
-    
-    {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/ru.js"></script> {% endcomment %}
-
-    {% comment %} <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> {% endcomment %}
     <link rel="stylesheet" href="{% static 'general/css/jquery-ui.css' %}">
-
-
-    {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> {% endcomment %}
     <script src="{% static 'scripts/jquery-3.6.0.min.js' %}"></script>
-
-    {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script> {% endcomment %}
     <script src="{% static 'scripts/moment.min.js' %}"></script>
-    {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script> {% endcomment %}
     <script src="{% static 'calendar/js/fullcalendar.min.js' %}"></script>
-
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static "calendar/js/ru.js" %}"></script>
 
@@ -118,7 +107,6 @@
 
 
 <section class="container-fluid calendar-container">
-    {% comment %} <h1 class="text-center my-4">Календарь мероприятий</h1> {% endcomment %}
     <div id="calendar"></div>
 </section>
 
@@ -132,9 +120,10 @@
             height: 'parent',
             events: events,
             eventRender: function(event, element) {
-                element.css('background-color', event.backgroundColor); // Устанавливаем цвет события
-                element.find('.fc-title').html('<a href="' + event.url + '" style="color:white;">' + event.title + '</a>');
-                element.find('.fc-title').append('<br/><b>' + event.time + '</b><br/><i>' + event.category + '</i>');
+                element.addClass(event.css_class); 
+                
+                element.find('.fc-title').html(event.time + '  ' + event.category + '<br/><b> <a href="' + event.url + '" style="color:white;">' + event.title + '</a>');
+                
             },
             dayRender: function(date, cell) {
                 if (date.isSame(new Date(), "day")) {

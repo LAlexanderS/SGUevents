@@ -20,7 +20,7 @@ html {
 }
 
 .fc-today {
-	background-color: rgb(58, 145, 251) !important;
+	background-color: rgb(112, 176, 255) !important;
 }
 
 .fc-event {
@@ -35,31 +35,31 @@ html {
 /* Новые классы для событий */
 
 .event-online {
-	background-color: rgb(30, 141, 30);
+	background-color: rgb(48, 121, 209);
 	/* Зеленый для онлайн событий */
 }
 
 .event-offline {
-	background-color: rgb(30, 141, 30);
+	background-color: rgb(48, 121, 209);
 	/* Зеленый для оффлайн событий */
 }
 
 .event-attractions {
-	background-color: rgb(30, 141, 30);
+	background-color: rgb(48, 121, 209);
 	/* Зеленый для достопримечательностей */
 }
 
 .event-visiting {
-	background-color: rgb(30, 141, 30);
+	background-color: rgb(48, 121, 209);
 	/* Зеленый для событий для посещения */
 }
 
 .event-registered {
-	background-color: yellow !important;
+	background-color: rgb(22, 0, 146) !important;
 	/* Желтый для зарегистрированных */
 }
 
 .event-favorite {
-	background-color: pink !important;
+	background-color: rgb(236, 40, 73) !important;
 	/* Розовый для избранных */
 }

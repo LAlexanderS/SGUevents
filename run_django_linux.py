@@ -124,4 +124,4 @@ os.remove('create_superuser.py')
 print('Суперпользователь успешно создан.')
 
 # Запуск сервера
-subprocess.run('python3 manage.py runserver & python3 manage.py startbot', shell=True)
+subprocess.run('python3 manage.py runserver', shell=True)

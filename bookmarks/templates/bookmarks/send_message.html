@@ -1,14 +1,10 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Отправка сообщения участникам</title>
-    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
+{% block title %}
+<title>Отправка сообщения участникам</title>
+{% endblock title %}
+
+{% block content %}
 <div class="container mt-5">
     <h1>Отправка сообщения участникам</h1>
     <form method="post">
@@ -33,7 +29,7 @@
         <button type="submit" class="btn btn-primary">Отправить сообщение</button>
     </form>
 </div>
-
+{% endblock content %}
 <script>
     $(document).ready(function() {
         $('#id_event_type').change(function() {
@@ -54,6 +50,8 @@
             });
         });
     });
+</>
 </script>
-</body>
-</html>
+
+
+
