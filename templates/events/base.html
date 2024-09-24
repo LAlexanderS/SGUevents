@@ -244,8 +244,6 @@
                                                         {{ events.description|truncatechars:250 }}
                                                     {% endif %}
                                                 {% endautoescape %}
-
-
                                                 
                                                 <p class="card-text">
                                                     <small class="text-muted">{% if events.tags %} 
@@ -258,7 +256,6 @@
                                                     {% if events.town %}г.{{ events.town }}{% endif %} {% if events.street %}ул.{{ events.street }}{% endif %} {% if events.house %} д.{{ events.house }}{% endif %}{% if events.cabinet %} кабинет {{ events.cabinet }}{% endif %}
                                                 </p>
                                                 
-                                                
                                                 {% if events.speakers.all %}
                                                     <p>
                                                         <h6><strong>Спикеры:</strong></h6>
@@ -267,27 +264,26 @@
                                                         {% endfor %}
                                                     </p>
                                                 {% endif %}
-                                                
-                                                
+                                                      
                                                 {% block content %}{% endblock content %}
                                                 {% block admins_events %}{% endblock admins_events %}
-                                                {% if reviews %}
-                                                    <div class="reviews">
-                                                        {% if reviews|get_item:events.unique_id %}
-                                                            <ul>
-                                                                {% for review in reviews|get_item:events.unique_id %}
-                                                                    <li>
-                                                                        <h5>Отзыв:</h5>
-                                                                        <p><strong>{{ review.user.last_name }} {{ review.user.first_name }} </strong> ({{ review.formatted_date }}):</p>
-                                                                        <p>{{ review.comment }}</p>
-                                                                    </li>
-                                                                {% endfor %}
-                                                            </ul>
-                                                        {% endif %}
-                                                    </div>
-                                                {% endif %}
-                                                
-                                                
+                                                <div class="event" id="event-{{ events.id }}">
+                                                    {% if reviews %}
+                                                        <div class="reviews" data-event-id="{{ events.id }}">
+                                                            {% comment %} {% if reviews|get_item:events.id %} {% endcomment %}
+                                                                <ul>
+                                                                    {% for review in reviews|get_item:events.unique_id %}
+                                                                        <li>
+                                                                            <h5>Отзыв:</h5>
+                                                                            <p><strong>{{ review.user.last_name }} {{ review.user.first_name }} </strong> ({{ review.formatted_date }}):</p>
+                                                                            <p>{{ review.comment }}</p>
+                                                                        </li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            {% comment %} {% endif %} {% endcomment %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -628,6 +624,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Обработка кнопки "Оставить отзыв"
         document.querySelectorAll('.btn-comment').forEach(function(button) {
             button.addEventListener('click', function() {
                 const eventId = this.getAttribute('data-event-id');
@@ -638,22 +635,22 @@
                 modal.show();
             });
         });
-
+    
+        // Обработка отправки формы отзыва
         document.getElementById('commentForm').addEventListener('submit', function(event) {
             event.preventDefault();
+            const formData = new FormData(this);
+            const csrftoken = getCookie('csrftoken');
             const eventId = document.getElementById('eventId').value;
             const modelType = document.getElementById('modelType').value;
-            const formData = new FormData(this);
-            formData.append('model_type', modelType);
-            const csrftoken = getCookie('csrftoken');
-
+    
             let url = '';
-            if (modelType === 'attractions' || modelType === 'for_visiting') {
-                url = `/events_cultural/submit_review/${eventId}/`;
-            } else if (modelType === 'offline' || modelType === 'online') {
+            if (modelType === 'offline' || modelType === 'online') {
                 url = `/events_available/submit_review/${eventId}/`;
+            } else {
+                url = `/events_cultural/submit_review/${eventId}/`;
             }
-
+    
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -668,13 +665,18 @@
                     document.getElementById('commentForm').reset();
                     const modal = bootstrap.Modal.getInstance(document.getElementById('commentModal'));
                     modal.hide();
+                    
+                    // Вызов функции для добавления нового отзыва в правильный блок
+                    addReviewToPage(eventId, data.review, data.formatted_date);
+    
                 } else {
                     showNotification(data.message, true);
                 }
             })
             .catch(error => console.error('Error:', error));
         });
-
+    
+        // Функция получения CSRF-токена
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -689,7 +691,8 @@
             }
             return cookieValue;
         }
-
+    
+        // Функция показа уведомления
         function showNotification(message, isError = false) {
             const notification = document.getElementById('reviewNotification');
             notification.querySelector('p').textContent = message;
@@ -698,18 +701,38 @@
             setTimeout(() => {
                 notification.classList.add('fade-in');
             }, 10);
-
+    
             setTimeout(function() {
                 notification.classList.remove('fade-in');
                 notification.classList.add('fade-out');
-
+    
                 setTimeout(function() {
                     notification.style.display = 'none';
                     notification.classList.remove('fade-out');
                 }, 500);
             }, 2000);
         }
+    
+        // Функция добавления нового отзыва на страницу в правильный блок
+        function addReviewToPage(eventId, review, formattedDate) {
+            const reviewList = document.querySelector(`.reviews[data-event-id="${eventId}"] ul`);
+            if (!reviewList) {
+                // Если списка отзывов еще нет, создаем его
+                const reviewsDiv = document.querySelector(`.reviews[data-event-id="${eventId}"]`);
+                const ul = document.createElement('ul');
+                reviewsDiv.appendChild(ul);
+            }
+            
+            const newReview = document.createElement('li');
+            newReview.innerHTML = `
+                <h5>Отзыв:</h5>
+                <p><strong>${review.user.last_name} ${review.user.first_name}</strong> (${formattedDate}):</p>
+                <p>${review.comment}</p>
+            `;
+            reviewList.appendChild(newReview);
+        }
     });
+    
 </script>
 
 <style>

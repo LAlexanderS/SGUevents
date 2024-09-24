@@ -321,7 +321,7 @@ def for_visiting_card(request, event_slug=False, event_id=False):
     }
     return render(request, 'events_cultural/card.html', context=context)
 
-@login_required 
+@login_required
 @csrf_exempt
 def submit_review(request, event_id):
     if request.method == 'POST':
@@ -345,10 +345,19 @@ def submit_review(request, event_id):
             object_id=event.id,
             comment=comment
         )
+        
+        # Возвращаем данные о новом отзыве
         return JsonResponse({
             'success': True,
             'message': 'Отзыв добавлен',
-            'formatted_date': review.formatted_date()
+            'formatted_date': review.formatted_date(),
+            'review': {
+                'user': {
+                    'first_name': request.user.first_name,
+                    'last_name': request.user.last_name
+                },
+                'comment': comment
+            }
         })
     return JsonResponse({'success': False, 'message': 'Некорректный запрос'}, status=400)
 
