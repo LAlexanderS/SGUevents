@@ -46,6 +46,7 @@ jobs:
           push: true
           context: .
           tags: ${{ secrets.DOCKER_USERNAME }}/events:latest
+          build-args: --no-cache
 
   deploy:
     if: github.repository == 'LAlexanderS/SGUevents' && github.ref == 'refs/heads/main'

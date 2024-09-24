@@ -10,6 +10,7 @@ COPY . .
 
 ENV DJANGO_SETTINGS_MODULE=SGUevents.settings
 ENV PYTHONPATH=/code
+RUN python manage.py collectstatic --noinput
 
 EXPOSE 8887
 
