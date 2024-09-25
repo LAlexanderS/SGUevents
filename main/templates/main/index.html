@@ -3,7 +3,7 @@
 {% load main_tags %}
 {% block title %} <title>Главная страница</title> {% endblock %} 
 
-{% block filters %}
+{% comment %} {% block filters %}
 <div class="row filter-events-row mt-2">
     <!-- Поиск по названию -->
     <div class="col-lg-2">
@@ -158,7 +158,7 @@
         </form>
     </div>
 </div>
-{% endblock filters %}
+{% endblock filters %} {% endcomment %}
 
 
 
