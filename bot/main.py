@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import uuid
+import os
 
 import requests
 import json
@@ -15,6 +16,8 @@ from asgiref.sync import sync_to_async
 from dotenv import load_dotenv
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.client.bot import DefaultBotProperties
+from aiohttp import web
+from aiogram.types import Update
 
 
 load_dotenv()
@@ -31,6 +34,11 @@ storage = MemoryStorage()
 dp = Dispatcher()
 router = Router()
 logger = logging.getLogger(__name__)
+
+WEBHOOK_HOST = os.getenv('WEBHOOK_HOST') # URL вашего сервера
+WEBHOOK_PATH = os.getenv('WEBHOOK_PATH')  # Уникальный путь для webhook
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
 
 class SupportRequestForm(StatesGroup):
     waiting_for_question = State()
@@ -307,15 +315,40 @@ async def toggle_event_notification(callback_query: types.CallbackQuery):
     else:
         await callback_query.answer("Вы не зарегистрированы на портале.")
 
-
-# Функция запуска бота
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-async def run_bot():
+# Добавляем обработчик для Webhook
+async def handle_webhook(request):
+    from django.http import JsonResponse
     try:
+        data = json.loads(request.body)  # Преобразуем тело запроса в JSON
+        update = Update(**data)  # Создаем объект Update напрямую
+        bot = Bot(token=TOKEN)  # Создаем объект бота
+        await dp.feed_update(bot, update)  # Обрабатываем обновление через диспетчер
+        return JsonResponse({"status": "ok"})
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+# Функция запуска бота с поддержкой Webhook
+
+async def run_bot():
+    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    # Настраиваем роутер aiohttp для Webhook
+    app = web.Application()
+    app.router.add_post(WEBHOOK_PATH, handle_webhook)
+    async with bot:
         dp.include_router(router)
-        await dp.start_polling(bot)
-    finally:
-        await bot.close()
+        
+        # Устанавливаем Webhook
+        await bot.set_webhook(WEBHOOK_URL)
+        # Запускаем aiohttp сервер для приема запросов Webhook
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, '0.0.0.0', 8443)  # Пример порта 8443 для HTTPS
+        await site.start()
+        # Запускаем бота
+        try:
+            await asyncio.Event().wait()  # Ожидаем остановку
+        finally:
+            await bot.delete_webhook()
+            await runner.cleanup()
 
 
 if __name__ == "__main__":
