@@ -31,6 +31,31 @@ body {
     color: #959595;
 }
 
+.navbar-toggler {
+    border-color: white;
+    /* Изменение цвета рамки кнопки на белый */
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='white' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Стрелки */
+.page-link-arrow {
+    background-color: transparent;
+    /* Убирает фон */
+    border: none;
+    /* Убирает рамку */
+    padding: 0;
+    /* Убирает внутренние отступы */
+}
+
+.arrow img {
+    width: 40px;
+    /* Настройка размера иконки */
+    height: auto;
+}
+
 /*  */
 
 

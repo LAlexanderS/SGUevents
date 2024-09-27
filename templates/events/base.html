@@ -103,17 +103,38 @@
             </div>
         </nav>
     </header>
-
+    
     <section>
 		{% if user.is_authenticated %}
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-lg-1"></div>
+				<div class="col-lg-1">
+                    {% if user.is_authenticated %}
+                        {% if event_card_views %}
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
+                                        <a class="page-link-arrow" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}"><div class="arrow">
+                                            {% if not event_card_views.has_previous %}
+                                                <img src="{% static "general/icons/arrow-left-disabled.png" %}" class="arrow" alt="Предыдущая">
+                                            {% else %}
+                                                <img src="{% static "general/icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">
+
+                                            {% endif %}
+                                            
+                                        </div></a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% endif %}
+                </div>
 		
 				<div class="col-lg-10">
 		
                     {% block filters %}{% endblock filters %}
                     {% block sort %}{% endblock sort %}
+                    
                 
                     {% block script_js %}{% endblock script_js %}
                     
@@ -264,7 +285,13 @@
                                                         {% endfor %}
                                                     </p>
                                                 {% endif %}
-                                                      
+                                                
+                                                {% if events.place_limit and events.place_free %}
+                                                    <p>
+                                                        {{events.place_limit}}\{{events.place_free}}
+                                                    </p> 
+                                                {% endif %}                                               
+
                                                 {% block content %}{% endblock content %}
                                                 {% block admins_events %}{% endblock admins_events %}
                                                 <div class="event" id="event-{{ events.id }}">
@@ -297,50 +324,54 @@
                     
 					
 				</div>
-
-				<div class="col-lg-1"></div>
+                
+				<div class="col-lg-1">
+                    {% if user.is_authenticated %}
+                        {% if event_card_views %}
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
+                                        <a class="page-link-arrow" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}"><div class="arrow">
+                                            {% if not event_card_views.has_next %}
+                                                <img src="{% static "general/icons/arrow-right-disabled.png" %}" class="arrow" alt="Следующая">
+                                            {% else %}
+                                                <img src="{% static "general/icons/arrow-right.png" %}" class="arrow" alt="Следующая">
+                                            {% endif %}
+                                        </div></a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% endif %}
+                </div>
 			</div>
 		</div>
 		{% endif %}
     </section>
    
     <pagination>
-        {% if user.is_authenticated %}
-            {% if event_card_views %}
-                {% if event_card_views.paginator.page_range %}
-                    <nav aria-label="Page navigation example" >
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
-                                <a class="page-link" href="
-                                {% if event_card_views.has_previous %}  
-                                    ?{% change_params page=event_card_views.previous_page_number %}
-                                {% else %} 
-                                    #
-                                {% endif %}">Назад </a>
-                            </li>
-                            {% for page in event_card_views.paginator.page_range %}		
-                                {% if page >= event_card_views.number|add:-2 and page <= event_card_views.number|add:2 %}
-                                    <li class="page-item {% if event_card_views.number == page %} active {% endif %}">
-                                        <a class="page-link" href="
-                                        ?{% change_params page=page %}">
-                                        {{ page }}</a>
-                                    </li>
-                                {% endif %}		
-                            {% endfor %}
-                            <li class="page-item {% if not event_card_views.has_next %} disabled {% else %}{% endif %}">
-                                <a class="page-link" href="
-                                {% if event_card_views.has_next %}
-                                    ?{% change_params page=event_card_views.next_page_number %}
-                                {% else %} 
-                                    #
-                                {% endif %}">Следующая </a>
-                            </li>
-                        </ul>
-                    </nav>
-                {% endif %} 
-            {% endif %}
-        {% endif %}
-    </pagination>
+		{% if user.is_authenticated %}
+			{% if event_card_views %}
+				<nav aria-label="Page navigation example">
+					<ul class="pagination justify-content-center">
+						<li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
+							<a class="page-link" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">Назад</a>
+						</li>
+						{% for page in event_card_views.paginator.page_range %}
+							{% if page >= event_card_views.number|add:-2 and page <= event_card_views.number|add:2 %}
+								<li class="page-item {% if event_card_views.number == page %} active {% endif %}">
+									<a class="page-link" href="?{% change_params page=page %}">{{ page }}</a>
+								</li>
+							{% endif %}
+						{% endfor %}
+						<li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
+							<a class="page-link" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">Следующая</a>
+						</li>
+					</ul>
+				</nav>
+			{% endif %}
+		{% endif %}
+	</pagination>
     
 
     <script src="{% static 'scripts/jquery-3.6.0.min.js' %}"></script>
