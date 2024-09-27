@@ -182,6 +182,52 @@ font-size: 14px; /* Опционально: можно уменьшить раз
 
 {% endblock filters %}
 
+
+{% block sort %}
+<!-- Секция сортировки -->
+<div id="sort-section" class="dropdown-menu bg-dark" style="display: none; width: 100px">
+    <form action="" method="get">
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-default" value="default" {% if not request.GET.order_by or request.GET.order_by == 'default' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-default">По умолчанию</label>
+        </div>
+
+        <h6 class="dropdown-header text-white">Сортировка по времени</h6>
+
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-earlier" value="time_start" {% if request.GET.order_by == 'time_start' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-earlier">Раньше</label>
+        </div>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-time-later" value="-time_start" {% if request.GET.order_by == '-time_start' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-time-later">Позже</label>
+        </div>
+
+        <h6 class="dropdown-header text-white">Сортировка по дате</h6>
+        
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-date-newest" value="-date" {% if request.GET.order_by == '-date' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-date-newest">Сначала новые</label>
+        </div>
+        <div class="form-check text-white mx-3">
+            <input class="form-check-input" type="radio" name="order_by" id="sort-date-oldest" value="date" {% if request.GET.order_by == 'date' %}checked{% endif %}>
+            <label class="form-check-label" for="sort-date-oldest">Сначала старые</label>
+        </div>
+        
+
+        <!-- Передаем активные фильтры (исключаем текущий параметр сортировки) -->
+        {% for key, value in request.GET.items %}
+            {% if key != 'order_by' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
+
+        <!-- Кнопка для применения сортировки -->
+        <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
+    </form>
+</div>
+{% endblock sort %}
+
 {% block content %}
 <!-- Контент на странице -->
 {% if events.id in registered %}
