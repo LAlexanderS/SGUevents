@@ -74,9 +74,9 @@
                                 <li>
                                     <a class="dropdown-item text-black" href="{% url 'bookmarks:favorites' %}">Избранные</a>
                                 </li>
-                                <li>
+                                {% comment %} <li>
                                     <a class="dropdown-item text-black" href="{% url 'bookmarks:events_attended' %}">Посещенные</a>
-                                </li>
+                                </li> {% endcomment %}
                                 {% if user.is_admin or user.is_superuser %}
                                 <li>
                                     <a class="dropdown-item text-black" href="{% url 'admin:index' %}">Админ панель</a>

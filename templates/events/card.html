@@ -144,9 +144,26 @@
 														>{{ event.time_start }} - {{ event.time_end }}</split
 													>
 												</h6>
-												<h6 class="event-place">{{ event.place }}</h6>
-												<h6 class="event-place">{{ event.speakers }}</h6>
+
+                                                <h6><strong>Администратор:</strong>
+                                                    {% for admin in event.events_admin.all %}
+                                                        {{admin}}
+                                                    {% endfor %}
+                                                </h6>
+
+												<h6 class="event-place">{% if event.town %}г.{{ event.town }}{% endif %} {% if event.street %}ул.{{ event.street }}{% endif %} {% if event.house %} д.{{ event.house }}{% endif %}{% if event.cabinet %} кабинет {{ event.cabinet }}{% endif %}</h6>
+												{% comment %} <h6 class="event-place">{{ event.speakers }}</h6> {% endcomment %}
 												<p class="card-text">{{ event.description }}</p>
+
+                                                {% if event.speakers.all %}
+                                                    <p>
+                                                        <h6><strong>Спикеры:</strong></h6>
+                                                        {% for speaker in event.speakers.all %}
+                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if speaker.middle_name %} {{ speaker.middle_name }}{% endif %}{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    </p>
+                                                {% endif %}
+
 												<p class="card-text">
 													<small class="text-muted"
 														>{% if event.tags %} {{ event.tags }} {% else %}
