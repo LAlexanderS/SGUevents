@@ -1,7 +1,8 @@
 import asyncio
 import logging
-import os
 import uuid
+import os
+
 import requests
 import json
 from aiogram import Bot, Dispatcher, types, F, Router
@@ -16,26 +17,27 @@ from dotenv import load_dotenv
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.client.bot import DefaultBotProperties
 from aiohttp import web
-from aiogram.types import Update
-
 
 load_dotenv()
 from bot.django_initializer import setup_django_environment
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
-logging.basicConfig(level=logging.INFO)
 
-# Initialize bot
-TOKEN = settings.ACTIVE_TELEGRAM_BOT_TOKEN
-SUPPORT_CHAT_ID = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
-storage = MemoryStorage()
-dp = Dispatcher()
-router = Router()
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-WEBHOOK_HOST = os.getenv('WEBHOOK_HOST') # URL вашего сервера
-WEBHOOK_PATH = os.getenv('WEBHOOK_PATH')  # Уникальный путь для webhook
+# Инициализируем бота и диспетчера глобально
+TOKEN = settings.ACTIVE_TELEGRAM_BOT_TOKEN
+SUPPORT_CHAT_ID = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
+
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+dp = Dispatcher(storage=MemoryStorage())
+router = Router()
+
+WEBHOOK_HOST = os.getenv('WEBHOOK_HOST')  # URL вашего сервера (например, https://abcd1234.ngrok-free.app)
+WEBHOOK_PATH = os.getenv('WEBHOOK_PATH')  # Уникальный путь для webhook, например '/webhook/'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 class SupportRequestForm(StatesGroup):
@@ -43,8 +45,6 @@ class SupportRequestForm(StatesGroup):
 
 class ReviewForm(StatesGroup):
     waiting_for_review = State()
-
-
 
 async def get_user_profile(telegram_id):
     User = get_user_model()
@@ -83,8 +83,8 @@ async def get_user_events(user):
 
     return event_details
 
-
-@dp.message(CommandStart())
+# Используем router для всех обработчиков
+@router.message(CommandStart())
 async def cmd_start(message: types.Message):
     kb = [
         [
@@ -100,7 +100,7 @@ async def cmd_start(message: types.Message):
     )
     await message.answer("Вас приветствует Event бот СГУ", reply_markup=keyboard)
 
-@dp.message(F.text == "\U0001F464 Мой профиль")
+@router.message(F.text == "\U0001F464 Мой профиль")
 async def profile(message: types.Message):
     user = await get_user_profile(message.from_user.id)
     if user:
@@ -114,7 +114,7 @@ async def profile(message: types.Message):
 def get_department_name(user):
     return user.department.department_name if user.department else "Не указан"
 
-@dp.message(F.text == "\U0001F5D3 Мои мероприятия")
+@router.message(F.text == "\U0001F5D3 Мои мероприятия")
 async def my_events(message: types.Message):
     user = await get_user_profile(message.from_user.id)
     if user:
@@ -128,8 +128,7 @@ async def my_events(message: types.Message):
     else:
         await message.answer("Вы не зарегистрированы на портале.")
 
-
-@dp.message(F.text == "\U00002754 Помощь")
+@router.message(F.text == "\U00002754 Помощь")
 async def help_request(message: types.Message, state: FSMContext):
     user = await get_user_profile(message.from_user.id)
     if user:
@@ -138,7 +137,7 @@ async def help_request(message: types.Message, state: FSMContext):
     else:
         await message.answer("Вы не зарегистрированы на портале.")
 
-@dp.message(SupportRequestForm.waiting_for_question)
+@router.message(SupportRequestForm.waiting_for_question)
 async def receive_question(message: types.Message, state: FSMContext):
     from users.models import SupportRequest
     user = await get_user_profile(message.from_user.id)
@@ -155,6 +154,7 @@ async def receive_question(message: types.Message, state: FSMContext):
     else:
         await message.answer("Вы не зарегистрированы на портале.")
     await state.clear()
+
 def send_message_to_support_chat(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     payload = {
@@ -168,84 +168,94 @@ def send_message_to_support_chat(text):
     if response.status_code != 200:
         print(f"Failed to send message: {response.status_code}, {response.text}")
 
-
+# Обработчики callback_query
 @router.callback_query(F.data.startswith("toggle_"))
 async def toggle_notification(callback_query: types.CallbackQuery):
-    event_id = callback_query.data.split("_")[1]
-    user = await get_user_profile(callback_query.from_user.id)
-    if user:
-        from bookmarks.models import Registered
-        registration = await sync_to_async(Registered.objects.get)(user=user, id=event_id)
-        registration.notifications_enabled = not registration.notifications_enabled
-        await sync_to_async(registration.save)()
+    try:
+        logger.info(f"Получен callback_query: {callback_query.data}")
+        event_id = callback_query.data.split("_")[1]
+        user = await get_user_profile(callback_query.from_user.id)
+        if user:
+            from bookmarks.models import Registered
+            registration = await sync_to_async(Registered.objects.get)(user=user, id=event_id)
+            registration.notifications_enabled = not registration.notifications_enabled
+            await sync_to_async(registration.save)()
 
-        new_button_text = "\U0001F7E2 Включить уведомления" if not registration.notifications_enabled else "\U0001F534 Отключить уведомления"
-        inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text=new_button_text, callback_data=f"toggle_{event_id}")]
-        ])
-        await callback_query.message.edit_reply_markup(reply_markup=inline_keyboard)
-        await callback_query.answer(f"Уведомления {'включены' if registration.notifications_enabled else 'отключены'}.")
-    else:
-        await callback_query.answer("Вы не зарегистрированы на портале.")
-
+            new_button_text = "\U0001F7E2 Включить уведомления" if not registration.notifications_enabled else "\U0001F534 Отключить уведомления"
+            inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text=new_button_text, callback_data=f"toggle_{event_id}")]
+            ])
+            await callback_query.message.edit_reply_markup(reply_markup=inline_keyboard)
+            await callback_query.answer(f"Уведомления {'включены' if registration.notifications_enabled else 'отключены'}.")
+        else:
+            await callback_query.answer("Вы не зарегистрированы на портале.")
+    except Exception as e:
+        logger.error(f"Ошибка в обработчике toggle_notification: {e}")
+        await callback_query.answer("Произошла ошибка.")
 
 @router.message(ReviewForm.waiting_for_review)
 async def receive_review(message: types.Message, state: FSMContext):
-    from django.shortcuts import get_object_or_404
-    from django.contrib.contenttypes.models import ContentType
-    from events_cultural.models import Attractions, Events_for_visiting
-    from events_available.models import Events_online, Events_offline
-    from bookmarks.models import Review
-
-    user = await get_user_profile(message.from_user.id)
-    if not user:
-        await message.answer("Произошла ошибка, попробуйте снова.")
-        await state.clear()
-        return
-
-    data = await state.get_data()
-    event_unique_id = data.get("event_id")
-    event_type = data.get("event_type")
-
-    comment = message.text
-
-    if not comment:
-        await message.answer("Комментарий не может быть пустым")
-        return
-
-    model_map = {
-        "online": Events_online,
-        "offline": Events_offline,
-        "attractions": Attractions,
-        "for_visiting": Events_for_visiting
-    }
-
-    model = model_map.get(event_type)
-    if not model:
-        await message.answer("Некорректный тип мероприятия")
-        return
-
     try:
-        event = await sync_to_async(get_object_or_404)(model, unique_id=event_unique_id)
-        content_type = await sync_to_async(ContentType.objects.get_for_model)(model)
-        review = await sync_to_async(Review.objects.create)(
-            user=user,
-            content_type=content_type,
-            object_id=event.id,  # Используем внутренний ID для создания отзыва
-            comment=comment
-        )
+        from django.shortcuts import get_object_or_404
+        from django.contrib.contenttypes.models import ContentType
+        from events_cultural.models import Attractions, Events_for_visiting
+        from events_available.models import Events_online, Events_offline
+        from bookmarks.models import Review
 
-        await message.answer("Спасибо за ваш отзыв!")
-    except model.DoesNotExist:
-        await message.answer("Не удалось найти событие. Возможно, оно было удалено.")
-    except ValueError:
-        await message.answer("Некорректный UUID для события.")
-    finally:
+        user = await get_user_profile(message.from_user.id)
+        if not user:
+            await message.answer("Произошла ошибка, попробуйте снова.")
+            await state.clear()
+            return
+
+        data = await state.get_data()
+        event_unique_id = data.get("event_id")
+        event_type = data.get("event_type")
+
+        comment = message.text
+
+        if not comment:
+            await message.answer("Комментарий не может быть пустым")
+            return
+
+        model_map = {
+            "online": Events_online,
+            "offline": Events_offline,
+            "attractions": Attractions,
+            "for_visiting": Events_for_visiting
+        }
+
+        model = model_map.get(event_type)
+        if not model:
+            await message.answer("Некорректный тип мероприятия")
+            return
+
+        try:
+            event = await sync_to_async(get_object_or_404)(model, unique_id=event_unique_id)
+            content_type = await sync_to_async(ContentType.objects.get_for_model)(model)
+            review = await sync_to_async(Review.objects.create)(
+                user=user,
+                content_type=content_type,
+                object_id=event.id,  # Используем внутренний ID для создания отзыва
+                comment=comment
+            )
+
+            await message.answer("Спасибо за ваш отзыв!")
+        except model.DoesNotExist:
+            await message.answer("Не удалось найти событие. Возможно, оно было удалено.")
+        except ValueError:
+            await message.answer("Некорректный UUID для события.")
+        finally:
+            await state.clear()
+    except Exception as e:
+        logger.error(f"Ошибка в обработчике receive_review: {e}")
+        await message.answer("Произошла ошибка при приёме отзыва.")
         await state.clear()
 
 @router.callback_query(F.data.startswith("review:"))
 async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMContext):
     try:
+        logger.info(f"Получен callback_query: {callback_query.data}")
         _, event_unique_id, event_type = callback_query.data.split(":")
 
         # Проверяем, что event_unique_id является валидным UUID
@@ -263,92 +273,100 @@ async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMCon
         else:
             await callback_query.answer("Вы не зарегистрированы на портале.")
     except Exception as e:
+        logger.error(f"Ошибка в обработчике handle_leave_review: {e}")
         await callback_query.answer(f"Произошла ошибка: {e}")
-
 
 @router.callback_query(F.data.startswith("notify_toggle_"))
 async def toggle_event_notification(callback_query: types.CallbackQuery):
-    event_unique_id = callback_query.data.split("_")[2]
-    user = await get_user_profile(callback_query.from_user.id)
+    try:
+        logger.info(f"Получен callback_query: {callback_query.data}")
+        event_unique_id = callback_query.data.split("_")[2]
+        user = await get_user_profile(callback_query.from_user.id)
 
-    if user:
-        from bookmarks.models import Registered
-        registration = None
+        if user:
+            from bookmarks.models import Registered
+            registration = None
 
-        # Попробуем найти регистрацию по каждому типу события
-        try:
-            registration = await sync_to_async(Registered.objects.get)(
-                user=user, online__unique_id=event_unique_id
-            )
-        except Registered.DoesNotExist:
+            # Попробуем найти регистрацию по каждому типу события
             try:
                 registration = await sync_to_async(Registered.objects.get)(
-                    user=user, offline__unique_id=event_unique_id
+                    user=user, online__unique_id=event_unique_id
                 )
             except Registered.DoesNotExist:
                 try:
                     registration = await sync_to_async(Registered.objects.get)(
-                        user=user, attractions__unique_id=event_unique_id
+                        user=user, offline__unique_id=event_unique_id
                     )
                 except Registered.DoesNotExist:
                     try:
                         registration = await sync_to_async(Registered.objects.get)(
-                            user=user, for_visiting__unique_id=event_unique_id
+                            user=user, attractions__unique_id=event_unique_id
                         )
                     except Registered.DoesNotExist:
-                        await callback_query.answer("Событие не найдено.")
-                        return
+                        try:
+                            registration = await sync_to_async(Registered.objects.get)(
+                                user=user, for_visiting__unique_id=event_unique_id
+                            )
+                        except Registered.DoesNotExist:
+                            await callback_query.answer("Событие не найдено.")
+                            return
 
-        # Переключаем состояние уведомлений
-        registration.notifications_enabled = not registration.notifications_enabled
-        await sync_to_async(registration.save)()
+            # Переключаем состояние уведомлений
+            registration.notifications_enabled = not registration.notifications_enabled
+            await sync_to_async(registration.save)()
 
-        # Обновляем текст кнопки и отправляем новое сообщение
-        new_button_text = "\U0001F7E2 Включить уведомления" if not registration.notifications_enabled else "\U0001F534 Отключить уведомления"
-        inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text=new_button_text, callback_data=f"notify_toggle_{event_unique_id}")]
-        ])
-        await callback_query.message.edit_reply_markup(reply_markup=inline_keyboard)
-        await callback_query.answer(f"Уведомления {'включены' if registration.notifications_enabled else 'отключены'}.")
-    else:
-        await callback_query.answer("Вы не зарегистрированы на портале.")
+            # Обновляем текст кнопки и отправляем новое сообщение
+            new_button_text = "\U0001F7E2 Включить уведомления" if not registration.notifications_enabled else "\U0001F534 Отключить уведомления"
+            inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text=new_button_text, callback_data=f"notify_toggle_{event_unique_id}")]
+            ])
+            await callback_query.message.edit_reply_markup(reply_markup=inline_keyboard)
+            await callback_query.answer(f"Уведомления {'включены' if registration.notifications_enabled else 'отключены'}.")
+        else:
+            await callback_query.answer("Вы не зарегистрированы на портале.")
+    except Exception as e:
+        logger.error(f"Ошибка в обработчике toggle_event_notification: {e}")
+        await callback_query.answer("Произошла ошибка.")
 
-
-# Добавляем обработчик для Webhook
+# Обработчик вебхука
 async def handle_webhook(request):
-    from django.http import JsonResponse
     try:
-        data = json.loads(request.body)  # Преобразуем тело запроса в JSON
-        update = Update(**data)  # Создаем объект Update напрямую
-        bot = Bot(token=TOKEN)  # Создаем объект бота
-        await dp.feed_update(bot, update)  # Обрабатываем обновление через диспетчер
-        return JsonResponse({"status": "ok"})
+        data = await request.json()
+        logger.info(f"Получены данные вебхука: {json.dumps(data, ensure_ascii=False)}")
+        update = Update(**data)
+        await dp.feed_update(bot, update)  # Передаем bot и update
+        return web.Response(text='OK')
     except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
+        logger.error("Invalid JSON")
+        return web.Response(status=400, text='Invalid JSON')
+    except Exception as e:
+        logger.error(f"Ошибка в обработчике вебхука: {e}")
+        return web.Response(status=500, text=str(e))
+
 # Функция запуска бота с поддержкой Webhook
 async def run_bot():
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    # Настраиваем роутер aiohttp для Webhook
+    # Настраиваем приложение aiohttp
     app = web.Application()
     app.router.add_post(WEBHOOK_PATH, handle_webhook)
+    dp.include_router(router)
 
-    async with bot:
-        dp.include_router(router)
-        
-        # Устанавливаем Webhook
-        await bot.set_webhook(WEBHOOK_URL)
-        # Запускаем aiohttp сервер для приема запросов Webhook
-        runner = web.AppRunner(app)
-        await runner.setup()
-        site = web.TCPSite(runner, '0.0.0.0', 8443)  # Пример порта 8443 для HTTPS
-        await site.start()
-        # Запускаем бота
-        try:
-            await asyncio.Event().wait()  # Ожидаем остановку
-        finally:
-            await bot.delete_webhook()
-            await runner.cleanup()
+    # Устанавливаем вебхук с разрешёнными обновлениями
+    await bot.set_webhook(WEBHOOK_URL, allowed_updates=["message", "callback_query"])
 
+    # Запускаем сервер aiohttp
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', 8443)  # Убедитесь, что используете правильный порт
+    await site.start()
+
+    logger.info("Бот запущен и слушает вебхуки на порту 8443.")
+
+    # Держим бота запущенным
+    try:
+        await asyncio.Event().wait()
+    finally:
+        await bot.delete_webhook()
+        await runner.cleanup()
 
 if __name__ == "__main__":
     setup_django_environment()

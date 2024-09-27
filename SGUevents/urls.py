@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from users.views import telegram_webhook
+# from users.views import telegram_webhook  # Убедитесь, что этот импорт не нужен
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,7 +15,7 @@ urlpatterns = [
     path('personal/', include('personal.urls', namespace='personal')),
     path('select2/', include('django_select2.urls')),
     path('bookmarks/', include('bookmarks.urls', namespace='bookmarks')),
-    path('webhook/', telegram_webhook, name='telegram_webhook'),
+    # path('webhook/', telegram_webhook, name='telegram_webhook'),  # Удалите или закомментируйте эту строку
     path('', include('main.urls', namespace='main')),
 ]
 
@@ -24,3 +24,4 @@ if settings.DEBUG:
         path("__debug__/", include("debug_toolbar.urls")),
     ]
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
