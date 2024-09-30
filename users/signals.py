@@ -4,7 +4,7 @@ from .telegram_utils import send_message_to_user, send_custom_notification_with_
 from events_available.models import Events_online, Events_offline
 from events_cultural.models import Attractions, Events_for_visiting
 from bookmarks.models import Registered
-from .models import SupportRequest
+from .models import SupportRequest, AdminRightRequest
 import logging
 from users.middleware import CurrentUserMiddleware
 
@@ -115,3 +115,25 @@ def notify_user_on_support_request_update(sender, instance, created, **kwargs):
                     logger.error(f"Ошибка при отправке сообщения пользователю {user.username}: {e}")
             else:
                 logger.warning(f"У пользователя {user.username} отсутствует Telegram ID.")
+
+
+@receiver(post_save, sender=AdminRightRequest)
+def notify_user_on_admin_right_request_update(sender, instance, created, **kwargs):
+    if not created:
+        # Проверяем, что статус изменился на 'granted' или 'denied' и есть ответ
+        if instance.status in ['granted', 'denied'] and instance.response:
+            user = instance.user
+            if user.telegram_id:
+                status_message = 'одобрен' if instance.status == 'granted' else 'отклонен'
+                message = (
+                    f"Здравствуйте, {user.first_name}!\n\n"
+                    f"Ваш запрос на админские права был {status_message}.\n\n"
+                    f"**Ответ от техподдержки:** {instance.response}"
+                )
+                try:
+                    send_message_to_user(user.telegram_id, message)
+                    logger.info(f"Сообщение отправлено пользователю {user.username} (Telegram ID: {user.telegram_id}) по запросу на админские права.")
+                except Exception as e:
+                    logger.error(f"Ошибка при отправке сообщения пользователю {user.username} (Telegram ID: {user.telegram_id}): {e}")
+            else:
+                logger.warning(f"У пользователя {user.username} отсутствует Telegram ID. Невозможно отправить уведомление.")
