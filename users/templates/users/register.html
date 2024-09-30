@@ -70,6 +70,24 @@
         .divider::after {
             margin-left: 10px;
         }
+        /* Новый класс для скрытия кнопки */
+        .hidden-button {
+            display: none;
+        }
+        /* Стиль для серой кнопки Telegram */
+        .disabled-telegram-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 10px;
+            background-color: #6c757d; /* Серый цвет */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: not-allowed;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -79,7 +97,7 @@
     <div class="alert alert-info" role="alert">
         Для регистрации на портале введите ваше ФИО и код подразделения.
         <br>Код подразделения можно посмотреть на корпоративном портале.
-        <br>Для регистрации необходимо авторизоватья через телеграм.
+        <br>Для регистрации необходимо авторизоватья через Telegram.
     </div>
     <form method="post" action="{% url 'users:register' %}">
         {% csrf_token %}
@@ -90,16 +108,17 @@
                 {{ form.errors }}
             {% endif %}
         </div>
-        <div class="text-center">
+        <div class="text-center" id="telegramLoginWidget">
             <script async src="https://telegram.org/js/telegram-widget.js?7"
                     data-telegram-login="{{ telegram_bot_username }}" data-size="large"
                     data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
         </div>
-        <div id="authStatus" class="alert alert-success auth-status" style="display: none;">
+        <div id="authStatus" class="alert alert-success auth-status">
             Вы успешно авторизовались через Telegram!
         </div>
         <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary mt-3" id="signupButton" disabled>Зарегистрироваться</button>
+            <!-- Добавляем класс 'hidden-button' для скрытия кнопки -->
+            <button type="submit" class="btn btn-primary mt-3 hidden-button" id="signupButton">Завершить регистрацию</button>
         </div>
     </form>
 </div>
@@ -107,9 +126,26 @@
 <script>
     function onTelegramAuth(user) {
         console.log(user);
+        // Отображаем статус авторизации
         document.getElementById('authStatus').style.display = 'block';
-        document.getElementById('signupButton').disabled = false;
-        document.getElementById('id_telegram_id').value = user.id;
+        // Убираем класс 'hidden-button', чтобы показать кнопку регистрации
+        document.getElementById('signupButton').classList.remove('hidden-button');
+        // Устанавливаем значение поля 'telegram_id'
+        var telegramIdField = document.getElementById('id_telegram_id');
+        if (telegramIdField) {
+            telegramIdField.value = user.id;
+        } else {
+            // Если поле не найдено, создаём его
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'telegram_id';
+            input.id = 'id_telegram_id';
+            input.value = user.id;
+            document.querySelector('form').appendChild(input);
+        }
+        // Заменяем Telegram Widget на серую кнопку
+        var widget = document.getElementById('telegramLoginWidget');
+        widget.innerHTML = '<button type="button" class="disabled-telegram-button">Авторизовано через Telegram</button>';
     }
 </script>
 
