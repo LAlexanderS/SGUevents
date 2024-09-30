@@ -4,6 +4,7 @@ from .telegram_utils import send_message_to_user, send_custom_notification_with_
 from events_available.models import Events_online, Events_offline
 from events_cultural.models import Attractions, Events_for_visiting
 from bookmarks.models import Registered
+from .models import SupportRequest
 import logging
 from users.middleware import CurrentUserMiddleware
 
@@ -93,3 +94,24 @@ def handle_event_update(event_model, instance):
 @receiver(post_save, sender=Events_for_visiting)
 def handle_event_update_signal(sender, instance, **kwargs):
     handle_event_update(sender, instance)
+
+@receiver(post_save, sender=SupportRequest)
+def notify_user_on_support_request_update(sender, instance, created, **kwargs):
+    if not created:
+        # Проверяем, что запрос был помечен как решённый и имеет ответ
+        if instance.is_resolved and instance.answer:
+            user = instance.user
+            if user.telegram_id:
+                message = (
+                    f"Здравствуйте, {user.first_name}!\n\n"
+                    f"Получен ответ от технической поддержки\n\n"
+                    f"**Ваш вопрос:** {instance.question}\n\n"
+                    f"**Ответ:** {instance.answer}"
+                )
+                try:
+                    send_message_to_user(user.telegram_id, message)
+                    logger.info(f"Сообщение отправлено пользователю {user.username} (Telegram ID: {user.telegram_id})")
+                except Exception as e:
+                    logger.error(f"Ошибка при отправке сообщения пользователю {user.username}: {e}")
+            else:
+                logger.warning(f"У пользователя {user.username} отсутствует Telegram ID.")
