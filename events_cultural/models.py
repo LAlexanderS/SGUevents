@@ -32,6 +32,7 @@ class Attractions(models.Model):
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
+    member =  models.ManyToManyField(User, blank=True, related_name='member_attractions', verbose_name='Участники')
 
 
     class Meta:

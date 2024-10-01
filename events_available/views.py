@@ -72,7 +72,7 @@ def online(request):
         pass 
     else:
         if user.department:
-            events_available = events_available.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
+            events_available = events_available.filter(Q(secret__isnull=True) | Q(secret=user.department) | Q(member=user)).distinct()
         else:
             events_available = events_available.filter(secret__isnull=True).distinct()  
 
@@ -267,7 +267,7 @@ def offline(request):
         pass 
     else:
         if user.department:
-            events_available = events_available.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
+            events_available = events_available.filter(Q(secret__isnull=True) | Q(secret=user.department) | Q(member=user)).distinct()
         else:
             events_available = events_available.filter(secret__isnull=True).distinct()
 

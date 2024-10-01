@@ -23,14 +23,14 @@ def index(request):
     cultural1 = Events_for_visiting.objects.order_by('date')
     user = request.user
 
-    if user.is_superuser or user.department.department_name not in ['Administration', 'Superuser']:
+    if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
         all_content = list(chain(available, available1, cultural, cultural1))
     else:
         if user.department:
-            available = available.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
-            available1 = available1.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
-            cultural = cultural.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
-            cultural1 = cultural1.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
+            available = available.filter(Q(secret__isnull=True) | Q(secret=user.department) | Q(member=user)).distinct()
+            available1 = available1.filter(Q(secret__isnull=True) | Q(secret=user.department) | Q(member=user)).distinct()
+            cultural = cultural.filter(Q(secret__isnull=True) | Q(secret=user.department) | Q(member=user)).distinct()
+            cultural1 = cultural1.filter(Q(secret__isnull=True) | Q(secret=user.department) | Q(member=user)).distinct()
         else:
             available = available.filter(secret__isnull=True).distinct()
             available1 = available1.filter(secret__isnull=True).distinct()

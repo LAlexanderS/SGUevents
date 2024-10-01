@@ -71,9 +71,11 @@ def attractions(request):
         events_cultural = Attractions.objects.order_by('date')
 
     # Фильтрация по скрытым мероприятиям
-    if not user.is_superuser and not user.department.department_name in ['Administration', 'Superuser']:
+    if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
+        pass
+    else:
         if user.department:
-            events_cultural = events_cultural.filter(Q(secret__isnull=True) | Q(secret=user.department)).distinct()
+            events_cultural = events_cultural.filter(Q(secret__isnull=True) | Q(secret=user.department) | Q(member=user)).distinct()
         else:
             events_cultural = events_cultural.filter(secret__isnull=True).distinct()
 
