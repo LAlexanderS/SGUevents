@@ -35,15 +35,15 @@ class Favorite(models.Model):
 
     def __str__(self):
         try:
-            return f'Избранные {self.user.middle_name} | Мероприятие {self.online.name} | Тип {self.online.category}'
+            return f'Избранные | {self.user.last_name} {self.user.first_name} {self.user.middle_name} | Мероприятие {self.online.name} | Тип {self.online.category}'
         except:
             try:
-                return f'Избранные {self.user.middle_name} | Мероприятие {self.offline.name} | Тип {self.offline.category}'
+                return f'Избранные | {self.user.last_name} {self.user.first_name} {self.user.middle_name} | Мероприятие {self.offline.name} | Тип {self.offline.category}'
             except:
                 try:
-                    return f'Избранные {self.user.middle_name} | Мероприятие {self.attractions.name} | Тип {self.attractions.category}'
+                    return f'Избранные | {self.user.last_name} {self.user.first_name} {self.user.middle_name} | Мероприятие {self.attractions.name} | Тип {self.attractions.category}'
                 except:
-                    return f'Избранные {self.user.middle_name} | Мероприятие {self.for_visiting.name} | Тип {self.for_visiting.category}'
+                    return f'Избранные | {self.user.last_name} {self.user.first_name} {self.user.middle_name} | Мероприятие {self.for_visiting.name} | Тип {self.for_visiting.category}'
 
 
 class Registered(models.Model):
@@ -67,15 +67,15 @@ class Registered(models.Model):
 
     def __str__(self):
         try:
-            return f'Зарегистрированные {self.user.middle_name} | Мероприятие {self.online.name} | Тип {self.online.category}'
+            return f'Зарегистрированные | {self.user.last_name} {self.user.first_name} {self.user.middle_name} | Мероприятие {self.online.name} | Тип {self.online.category}'
         except:
             try:
-                return f'Зарегистрированные {self.user.middle_name} | Мероприятие {self.offline.name} | Тип {self.offline.category}'
+                return f'Зарегистрированные | {self.user.last_name} {self.user.first_name} {self.user.middle_name} | Мероприятие {self.offline.name} | Тип {self.offline.category}'
             except:
                 try:
-                    return f'Зарегистрированные {self.user.middle_name} | Мероприятие {self.attractions.name} | Тип {self.attractions.category}'
+                    return f'Зарегистрированные | {self.user.last_name} {self.user.first_name} {self.user.middle_name} | Мероприятие {self.attractions.name} | Тип {self.attractions.category}'
                 except:
-                    return f'Зарегистрированные {self.user.middle_name} | Мероприятие {self.for_visiting.name} | Тип {self.for_visiting.category}'
+                    return f'Зарегистрированные | {self.user.last_name} {self.user.first_name} {self.user.middle_name} | Мероприятие {self.for_visiting.name} | Тип {self.for_visiting.category}'
 
 
 from django.utils import timezone
