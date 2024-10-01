@@ -288,9 +288,9 @@
                                                 
                                                 {% if events.place_limit and events.place_free %}
                                                     <p>
-                                                        {{events.place_limit}}\{{events.place_free}}
-                                                    </p> 
-                                                {% endif %}                                               
+                                                        {{events.place_limit}} / <span id="free-places-{{ events.id }}">{{events.place_free}}</span>
+                                                    </p>
+                                                {% endif %}                                          
 
                                                 {% block content %}{% endblock content %}
                                                 {% block admins_events %}{% endblock admins_events %}
