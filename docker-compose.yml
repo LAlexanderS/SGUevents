@@ -1,6 +1,8 @@
+version: '3.8'
+
 services:
   db:
-    image: postgres:14.5 # Updated to latest version
+    image: postgres:14.5
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     restart: always
@@ -85,7 +87,6 @@ services:
 volumes:
   postgres_data:
   static_value:
-
 
 networks:
   my_network:
