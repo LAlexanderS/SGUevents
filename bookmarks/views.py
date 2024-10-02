@@ -260,13 +260,13 @@ def get_event_choices(request):
     events = []
 
     if event_type == 'online':
-        events = Events_online.objects.all()
+        events = Events_online.objects.filter(events_admin=request.user)
     elif event_type == 'offline':
-        events = Events_offline.objects.all()
+        events = Events_offline.objects.filter(events_admin=request.user)
     elif event_type == 'attractions':
-        events = Attractions.objects.all()
+        events = Attractions.objects.filter(events_admin=request.user)
     elif event_type == 'for_visiting':
-        events = Events_for_visiting.objects.all()
+        events = Events_for_visiting.objects.filter(events_admin=request.user)
 
     event_data = [{'id': event.id, 'name': event.name} for event in events]
     return JsonResponse(event_data, safe=False)

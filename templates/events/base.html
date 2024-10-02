@@ -512,7 +512,8 @@
         event.preventDefault();
         const eventSlug = this.getAttribute('data-event-slug');
         const buttonElement = this;
-
+        const freePlacesElement = document.getElementById('free-places-' + eventSlug); // Получаем элемент с количеством свободных мест
+    
         fetch(`/bookmarks/events_registered/${eventSlug}/`, {
             method: 'POST',
             headers: {
@@ -530,6 +531,12 @@
                 buttonElement.setAttribute('data-event-id', data.event_id);
                 buttonElement.removeAttribute('data-event-slug');
                 showRegistrationNotification("Зарегистрировано");
+    
+                // Обновляем количество свободных мест на основе данных из ответа
+                if (data.place_free !== undefined && freePlacesElement) {
+                    freePlacesElement.textContent = data.place_free;
+                }
+    
                 initializeRegistrationButtons();
             } else {
                 console.error('Ошибка при регистрации:', data.error);
@@ -537,12 +544,13 @@
         })
         .catch(error => console.error('Error:', error));
     }
-
+    
     function handleUnregister(event) {
         event.preventDefault();
         const eventId = this.getAttribute('data-event-id');
         const buttonElement = this;
-
+        const freePlacesElement = document.getElementById('free-places-' + eventId); // Получаем элемент с количеством свободных мест
+    
         fetch(`/bookmarks/registered_remove/${eventId}/`, {
             method: 'POST',
             headers: {
@@ -560,6 +568,12 @@
                 buttonElement.setAttribute('data-event-slug', data.event_slug);
                 buttonElement.removeAttribute('data-event-id');
                 showRegistrationNotification("Регистрация отменена");
+    
+                // Обновляем количество свободных мест на основе данных из ответа
+                if (data.place_free !== undefined && freePlacesElement) {
+                    freePlacesElement.textContent = data.place_free;
+                }
+    
                 initializeRegistrationButtons();
             } else {
                 console.error('Ошибка при отмене регистрации:', data.error);
@@ -567,7 +581,7 @@
         })
         .catch(error => console.error('Ошибка:', error));
     }
-
+    
     function showRegistrationNotification(message) {
         const notification = document.getElementById('registrationNotification');
         notification.querySelector('p').textContent = message;
