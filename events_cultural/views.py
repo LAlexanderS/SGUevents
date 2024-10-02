@@ -60,7 +60,7 @@ def attractions(request):
 
     # Фильтрация по названию
     if name_search:
-        events_cultural = Attractions.objects.filter(name__icontains=name_search).order_by('date')
+        events_cultural = Attractions.objects.filter(name__icontains=name_search).order_by('-date_add')
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
@@ -68,7 +68,7 @@ def attractions(request):
         filters_applied = True
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
-        events_cultural = Attractions.objects.order_by('date')
+        events_cultural = Attractions.objects.order_by('-date_add')
 
     # Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -206,7 +206,7 @@ def events_for_visiting(request):
 
     # Фильтрация по названию
     if name_search:
-        events_cultural = Events_for_visiting.objects.filter(name__icontains=name_search).order_by('date')
+        events_cultural = Events_for_visiting.objects.filter(name__icontains=name_search).order_by('-date_add')
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
@@ -214,7 +214,7 @@ def events_for_visiting(request):
         filters_applied = True
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
-        events_cultural = Events_for_visiting.objects.order_by('date')
+        events_cultural = Events_for_visiting.objects.order_by('-date_add')
     
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:

@@ -290,15 +290,17 @@ font-size: 14px; /* Опционально: можно уменьшить раз
 
 {% block content %}
 <!-- Контент на странице -->
-{% if events.id in registered %}
+{% if events.date >= now %}
+    {% if events.id in registered %}
 
-<a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
-    Отмена регистрации
-</a>
-{% else %}
-<a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
-    Регистрация
-</a>
+    <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
+        Отмена регистрации
+    </a>
+    {% else %}
+    <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
+        Регистрация
+    </a>
+    {% endif %}
 {% endif %}
 
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="offline">Оставить отзыв</button>

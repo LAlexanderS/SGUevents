@@ -6,6 +6,10 @@ from django.utils.timezone import make_aware, get_default_timezone
 from django.contrib.contenttypes.fields import GenericRelation
 from users.models import Department, User
 from django.contrib.postgres.indexes import GinIndex
+from django.utils import timezone
+from pytz import timezone as pytz_timezone
+
+
 
 
 class Events_online(models.Model):
@@ -31,6 +35,8 @@ class Events_online(models.Model):
     start_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время начала')
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
+    date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
+
 
     class Meta:
         db_table = 'Events_online'
@@ -48,6 +54,9 @@ class Events_online(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        local_timezone = pytz_timezone('Asia/Novosibirsk')
+        self.date_submitted = timezone.now().astimezone(local_timezone)
+
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
         self.start_datetime = make_aware(combined_start_datetime, timezone=get_default_timezone())
@@ -85,6 +94,7 @@ class Events_offline(models.Model):
     start_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время начала')
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
+    date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
 
     class Meta:
         db_table = 'Events_offline'
@@ -98,6 +108,10 @@ class Events_offline(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        local_timezone = pytz_timezone('Asia/Novosibirsk')
+        self.date_submitted = timezone.now().astimezone(local_timezone)
+        
+
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
         self.start_datetime = make_aware(combined_start_datetime, timezone=get_default_timezone())
