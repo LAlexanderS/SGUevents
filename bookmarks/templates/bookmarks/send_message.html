@@ -30,28 +30,8 @@
     </form>
 </div>
 {% endblock content %}
-<script>
-    $(document).ready(function() {
-        $('#id_event_type').change(function() {
-            var eventType = $(this).val();
-            $.ajax({
-                url: "{% url 'bookmarks:get_event_choices' %}",
-                data: {
-                    'event_type': eventType
-                },
-                success: function(data) {
-                    var eventSelect = $('#id_event');
-                    eventSelect.empty();
-                    eventSelect.append('<option value="">---------</option>');
-                    $.each(data, function(index, event) {
-                        eventSelect.append('<option value="' + event.id + '">' + event.name + '</option>');
-                    });
-                }
-            });
-        });
-    });
-</>
-</script>
+
+
 
 
 
