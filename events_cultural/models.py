@@ -33,6 +33,8 @@ class Attractions(models.Model):
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
     member =  models.ManyToManyField(User, blank=True, related_name='member_attractions', verbose_name='Участники')
+    date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
+
 
 
     class Meta:
@@ -48,6 +50,9 @@ class Attractions(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        local_timezone = pytz_timezone('Asia/Novosibirsk')
+        self.date_submitted = timezone.now().astimezone(local_timezone)
+
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
         self.start_datetime = make_aware(combined_start_datetime, timezone=get_default_timezone())
@@ -82,7 +87,7 @@ class Events_for_visiting(models.Model):
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
-
+    date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
 
     class Meta:
         db_table = 'Events_for_visiting'
@@ -97,6 +102,9 @@ class Events_for_visiting(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        local_timezone = pytz_timezone('Asia/Novosibirsk')
+        self.date_submitted = timezone.now().astimezone(local_timezone)
+
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
         self.start_datetime = make_aware(combined_start_datetime, timezone=get_default_timezone())

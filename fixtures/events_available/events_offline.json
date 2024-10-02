@@ -25,7 +25,8 @@
 			"image": "events_available_images/offline/workplace_ak9APHP.jpg",
 			"events_admin": "1",
 			"documents": "",
-			"category": "Оффлайн"
+			"category": "Оффлайн",
+			"date_add": "2024-10-02T03:32:32.179Z"
 		}
 	},
 	{
@@ -54,7 +55,8 @@
 			"image": "events_available_images/offline/conference.jpg",
 			"events_admin": "2",
 			"documents": "",
-			"category": "Оффлайн"
+			"category": "Оффлайн",
+			"date_add": "2024-10-01T03:32:32.179Z"
 		}
 	},
 	{
@@ -83,7 +85,8 @@
 			"image": "",
 			"events_admin": "3",
 			"documents": "",
-			"category": "Оффлайн"
+			"category": "Оффлайн",
+			"date_add": "2024-10-02T03:28:32.179Z"
 		}
 	},
 	{
@@ -112,7 +115,8 @@
 			"image": "events_available_images/offline/images.jpeg",
 			"events_admin": "4",
 			"documents": "",
-			"category": "Оффлайн"
+			"category": "Оффлайн",
+			"date_add": "2024-10-02T02:32:32.179Z"
 		}
 	},
 	{
@@ -141,7 +145,8 @@
 			"image": "events_available_images/offline/ia1o146uks.jpg",
 			"events_admin": "5",
 			"documents": "",
-			"category": "Оффлайн"
+			"category": "Оффлайн",
+			"date_add": "2024-10-02T01:32:32.179Z"
 		}
 	},
 	{
@@ -170,7 +175,8 @@
 			"image": "events_available_images/offline/73609.jpg",
 			"events_admin": "2",
 			"documents": "",
-			"category": "Оффлайн"
+			"category": "Оффлайн",
+			"date_add": "2024-10-01T02:32:32.179Z"
 		}
 	},
 	{
@@ -199,7 +205,8 @@
 			"image": "events_available_images/offline/image1s.jpeg",
 			"events_admin": "3",
 			"documents": "",
-			"category": "Оффлайн"
+			"category": "Оффлайн",
+			"date_add": "2024-10-01T01:32:32.179Z"
 		}
 	}
 ]

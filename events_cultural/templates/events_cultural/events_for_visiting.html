@@ -229,15 +229,18 @@ font-size: 14px; /* Опционально: можно уменьшить раз
 {% endblock sort %}
 
 {% block content %}
-<!-- Контент на странице -->
-{% if events.id in registered %}
-<a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
-	Отмена регистрации
-</a>
-{% else %}
-<a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
-	Регистрация
-</a>
+
+{% if events.date >= now %}
+    <!-- Контент на странице -->
+    {% if events.id in registered %}
+    <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
+        Отмена регистрации
+    </a>
+    {% else %}
+    <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
+        Регистрация
+    </a>
+    {% endif %}
 {% endif %}
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="for_visiting">Оставить отзыв </button>
 {% endblock content %}

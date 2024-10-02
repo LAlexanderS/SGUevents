@@ -13,6 +13,7 @@ from users.models import Department, User
 from django.db.models import Q
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat
+from django.utils.timezone import now
 
 
 
@@ -57,7 +58,7 @@ def online(request):
 
     if name_search:
         # Фильтр только по названию
-        events_available = Events_online.objects.filter(name__icontains=name_search).order_by('date')
+        events_available = Events_online.objects.filter(name__icontains=name_search).order_by('-date_add')
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
@@ -65,7 +66,7 @@ def online(request):
         filters_applied = True
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
-        events_available = Events_online.objects.order_by('date')
+        events_available = Events_online.objects.order_by('-date_add')
 
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -229,6 +230,8 @@ def offline(request):
     name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     user = request.user
 
+    today = now().date()
+    
     all_info = Events_offline.objects.all()
     # Получаем всех спикеров
     speakers_set = set()
@@ -252,7 +255,7 @@ def offline(request):
 
     if name_search:
         # Фильтр только по названию
-        events_available = Events_offline.objects.filter(name__icontains=name_search).order_by('date')
+        events_available = Events_offline.objects.filter(name__icontains=name_search).order_by('-date_add')
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
@@ -260,7 +263,7 @@ def offline(request):
         filters_applied = True
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
-        events_available = Events_offline.objects.order_by('date')
+        events_available = Events_offline.objects.order_by('-date_add')
 
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -371,6 +374,7 @@ def offline(request):
         "date_start": date_start,
         "date_end": date_end,
         'filters_applied': filters_applied,
+        'now': now().date(),
 
     }
 
