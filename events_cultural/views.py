@@ -11,23 +11,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import redirect
 from users.models import User, Department
-from django.db.models import Q
-from django.db.models import CharField, Value
-from django.db.models.functions import Concat
-
-from django.http import JsonResponse
-from django.shortcuts import render, get_list_or_404, get_object_or_404
-from django.core.paginator import Paginator
-from bookmarks.models import Favorite, Registered
-from events_cultural.models import Attractions
-from bookmarks.models import Review
-from events_cultural.utils import q_search_attractions
 from datetime import datetime
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q, CharField, Value
 from django.db.models.functions import Concat
+from django.utils.timezone import now
+
 
 @login_required
 def attractions(request):
@@ -142,6 +130,8 @@ def attractions(request):
         "date_start": date_start,
         "date_end": date_end,
         'filters_applied': filters_applied,
+        'now': now().date(),
+
     }
 
     return render(request, 'events_cultural/attractions.html', context)
@@ -289,6 +279,8 @@ def events_for_visiting(request):
         "date_start": date_start,
         "date_end": date_end,
         'filters_applied': filters_applied,
+        'now': now().date(),
+
         
     }
     return render(request, 'events_cultural/events_for_visiting.html', context)

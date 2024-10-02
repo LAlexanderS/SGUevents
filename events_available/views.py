@@ -177,6 +177,8 @@ def online(request):
         "date_start": date_start,
         "date_end": date_end,
         'filters_applied': filters_applied,
+        'now': now().date(),
+
     }
 
     return render(request, 'events_available/online_events.html', context=context)
