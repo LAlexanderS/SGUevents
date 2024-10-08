@@ -1,4 +1,4 @@
-
+from django.contrib.auth.models import Group
 import uuid
 from django.db import models
 from datetime import datetime
@@ -8,9 +8,6 @@ from users.models import Department, User
 from django.contrib.postgres.indexes import GinIndex
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
-
-
-
 
 class Events_online(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
@@ -36,6 +33,7 @@ class Events_online(models.Model):
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
+    # admin_groups = models.ManyToManyField(Group, blank=True, related_name='event_admin_groups', verbose_name="Администраторы (группы)")
 
 
     class Meta:
@@ -54,6 +52,7 @@ class Events_online(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+    # Сохраняем временную зону и дату для событий
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
 
@@ -64,9 +63,21 @@ class Events_online(models.Model):
         combined_end_datetime = datetime.combine(self.date, self.time_end)
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
+        # Сначала сохраняем мероприятие (нужно для того, чтобы иметь ID объекта)
         super(Events_online, self).save(*args, **kwargs)
-    
- 
+
+        # # Добавляем администраторов из групп в поле "Участники", не удаляя существующих участников
+        # for group in self.admin_groups.all():
+        #     group_users = group.user_set.all()  # Получаем всех пользователей из группы
+        #     print(f'Группа: {group.name} содержит пользователей: {group_users}')
+        #     for user in group_users:
+        #         if user not in self.member.all():  # Проверяем, есть ли пользователь уже в участниках
+        #             print(f'Добавляю пользователя {user} в участники')
+        #             self.member.add(user)  # Добавляем всех пользователей группы в участники (member)
+        
+        # Сохраняем изменения снова после добавления участников
+        # super(Events_online, self).save(*args, **kwargs)
+
 
 class Events_offline(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
