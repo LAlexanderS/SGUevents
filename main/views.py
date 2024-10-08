@@ -22,6 +22,8 @@ def index(request):
     cultural = Attractions.objects.order_by('date')
     cultural1 = Events_for_visiting.objects.order_by('date')
     user = request.user
+    page = request.GET.get('page', 1)
+    f_speakers = request.GET.getlist('f_speakers', None)
 
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
         all_content = list(chain(available, available1, cultural, cultural1))
@@ -39,12 +41,8 @@ def index(request):
         
         all_content = list(chain(available, available1, cultural, cultural1))
 
-    # Получаем всех спикеров из онлайн и оффлайн мероприятий
-    speakers_online = User.objects.filter(speaker_online__in=available).distinct()
-    speakers_offline = User.objects.filter(speaker_offline__in=available1).distinct()
+    
 
-    # Объединяем всех спикеров в один список (чтобы избежать дублирования)
-    all_speakers = list(set(chain(speakers_online, speakers_offline)))
 
     page = request.GET.get('page', 1)
     f_all = request.GET.get('f_all', None)
@@ -71,21 +69,58 @@ def index(request):
         date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
         events_all = [event for event in events_all if event.date <= date_end_formatted]
 
-    # Фильтрация по спикерам
+
+    speakers_set = set()
+    for event in available:
+        for speaker in event.speakers.all():
+            # Явно формируем строку с Фамилией, Именем и Отчеством
+            full_name = f"{speaker.last_name} {speaker.first_name} {speaker.middle_name if speaker.middle_name else ''}".strip()
+            speakers_set.add(full_name)
+
+    for event in available1:
+        for speaker in event.speakers.all():
+            # Явно формируем строку с Фамилией, Именем и Отчеством
+            full_name = f"{speaker.last_name} {speaker.first_name} {speaker.middle_name if speaker.middle_name else ''}".strip()
+            speakers_set.add(full_name)
+
+    speakers = list(speakers_set)
+    
+    # Инициализируем пустой список для спикеров, чтобы избежать ошибки, если фильтры по спикерам не применяются
+    speakers_objects = []
+
+     # Фильтрация по спикерам
     if f_speakers:
-        # Аннотируем пользователей полным именем
-        speakers_with_full_name = User.objects.annotate(
-            full_name=Concat('first_name', Value(' '), 'middle_name', Value(' '), 'last_name')
-        )
+        # Преобразуем имена спикеров в объекты User, учитывая Фамилию, Имя, и Отчество
+        for name in f_speakers:
+            # Разбиваем на части: Фамилия Имя Отчество
+            split_name = name.split()
+            
+            if len(split_name) == 2:  # Если есть только фамилия и имя
+                last_name, first_name = split_name
+                users = User.objects.filter(
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                speakers_objects.extend(users)
+            
+            elif len(split_name) == 3:  # Если есть фамилия, имя и отчество
+                last_name, first_name, middle_name = split_name
+                users = User.objects.filter(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name
+                )
+                speakers_objects.extend(users)
+        
+        # Применяем фильтр по спикерам, если есть результаты
+        if speakers_objects:
+            available1 = available1.filter(speakers__in=speakers_objects)
+            available = available.filter(speakers__in=speakers_objects)
 
-        # Фильтруем пользователей по полным именам из f_speakers
-        speakers_objects = speakers_with_full_name.filter(full_name__in=f_speakers)
+        events_all = list(chain(available, available1))
 
-        # Фильтруем только те события, которые имеют поле `speakers`
-        events_all = [
-            event for event in events_all
-            if hasattr(event, 'speakers') and any(speaker in event.speakers.all() for speaker in speakers_objects)
-        ]
+            
+
 
     # Фильтрация по тегам
     if f_tags:
@@ -141,7 +176,7 @@ def index(request):
     'registered': registered_dict,
     'tags': list(set(tag for event in all_content if event.tags for tag in event.tags.split(','))),
     'f_tags': f_tags, 
-    'speakers': all_speakers,
+    'speakers': speakers,
     'f_speakers': f_speakers,  
 }
 
