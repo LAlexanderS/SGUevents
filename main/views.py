@@ -10,6 +10,9 @@ from django.db.models import Q
 from datetime import datetime
 from django.db.models import Value
 from django.db.models.functions import Concat
+from events_available.utils import *
+from events_cultural.utils import *
+from django.http import JsonResponse
 
 
 from main.utils import q_search_all
@@ -88,14 +91,16 @@ def index(request):
         available1 = Events_offline.objects.filter(name__icontains=name_search).order_by('-date_add')
         cultural = Attractions.objects.filter(name__icontains=name_search).order_by('-date_add')
         cultural1 = Events_for_visiting.objects.filter(name__icontains=name_search).order_by('-date_add')
+        events_all = list(chain(available, available1, cultural, cultural1))
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
-        available = q_search_all(query)
-        available1 = q_search_all(query)
-        cultural = q_search_all(query)
-        cultural1 = q_search_all(query)
+        available = q_search_online(query)
+        available1 = q_search_offline(query)
+        cultural = q_search_attractions(query)
+        cultural1 = q_search_events_for_visiting(query)
         filters_applied = True
+        events_all = list(chain(available, available1, cultural, cultural1))
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
         available = Events_online.objects.order_by('-date_add')
@@ -158,26 +163,19 @@ def index(request):
 
             events_all = list(chain(available, available1))
 
-
-    # if f_tags:
-    #     tags_query = Q()
-    #     for tag in f_tags:
-    #         tags_query |= Q(tags__icontains=tag)
-    #     events_all = events_all.filter(tags_query)
-
-
-
-
-
-
-
     # Фильтрация по тегам
     if f_tags:
         events_all = [event for event in events_all if event.tags and any(tag in event.tags for tag in f_tags)]
 
     # Сортировка
     if order_by and order_by != "default":
-        events_all = sorted(events_all, key=lambda x: getattr(x, order_by))
+        reverse = False  # По умолчанию сортировка по возрастанию
+        if order_by.startswith('-'):
+            reverse = True
+            order_by = order_by[1:]  # Убираем знак минуса для обратной сортировки
+
+        events_all = sorted(events_all, key=lambda x: getattr(x, order_by), reverse=reverse)
+
 
     # Пагинация
     paginator = Paginator(events_all, 10)
@@ -227,6 +225,38 @@ def index(request):
     'f_tags': f_tags, 
     'speakers': speakers,
     'f_speakers': f_speakers,  
+    'filters_applied': filters_applied,
+    'time_to_start': time_to_start,
+    'time_to_end': time_to_end,
+    "date_start": date_start,
+    "date_end": date_end,
+
 }
 
     return render(request, 'main/index.html', context)
+
+import logging
+logger = logging.getLogger(__name__)
+
+def autocomplete_event_name(request):
+    term = request.GET.get('term', '')  # Получаем параметр запроса
+    if not term:
+        return JsonResponse([], safe=False)
+
+    try:
+        # Ищем совпадения по всем типам мероприятий
+        matching_online = Events_online.objects.filter(name__icontains=term)[:10]
+        matching_offline = Events_offline.objects.filter(name__icontains=term)[:10]
+        matching_attractions = Attractions.objects.filter(name__icontains=term)[:10]
+        matching_for_visiting = Events_for_visiting.objects.filter(name__icontains=term)[:10]
+
+        # Объединяем все события
+        all_matching_events = list(chain(matching_online, matching_offline, matching_attractions, matching_for_visiting))
+
+        # Извлекаем названия мероприятий
+        suggestions = [event.name for event in all_matching_events]
+
+        return JsonResponse(suggestions, safe=False)
+
+    except Exception as e:
+        return JsonResponse([], safe=False)
