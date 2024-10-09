@@ -22,7 +22,7 @@
     <header>
         <nav class="navbar navbar-expand-lg bg-dark text-white">
             <div class="container-fluid">
-                <a class="navbar-brand" href={% url "main:index" %}>Home</a>
+                <a class="navbar-brand" href={% url "main:index" %}><img class="home-icon" src="{% static 'general/icons/home.png' %}" alt="Home" width="25" height="25"></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -116,7 +116,7 @@
                                     <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
                                         <a class="page-link-arrow" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}"><div class="arrow">
                                             {% if not event_card_views.has_previous %}
-                                                <img src="{% static "general/icons/arrow-left-disabled.png" %}" class="arrow" alt="Предыдущая">
+                                                {% comment %} <img src="{% static "general/icons/arrow-left-disabled.png" %}" class="arrow" alt="Предыдущая"> {% endcomment %}
                                             {% else %}
                                                 <img src="{% static "general/icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">
 
@@ -333,7 +333,7 @@
                                     <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
                                         <a class="page-link-arrow" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}"><div class="arrow">
                                             {% if not event_card_views.has_next %}
-                                                <img src="{% static "general/icons/arrow-right-disabled.png" %}" class="arrow" alt="Следующая">
+                                                {% comment %} <img src="{% static "general/icons/arrow-right-disabled.png" %}" class="arrow" alt="Следующая"> {% endcomment %}
                                             {% else %}
                                                 <img src="{% static "general/icons/arrow-right.png" %}" class="arrow" alt="Следующая">
                                             {% endif %}
