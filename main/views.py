@@ -105,16 +105,25 @@ def index(request):
 
     # Фильтрация по дате
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
+        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
         events_all = [event for event in events_all if event.date >= date_start_formatted]
 
     if date_end:
-        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
+        date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
         events_all = [event for event in events_all if event.date <= date_end_formatted]
 
+        # Фильтрация по времени начала
+    if time_to_start:
+        time_start_formatted = datetime.strptime(time_to_start, '%H:%M').time()  # Преобразование строки в объект времени
+        events_all = [event for event in events_all if event.time_start >= time_start_formatted]
+        
 
-    
-    
+    # Фильтрация по времени окончания
+    if time_to_end:
+        time_end_formatted = datetime.strptime(time_to_end, '%H:%M').time()  # Преобразование строки в объект времени
+        events_all = [event for event in events_all if event.time_end <= time_end_formatted]
+        
+
     # Инициализируем пустой список для спикеров, чтобы избежать ошибки, если фильтры по спикерам не применяются
     speakers_objects = []
 
