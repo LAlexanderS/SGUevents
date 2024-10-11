@@ -6,7 +6,7 @@ class RegistrationForm(forms.ModelForm):
         max_length=50,
         required=True,
         label='ID отдела',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '1-1-1'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Как-в-справочнике'})
     )
 
     class Meta:
