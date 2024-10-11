@@ -10,6 +10,9 @@ from django.db.models import Q
 from datetime import datetime
 from django.db.models import Value
 from django.db.models.functions import Concat
+from events_available.utils import *
+from events_cultural.utils import *
+from django.http import JsonResponse
 
 
 from main.utils import q_search_all
@@ -17,14 +20,47 @@ from users.models import User
 
 @login_required
 def index(request):
+    page = request.GET.get('page', 1)
+    f_all = request.GET.get('f_all', None)
+    f_speakers = request.GET.getlist('f_speakers', None)
+    f_tags = request.GET.getlist('f_tags', None)
+    order_by = request.GET.get('order_by', None)
+    query = request.GET.get('q', None)
+    date_start = request.GET.get('date_start', None)
+    date_end = request.GET.get('date_end', None)
+    f_date = request.GET.get('f_date', None)
+    name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
+    time_to_start = request.GET.get('time_to_start', None)
+    time_to_end = request.GET.get('time_to_end', None)
+
+
     available = Events_online.objects.order_by('date')
     available1 = Events_offline.objects.order_by('date')
     cultural = Attractions.objects.order_by('date')
     cultural1 = Events_for_visiting.objects.order_by('date')
     user = request.user
+    page = request.GET.get('page', 1)
+    f_speakers = request.GET.getlist('f_speakers', None)
 
+    # СПИКЕРЫ
+    speakers_set = set()
+    for event in available:
+        for speaker in event.speakers.all():
+            # Явно формируем строку с Фамилией, Именем и Отчеством
+            full_name = f"{speaker.last_name} {speaker.first_name} {speaker.middle_name if speaker.middle_name else ''}".strip()
+            speakers_set.add(full_name)
+
+    for event in available1:
+        for speaker in event.speakers.all():
+            # Явно формируем строку с Фамилией, Именем и Отчеством
+            full_name = f"{speaker.last_name} {speaker.first_name} {speaker.middle_name if speaker.middle_name else ''}".strip()
+            speakers_set.add(full_name)
+
+    speakers = list(speakers_set)
+
+    # СКРЫТЫЕ
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
-        all_content = list(chain(available, available1, cultural, cultural1))
+        events_all = list(chain(available, available1, cultural, cultural1))
     else:
         if user.department:
             available = available.filter(Q(secret__isnull=True) | Q(secret=user.department) | Q(member=user)).distinct()
@@ -37,55 +73,95 @@ def index(request):
             cultural = cultural.filter(secret__isnull=True).distinct()
             cultural1 = cultural1.filter(secret__isnull=True).distinct()
         
-        all_content = list(chain(available, available1, cultural, cultural1))
+        events_all = list(chain(available, available1, cultural, cultural1))
 
-    # Получаем всех спикеров из онлайн и оффлайн мероприятий
-    speakers_online = User.objects.filter(speaker_online__in=available).distinct()
-    speakers_offline = User.objects.filter(speaker_offline__in=available1).distinct()
+    # Получаем всех админов через отношение ManyToMany
+    events_admin_set = set()
+    for event in events_all:
+        for admin in event.events_admin.all():
+            events_admin_set.add(admin.get_full_name())
 
-    # Объединяем всех спикеров в один список (чтобы избежать дублирования)
-    all_speakers = list(set(chain(speakers_online, speakers_offline)))
+    events_admin = list(events_admin_set)
 
-    page = request.GET.get('page', 1)
-    f_all = request.GET.get('f_all', None)
-    f_speakers = request.GET.getlist('f_speakers', None)
-    f_tags = request.GET.getlist('f_tags', None)
-    order_by = request.GET.get('order_by', None)
-    query = request.GET.get('q', None)
-    date_start = request.GET.get('date_start', None)
-    date_end = request.GET.get('date_end', None)
-    f_date = request.GET.get('f_date', None)
+    filters_applied = False  # По умолчанию считаем, что фильтры не применен
 
-    # Фильтрация по запросу
-    if not query:
-        events_all = all_content
+    if name_search:
+        # Фильтр только по названию
+        available = Events_online.objects.filter(name__icontains=name_search).order_by('-date_add')
+        available1 = Events_offline.objects.filter(name__icontains=name_search).order_by('-date_add')
+        cultural = Attractions.objects.filter(name__icontains=name_search).order_by('-date_add')
+        cultural1 = Events_for_visiting.objects.filter(name__icontains=name_search).order_by('-date_add')
+        events_all = list(chain(available, available1, cultural, cultural1))
+        filters_applied = True
+    elif query:
+        # Полный поиск по названию и описанию через навигационную панель
+        available = q_search_online(query)
+        available1 = q_search_offline(query)
+        cultural = q_search_attractions(query)
+        cultural1 = q_search_events_for_visiting(query)
+        filters_applied = True
+        events_all = list(chain(available, available1, cultural, cultural1))
     else:
-        events_all = q_search_all(query)
+        # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
+        available = Events_online.objects.order_by('-date_add')
+        available1 = Events_online.objects.order_by('-date_add')
+        cultural = Events_online.objects.order_by('-date_add')
+        cultural1 = Events_online.objects.order_by('-date_add')
 
     # Фильтрация по дате
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
+        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
         events_all = [event for event in events_all if event.date >= date_start_formatted]
 
     if date_end:
-        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
+        date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
         events_all = [event for event in events_all if event.date <= date_end_formatted]
 
-    # Фильтрация по спикерам
+        # Фильтрация по времени начала
+    if time_to_start:
+        time_start_formatted = datetime.strptime(time_to_start, '%H:%M').time()  # Преобразование строки в объект времени
+        events_all = [event for event in events_all if event.time_start >= time_start_formatted]
+        
+
+    # Фильтрация по времени окончания
+    if time_to_end:
+        time_end_formatted = datetime.strptime(time_to_end, '%H:%M').time()  # Преобразование строки в объект времени
+        events_all = [event for event in events_all if event.time_end <= time_end_formatted]
+        
+
+    # Инициализируем пустой список для спикеров, чтобы избежать ошибки, если фильтры по спикерам не применяются
+    speakers_objects = []
+
+     # Фильтрация по спикерам
     if f_speakers:
-        # Аннотируем пользователей полным именем
-        speakers_with_full_name = User.objects.annotate(
-            full_name=Concat('first_name', Value(' '), 'middle_name', Value(' '), 'last_name')
-        )
+        # Преобразуем имена спикеров в объекты User, учитывая Фамилию, Имя, и Отчество
+        for name in f_speakers:
+            # Разбиваем на части: Фамилия Имя Отчество
+            split_name = name.split()
+            
+            if len(split_name) == 2:  # Если есть только фамилия и имя
+                last_name, first_name = split_name
+                users = User.objects.filter(
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                speakers_objects.extend(users)
+            
+            elif len(split_name) == 3:  # Если есть фамилия, имя и отчество
+                last_name, first_name, middle_name = split_name
+                users = User.objects.filter(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name
+                )
+                speakers_objects.extend(users)
+        
+        # Применяем фильтр по спикерам, если есть результаты
+        if speakers_objects:
+            available1 = available1.filter(speakers__in=speakers_objects)
+            available = available.filter(speakers__in=speakers_objects)
 
-        # Фильтруем пользователей по полным именам из f_speakers
-        speakers_objects = speakers_with_full_name.filter(full_name__in=f_speakers)
-
-        # Фильтруем только те события, которые имеют поле `speakers`
-        events_all = [
-            event for event in events_all
-            if hasattr(event, 'speakers') and any(speaker in event.speakers.all() for speaker in speakers_objects)
-        ]
+            events_all = list(chain(available, available1))
 
     # Фильтрация по тегам
     if f_tags:
@@ -93,7 +169,13 @@ def index(request):
 
     # Сортировка
     if order_by and order_by != "default":
-        events_all = sorted(events_all, key=lambda x: getattr(x, order_by))
+        reverse = False  # По умолчанию сортировка по возрастанию
+        if order_by.startswith('-'):
+            reverse = True
+            order_by = order_by[1:]  # Убираем знак минуса для обратной сортировки
+
+        events_all = sorted(events_all, key=lambda x: getattr(x, order_by), reverse=reverse)
+
 
     # Пагинация
     paginator = Paginator(events_all, 10)
@@ -139,10 +221,42 @@ def index(request):
     'favorites': favorites_dict,
     'reviews': reviews,
     'registered': registered_dict,
-    'tags': list(set(tag for event in all_content if event.tags for tag in event.tags.split(','))),
+    'tags': list(set(tag for event in events_all if event.tags for tag in event.tags.split(','))),
     'f_tags': f_tags, 
-    'speakers': all_speakers,
+    'speakers': speakers,
     'f_speakers': f_speakers,  
+    'filters_applied': filters_applied,
+    'time_to_start': time_to_start,
+    'time_to_end': time_to_end,
+    "date_start": date_start,
+    "date_end": date_end,
+
 }
 
     return render(request, 'main/index.html', context)
+
+import logging
+logger = logging.getLogger(__name__)
+
+def autocomplete_event_name(request):
+    term = request.GET.get('term', '')  # Получаем параметр запроса
+    if not term:
+        return JsonResponse([], safe=False)
+
+    try:
+        # Ищем совпадения по всем типам мероприятий
+        matching_online = Events_online.objects.filter(name__icontains=term)[:10]
+        matching_offline = Events_offline.objects.filter(name__icontains=term)[:10]
+        matching_attractions = Attractions.objects.filter(name__icontains=term)[:10]
+        matching_for_visiting = Events_for_visiting.objects.filter(name__icontains=term)[:10]
+
+        # Объединяем все события
+        all_matching_events = list(chain(matching_online, matching_offline, matching_attractions, matching_for_visiting))
+
+        # Извлекаем названия мероприятий
+        suggestions = [event.name for event in all_matching_events]
+
+        return JsonResponse(suggestions, safe=False)
+
+    except Exception as e:
+        return JsonResponse([], safe=False)

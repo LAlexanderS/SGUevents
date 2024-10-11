@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 from .models import User, Department, AdminRightRequest, SupportRequest
 
+
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('department_id', 'department_name')
     search_fields = ('department_id', 'department_name')
