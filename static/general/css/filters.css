@@ -47,6 +47,22 @@
 
 /* {% comment %} ФОРМАТ ВВОДА ДАТЫ {% endcomment %}
  */
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    padding: 15px;
+    /* Увеличиваем padding */
+    min-width: 34px;
+    /* Минимальная ширина зоны клика */
+    min-height: 34px;
+    /* Минимальная высота зоны клика */
+    cursor: pointer;
+    /* Указатель мыши для стрелок */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
 
 /* Ограничиваем ширину полей ввода для дат */
 input[type="date"] {

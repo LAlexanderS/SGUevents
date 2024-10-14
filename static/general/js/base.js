@@ -430,7 +430,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar')
 
     document.addEventListener('click', function (event) {
-        const isCalendarClick = Array.from(flatpickrContainers).some(container => container.contains(event.target))
+        const isCalendarClick = Array.from(flatpickrContainers).some(container =>
+            container.contains(event.target) ||
+            event.target.closest('.flatpickr-prev-month') ||
+            event.target.closest('.flatpickr-next-month')
+        )
+
         const sortToggle = document.getElementById('sort-toggle')
         const sortSection = document.getElementById('sort-section')
 
