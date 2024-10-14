@@ -287,8 +287,7 @@
                                                         {% endfor %}
                                                     </p>
                                                 {% endif %}
-                                                <p>free-places-{{ events.id}}</p> 
-                                                <p>{{ events.unique_id}}</p> 
+                                                
                                                 {% if events.place_limit and events.place_free %}
                                                     <p>
                                                         {{events.place_limit}} / <span id="free-places-{{ events.unique_id }}">{{events.place_free}}</span>
