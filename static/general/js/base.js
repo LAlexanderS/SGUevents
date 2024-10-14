@@ -146,6 +146,9 @@ function handleRegister(event) {
                 buttonElement.setAttribute('data-event-id', data.event_id)
                 buttonElement.removeAttribute('data-event-slug')
 
+
+                console.log('After register:', buttonElement.getAttribute('data-event-id'), buttonElement.getAttribute('data-event-slug'))
+
                 // Обновляем количество свободных мест
                 // Обновите количество свободных мест
                 const freePlacesElement = document.getElementById(`free-places-${data.event_unique_id}`)
@@ -168,6 +171,8 @@ function handleUnregister(event) {
     const eventId = this.getAttribute('data-event-id')
     const buttonElement = this
 
+    console.log('Before unregister:', buttonElement.getAttribute('data-event-id'), buttonElement.getAttribute('data-event-slug'))
+
     fetch(`/bookmarks/registered_remove/${eventId}/`, {
         method: 'POST',
         headers: {
@@ -184,6 +189,8 @@ function handleUnregister(event) {
                 buttonElement.innerHTML = 'Регистрация'
                 buttonElement.setAttribute('data-event-slug', data.event_slug)
                 buttonElement.removeAttribute('data-event-id')
+
+
 
                 // Обновите количество свободных мест
                 const freePlacesElement = document.getElementById(`free-places-${data.event_unique_id}`)
