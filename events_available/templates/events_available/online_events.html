@@ -248,13 +248,9 @@
 {% endif %}
 
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="online">Оставить отзыв</button>
-
-
 {% endblock content %}
 
-
 {% block script_js %}
-
 {% comment %} Автокомплит для фильтра по названию: {% endcomment %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -292,6 +288,5 @@
         });
     });
 </script>
-
 {% endblock script_js %}
 
