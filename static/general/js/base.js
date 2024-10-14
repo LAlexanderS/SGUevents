@@ -145,6 +145,18 @@ function handleRegister(event) {
                 buttonElement.innerHTML = 'Отмена регистрации'
                 buttonElement.setAttribute('data-event-id', data.event_id)
                 buttonElement.removeAttribute('data-event-slug')
+
+
+                console.log('After register:', buttonElement.getAttribute('data-event-id'), buttonElement.getAttribute('data-event-slug'))
+
+                // Обновляем количество свободных мест
+                // Обновите количество свободных мест
+                const freePlacesElement = document.getElementById(`free-places-${data.event_unique_id}`)
+                if (freePlacesElement) {
+                    freePlacesElement.textContent = data.place_free  // Обновляем свободные места
+                }
+
+
                 showRegistrationNotification("Зарегистрировано")
                 initializeRegistrationButtons()
             } else {
@@ -158,6 +170,8 @@ function handleUnregister(event) {
     event.preventDefault()
     const eventId = this.getAttribute('data-event-id')
     const buttonElement = this
+
+    console.log('Before unregister:', buttonElement.getAttribute('data-event-id'), buttonElement.getAttribute('data-event-slug'))
 
     fetch(`/bookmarks/registered_remove/${eventId}/`, {
         method: 'POST',
@@ -175,6 +189,16 @@ function handleUnregister(event) {
                 buttonElement.innerHTML = 'Регистрация'
                 buttonElement.setAttribute('data-event-slug', data.event_slug)
                 buttonElement.removeAttribute('data-event-id')
+
+
+
+                // Обновите количество свободных мест
+                const freePlacesElement = document.getElementById(`free-places-${data.event_unique_id}`)
+                if (freePlacesElement) {
+                    freePlacesElement.textContent = data.place_free  // Обновляем свободные места
+                }
+
+
                 showRegistrationNotification("Регистрация отменена")
                 initializeRegistrationButtons()
             } else {
@@ -316,4 +340,140 @@ document.addEventListener('DOMContentLoaded', function () {
         `
         reviewList.appendChild(newReview)
     }
+})
+
+
+
+// Скрипты с дочерних шаблонов
+
+// {% comment %} ФОРМАТ ВВОДА ДАТЫ {% endcomment %}
+document.addEventListener('DOMContentLoaded', function () {
+    flatpickr("#date_start", {
+        dateFormat: "d/m/Y",  // Формат отображения
+    })
+    flatpickr("#date_end", {
+        dateFormat: "d/m/Y",  // Формат отображения
+    })
+})
+
+// {% comment %} ПОСИК В СПИКЕРАХ {% endcomment %}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('search-speakers')
+    const speakerItems = document.querySelectorAll('.speaker-item')
+
+    searchInput.addEventListener('input', function () {
+        const searchQuery = searchInput.value.toLowerCase()
+
+        speakerItems.forEach(function (item) {
+            const speakerName = item.textContent.toLowerCase()
+
+            if (speakerName.includes(searchQuery)) {
+                item.style.display = 'block'  // Показываем, если совпадает
+            } else {
+                item.style.display = 'none'   // Скрываем, если нет совпадений
+            }
+        })
+    })
+})
+
+// {% comment %} ПОИСК В ТЕГАХ {% endcomment %}
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('search-tags')
+    const tagItems = document.querySelectorAll('#tags-list .tag-item')
+
+    // Функция для фильтрации тегов
+    searchInput.addEventListener('input', function () {
+        const filter = searchInput.value.toLowerCase()
+
+        tagItems.forEach(function (item) {
+            const label = item.querySelector('label').textContent.toLowerCase()
+
+            if (label.includes(filter)) {
+                item.style.display = ''
+            } else {
+                item.style.display = 'none'
+            }
+        })
+    })
+})
+
+
+// {% comment %} Фильтры и сортировка: {% endcomment %}
+document.addEventListener('DOMContentLoaded', function () {
+    const sortToggle = document.getElementById('sort-toggle')
+    const sortSection = document.getElementById('sort-section')
+    const filterToggle = document.getElementById('filter-toggle')
+    const filterSection = document.getElementById('filter-section')
+    const resetFiltersContainer = document.getElementById('reset-filters-container')
+
+    const queryString = new URLSearchParams(window.location.search)
+
+    const filtersApplied = queryString.has('q') ||
+        queryString.has('name_search') ||
+        queryString.has('date_start') ||
+        queryString.has('date_end') ||
+        queryString.has('f_speakers') ||
+        queryString.has('f_tags') ||
+        queryString.has('time_to_start') ||
+        queryString.has('time_to_end')
+    const sortApplied = queryString.has('order_by')
+
+    if (filtersApplied || sortApplied) {
+        resetFiltersContainer.style.display = 'block'
+    } else {
+        resetFiltersContainer.style.display = 'none'
+    }
+
+    if (filtersApplied) {
+        filterSection.style.display = 'flex'
+    } else {
+        filterSection.style.display = 'none'
+    }
+
+    sortToggle.addEventListener('click', function () {
+        if (sortSection.style.display === 'none' || sortSection.style.display === '') {
+            sortSection.style.display = 'block'
+        } else {
+            sortSection.style.display = 'none'
+        }
+    })
+
+    filterToggle.addEventListener('click', function () {
+        if (filterSection.style.display === 'none' || filterSection.style.display === '') {
+            filterSection.style.display = 'flex'
+        } else {
+            filterSection.style.display = 'none'
+        }
+    })
+})
+
+
+//{% comment %} Обработка взаимодействия с календарем: {% endcomment %}
+document.addEventListener('DOMContentLoaded', function () {
+    const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar')
+
+    document.addEventListener('click', function (event) {
+        const isCalendarClick = Array.from(flatpickrContainers).some(container =>
+            container.contains(event.target) ||
+            event.target.closest('.flatpickr-prev-month') ||
+            event.target.closest('.flatpickr-next-month')
+        )
+
+        const sortToggle = document.getElementById('sort-toggle')
+        const sortSection = document.getElementById('sort-section')
+
+        if (!sortToggle.contains(event.target) && !sortSection.contains(event.target) && !isCalendarClick) {
+            sortSection.style.display = 'none'
+        }
+    })
+
+    document.querySelectorAll('.flatpickr-calendar').forEach(function (calendar) {
+        calendar.addEventListener('click', function (event) {
+            if (!event.target.classList.contains('flatpickr-prev-month') &&
+                !event.target.classList.contains('flatpickr-next-month')) {
+                event.stopPropagation()
+            }
+        })
+    })
 })

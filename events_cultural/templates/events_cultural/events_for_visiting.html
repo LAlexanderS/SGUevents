@@ -149,7 +149,6 @@
 
 {% endblock filters %}
 
-
 {% block sort %}
 <!-- Секция сортировки -->
 <div id="sort-section" class="dropdown-menu bg-dark" style="display: none; width: 100px">
@@ -197,7 +196,7 @@
 
 {% block content %}
 
-{% if events.date >= now %}
+{% if events.date >= now and events.place_free > 0 %}
     <!-- Контент на странице -->
     {% if events.id in registered %}
     <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
@@ -208,113 +207,21 @@
         Регистрация
     </a>
     {% endif %}
+{% else %}
+    <p>Нет свободных мест</p>
 {% endif %}
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="for_visiting">Оставить отзыв </button>
 {% endblock content %}
 
 {% block script_js %}
-{% comment %} ФОРМАТ ВВОДА ДАТЫ {% endcomment %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        flatpickr("#date_start", {
-            dateFormat: "d/m/Y",  // Формат отображения
-        });
-        flatpickr("#date_end", {
-            dateFormat: "d/m/Y",  // Формат отображения
-        });
-    });
-</script>
-
-{% comment %} ПОСИК В СПИКЕРАХ {% endcomment %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('search-speakers');
-        const speakerItems = document.querySelectorAll('.speaker-item');
-        
-        searchInput.addEventListener('input', function() {
-            const searchQuery = searchInput.value.toLowerCase();
-            
-            speakerItems.forEach(function(item) {
-                const speakerName = item.textContent.toLowerCase();
-                
-                if (speakerName.includes(searchQuery)) {
-                    item.style.display = 'block';  // Показываем, если совпадает
-                } else {
-                    item.style.display = 'none';   // Скрываем, если нет совпадений
-                }
-            });
-        });
-    });
-</script>
-
-{% comment %} ПОИСК В ТЕГАХ {% endcomment %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('search-tags');
-        const tagItems = document.querySelectorAll('#tags-list .tag-item');
-
-        // Функция для фильтрации тегов
-        searchInput.addEventListener('input', function () {
-            const filter = searchInput.value.toLowerCase();
-
-            tagItems.forEach(function (item) {
-                const label = item.querySelector('label').textContent.toLowerCase();
-
-                if (label.includes(filter)) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    });
-</script>                    
-
 
 {% comment %} АВТОКОМПЛИТ В ФИЛЬТРЕ НАЗВАНИЯХ {% endcomment %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const sortToggle = document.getElementById('sort-toggle');
-        const sortSection = document.getElementById('sort-section');
-        const filterToggle = document.getElementById('filter-toggle');
-        const filterSection = document.getElementById('filter-section');
-        const resetFiltersContainer = document.getElementById('reset-filters-container');
-        const flatpickrContainers = document.querySelectorAll('.flatpickr-calendar'); // Календари Flatpickr
-
         const input = document.getElementById('event-name-search');
         const resultsContainer = document.getElementById('autocomplete-results');
         const form = input.closest('form');  // Получаем форму, в которой находится поле ввода
 
-        // Проверка на наличие фильтров и сортировки в URL
-        const queryString = new URLSearchParams(window.location.search);
-
-        // Проверяем, были ли применены фильтры (включая фильтр по названию)
-        const filtersApplied = queryString.has('q') || 
-                               queryString.has('name_search') || 
-                               queryString.has('date_start') || 
-                               queryString.has('date_end') || 
-                               queryString.has('f_speakers') || 
-                               queryString.has('f_tags') || 
-                               queryString.has('time_to_start') || 
-                               queryString.has('time_to_end');
-
-        const sortApplied = queryString.has('order_by');  // Проверка на наличие сортировки
-
-        // Если применены фильтры или сортировка, отображаем кнопку "Сбросить"
-        if (filtersApplied || sortApplied) {
-            resetFiltersContainer.style.display = 'block';
-        } else {
-            resetFiltersContainer.style.display = 'none';
-        }
-
-        // Если фильтры применены, отображаем фильтры
-        if (filtersApplied) {
-            filterSection.style.display = 'flex';  // Отображаем фильтры
-        } else {
-            filterSection.style.display = 'none';  // Скрываем фильтры, если фильтры не были применены
-        }
-
-        // Логика автокомплита для фильтра по названию
         input.addEventListener('input', function() {
             const query = input.value;
 
@@ -345,45 +252,6 @@
             } else {
                 resultsContainer.innerHTML = '';  // Если меньше двух символов, очищаем результаты
             }
-        });
-
-
-        // Скрываем или показываем панель сортировки при нажатии на иконку
-        sortToggle.addEventListener('click', function() {
-            if (sortSection.style.display === 'none' || sortSection.style.display === '') {
-                sortSection.style.display = 'block';
-            } else {
-                sortSection.style.display = 'none';
-            }
-        });
-
-        // Скрываем или показываем фильтры при нажатии на кнопку фильтров
-        filterToggle.addEventListener('click', function() {
-            if (filterSection.style.display === 'none' || filterSection.style.display === '') {
-                filterSection.style.display = 'flex';  // Отображаем фильтры в строку
-            } else {
-                filterSection.style.display = 'none';  // Скрываем фильтры
-            }
-        });
-
-        // Закрываем сортировку при клике вне области
-        document.addEventListener('click', function(event) {
-            const isCalendarClick = Array.from(flatpickrContainers).some(container => container.contains(event.target));
-
-            if (!sortToggle.contains(event.target) && !sortSection.contains(event.target) && !isCalendarClick) {
-                sortSection.style.display = 'none';
-            }
-        });
-
-        // Предотвращаем закрытие фильтра при взаимодействии с календарем
-        document.querySelectorAll('.flatpickr-calendar').forEach(function(calendar) {
-            calendar.addEventListener('click', function(event) {
-                // Останавливаем всплытие только для кликов по датам, но не по стрелкам переключения месяцев
-                if (!event.target.classList.contains('flatpickr-prev-month') &&
-                    !event.target.classList.contains('flatpickr-next-month')) {
-                    event.stopPropagation();
-                }
-            });
         });
     });
 </script>
