@@ -227,16 +227,12 @@
 
 {% block content %}
 <!-- Контент на странице -->
-<p>fasfasfafa {{events.date}}</p> 
-<p>now {{now}}</p> 
 {% if events.category  == 'Онлайн' %}
     {% if events.date >= now %}
         {% if events.id in registered.online%}
             <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.online|get_item:events.id }}">
                 Отмена регистрации
-                
             </a>
-            
         {% else %}
             <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
                 Регистрация
