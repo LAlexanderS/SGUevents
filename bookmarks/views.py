@@ -124,30 +124,29 @@ def events_attended(request):
     return render(request, "bookmarks/events_attended.html")
 
 @login_required
-def events_registered(request, event_slug):
+def events_registered(request, eventUnId):
     event = None
     event_type = None
     favorites = Favorite.objects.filter(user=request.user)
-
+    print(f'FFFFFFFFFf {eventUnId}')
     try:
-        event = Events_online.objects.get(slug=event_slug)
+        event = Events_online.objects.get(unique_id=eventUnId)
         event_type = 'online'
     except Events_online.DoesNotExist:
         try:
-            event = Events_offline.objects.get(slug=event_slug)
+            event = Events_offline.objects.get(unique_id=eventUnId)
             event_type = 'offline'
         except Events_offline.DoesNotExist:
             try:
-                event = Attractions.objects.get(slug=event_slug)
+                event = Attractions.objects.get(unique_id=eventUnId)
                 event_type = 'attractions'
             except Attractions.DoesNotExist:
                 try:
-                    event = Events_for_visiting.objects.get(slug=event_slug)
+                    event = Events_for_visiting.objects.get(unique_id=eventUnId)
                     event_type = 'for_visiting'
                 except Events_for_visiting.DoesNotExist:
                     pass
-
-    print(f'Received request for event_slug: {event_slug} by user: {request.user.username}')
+    print(f'GGGGGGGGGGG {event}')
 
     if event and request.user.is_authenticated:
         registered, created = None, False
@@ -160,6 +159,7 @@ def events_registered(request, event_slug):
         elif event_type == 'for_visiting':
             registered, created = Registered.objects.get_or_create(user=request.user, for_visiting=event)
 
+        print(f'REGISTERED {registered} ID {registered.id}')
         if created and event_type == 'for_visiting':
                 # Уменьшаем количество свободных мест
                 event.place_free -= 1
@@ -169,14 +169,16 @@ def events_registered(request, event_slug):
         if created and event_type == 'for_visiting':
             return JsonResponse({
                 'added': True,
-                'event_id': event.id,  # Используем unique_id мероприятия
-                'event_slug': event_slug,
-                'event_unique_id': event.unique_id,  # Передаем как event_unique_id
+                'registered_id': registered.id,  # Используем id зарегистрированного мероприятия
+                # 'event_slug': event_slug,
+                # 'event_unique_id': event.unique_id,  # Передаем как event_unique_id
                 'place_free': event.place_free
             })
 
         elif created and event_type != 'for_visiting':
-            return JsonResponse({'added': True, 'event_id': event.id, 'event_slug': event_slug})
+            # return JsonResponse({'added': True, 'event_id': event.id, 'event_slug': event_slug})
+            return JsonResponse({'added': True, 'event_id': event.id, 'registered_id': registered.id})
+
         else:
             return JsonResponse({'added': False, 'error': 'Already registered'}, status=400)
 
@@ -184,8 +186,14 @@ def events_registered(request, event_slug):
 
 @login_required
 def registered_remove(request, event_id):
+    
+
     if request.method == 'POST':
         event = get_object_or_404(Registered, id=event_id, user=request.user)
+        event_online = event.online.unique_id
+        print(f'AAAA {event}')
+        print(f'BBBB {event_online}')
+
         event_name = (
             event.for_visiting.name if event.for_visiting else (
                 event.online.name if event.online else (
@@ -201,6 +209,15 @@ def registered_remove(request, event_id):
             event.for_visiting.place_free += 1
             event.for_visiting.save(update_fields=['place_free'])
             print(f'Free places after unregister: {event.for_visiting.place_free}')
+        elif event.online:
+            event_unique_id = event.online.unique_id
+            event_name = event.online.name
+        elif event.offline:
+            event_unique_id = event.offline.unique_id
+            event_name = event.offline.name
+        elif event.attractions:
+            event_unique_id = event.attractions.unique_id
+            event_name = event.attractions.name
         else:
             return JsonResponse({'removed': False, 'error': 'Event not found'}, status=400)
 

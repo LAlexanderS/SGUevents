@@ -126,16 +126,17 @@ function initializeRegistrationButtons() {
 
 function handleRegister(event) {
     event.preventDefault()
-    const eventSlug = this.getAttribute('data-event-slug')
+    const eventUnId = this.getAttribute('data-event-unique-id')
     const buttonElement = this
 
-    fetch(`/bookmarks/events_registered/${eventSlug}/`, {
+    fetch(`/bookmarks/events_registered/${eventUnId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken
         },
-        body: JSON.stringify({ 'slug': eventSlug })
+        body: JSON.stringify({ 'id': eventUnId })
+
     })
         .then(response => response.json())
         .then(data => {
@@ -143,22 +144,8 @@ function handleRegister(event) {
                 buttonElement.classList.remove('btn-danger', 'btn-sent_app')
                 buttonElement.classList.add('btn-light', 'btn-remove_app')
                 buttonElement.innerHTML = 'Отмена регистрации'
-                buttonElement.setAttribute('data-event-id', data.event_id)
-                buttonElement.removeAttribute('data-event-slug')
-
-
-                console.log('After register:', buttonElement.getAttribute('data-event-id'), buttonElement.getAttribute('data-event-slug'))
-
-                // Обновляем количество свободных мест
-                // Обновите количество свободных мест
-                const freePlacesElement = document.getElementById(`free-places-${data.event_unique_id}`)
-                if (freePlacesElement) {
-                    freePlacesElement.textContent = data.place_free  // Обновляем свободные места
-                }
-
-
-                showRegistrationNotification("Зарегистрировано")
-                initializeRegistrationButtons()
+                buttonElement.setAttribute('data-event-unique-id', data.registered_id)
+                console.log('Registered ID ЙЙЙЙЙЙЙЙ', data.registered_id)  // Лог должен быть здесь, внутри блока then
             } else {
                 console.error('Ошибка при регистрации:', data.error)
             }
@@ -166,12 +153,11 @@ function handleRegister(event) {
         .catch(error => console.error('Error:', error))
 }
 
+
 function handleUnregister(event) {
     event.preventDefault()
-    const eventId = this.getAttribute('data-event-id')
+    const eventId = this.getAttribute('data-event-unique-id')
     const buttonElement = this
-
-    console.log('Before unregister:', buttonElement.getAttribute('data-event-id'), buttonElement.getAttribute('data-event-slug'))
 
     fetch(`/bookmarks/registered_remove/${eventId}/`, {
         method: 'POST',
@@ -187,26 +173,15 @@ function handleUnregister(event) {
                 buttonElement.classList.remove('btn-light', 'btn-remove_app')
                 buttonElement.classList.add('btn-danger', 'btn-sent_app')
                 buttonElement.innerHTML = 'Регистрация'
-                buttonElement.setAttribute('data-event-slug', data.event_slug)
-                buttonElement.removeAttribute('data-event-id')
-
-
-
-                // Обновите количество свободных мест
-                const freePlacesElement = document.getElementById(`free-places-${data.event_unique_id}`)
-                if (freePlacesElement) {
-                    freePlacesElement.textContent = data.place_free  // Обновляем свободные места
-                }
-
-
-                showRegistrationNotification("Регистрация отменена")
-                initializeRegistrationButtons()
+                // buttonElement.setAttribute('data-event-slug', data.event_slug)  // Восстанавливаем slug
+                buttonElement.removeAttribute('data-event-unique-id')
             } else {
                 console.error('Ошибка при отмене регистрации:', data.error)
             }
         })
         .catch(error => console.error('Ошибка:', error))
 }
+
 
 function showRegistrationNotification(message) {
     const notification = document.getElementById('registrationNotification')
