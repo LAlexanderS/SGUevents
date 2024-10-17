@@ -126,16 +126,17 @@ function initializeRegistrationButtons() {
 
 function handleRegister(event) {
     event.preventDefault()
-    const eventSlug = this.getAttribute('data-event-slug')
+    const eventUnId = this.getAttribute('data-event-unique-id')
     const buttonElement = this
 
-    fetch(`/bookmarks/events_registered/${eventSlug}/`, {
+    fetch(`/bookmarks/events_registered/${eventUnId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken
         },
-        body: JSON.stringify({ 'slug': eventSlug })
+        body: JSON.stringify({ 'id': eventUnId })
+
     })
         .then(response => response.json())
         .then(data => {
@@ -162,9 +163,10 @@ function handleRegister(event) {
         .catch(error => console.error('Error:', error))
 }
 
+
 function handleUnregister(event) {
     event.preventDefault()
-    const eventId = this.getAttribute('data-event-id')
+    const eventId = this.getAttribute('data-event-unique-id')
     const buttonElement = this
 
     fetch(`/bookmarks/registered_remove/${eventId}/`, {
@@ -198,6 +200,7 @@ function handleUnregister(event) {
         })
         .catch(error => console.error('Ошибка:', error))
 }
+
 
 function showRegistrationNotification(message) {
     const notification = document.getElementById('registrationNotification')

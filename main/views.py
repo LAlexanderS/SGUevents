@@ -33,8 +33,6 @@ def index(request):
     name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     time_to_start = request.GET.get('time_to_start', None)
     time_to_end = request.GET.get('time_to_end', None)
-
-
     available = Events_online.objects.order_by('date')
     available1 = Events_offline.objects.order_by('date')
     cultural = Attractions.objects.order_by('date')

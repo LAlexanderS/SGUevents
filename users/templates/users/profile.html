@@ -102,7 +102,7 @@
                     </div>
                 {% endif %}
 
-                {% if user.is_superuser %}
+                {% if user.is_superuser or user.is_staff %}
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" href={% url "bookmarks:send_message_to_participants" %}>Выслать уведомления участникам</a>
                     </li>

@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from .telegram_utils import send_message_to_user, send_custom_notification_with_toggle
 from events_available.models import Events_online, Events_offline
@@ -7,23 +7,89 @@ from bookmarks.models import Registered
 from .models import SupportRequest, AdminRightRequest
 import logging
 from users.middleware import CurrentUserMiddleware
+import threading
 
 logger = logging.getLogger(__name__)
 
+# Потоково-локальное хранилище для хранения старого экземпляра
+_thread_locals = threading.local()
+
+def get_old_instance():
+    return getattr(_thread_locals, 'old_instance', None)
+
+@receiver(pre_save, sender=Events_online)
+@receiver(pre_save, sender=Events_offline)
+@receiver(pre_save, sender=Attractions)
+@receiver(pre_save, sender=Events_for_visiting)
+def store_old_instance(sender, instance, **kwargs):
+    if instance.pk:
+        try:
+            old = sender.objects.get(pk=instance.pk)
+        except sender.DoesNotExist:
+            old = None
+    else:
+        old = None
+    _thread_locals.old_instance = old
+
+def has_field_changed(old_instance, new_instance, field_name):
+    """
+    Проверяет, изменилось ли указанное поле между старым и новым экземплярами.
+    """
+    if old_instance is None:
+        # Объект только создаётся, изменения полей нет
+        return False
+    old_value = getattr(old_instance, field_name)
+    new_value = getattr(new_instance, field_name)
+    return old_value != new_value
+
+# Уведомление автора о любых изменениях
 @receiver(post_save, sender=Events_online)
 @receiver(post_save, sender=Events_offline)
 @receiver(post_save, sender=Attractions)
 @receiver(post_save, sender=Events_for_visiting)
-def notify_author_and_participants_on_event_update(sender, instance, **kwargs):
+def notify_author_on_any_change(sender, instance, created, **kwargs):
+    if created:
+        # Если объект только создаётся, возможно, отправлять уведомление или нет
+        logger.info(f"Создан новый объект {sender.__name__} с ID {instance.pk}")
+        return
+
     user = CurrentUserMiddleware.get_current_user()
 
-    # Уведомление автора
+    # Уведомление автора о любых изменениях
     if user and hasattr(user, 'telegram_id') and user.telegram_id:
         message = f"\U0001F4BE Изменения в мероприятие '{instance.name}' были успешно сохранены."
-        send_message_to_user(user.telegram_id, message)
-        logger.info(f"Уведомление об изменениях отправлено пользователю {user.username}")
+        try:
+            send_message_to_user(user.telegram_id, message)
+            logger.info(f"Уведомление об изменениях отправлено пользователю {user.username}")
+        except Exception as e:
+            logger.error(f"Ошибка при отправке уведомления автору {user.username}: {e}")
     else:
         logger.warning("Пользователь, который вносит изменения, не был найден или у него нет telegram_id")
+
+# Уведомление участников при изменении определённых полей
+@receiver(post_save, sender=Events_online)
+@receiver(post_save, sender=Events_offline)
+@receiver(post_save, sender=Attractions)
+@receiver(post_save, sender=Events_for_visiting)
+def notify_participants_on_specific_field_change(sender, instance, created, **kwargs):
+    if created:
+        # Если объект только создаётся, уведомлять участников не нужно
+        return
+
+    old_instance = get_old_instance()
+    if not old_instance:
+        logger.warning(f"Не удалось найти старый экземпляр для {sender.__name__} с ID {instance.pk}")
+        return
+
+    # Укажите здесь поля, при изменении которых необходимо отправлять уведомления участникам
+    fields_to_watch = ['start_datetime']  # Добавьте другие поля по необходимости
+
+    fields_changed = [field for field in fields_to_watch if has_field_changed(old_instance, instance, field)]
+
+    if not fields_changed:
+        # Если ни одно из отслеживаемых полей не изменилось, не отправляем уведомления участникам
+        logger.info(f"Изменений в отслеживаемых полях для {sender.__name__} с ID {instance.pk} не обнаружено.")
+        return
 
     # Уведомление участников
     registered_users = Registered.objects.filter(
@@ -33,67 +99,29 @@ def notify_author_and_participants_on_event_update(sender, instance, **kwargs):
         for_visiting=instance if isinstance(instance, Events_for_visiting) else None
     )
 
-    old_instance = sender.objects.filter(pk=instance.pk).first()
-
     for registration in registered_users:
         if registration.user.telegram_id:
-            # Проверка, изменилось ли время начала мероприятия
-            if old_instance and old_instance.start_datetime != instance.start_datetime:
-                message = f"Изменилось время начала мероприятия '{instance.name}'. Новое время: {instance.start_datetime.strftime('%d.%m.%Y %H:%M')}."
-            else:
-                # Всегда включаем время в сообщение, даже если оно не изменилось
-                message = f"Изменились детали мероприятия '{instance.name}'. Текущее время начала: {instance.start_datetime.strftime('%d.%m.%Y %H:%M')}."
+            # Формируем сообщение в зависимости от изменённых полей
+            messages = []
+            for field in fields_changed:
+                if field == 'start_datetime':
+                    messages.append(
+                        f"Изменилось время начала мероприятия '{instance.name}'. Новое время: {instance.start_datetime.strftime('%d.%m.%Y %H:%M')}."
+                    )
+                # Добавьте обработку других полей по необходимости
 
-            send_custom_notification_with_toggle(
-                registration.user.telegram_id, message, instance.unique_id, registration.notifications_enabled
-            )
+            # Объединяем сообщения
+            message = " ".join(messages) if messages else f"Изменились детали мероприятия '{instance.name}'."
+
+            try:
+                send_custom_notification_with_toggle(
+                    registration.user.telegram_id, message, instance.unique_id, registration.notifications_enabled
+                )
+                logger.info(f"Уведомление отправлено пользователю {registration.user.username}")
+            except Exception as e:
+                logger.error(f"Ошибка при отправке уведомления пользователю {registration.user.username}: {e}")
         else:
             logger.warning(f"У пользователя {registration.user.username} нет telegram_id")
-
-def send_update_notification(user, event, new_start_time):
-    message = f"Изменились детали мероприятия: дата и время начала изменилось на {new_start_time.strftime('%d.%m.%Y %H:%M')}."
-    user_telegram_id = user.telegram_id
-
-    # Проверка наличия и корректности Telegram ID
-    if user_telegram_id and len(user_telegram_id) > 0:
-        try:
-            logger.info(f"Пробуем отправить уведомление пользователю {user.username} с telegram_id: {user_telegram_id}")
-            response = send_custom_notification_with_toggle(user_telegram_id, message, event.unique_id, True)
-            if not response.ok:
-                logger.error(f"Ошибка отправки сообщения пользователю с telegram_id {user_telegram_id}: {response.text}")
-        except Exception as e:
-            logger.error(f"Ошибка отправки сообщения пользователю с telegram_id {user_telegram_id}: {e}")
-    else:
-        logger.warning(f"У пользователя {user.username} нет корректного telegram_id, пропускаем отправку.")
-
-def handle_event_update(event_model, instance):
-    if not instance.pk:
-        return
-
-    try:
-        old_instance = event_model.objects.get(pk=instance.pk)
-    except event_model.DoesNotExist:
-        return
-
-    # Проверяем, изменилось ли время начала мероприятия
-    if old_instance.start_datetime != instance.start_datetime:
-        registered_users = Registered.objects.filter(
-            online=instance if isinstance(instance, Events_online) else None,
-            offline=instance if isinstance(instance, Events_offline) else None,
-            attractions=instance if isinstance(instance, Attractions) else None,
-            for_visiting=instance if isinstance(instance, Events_for_visiting) else None
-        )
-
-        for registration in registered_users:
-            send_update_notification(registration.user, instance, instance.start_datetime)
-
-# Обработчик для всех типов событий
-@receiver(post_save, sender=Events_online)
-@receiver(post_save, sender=Events_offline)
-@receiver(post_save, sender=Attractions)
-@receiver(post_save, sender=Events_for_visiting)
-def handle_event_update_signal(sender, instance, **kwargs):
-    handle_event_update(sender, instance)
 
 @receiver(post_save, sender=SupportRequest)
 def notify_user_on_support_request_update(sender, instance, created, **kwargs):
@@ -116,7 +144,6 @@ def notify_user_on_support_request_update(sender, instance, created, **kwargs):
             else:
                 logger.warning(f"У пользователя {user.username} отсутствует Telegram ID.")
 
-
 @receiver(post_save, sender=AdminRightRequest)
 def notify_user_on_admin_right_request_update(sender, instance, created, **kwargs):
     if not created:
@@ -124,7 +151,7 @@ def notify_user_on_admin_right_request_update(sender, instance, created, **kwarg
         if instance.status in ['granted', 'denied'] and instance.response:
             user = instance.user
             if user.telegram_id:
-                status_message = 'одобрен' if instance.status == 'granted' else 'отклонен'
+                status_message = 'одобрен' if instance.status == 'granted' else 'отклонён'
                 message = (
                     f"Здравствуйте, {user.first_name}!\n\n"
                     f"Ваш запрос на админские права был {status_message}.\n\n"
@@ -132,8 +159,11 @@ def notify_user_on_admin_right_request_update(sender, instance, created, **kwarg
                 )
                 try:
                     send_message_to_user(user.telegram_id, message)
-                    logger.info(f"Сообщение отправлено пользователю {user.username} (Telegram ID: {user.telegram_id}) по запросу на админские права.")
+                    logger.info(
+                        f"Сообщение отправлено пользователю {user.username} (Telegram ID: {user.telegram_id}) по запросу на админские права.")
                 except Exception as e:
-                    logger.error(f"Ошибка при отправке сообщения пользователю {user.username} (Telegram ID: {user.telegram_id}): {e}")
+                    logger.error(
+                        f"Ошибка при отправке сообщения пользователю {user.username} (Telegram ID: {user.telegram_id}): {e}")
             else:
-                logger.warning(f"У пользователя {user.username} отсутствует Telegram ID. Невозможно отправить уведомление.")
+                logger.warning(
+                    f"У пользователя {user.username} отсутствует Telegram ID. Невозможно отправить уведомление.")

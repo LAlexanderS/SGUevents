@@ -8,6 +8,8 @@ from users.models import Department, User
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
 from django.contrib.postgres.indexes import GinIndex
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 
 class Attractions(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
@@ -113,6 +115,15 @@ class Events_for_visiting(models.Model):
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         super(Events_for_visiting, self).save(*args, **kwargs)
+
+@receiver(m2m_changed, sender=Events_for_visiting.member.through)
+def update_place_free(sender, instance, action, **kwargs):
+    if action == 'post_add':
+        instance.place_free = instance.place_limit - instance.member.count()
+        instance.save()
+    elif action == 'post_remove':
+        instance.place_free = instance.place_limit - instance.member.count()
+        instance.save()
 
 
 

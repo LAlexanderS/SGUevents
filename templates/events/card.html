@@ -72,13 +72,15 @@
                                     <li>
                                         <a class="dropdown-item text-black" href="{% url 'bookmarks:favorites' %}">Избранные</a>
                                     </li>
-                                    <li>
+                                    {% comment %} <li>
                                         <a class="dropdown-item text-black" href="{% url 'bookmarks:events_attended' %}">Посещенные</a>
-                                    </li>
-                                    {% if user.is_admin or user.is_superuser %}
-                                    <li>
-                                        <a class="dropdown-item text-black" href="{% url 'admin:index' %}">Админ панель</a>
-                                    </li>
+                                    </li> {% endcomment %}
+                                    {% if user.is_staff %}
+                                        {% if user.is_admin or user.is_superuser %}
+                                            <li>
+                                                <a class="dropdown-item text-black" href="{% url 'admin:index' %}">Админ панель</a>
+                                            </li>
+                                        {% endif %}
                                     <li>
                                         <a class="dropdown-item text-black" href="{% url 'personal:personal' %}">Кабинет администратора</a>
                                     </li>

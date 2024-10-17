@@ -50,8 +50,6 @@
             </div>
         </div>
         
-        
-        
         <div class="col-lg-2">
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
@@ -236,12 +234,13 @@
  
 {% if events.date >= now %}
     {% if events.id in registered %}
-
-    <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
+   
+    <p>fff {{registered|get_item:events.id}}</p> 
+    <a href="#" class="btn btn-light btn-remove_app" data-event-unique-id="{{ registered|get_item:events.id }}">
         Отмена регистрации
     </a>
     {% else %}
-    <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
+    <a href="#" class="btn btn-danger btn-sent_app" data-event-unique-id="{{ events.unique_id }}">
         Регистрация
     </a>
     {% endif %}
