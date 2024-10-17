@@ -196,7 +196,7 @@
 
 {% block content %}
 
-{% if events.date >= now %}
+{% if events.date >= now and events.place_free > 0 %}
     <!-- Контент на странице -->
     {% if events.id in registered %}
     <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
@@ -207,6 +207,8 @@
         Регистрация
     </a>
     {% endif %}
+{% else %}
+    <p>Нет свободных мест</p> 
 {% endif %}
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="for_visiting">Оставить отзыв </button>
 {% endblock content %}

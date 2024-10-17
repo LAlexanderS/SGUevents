@@ -288,11 +288,13 @@
                                                     </p>
                                                 {% endif %}
                                                 
+                                                <p>free-places-{{ events.id}}</p> 
+                                                <p>free-places-{{events.slug}}</p> 
                                                 {% if events.place_limit and events.place_free %}
                                                     <p>
-                                                        {{events.place_limit}} / <span id="free-places-{{ events.id }}">{{events.place_free}}</span>
+                                                        {{events.place_limit}} / <span id="free-places-{{events.slug}}">{{events.place_free}}</span>
                                                     </p>
-                                                {% endif %}                                          
+                                                {% endif %}                          
 
                                                 {% block content %}{% endblock content %}
                                                 {% block admins_events %}{% endblock admins_events %}

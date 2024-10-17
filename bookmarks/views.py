@@ -130,7 +130,6 @@ def events_registered(request, event_slug):
     favorites = Favorite.objects.filter(user=request.user)
 
 
-
     try:
         event = Events_online.objects.get(slug=event_slug)
         event_type = 'online'
@@ -178,6 +177,8 @@ def events_registered(request, event_slug):
 def registered_remove(request, event_id):
     if request.method == 'POST':
         event = get_object_or_404(Registered, id=event_id, user=request.user)
+        
+        
         event_name = (
             event.for_visiting.name if event.for_visiting else (
                 event.online.name if event.online else (
@@ -187,6 +188,17 @@ def registered_remove(request, event_id):
                 )
             )
         )
+
+        event_slug = (
+            event.for_visiting.slug if event.for_visiting else (
+                event.online.slug if event.online else (
+                    event.offline.slug  if event.offline else (
+                        event.attractions.slug  if event.attractions else None
+                    )
+                )
+            )
+        )
+
         if event.for_visiting:
             event.for_visiting.place_free += 1
             event.for_visiting.save(update_fields=['place_free'])
@@ -199,9 +211,9 @@ def registered_remove(request, event_id):
             send_message_to_user(telegram_id, message)
         
         if event.for_visiting:
-            return JsonResponse({'removed': True, 'event_name': event_name, 'place_free': event.for_visiting.place_free})
+            return JsonResponse({'removed': True, 'event_name': event_name, 'event_slug': event_slug, 'place_free': event.for_visiting.place_free})
         else:
-            return JsonResponse({'removed': True, 'event_name': event_name})
+            return JsonResponse({'removed': True, 'event_name': event_name, 'event_slug': event_slug})
 
     return JsonResponse({'removed': False, 'error': 'Invalid request method'}, status=400)
 

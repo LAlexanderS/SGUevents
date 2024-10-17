@@ -145,6 +145,14 @@ function handleRegister(event) {
                 buttonElement.innerHTML = 'Отмена регистрации'
                 buttonElement.setAttribute('data-event-id', data.event_id)
                 buttonElement.removeAttribute('data-event-slug')
+
+                // Обновляем количество свободных мест
+                // Обновите количество свободных мест
+                const freePlacesElement = document.getElementById(`free-places-${data.event_slug}`)
+                if (freePlacesElement) {
+                    freePlacesElement.textContent = data.place_free  // Обновляем свободные места
+                }
+
                 showRegistrationNotification("Зарегистрировано")
                 initializeRegistrationButtons()
             } else {
@@ -175,6 +183,13 @@ function handleUnregister(event) {
                 buttonElement.innerHTML = 'Регистрация'
                 buttonElement.setAttribute('data-event-slug', data.event_slug)
                 buttonElement.removeAttribute('data-event-id')
+
+                // Обновите количество свободных мест
+                const freePlacesElement = document.getElementById(`free-places-${data.event_slug}`)
+                if (freePlacesElement) {
+                    freePlacesElement.textContent = data.place_free  // Обновляем свободные места
+                }
+
                 showRegistrationNotification("Регистрация отменена")
                 initializeRegistrationButtons()
             } else {

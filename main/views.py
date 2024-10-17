@@ -13,6 +13,7 @@ from django.db.models.functions import Concat
 from events_available.utils import *
 from events_cultural.utils import *
 from django.http import JsonResponse
+from django.utils.timezone import now
 
 
 from main.utils import q_search_all
@@ -230,6 +231,7 @@ def index(request):
     'time_to_end': time_to_end,
     "date_start": date_start,
     "date_end": date_end,
+    'now': now().date(),
 
 }
 
