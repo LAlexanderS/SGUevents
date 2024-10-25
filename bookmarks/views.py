@@ -124,30 +124,30 @@ def events_attended(request):
     return render(request, "bookmarks/events_attended.html")
 
 @login_required
-def events_registered(request, eventUnId):
+def events_registered(request, event_slug):
     event = None
     event_type = None
     favorites = Favorite.objects.filter(user=request.user)
 
 
+
     try:
-        event = Events_online.objects.get(unique_id=eventUnId)
+        event = Events_online.objects.get(slug=event_slug)
         event_type = 'online'
     except Events_online.DoesNotExist:
         try:
-            event = Events_offline.objects.get(unique_id=eventUnId)
+            event = Events_offline.objects.get(slug=event_slug)
             event_type = 'offline'
         except Events_offline.DoesNotExist:
             try:
-                event = Attractions.objects.get(unique_id=eventUnId)
+                event = Attractions.objects.get(slug=event_slug)
                 event_type = 'attractions'
             except Attractions.DoesNotExist:
                 try:
-                    event = Events_for_visiting.objects.get(unique_id=eventUnId)
+                    event = Events_for_visiting.objects.get(slug=event_slug)
                     event_type = 'for_visiting'
                 except Events_for_visiting.DoesNotExist:
                     pass
-    print(f'GGGGGGGGGGG {event}')
 
     if event and request.user.is_authenticated:
         registered, created = None, False
@@ -159,27 +159,16 @@ def events_registered(request, eventUnId):
             registered, created = Registered.objects.get_or_create(user=request.user, attractions=event)
         elif event_type == 'for_visiting':
             registered, created = Registered.objects.get_or_create(user=request.user, for_visiting=event)
-
-        print(f'REGISTERED {registered} ID {registered.id}')
         if created and event_type == 'for_visiting':
                 # Уменьшаем количество свободных мест
                 event.place_free -= 1
                 event.save(update_fields=['place_free'])
                 print(f'Free places after registration: {event.place_free}')
-                print(f'ID: {event.unique_id} ')
+
         if created and event_type == 'for_visiting':
-            return JsonResponse({
-                'added': True,
-                'registered_id': registered.id,  # Используем id зарегистрированного мероприятия
-                # 'event_slug': event_slug,
-                # 'event_unique_id': event.unique_id,  # Передаем как event_unique_id
-                'place_free': event.place_free
-            })
-
+            return JsonResponse({'added': True, 'event_id': registered.id, 'event_slug': event_slug, 'place_free': event.place_free})
         elif created and event_type != 'for_visiting':
-            # return JsonResponse({'added': True, 'event_id': event.id, 'event_slug': event_slug})
-            return JsonResponse({'added': True, 'event_id': event.id, 'registered_id': registered.id})
-
+            return JsonResponse({'added': True, 'event_id': registered.id, 'event_slug': event_slug})
         else:
             return JsonResponse({'added': False, 'error': 'Already registered'}, status=400)
 
@@ -187,12 +176,17 @@ def events_registered(request, eventUnId):
 
 @login_required
 def registered_remove(request, event_id):
-    
-
     if request.method == 'POST':
         event = get_object_or_404(Registered, id=event_id, user=request.user)
-        
-        
+        event_slug = (
+            event.for_visiting.slug if event.for_visiting else (
+                event.online.slug if event.online else (
+                    event.offline.slug if event.offline else (
+                        event.attractions.slug if event.attractions else None
+                    )
+                )
+            )
+        )
         event_name = (
             event.for_visiting.name if event.for_visiting else (
                 event.online.name if event.online else (
@@ -202,34 +196,10 @@ def registered_remove(request, event_id):
                 )
             )
         )
-
-        event_slug = (
-            event.for_visiting.slug if event.for_visiting else (
-                event.online.slug if event.online else (
-                    event.offline.slug  if event.offline else (
-                        event.attractions.slug  if event.attractions else None
-                    )
-                )
-            )
-        )
-
         if event.for_visiting:
-            event_unique_id = event.for_visiting.unique_id
-            event_name = event.for_visiting.name
             event.for_visiting.place_free += 1
             event.for_visiting.save(update_fields=['place_free'])
             print(f'Free places after unregister: {event.for_visiting.place_free}')
-        elif event.online:
-            event_unique_id = event.online.unique_id
-            event_name = event.online.name
-        elif event.offline:
-            event_unique_id = event.offline.unique_id
-            event_name = event.offline.name
-        elif event.attractions:
-            event_unique_id = event.attractions.unique_id
-            event_name = event.attractions.name
-        else:
-            return JsonResponse({'removed': False, 'error': 'Event not found'}, status=400)
 
         event.delete()
         telegram_id = request.user.telegram_id
@@ -240,7 +210,7 @@ def registered_remove(request, event_id):
         if event.for_visiting:
             return JsonResponse({'removed': True, 'event_name': event_name, 'event_slug': event_slug, 'place_free': event.for_visiting.place_free})
         else:
-            return JsonResponse({'removed': True, 'event_name': event_name, 'event_slug': event_slug})
+            return JsonResponse({'removed': True, 'event_slug': event_slug, 'event_name': event_name})
 
     return JsonResponse({'removed': False, 'error': 'Invalid request method'}, status=400)
 
