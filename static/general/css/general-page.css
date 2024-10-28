@@ -103,6 +103,12 @@ nav[aria-label="Arrow navigation"] {
     padding: 0;
 }
 
+.btn.btn-outline-success>img {
+    width: 24px;
+    height: 24 px;
+}
+
+
 @media (max-width: 555px) {
     .name-for-events>div {
         padding: 1px;
@@ -129,6 +135,11 @@ nav[aria-label="Arrow navigation"] {
 /* Пагинация */
 .pagination {
     margin-top: 1rem;
+}
+
+
+.form-control.search {
+    width: 500px;
 }
 
 /*  */

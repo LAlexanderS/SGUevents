@@ -92,9 +92,9 @@
                         {% endif %}
                     </ul>
                     <form class="d-flex" role="search" action="{% if name_page == 'Онлайн' %}{% url "events_available:search_online" %}{% elif name_page == 'Оффлайн' %}{% url "events_available:search_offline" %}{% elif name_page == 'Доступные к посещению' %}{% url "events_cultural:search_events_for_visiting" %}{% elif name_page == 'Достопримечательности' %}{% url "events_cultural:search_attractions" %}{% elif name_page == 'Все мероприятия' %}{% url "main:search_all" %}{% endif %}" method="get">
-                        <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search">
+                        <input class="form-control search me-2 " type="search" name="q" placeholder="Search" aria-label="Search">
                         <button class="btn btn-outline-success" type="submit">
-                            <img src="{% static "general/icons/search.svg" %}" alt="S">
+                            <img src="{% static "general/icons/search.png" %}" alt="S">
                         </button>
                     </form>
                 </div>
