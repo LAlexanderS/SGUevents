@@ -55,6 +55,17 @@ def notify_author_on_any_change(sender, instance, created, **kwargs):
 
     user = CurrentUserMiddleware.get_current_user()
 
+    # Проверяем, что текущий пользователь - это администратор или суперпользователь
+    if not user or not (user.is_staff or user.is_superuser):
+        logger.info(f"Изменения не требуют уведомления для пользователя {user.username if user else 'None'}")
+        return
+
+    # Исключаем уведомления при изменении участников (регистрация/отмена регистрации), количества мест и свободных мест
+    updated_fields = kwargs.get('update_fields', None)
+    if updated_fields and any(field in updated_fields for field in ['member', 'place_limit', 'place_free']):
+        logger.info(f"Изменение полей {updated_fields} мероприятия {instance.name} не требует уведомления.")
+        return
+
     # Уведомление автора о любых изменениях
     if user and hasattr(user, 'telegram_id') and user.telegram_id:
         message = f"\U0001F4BE Изменения в мероприятие '{instance.name}' были успешно сохранены."
@@ -65,7 +76,6 @@ def notify_author_on_any_change(sender, instance, created, **kwargs):
             logger.error(f"Ошибка при отправке уведомления автору {user.username}: {e}")
     else:
         logger.warning("Пользователь, который вносит изменения, не был найден или у него нет telegram_id")
-
 # Уведомление участников при изменении определённых полей
 @receiver(post_save, sender=Events_online)
 @receiver(post_save, sender=Events_offline)
