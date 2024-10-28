@@ -111,14 +111,14 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-lg-1">
-                    {% if user.is_authenticated %}
+                    {% comment %} {% if user.is_authenticated %}
                         {% if event_card_views %}
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
                                         <a class="page-link-arrow" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}"><div class="arrow">
                                             {% if not event_card_views.has_previous %}
-                                                {% comment %} <img src="{% static "general/icons/arrow-left-disabled.png" %}" class="arrow" alt="Предыдущая"> {% endcomment %}
+                                                {% comment %} <img src="{% static "general/icons/arrow-left-disabled.png" %}" class="arrow" alt="Предыдущая">
                                             {% else %}
                                                 <img src="{% static "general/icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">
 
@@ -129,15 +129,59 @@
                                 </ul>
                             </nav>
                         {% endif %}
-                    {% endif %}
+                    {% endif %} {% endcomment %}
                 </div>
 		
-				<div class="col-lg-10">
-		
-                    {% block filters %}{% endblock filters %}
-                    {% block sort %}{% endblock sort %}
+				<div class="col-lg-10 col-sm-12 col-12">
+                    <div class="row mt-3 mb-3 name-for-events">
+                        <div class="col-lg-1 col-sm-1 col-1 d-flex justify-content-center arrow">
+                            {% if user.is_authenticated %}
+                                {% if event_card_views %}
+                                    <nav aria-label="Arrow navigation">
+                                        <ul class="pagination justify-content-center">
+                                            <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
+                                                <a class="page-link-arrow" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}"><div class="arrow">
+                                                    {% if not event_card_views.has_previous %}
+                                                        {% comment %} <img src="{% static "general/icons/arrow-left-disabled.png" %}" class="arrow" alt="Предыдущая"> {% endcomment %}
+                                                    {% else %}
+                                                        <img src="{% static "general/icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">
+                                                    {% endif %}
+                                                </div></a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="col-lg-10 col-sm-10 col-10 align-items-center">
+                            <div class="row">
+                                {% block filters %}{% endblock filters %}
+                                {% block sort %}{% endblock sort %}
+                            </div>  
+                            
+                        </div>
+                        <div class="col-lg-1 col-sm-1 col-1 d-flex justify-content-center">
+                            {% if user.is_authenticated %}
+                                {% if event_card_views %}
+                                    <nav aria-label="Arrow navigation">
+                                        <ul class="pagination justify-content-center">
+                                            <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
+                                                <a class="page-link-arrow" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}"><div class="arrow">
+                                                    {% if not event_card_views.has_next %}
+                                                        {% comment %} <img src="{% static "general/icons/arrow-right-disabled.png" %}" class="arrow" alt="Следующая"> {% endcomment %}
+                                                    {% else %}
+                                                        <img src="{% static "general/icons/arrow-right.png" %}" class="arrow" alt="Следующая">
+                                                    {% endif %}
+                                                </div></a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div> 
                     
-                
+
                     {% block script_js %}{% endblock script_js %}
                     
                          
@@ -326,14 +370,14 @@
 				</div>
                 
 				<div class="col-lg-1">
-                    {% if user.is_authenticated %}
+                    {% comment %} {% if user.is_authenticated %}
                         {% if event_card_views %}
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
                                         <a class="page-link-arrow" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}"><div class="arrow">
                                             {% if not event_card_views.has_next %}
-                                                {% comment %} <img src="{% static "general/icons/arrow-right-disabled.png" %}" class="arrow" alt="Следующая"> {% endcomment %}
+                                                {% comment %} <img src="{% static "general/icons/arrow-right-disabled.png" %}" class="arrow" alt="Следующая"> 
                                             {% else %}
                                                 <img src="{% static "general/icons/arrow-right.png" %}" class="arrow" alt="Следующая">
                                             {% endif %}
@@ -342,7 +386,7 @@
                                 </ul>
                             </nav>
                         {% endif %}
-                    {% endif %}
+                    {% endif %} {% endcomment %}
                 </div>
 			</div>
 		</div>

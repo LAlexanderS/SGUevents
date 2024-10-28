@@ -2,12 +2,12 @@
 {% block title %} <title>Достопримечательности</title> {% endblock %}
 
 {% block filters %}
-<div class="row mt-3 mb-3 name-for-events">
-	<div class="col-lg-9">
+{% comment %} <div class="row mt-3 mb-3 name-for-events"> {% endcomment %}
+	<div class="col-lg-9 col-md-9 col-9 align-items-center">
 			<h2> {{ name_page }} </h2>
 	</div>
 
-	<div class="col-lg-3 text-end d-flex justify-content-end align-items-center">
+	<div class="col-lg-3 col-md-3 col-3 text-end d-flex justify-content-end align-items-center">
 			<!-- Кнопка сброса фильтров, отображается если фильтры применены -->
 			<div id="reset-filters-container" class="me-2" style="display: {% if filters_applied %}block{% else %}none{% endif %};">
 					<form action="{% url 'events_cultural:attractions' %}" method="get">
@@ -25,7 +25,7 @@
 					<img src="{% static 'general/icons/sort.png' %}" alt="Сортировка" style="width: 24px; height: 24px;">
 			</button>
 	</div>
-</div>
+{% comment %} </div> {% endcomment %}
 
 <!-- Секция фильтров, которая будет отображаться/скрываться -->
 <div id="filter-section" class="row filter-events-row mt-2" style="display: {% if filters_applied %}flex{% else %}none{% endif %};">

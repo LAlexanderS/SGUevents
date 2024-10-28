@@ -40,37 +40,90 @@ body {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='white' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
-
-/* Стрелки */
-.page-link-arrow.left-arrow {
-    position: fixed;
-    top: 50px;
-    left: 10px;
-    z-index: 1000;
-    /* Поверх остальных элементов */
+/* .name-for-events {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.page-link-arrow.right-arrow {
-    position: fixed;
-    top: 50px;
-    right: 10px;
-    z-index: 1000;
-    /* Поверх остальных элементов */
+
+.page-link-arrow {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 576px) {
+    .name-for-events {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+} */
+
+
+
+
+/* Пагинация - стрелки*/
+
+
+nav[aria-label="Arrow navigation"] {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Чтобы скрыть всё, что выходит за границы */
+}
+
+.page-link-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    /* Фиксированная ширина */
+    height: 40px;
+    /* Фиксированная высота */
+    padding: 0px;
+    /* Добавляем небольшой отступ */
+    box-sizing: border-box;
+    overflow: visible;
+    /* Сохраняем видимость изображения */
+
 }
 
 .arrow img {
-    width: 40px;
-    /* Настройка размера иконки */
-    height: auto;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    min-width: 30px;
+    min-height: 30px;
 }
 
+.name-for-events>div {
+    padding: 0;
+}
 
+@media (max-width: 555px) {
+    .name-for-events>div {
+        padding: 1px;
+    }
 
+    .page-link-arrow {
+        width: 35px;
+        height: 35px;
+    }
+}
 
+@media (max-width: 450px) {
+    .name-for-events>div {
+        padding: 1px;
+    }
 
-
-
-
+    .page-link-arrow {
+        width: 30px;
+        height: 30px;
+    }
+}
 
 
 /* Пагинация */
