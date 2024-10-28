@@ -131,6 +131,12 @@ nav[aria-label="Arrow navigation"] {
     }
 }
 
+@media (max-width: 350px) {
+    h2.namepage-vis {
+        font-size: 8px;
+    }
+}
+
 
 /* Пагинация */
 .pagination {
