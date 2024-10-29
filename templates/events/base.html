@@ -331,12 +331,19 @@
                                                     </p>
                                                 {% endif %}
                                                 
-                                                
-                                                {% if events.place_limit and events.place_free %}
-                                                    <p>
-                                                        {{events.place_limit}} / <span id="free-places-{{events.slug}}">{{events.place_free}}</span>
-                                                    </p>
-                                                {% endif %}                          
+                                                {% if events.category == "Доступные к посещению"%}
+                                                    {% if events.place_limit and events.date >= now %}
+                                                        {% if events.place_free > 0 %}
+                                                            <p>
+                                                                {{events.place_limit}} / <span id="free-places-{{events.slug}}">{{events.place_free}}</span>
+                                                            </p>
+                                                        {% else %}
+                                                            <p>
+                                                                Нет свободных мест
+                                                            </p> 
+                                                        {% endif %}
+                                                    {% endif %}                          
+                                                {% endif %}
 
                                                 {% block content %}{% endblock content %}
                                                 {% block admins_events %}{% endblock admins_events %}
