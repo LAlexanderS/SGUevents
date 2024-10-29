@@ -91,6 +91,8 @@ nav[aria-label="Arrow navigation"] {
 
 }
 
+
+/* Стрелки пагинации */
 .arrow img {
     width: 100%;
     height: 100%;
@@ -108,7 +110,7 @@ nav[aria-label="Arrow navigation"] {
     height: 24 px;
 }
 
-
+/* Сужение стрелок пагинации сверху при сужении экрана */
 @media (max-width: 555px) {
     .name-for-events>div {
         padding: 1px;
@@ -137,6 +139,11 @@ nav[aria-label="Arrow navigation"] {
     }
 }
 
+/* Стрелка назад из карточки мероприятия */
+.arrow-back {
+    width: 35px;
+    height: 35 px;
+}
 
 /* Пагинация */
 .pagination {
@@ -144,8 +151,5 @@ nav[aria-label="Arrow navigation"] {
 }
 
 
-.form-control.search {
-    width: 500px;
-}
 
 /*  */
