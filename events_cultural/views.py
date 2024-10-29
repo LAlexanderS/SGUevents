@@ -102,7 +102,7 @@ def attractions(request):
         events_cultural = events_cultural.order_by(order_by)
 
     # Пагинация
-    paginator = Paginator(events_cultural, 3)
+    paginator = Paginator(events_cultural, 5)
     current_page = paginator.page(int(page))
 
     # Получаем избранные мероприятия пользователя
@@ -160,6 +160,7 @@ def attractions_card(request, event_slug=False, event_id=False):
         'event': event,
         'reviews': reviews, 
         'favorites': favorites_dict,
+        'now': now().date(),
     }
     return render(request, 'events_cultural/card.html', context=context)
 
@@ -252,7 +253,7 @@ def events_for_visiting(request):
     if order_by and order_by != "default":
         events_cultural = events_cultural.order_by(order_by)
         
-    paginator = Paginator(events_cultural, 3)
+    paginator = Paginator(events_cultural, 5)
     current_page = paginator.page(int(page))
 
     favorites = Favorite.objects.filter(user=request.user, for_visiting__in=current_page)
@@ -310,8 +311,7 @@ def for_visiting_card(request, event_slug=False, event_id=False):
         'reviews': reviews,
         'registered': registered_dict,
         'favorites': favorites_dict, 
-        
-
+        'now': now().date(),
     }
     return render(request, 'events_cultural/card.html', context=context)
 

@@ -31,14 +31,16 @@
 
 {% block content %}
 {% if event.category == "Доступные к посещению" %}
-	{% if event.id in registered %}
-		<a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:event.id }}">
-			Отмена регистрации
-		</a>
-	{% else %}
-		<a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ event.slug }}">
-			Регистрация
-		</a>
+	{% if event.date >= now %}
+		{% if event.id in registered %}
+			<a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:event.id }}">
+				Отмена регистрации
+			</a>
+		{% else %}
+			<a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ event.slug }}">
+				Регистрация
+			</a>
+		{% endif %}
 	{% endif %}
 
 	<button class="btn btn-primary btn-comment" data-event-id="{{ event.id }}" data-model-type="for_visiting">Оставить отзыв</button>
