@@ -261,8 +261,8 @@
                                                 {% endif %}
                                             {% endif %}
                                             <div class="card-img-info">
-                                                <p>id: {{ events.display_id }}</p>
-                                                <p>category: {{ events.category }}</p>
+                                                {% comment %} <p>id: {{ events.display_id }}</p> {% endcomment %}
+                                                <p>{{ events.category }}</p>
                                             </div>
                                         </div>
                                         <div class="col-md-8">

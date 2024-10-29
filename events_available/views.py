@@ -149,7 +149,7 @@ def online(request):
     # elif sort_date == 'date':
     #     events_available = events_available.order_by('date')
 
-    paginator = Paginator(events_available, 3)
+    paginator = Paginator(events_available, 5)
     current_page = paginator.page(int(page))
 
     favorites = Favorite.objects.filter(user=request.user, online__in=current_page)
@@ -211,6 +211,8 @@ def online_card(request, event_slug=False, event_id=False):
         'reviews': reviews,
         'registered': registered_dict,
         'favorites': favorites_dict, 
+        'now': now().date(),
+
     }
     return render(request, 'events_available/card.html', context=context)
 
@@ -341,7 +343,7 @@ def offline(request):
             full_place=Concat('town', Value(' '), 'street', Value(' '), 'house', Value(' '), 'cabinet', output_field=CharField())
         ).filter(full_place__icontains=f_place)
 
-    paginator = Paginator(events_available, 3)
+    paginator = Paginator(events_available, 5)
     current_page = paginator.page(int(page))
 
     favorites = Favorite.objects.filter(user=request.user, offline__in=current_page)
@@ -408,6 +410,7 @@ def offline_card(request, event_slug=False, event_id=False):
         'reviews': reviews, 
         'registered': registered_dict,
         'favorites': favorites_dict,
+        'now': now().date(),
     }
 
     return render(request, 'events_available/card.html', context=context)

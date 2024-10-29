@@ -132,7 +132,9 @@
                                             {% endif %}
 											{% block heart %}{% endblock heart %}
 											<div class="card-img-info">
-												<p>id: {{ event.display_id }}</p>
+												{% comment %} <p>id: {{ event.display_id }}</p> {% endcomment %}
+                                                <p>{{ event.category }}</p>
+
 											</div>
 										</div>
 										<div class="col-md-8">
