@@ -33,7 +33,11 @@
 	<!-- Фильтр по названию -->
 	<div class="col-lg-2">
 		<div class="dropdown">
-			<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+			{% if request.GET.name_search %}
+				<button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+			{% else %}
+				<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+			{% endif %}
 				Название
 			</button>
 			<form action="" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
@@ -52,8 +56,12 @@
 	<!-- Фильтр по дате -->
 	<div class="col-lg-2">
 			<div class="dropdown">
+				{% if request.GET.date_start or request.GET.date_end %}
+					<button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+				{% else %}
 					<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
-							Дата
+				{% endif %}
+						Дата
 					</button>
 					<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" id="dateDropdown">
 							<div class="form-check text-white">
@@ -86,8 +94,12 @@
 	<!-- Фильтр по времени -->
 	<div class="col-lg-2">
 			<div class="dropdown">
+				{% if request.GET.time_to_start or request.GET.time_to_end  %}       
+					<button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				{% else %}
 					<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Время
+				{% endif %}
+					Время
 					</button>
 					<form action="" method="get" class="dropdown-menu bg-dark dropdown-menu-custom" data-bs-theme="dark">
 							<div class="form-check text-white">
@@ -120,9 +132,14 @@
 	<!-- Фильтр по месту проведения -->
 	<div class="col-lg-2">
 			<div class="dropdown">
+				{% if request.GET.f_place %}
+					<button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				{% else %}
 					<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Место проведения
-					</button>
+				{% endif %}
+					Место проведения
+				</button>
+							
 					<form action="" method="get" class="dropdown-menu bg-dark p-3" data-bs-theme="dark" style="width: 300px;">
 							<input type="text" id="address-input" name="f_place" placeholder="Введите адрес" class="form-control w-100" list="citylist">
 							<datalist id="citylist">
@@ -148,8 +165,12 @@
 	<!-- Фильтр по тегам -->
 	<div class="col-lg-2">
 			<div class="dropdown">
+				{% if request.GET.f_tags == tag %}
 					<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Теги
+				{% else %}
+					<button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				{% endif %}
+						Теги
 					</button>
 					<form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto; width:170px;">
 							<!-- Поле для поиска тегов -->

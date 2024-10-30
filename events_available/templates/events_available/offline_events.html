@@ -119,16 +119,15 @@
     <div class="col-lg-2">
         <div class="row">
             <div class="dropdown">
-                <form action="{% url 'events_available:offline' %}" method="get">
                 {% if request.GET.f_place %}
                     <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Место проведения
-                    </button>
                 {% else %}
                     <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% endif %}
                     Место проведения
                 </button>
-                {% endif %}
+
+                <form action="{% url 'events_available:offline' %}" method="get">
                     <div class="dropdown-menu bg-dark p-3" data-bs-theme="dark" style="width: 300px;">
                         <input type="text" id="address-input" name="f_place" placeholder="Введите адрес" class="form-control w-100" list="citylist">
                         <datalist id="citylist">
