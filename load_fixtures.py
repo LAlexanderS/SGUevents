@@ -5,7 +5,6 @@ import sys
 # Список файлов фикстур
 fixtures = [
     'fixtures/departments.json',
-    'fixtures/users/users.json',
     'fixtures/groups.json',
     'fixtures/events_available/events_offline.json',
     'fixtures/events_available/events_online.json',
