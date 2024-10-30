@@ -136,5 +136,28 @@ function requestPasswordChange() {
         alert('Произошла ошибка при смене пароля.');
     });
 }
+
+function requestAdminRights() {
+    const reason = document.getElementById('reason').value;
+    fetch('{% url "users:request_admin_rights" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) {
+            document.getElementById('reason').value = ''; // Очистить поле ввода после успешной отправки
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при отправке запроса на админские права.');
+    });
+}
 </script>
 {% endblock content %}

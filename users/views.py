@@ -115,6 +115,11 @@ def change_password(request):
 def request_admin_rights(request):
     if request.method == 'POST':
         try:
+            # Проверяем, есть ли уже активный запрос от этого пользователя
+            existing_request = AdminRightRequest.objects.filter(user=request.user, status='pending').first()
+            if existing_request:
+                return JsonResponse({'success': False, 'message': 'Ваш запрос на админские права уже рассматривается.'})
+
             data = json.loads(request.body)
             justification = data.get('reason', '')
             user_full_name = f"{request.user.last_name} {request.user.first_name} {' ' + request.user.middle_name if request.user.middle_name else ''}".strip()
@@ -129,8 +134,7 @@ def request_admin_rights(request):
             # Уведомление пользователя о том, что запрос отправлен
             send_confirmation_to_user(request.user.telegram_id)
 
-            return JsonResponse({'success': True,
-                                 'message': 'Запрос на админские права отправлен администратору и зарегистрирован в системе.'})
+            return JsonResponse({'success': True, 'message': 'Запрос на админские права отправлен администратору и зарегистрирован в системе.'})
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Ошибка в формате данных.'})
     return JsonResponse({'success': False, 'error': 'Недопустимый запрос.'})
