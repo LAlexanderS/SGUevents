@@ -38,7 +38,6 @@ def index(request):
     cultural = Attractions.objects.order_by('date')
     cultural1 = Events_for_visiting.objects.order_by('date')
     user = request.user
-    page = request.GET.get('page', 1)
     f_speakers = request.GET.getlist('f_speakers', None)
 
     # СПИКЕРЫ

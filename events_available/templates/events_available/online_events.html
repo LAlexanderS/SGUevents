@@ -35,7 +35,11 @@
     <div class="row filter-events-row">
         <div class="col-lg-2">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.GET.name_search %}
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% else %}
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% endif %}
                     Название
                 </button>
                 <form action="" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
@@ -52,7 +56,12 @@
         
         <div class="col-lg-2">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+                {% if request.GET.date_start or request.GET.date_end %}
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+                {% else %}
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+                {% endif %}
+                
                     Дата
                 </button>
                 <form action="{% if request.GET.q %}{% url 'events_available:search_online' %}{% else %}{% url 'events_available:online' %}{% endif %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" id="dateDropdown">
@@ -84,7 +93,11 @@
         
         <div class="col-lg-2">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.GET.time_to_start or request.GET.time_to_end  %}       
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% else %}
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% endif %}
                     Время
                 </button>
                 <form action="" method="get" class="dropdown-menu bg-dark dropdown-menu-custom" data-bs-theme="dark">
@@ -111,7 +124,11 @@
         
         <div class="col-lg-2">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.GET.f_speakers %}
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% else %}
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% endif %}
                     Спикеры
                 </button>
                 <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto; width:300px;">
@@ -146,7 +163,11 @@
           
         <div class="col-lg-2">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.GET.f_tags == tag %}
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% else %}
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% endif %}
                     Теги
                 </button>
                 <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto; width:170px;">
@@ -159,6 +180,7 @@
                     <div id="tags-list">
                         {% for tag in tags %}
                             <div class="form-check text-white mx-3 tag-item" style="height: 5px;">
+                            
                                 <input class="form-check-input" type="checkbox" name="f_tags" id="flexCheckDefault{{ forloop.counter }}" value="{{ tag }}" {% if request.GET.f_tags == tag %}checked{% endif %}>
                                 <label class="form-check-label" for="flexCheckDefault{{ forloop.counter }}">{{ tag }}</label>
                                 <br>

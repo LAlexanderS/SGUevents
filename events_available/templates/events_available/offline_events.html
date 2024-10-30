@@ -32,9 +32,13 @@
     <!-- Фильтры по названию, дате и остальным параметрам -->
     <div class="col-lg-2">
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Название
-            </button>
+            {% if request.GET.name_search %}
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% else %}
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% endif %}
+                    Название
+                </button>
             <form action="" method="get" class="dropdown-menu bg-dark w-100" data-bs-theme="dark">
                 <div class="form-check text-white">
                     <input class="form-control me-3" type="search" id="event-name-search" name="name_search" placeholder="Введите название">
@@ -49,7 +53,11 @@
     <div class="col-lg-2">
         <div class="row">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+                {% if request.GET.date_start or request.GET.date_end %}
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+                {% else %}
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
+                {% endif %}
                     Дата
                 </button>
                 <form action="{% if request.GET.q %}{% url 'events_available:search_offline' %}{% else %}{% url 'events_available:offline' %}{% endif %}" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" id="dateDropdown">
@@ -81,7 +89,11 @@
     </div>
     <div class="col-lg-2">
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if request.GET.time_to_start or request.GET.time_to_end  %}       
+                <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% else %}
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% endif %}
                 Время
             </button>
             <form action="" method="get" class="dropdown-menu bg-dark dropdown-menu-custom" data-bs-theme="dark">
@@ -108,9 +120,15 @@
         <div class="row">
             <div class="dropdown">
                 <form action="{% url 'events_available:offline' %}" method="get">
-                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.GET.f_place %}
+                    <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Место проведения
                     </button>
+                {% else %}
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Место проведения
+                </button>
+                {% endif %}
                     <div class="dropdown-menu bg-dark p-3" data-bs-theme="dark" style="width: 300px;">
                         <input type="text" id="address-input" name="f_place" placeholder="Введите адрес" class="form-control w-100" list="citylist">
                         <datalist id="citylist">
@@ -126,7 +144,11 @@
     </div>
     <div class="col-lg-2">
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if request.GET.f_speakers %}
+                <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% else %}
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% endif %}
                 Спикеры
             </button>
             <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto; width:300px;">
@@ -160,7 +182,11 @@
     </div>
     <div class="col-lg-2">
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if request.GET.f_tags == tag %}
+                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% else %}
+                <button class="btn btn-info dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% endif %}
                 Теги
             </button>
             <form action="" method="get" class="dropdown-menu bg-dark" data-bs-theme="dark" style="max-height: 200px; overflow-y: auto; width:170px;">
