@@ -1,0 +1,107 @@
+[
+    {
+        "model": "users.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$4a6Q4nlDxnLN0H3CFRdcfh$L1JOixx0TDfAs+7DytuTzMWVdw1u2xOESe0zENtYkkw=",
+            "last_login": "2024-08-22T03:55:32.112Z",
+            "is_superuser": false,
+            "username": "Admin",
+            "first_name": "Иван",
+            "last_name": "Иванов",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2024-08-22T03:54:55.304Z",
+            "middle_name": "Иванович",
+            "department": 243,
+            "telegram_id": "default_telegram_id",
+            "email": "ad@min.com",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$RJkXHd8UWbjcBEznfxyp8m$3dzZsqPetZ0W5MiUx9Y3VCJ+X4BNIRq+/ElNBmhVF/c=",
+            "last_login": null,
+            "is_superuser": false,
+            "username": "user1",
+            "first_name": "Евпатий",
+            "last_name": "Коловрат",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2024-08-22T04:04:23.856Z",
+            "middle_name": "Андреевич",
+            "department": 1,
+            "telegram_id": null,
+            "email": "",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 3,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$2IttglNZ9huM5fqWEgeGA3$kFQ0S0iN2EXcnuVH8ILrxErzEsXxDda7vPEk28/JanE=",
+            "last_login": null,
+            "is_superuser": false,
+            "username": "user2",
+            "first_name": "Ольга",
+            "last_name": "Павловская",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2024-08-22T04:05:49.633Z",
+            "middle_name": "Витальевна",
+            "department": 2,
+            "telegram_id": null,
+            "email": "mail2@mail.ru",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 4,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$G6QfzWPJSstDgAojLDcZrX$H/EZvGcKOERYuij9ahRLbRe6VhBRSNlJtbOw2+gdrhw=",
+            "last_login": null,
+            "is_superuser": false,
+            "username": "user3",
+            "first_name": "Каролина",
+            "last_name": "Смирнова",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2024-08-22T04:06:58.547Z",
+            "middle_name": "Михайловна",
+            "department": 3,
+            "telegram_id": null,
+            "email": "mail3@mail.ru",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 5,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$mMSbaVHm6YEKKfO5cv3WWZ$hOS18afQ02bSIeGpl8bchp8eUsbhI+CaPFxIQAvEkGY=",
+            "last_login": null,
+            "is_superuser": false,
+            "username": "user4",
+            "first_name": "Елизавета",
+            "last_name": "Богданова",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2024-08-22T04:07:47.364Z",
+            "middle_name": "Степановна",
+            "department": 6,
+            "telegram_id": null,
+            "email": "mail4@mail.ru",
+            "groups": [],
+            "user_permissions": []
+        }
+    }
+]

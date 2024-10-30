@@ -120,11 +120,11 @@ def online(request):
 
     if date_start:
         date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
-        events_available = events_available.filter(date__gt=date_start_formatted)
+        events_available = events_available.filter(date__gte=date_start_formatted)
 
     if date_end:
         date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
-        events_available = events_available.filter(date__lt=date_end_formatted)
+        events_available = events_available.filter(date__lte=date_end_formatted)
 
 
         # Фильтрация по времени начала
@@ -321,11 +321,11 @@ def offline(request):
   
     if date_start:
         date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
-        events_available = events_available.filter(date__gt=date_start_formatted)
+        events_available = events_available.filter(date__gte=date_start_formatted)
 
     if date_end:
         date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
-        events_available = events_available.filter(date__lt=date_end_formatted)
+        events_available = events_available.filter(date__lte=date_end_formatted)
 
         # Фильтрация по времени начала
     if time_to_start:

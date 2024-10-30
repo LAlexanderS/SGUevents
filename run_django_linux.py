@@ -105,19 +105,23 @@ run_command('python3 manage.py migrate')
 run_command('python3 load_fixtures.py')
 
 # Создание суперпользователя
-# create_superuser_command = """
-# from django.contrib.auth import get_user_model
+create_superuser_command = """
+from django.contrib.auth import get_user_model
 
-# User = get_user_model()
-# """
+User = get_user_model()
+if not User.objects.filter(username='Admin').exists():
+    User.objects.create_superuser(email='ad@min.com', password='root', username='Admin')
+else:
+    print('Суперпользователь уже существует.')
+"""
 
-# with open('create_superuser.py', 'w') as f:
-#     f.write(create_superuser_command)
+with open('create_superuser.py', 'w') as f:
+    f.write(create_superuser_command)
 
-# run_command('python3 manage.py shell -c "exec(open(\'create_superuser.py\').read())"')
+run_command('python3 manage.py shell -c "exec(open(\'create_superuser.py\').read())"')
 
-# os.remove('create_superuser.py')
-# print('Суперпользователь успешно создан.')
+os.remove('create_superuser.py')
+print('Суперпользователь успешно создан.')
 
 # Запуск сервера
 subprocess.run('python3 manage.py runserver', shell=True)
