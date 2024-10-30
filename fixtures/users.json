@@ -14,7 +14,7 @@
             "date_joined": "2024-08-22T03:54:55.304Z",
             "middle_name": "Иванович",
             "department": 243,
-            "telegram_id": "default_telegram_id",
+            "telegram_id": null,
             "email": "ad@min.com",
             "groups": [],
             "user_permissions": []
