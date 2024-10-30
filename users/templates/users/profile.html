@@ -123,32 +123,18 @@ function requestPasswordChange() {
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message);
-    });
-}
-
-function requestAdminRights() {
-    const reason = document.getElementById('reason').value;
-    fetch('{% url "users:request_admin_rights" %}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ reason: reason })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
         if (data.success) {
-            document.getElementById('reason').value = ''; // Очистить поле ввода после успешной отправки
+            alert(data.message);
+            // Перенаправляем пользователя на страницу логина после успешного изменения пароля
+            window.location.href = '/users/login/';
+        } else {
+            alert(data.error);
         }
     })
     .catch(error => {
         console.error('Ошибка:', error);
-        alert('Произошла ошибка при отправке запроса на админские права.');
+        alert('Произошла ошибка при смене пароля.');
     });
 }
-
 </script>
 {% endblock content %}

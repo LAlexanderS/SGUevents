@@ -105,7 +105,7 @@ def change_password(request):
         send_login_details_sync(request.user.telegram_id, request.user.username, new_password)
         logger.info("Password changed, logging out user and redirecting to login page")
         logout(request)
-        return redirect('/login/')
+        return JsonResponse({'success': True, 'message': 'Пароль успешно изменен. Новый пароль отправлен в Telegram.'})
     else:
         logger.error("Failed to change password: Access denied or missing telegram_id")
         return JsonResponse({'success': False, 'error': 'Access denied.'})
