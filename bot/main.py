@@ -1,22 +1,24 @@
 import asyncio
+import json
 import logging
-import uuid
 import os
+import uuid
 
 import requests
-import json
 from aiogram import Bot, Dispatcher, types, F, Router
+from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.filters import ChatMemberUpdatedFilter
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import CallbackQuery, Update
+from aiogram.types import ChatMemberUpdated
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Update
+from aiohttp import web
 from asgiref.sync import sync_to_async
 from dotenv import load_dotenv
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.client.bot import DefaultBotProperties
-from aiohttp import web
 
 load_dotenv()
 from bot.django_initializer import setup_django_environment
@@ -99,6 +101,11 @@ async def cmd_start(message: types.Message):
         input_field_placeholder="Выберите пункт меню"
     )
     await message.answer("Вас приветствует Event бот СГУ", reply_markup=keyboard)
+
+@router.chat_member(ChatMemberUpdatedFilter(member_status_changed=True))
+async def handle_new_member(event: ChatMemberUpdated):
+    # Логика для приветствия нового пользователя
+    await bot.send_message(event.chat.id, f"Добро пожаловать, {event.from_user.first_name}!")
 
 @router.message(F.text == "\U0001F464 Мой профиль")
 async def profile(message: types.Message):
@@ -351,7 +358,7 @@ async def run_bot():
     dp.include_router(router)
 
     # Устанавливаем вебхук с разрешёнными обновлениями
-    await bot.set_webhook(WEBHOOK_URL, allowed_updates=["message", "callback_query"])
+    await bot.set_webhook(WEBHOOK_URL, allowed_updates=["message", "callback_query", "chat_member"])
 
     # Запускаем сервер aiohttp
     runner = web.AppRunner(app)

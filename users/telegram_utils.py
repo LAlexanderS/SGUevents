@@ -22,16 +22,16 @@ logger = logging.getLogger('my_debug_logger')
 
 ADMIN_TG_NAME = os.getenv("ADMIN_TG_NAME")
 
-def send_login_details_sync(telegram_id, login, password):
-    message_text = f"\U0001FAAA Ваши учетные данные для входа:\nЛогин: {login}\nПароль: {password}"
-    send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
-    data = {
-        "chat_id": telegram_id,
-        "text": message_text,
-    }
-    response = requests.post(send_url, data=data)
-    if not response.ok:
-        print(f"Ошибка отправки сообщения: {response.text}")
+# def send_login_details_sync(telegram_id, login, password):
+#     message_text = f"\U0001FAAA Ваши учетные данные для входа:\nЛогин: {login}\nПароль: {password}"
+#     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
+#     data = {
+#         "chat_id": telegram_id,
+#         "text": message_text,
+#     }
+#     response = requests.post(send_url, data=data)
+#     if not response.ok:
+#         print(f"Ошибка отправки сообщения: {response.text}")
 
 def send_message_to_admin(telegram_id, message):
     admin_tg_username = ADMIN_TG_NAME
@@ -262,4 +262,49 @@ def send_notification_with_toggle(telegram_id, message, event_id, notifications_
         print(f"Сообщение успешно отправлено пользователю с telegram_id: {telegram_id}")
     else:
         print(f"Ошибка отправки сообщения пользователю: {response.text}")
+
+# Функция для отправки учетных данных новому пользователю
+# Включает команду /start, чтобы автоматически начать взаимодействие с ботом
+def send_registration_details_sync(telegram_id, username, password):
+    try:
+        message = (
+            f"\U0001F44B Добро пожаловать!\n"
+            f"Ваши учетные данные:\n"
+            f"Username: {username}\nПароль: {password}\n"
+            f"Чтобы начать, нажмите /start или отправьте сообщение /start."
+        )
+        send_message_to_telegram(telegram_id, message)
+        logger.info(f"Учетные данные отправлены новому пользователю {username}")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке учетных данных в Telegram: {e}")
+
+# Функция для отправки нового пароля при его смене
+def send_password_change_details_sync(telegram_id, username, new_password):
+    try:
+        message = (
+            f"\U0001F512 Ваш пароль был успешно изменен.\n"
+            f"Ваши новые учетные данные:\n"
+            f"Username: {username}\nПароль: {new_password}"
+        )
+        send_message_to_telegram(telegram_id, message)
+        logger.info(f"Новый пароль отправлен пользователю {username}")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке нового пароля в Telegram: {e}")
+
+# Вспомогательная функция для отправки сообщения в Telegram
+def send_message_to_telegram(telegram_id, message):
+    import requests
+    from django.conf import settings
+
+    url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        'chat_id': telegram_id,
+        'text': message
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code != 200:
+        logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
 

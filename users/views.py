@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .forms import RegistrationForm
 from .models import Department, AdminRightRequest
-from .telegram_utils import send_login_details_sync
+from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
 from .telegram_utils import send_message_to_admin, send_confirmation_to_user
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -52,7 +52,7 @@ def register(request):
             new_user = User.objects.create_user(**user_kwargs)
 
             if new_user.telegram_id:
-                send_login_details_sync(new_user.telegram_id, new_user.username, generated_password)
+                send_registration_details_sync(new_user.telegram_id, new_user.username, generated_password)
 
             return redirect('users:login')
     else:
@@ -102,7 +102,7 @@ def change_password(request):
         new_password = get_random_string(8)
         request.user.set_password(new_password)
         request.user.save()
-        send_login_details_sync(request.user.telegram_id, request.user.username, new_password)
+        send_password_change_details_sync(request.user.telegram_id, request.user.username, new_password)
         logger.info("Password changed, logging out user and redirecting to login page")
         logout(request)
         return JsonResponse({'success': True, 'message': 'Пароль успешно изменен. Новый пароль отправлен в Telegram.'})
