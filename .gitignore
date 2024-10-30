@@ -13,5 +13,9 @@ events_cultural/migrations/*
 main/migrations/*
 personal/migrations/*
 users/migrations/*
+run_django_linux.py
+run_django_windows.py
+setup_and_run_linux.py
+setup_and_run_windows.py
 .gitingnore
 
