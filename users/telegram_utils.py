@@ -13,7 +13,8 @@ import logging
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.serialization import deserialize_telegram_object_to_python
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
+from aiogram import Bot, Dispatcher, types
+from asgiref.sync import async_to_sync
 
 
 
@@ -21,6 +22,9 @@ logger = logging.getLogger('my_debug_logger')
 
 
 ADMIN_TG_NAME = os.getenv("ADMIN_TG_NAME")
+
+bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
+dp = Dispatcher()
 
 # def send_login_details_sync(telegram_id, login, password):
 #     message_text = f"\U0001FAAA Ваши учетные данные для входа:\nЛогин: {login}\nПароль: {password}"
@@ -271,12 +275,32 @@ def send_registration_details_sync(telegram_id, username, password):
             f"\U0001F44B Добро пожаловать!\n"
             f"Ваши учетные данные:\n"
             f"Username: {username}\nПароль: {password}\n"
-            f"Чтобы начать, нажмите /start или отправьте сообщение /start."
+            f"Вы можете войти на просто через telegram, без логина и пароля"
         )
         send_message_to_telegram(telegram_id, message)
+        async_to_sync(cmd_start_user)(telegram_id)  # Автоматически вызываем /start после отправки учетных данных
         logger.info(f"Учетные данные отправлены новому пользователю {username}")
     except Exception as e:
         logger.error(f"Ошибка при отправке учетных данных в Telegram: {e}")
+
+# Функция для принудительного вызова команды /start для нового пользователя
+async def cmd_start_user(telegram_id):
+    try:
+        kb = [
+            [
+                types.KeyboardButton(text="\U0001F464 Мой профиль"),
+                types.KeyboardButton(text="\U0001F5D3 Мои мероприятия"),
+                types.KeyboardButton(text="\U00002754 Помощь")
+            ],
+        ]
+        keyboard = types.ReplyKeyboardMarkup(
+            keyboard=kb,
+            resize_keyboard=True,
+            input_field_placeholder="Выберите пункт меню"
+        )
+        await bot.send_message(chat_id=telegram_id, text="Вас приветствует Event бот СГУ", reply_markup=keyboard)
+    except Exception as e:
+        logger.error(f"Ошибка при вызове /start для пользователя {telegram_id}: {e}")
 
 # Функция для отправки нового пароля при его смене
 def send_password_change_details_sync(telegram_id, username, new_password):
@@ -307,4 +331,3 @@ def send_message_to_telegram(telegram_id, message):
     response = requests.post(url, json=payload, headers=headers)
     if response.status_code != 200:
         logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
-
