@@ -14,6 +14,7 @@ from django.db.models import Q
 from django.db.models import CharField, Value
 from django.db.models.functions import Concat
 from django.utils.timezone import now
+from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
 
@@ -150,7 +151,14 @@ def online(request):
     #     events_available = events_available.order_by('date')
 
     paginator = Paginator(events_available, 5)
-    current_page = paginator.page(int(page))
+    try:
+        current_page = paginator.page(int(page))
+    except PageNotAnInteger:
+        # Если страница не является целым числом, возвращаем первую страницу
+        current_page = paginator.page(1)
+    except EmptyPage:
+        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
+        current_page = paginator.page(paginator.num_pages)
 
     favorites = Favorite.objects.filter(user=request.user, online__in=current_page)
     favorites_dict = {favorite.online.id: favorite.id for favorite in favorites}
@@ -344,7 +352,14 @@ def offline(request):
         ).filter(full_place__icontains=f_place)
 
     paginator = Paginator(events_available, 5)
-    current_page = paginator.page(int(page))
+    try:
+        current_page = paginator.page(int(page))
+    except PageNotAnInteger:
+        # Если страница не является целым числом, возвращаем первую страницу
+        current_page = paginator.page(1)
+    except EmptyPage:
+        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
+        current_page = paginator.page(paginator.num_pages)
 
     favorites = Favorite.objects.filter(user=request.user, offline__in=current_page)
     favorites_dict = {favorite.offline.id: favorite.id for favorite in favorites}
