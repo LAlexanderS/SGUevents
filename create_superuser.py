@@ -24,4 +24,5 @@ if not User.objects.filter(username=username).exists():
     print(f"Суперпользователь {username} успешно создан.")
 else:
     print(f"Суперпользователь {username} уже существует.")
+    
 
