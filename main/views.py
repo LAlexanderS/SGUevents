@@ -14,8 +14,7 @@ from events_available.utils import *
 from events_cultural.utils import *
 from django.http import JsonResponse
 from django.utils.timezone import now
-
-
+from django.core.paginator import EmptyPage, PageNotAnInteger
 from main.utils import q_search_all
 from users.models import User
 
@@ -177,7 +176,14 @@ def index(request):
 
     # Пагинация
     paginator = Paginator(events_all, 10)
-    current_page = paginator.page(int(page))
+    try:
+        current_page = paginator.page(int(page))
+    except PageNotAnInteger:
+        # Если страница не является целым числом, возвращаем первую страницу
+        current_page = paginator.page(1)
+    except EmptyPage:
+        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
+        current_page = paginator.page(paginator.num_pages)
 
     current_online = [event for event in current_page if isinstance(event, Events_online)]
     current_offline = [event for event in current_page if isinstance(event, Events_offline)]

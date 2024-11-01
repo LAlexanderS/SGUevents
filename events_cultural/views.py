@@ -15,6 +15,7 @@ from datetime import datetime
 from django.db.models import Q, CharField, Value
 from django.db.models.functions import Concat
 from django.utils.timezone import now
+from django.core.paginator import EmptyPage, PageNotAnInteger
 
 
 @login_required
@@ -103,7 +104,14 @@ def attractions(request):
 
     # Пагинация
     paginator = Paginator(events_cultural, 5)
-    current_page = paginator.page(int(page))
+    try:
+        current_page = paginator.page(int(page))
+    except PageNotAnInteger:
+        # Если страница не является целым числом, возвращаем первую страницу
+        current_page = paginator.page(1)
+    except EmptyPage:
+        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
+        current_page = paginator.page(paginator.num_pages)
 
     # Получаем избранные мероприятия пользователя
     favorites = Favorite.objects.filter(user=request.user, attractions__in=current_page)
@@ -254,7 +262,14 @@ def events_for_visiting(request):
         events_cultural = events_cultural.order_by(order_by)
         
     paginator = Paginator(events_cultural, 5)
-    current_page = paginator.page(int(page))
+    try:
+        current_page = paginator.page(int(page))
+    except PageNotAnInteger:
+        # Если страница не является целым числом, возвращаем первую страницу
+        current_page = paginator.page(1)
+    except EmptyPage:
+        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
+        current_page = paginator.page(paginator.num_pages)
 
     favorites = Favorite.objects.filter(user=request.user, for_visiting__in=current_page)
     favorites_dict = {favorite.for_visiting.id: favorite.id for favorite in favorites}

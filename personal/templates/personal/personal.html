@@ -29,6 +29,7 @@
             </div>
         {% endif %}
         
+        <p>{{is_for_visiting_group}}</p> 
         {% if is_for_visiting_group or request.user.is_superuser %}
             <div class="col-md-6 mb-2">
                 <a href="/admin/events_cultural/events_for_visiting/add/" class="btn btn-secondary w-100" role="button" target="_blank">
