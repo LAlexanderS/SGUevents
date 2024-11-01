@@ -25,64 +25,95 @@ def calendar_view(request):
     
     events = []
     for event in events_online:
-        event_data = {
-            'title': f"{event.name}",
-            'start': event.date.strftime("%Y-%m-%d"),
-            'time': event.time_start.strftime("%H:%M"),
-            'category': 'Онлайн',
-            'css_class': 'event-online',  # Класс по умолчанию для онлайн событий
-            'url': reverse('events_available:online_card', args=[event.slug])
-        }
         if event.id in registered_online_ids:
-            event_data['css_class'] += ' event-registered'  # Добавляем класс для зарегистрированных событий
+            event_data = {
+                'title': f"{event.name}",
+                'start': event.date.strftime("%Y-%m-%d"),
+                'time': event.time_start.strftime("%H:%M"),
+                'category': 'Онлайн',
+                'css_class': 'event-online',  # Класс по умолчанию для онлайн событий
+                'url': reverse('events_available:online_card', args=[event.slug])
+            }
+            events.append(event_data)
         elif event.id in favorite_online_ids:
-            event_data['css_class'] += ' event-favorite'  # Добавляем класс для избранных событий
-        events.append(event_data)
-
+            event_data = {
+                'title': f"{event.name}",
+                'start': event.date.strftime("%Y-%m-%d"),
+                'time': event.time_start.strftime("%H:%M"),
+                'category': 'Онлайн',
+                'css_class': 'event-favorite',  # Добавляем класс для избранных событий
+                'url': reverse('events_available:online_card', args=[event.slug])
+            }
+            events.append(event_data)
+            
     for event in events_offline:
-        event_data = {
-            'title': f"{event.name}",
-            'start': event.date.strftime("%Y-%m-%d"),
-            'time': event.time_start.strftime("%H:%M"),
-            'category': 'Оффлайн',
-            'css_class': 'event-offline',  # Класс по умолчанию для оффлайн событий
-            'url': reverse('events_available:offline_card', args=[event.slug])
-        }
         if event.id in registered_offline_ids:
-            event_data['css_class'] += ' event-registered'
+            event_data = {
+                'title': f"{event.name}",
+                'start': event.date.strftime("%Y-%m-%d"),
+                'time': event.time_start.strftime("%H:%M"),
+                'category': 'Оффлайн',
+                'css_class': 'event-offline',  # Класс по умолчанию для оффлайн событий
+                'url': reverse('events_available:offline_card', args=[event.slug])
+            }
+            events.append(event_data)
+
         elif event.id in favorite_offline_ids:
-            event_data['css_class'] += ' event-favorite'
-        events.append(event_data)
+            event_data = {
+                'title': f"{event.name}",
+                'start': event.date.strftime("%Y-%m-%d"),
+                'time': event.time_start.strftime("%H:%M"),
+                'category': 'Оффлайн',
+                'css_class': 'event-favorite',  # Класс по умолчанию для оффлайн событий
+                'url': reverse('events_available:offline_card', args=[event.slug])
+            }
+            events.append(event_data)
+
 
     for event in attractions:
-        event_data = {
-            'title': f"{event.name}",
-            'start': event.date.strftime("%Y-%m-%d"),
-            'time': event.time_start.strftime("%H:%M"),
-            'category': 'Достопримечательность',
-            'css_class': 'event-attractions',  # Класс по умолчанию для достопримечательностей
-            'url': reverse('events_cultural:attractions_card', args=[event.slug])
-        }
         if event.id in registered_attractions_ids:
-            event_data['css_class'] += ' event-registered'
+            event_data = {
+                'title': f"{event.name}",
+                'start': event.date.strftime("%Y-%m-%d"),
+                'time': event.time_start.strftime("%H:%M"),
+                'category': 'Достопримечательность',
+                'css_class': 'event-attractions',  # Класс по умолчанию для достопримечательностей
+                'url': reverse('events_cultural:attractions_card', args=[event.slug])
+            }
+            events.append(event_data)
+
         elif event.id in favorite_attractions_ids:
-            event_data['css_class'] += ' event-favorite'
-        events.append(event_data)
+            event_data = {
+                'title': f"{event.name}",
+                'start': event.date.strftime("%Y-%m-%d"),
+                'time': event.time_start.strftime("%H:%M"),
+                'category': 'Достопримечательность',
+                'css_class': 'event-favorite',  # Класс по умолчанию для достопримечательностей
+                'url': reverse('events_cultural:attractions_card', args=[event.slug])
+            }
+            events.append(event_data)
 
     for event in events_for_visiting:
-        event_data = {
-            'title': f"{event.name}",
-            'start': event.date.strftime("%Y-%m-%d"),
-            'time': event.time_start.strftime("%H:%M"),
-            'category': 'Для посещения',
-            'css_class': 'event-visiting',  # Класс по умолчанию для событий для посещения
-            'url': reverse('events_cultural:events_for_visiting_card', args=[event.slug])
-        }
         if event.id in registered_for_visiting_ids:
-            event_data['css_class'] += ' event-registered'
+            event_data = {
+                'title': f"{event.name}",
+                'start': event.date.strftime("%Y-%m-%d"),
+                'time': event.time_start.strftime("%H:%M"),
+                'category': 'Для посещения',
+                'css_class': 'event-visiting',  # Класс по умолчанию для событий для посещения
+                'url': reverse('events_cultural:events_for_visiting_card', args=[event.slug])
+            }
+            events.append(event_data)
         elif event.id in favorite_for_visiting_ids:
-            event_data['css_class'] += ' event-favorite'
-        events.append(event_data)
+            event_data = {
+                'title': f"{event.name}",
+                'start': event.date.strftime("%Y-%m-%d"),
+                'time': event.time_start.strftime("%H:%M"),
+                'category': 'Для посещения',
+                'css_class': 'event-favorite',  # Класс по умолчанию для событий для посещения
+                'url': reverse('events_cultural:events_for_visiting_card', args=[event.slug])
+            }
+            events.append(event_data)
 
     context = {
         'events': json.dumps(events)
