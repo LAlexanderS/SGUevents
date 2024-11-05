@@ -23,7 +23,7 @@ logger = logging.getLogger('my_debug_logger')
 
 ADMIN_TG_NAME = os.getenv("ADMIN_TG_NAME")
 
-bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
+bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
 dp = Dispatcher()
 
 # def send_login_details_sync(telegram_id, login, password):
