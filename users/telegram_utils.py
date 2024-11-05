@@ -272,7 +272,7 @@ def send_registration_details_sync(telegram_id, username, password):
             f"\U0001F44B Добро пожаловать!\n"
             f"Ваши учетные данные:\n"
             f"Username: {username}\nПароль: {password}\n"
-            f"Вы можете войти на просто через telegram, без логина и пароля"
+            f"Вы можете войти просто через telegram, без логина и пароля"
         )
         send_message_to_telegram(telegram_id, message)
         async_to_sync(cmd_start_user)(telegram_id)  # Автоматически вызываем /start после отправки учетных данных
