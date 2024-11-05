@@ -13,7 +13,6 @@ import logging
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.serialization import deserialize_telegram_object_to_python
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram import Bot, Dispatcher, types
 from asgiref.sync import async_to_sync
 
 
@@ -23,8 +22,6 @@ logger = logging.getLogger('my_debug_logger')
 
 ADMIN_TG_NAME = os.getenv("ADMIN_TG_NAME")
 
-bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
-dp = Dispatcher()
 
 # def send_login_details_sync(telegram_id, login, password):
 #     message_text = f"\U0001FAAA Ваши учетные данные для входа:\nЛогин: {login}\nПароль: {password}"
@@ -286,6 +283,9 @@ def send_registration_details_sync(telegram_id, username, password):
 # Функция для принудительного вызова команды /start для нового пользователя
 async def cmd_start_user(telegram_id):
     try:
+        from aiogram import Bot, Dispatcher, types
+        bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
+
         kb = [
             [
                 types.KeyboardButton(text="\U0001F464 Мой профиль"),
