@@ -283,9 +283,12 @@
                                                     {% endautoescape %}
                                                     </a>
                                                 </h5>
-                                                <h6 class="card-date"> 
-                                                    <split class="card-day"><b>{{ events.date }}</b></split> 
-                                                    <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> </h6> 
+                                                {% if events.category  != 'Достопримечательности' %}
+                                                    <h6 class="card-date"> 
+                                                        <split class="card-day"><b>{{ events.date }}</b></split> 
+                                                        <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> 
+                                                    </h6> 
+                                                {% endif %}
                                                 {% comment %} <h6 class="event-place"> {{ events.place }} </h6> {% endcomment %}
                                                 
                                                 <h6><strong>Администратор:</strong>

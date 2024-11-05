@@ -223,6 +223,8 @@
         Регистрация
     </a>
     {% endif %}
+{% else %}
+    <span class="btn btn-secondary">Регистрация недоступна</span>
 {% endif %}
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="for_visiting">Оставить отзыв </button>
 {% endblock content %}
