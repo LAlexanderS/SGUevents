@@ -19,18 +19,21 @@ class RestrictedAdminMixin:
         if request.user.is_superuser:
             return qs  # все для суперпольз
         # меропр где польз админ
-        return qs.filter(events_admin=request.user.pk)
+        return qs.filter(events_admin=request.user)
 
     def has_change_permission(self, request, obj=None):
         if obj is not None and not request.user.is_superuser:
             # редакт если польз админ
-            return obj.events_admin == request.user
+            is_admin = obj.events_admin.filter(pk=request.user.pk).exists()
+            return is_admin
         return super().has_change_permission(request, obj)
+        
 
     def has_delete_permission(self, request, obj=None):
         if obj is not None and not request.user.is_superuser:
-            # удал если польз админ
-            return obj.events_admin == request.user
+            # Проверяем, является ли пользователь администратором этого события
+            is_admin = obj.events_admin.filter(pk=request.user.pk).exists()
+            return is_admin
         return super().has_delete_permission(request, obj)
 
 @admin.register(Events_online)

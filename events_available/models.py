@@ -64,7 +64,12 @@ class Events_online(models.Model):
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         # Сначала сохраняем мероприятие (нужно для того, чтобы иметь ID объекта)
-        super(Events_online, self).save(*args, **kwargs)
+        # super(Events_online, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
+        
+        # Добавляем текущего пользователя в администраторы после первого сохранения
+        if self._current_user and not self.events_admin.filter(pk=self._current_user.pk).exists():
+            self.events_admin.add(self._current_user)
 
         # # Добавляем администраторов из групп в поле "Участники", не удаляя существующих участников
         # for group in self.admin_groups.all():
