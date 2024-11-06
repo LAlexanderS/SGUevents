@@ -140,7 +140,7 @@
 					Место проведения
 				</button>
 							
-					<form action="" method="get" class="dropdown-menu bg-dark p-3" data-bs-theme="dark" style="width: 300px;">
+					<form action="{% url 'events_cultural:attractions' %}" method="get" class="dropdown-menu bg-dark p-3" data-bs-theme="dark" style="width: 300px;">
 							<input type="text" id="address-input" name="f_place" placeholder="Введите адрес" class="form-control w-100" list="citylist">
 							<datalist id="citylist">
 									{% for result in results %}

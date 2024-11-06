@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="{% static 'flatpickr/flatpickr.min.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/notifications.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/filters.css' %}">
-    <script src="{% static 'general/js/base.js' %}"></script>
     {% block title %}{% endblock title %}
 </head>
 
@@ -401,6 +400,7 @@
 			</div>
 		</div>
 		{% endif %}
+        
     </section>
    
     <pagination>
@@ -427,6 +427,7 @@
 		{% endif %}
 	</pagination>
     
+    <script src="{% static 'general/js/base.js' %}"></script>
 
     <script src="{% static 'scripts/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>

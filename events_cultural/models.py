@@ -19,8 +19,6 @@ class Attractions(models.Model):
     time_start = models.TimeField(blank=False, null=False, verbose_name='Время начала')
     time_end = models.TimeField(blank=False, null=False, verbose_name='Время окончания')
     description = models.TextField(blank=False, null=False, verbose_name='Описание')
-    town = models.CharField(max_length=200, blank=False, verbose_name='Город')
-    street = models.CharField(max_length=100, blank=False, verbose_name='Улица')
     link = models.URLField(blank=False, verbose_name='Ссылка')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
@@ -34,6 +32,9 @@ class Attractions(models.Model):
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
+    house = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Дом')
+    town = models.CharField(max_length=200, blank=False, verbose_name='Город')
+    street = models.CharField(max_length=100, blank=False, verbose_name='Улица')
     member =  models.ManyToManyField(User, blank=True, related_name='member_attractions', verbose_name='Участники')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
 

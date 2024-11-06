@@ -11,6 +11,7 @@ urlpatterns = [
 	path('attractions/<int:page>/', views.attractions, name='attractions'),
 	path('attractions/', views.attractions, name='attractions'),
 	path('attractions/<slug:event_slug>/', views.attractions_card, name='attractions_card'),
+    
 
 	# path('events_registered/', views.events_registered, name='events_registered'),
 	# path('events_registered/<int:event_id>', views.events_registered_, name='events_registered_card'),
@@ -22,6 +23,8 @@ urlpatterns = [
 
 	path('submit_review/<int:event_id>/', views.submit_review, name='submit_review'),
  
- path('autocomplete/event-name/', views.autocomplete_event_name, name='autocomplete_event_name'),
+ 	path('autocomplete/event-name/', views.autocomplete_event_name, name='autocomplete_event_name'),
+    
+	path('autocomplete/places/', views.autocomplete_places, name='autocomplete_places'),
 
 ]

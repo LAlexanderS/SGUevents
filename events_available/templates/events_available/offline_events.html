@@ -135,6 +135,13 @@
                                 <option value="{{ result }}">
                             {% endfor %}
                         </datalist>
+
+                        <!-- Сохранение остальных фильтров -->
+						{% for key, value in request.GET.items %}
+                            {% if key != 'f_place' %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
+                        {% endfor %}
                         <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
                     </div>
                 </form>
