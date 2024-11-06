@@ -404,6 +404,7 @@ document.addEventListener('DOMContentLoaded', function () {
         queryString.has('name_search') ||
         queryString.has('date_start') ||
         queryString.has('date_end') ||
+        queryString.has('f_place') ||
         queryString.has('f_speakers') ||
         queryString.has('f_tags') ||
         queryString.has('time_to_start') ||

@@ -7,6 +7,10 @@ from django.contrib.auth.decorators import login_required
 from events_available.models import Events_online, Events_offline
 from events_cultural.models import Attractions, Events_for_visiting
 from django.contrib.auth.models import Group
+from django.core.paginator import Paginator
+from django.core.paginator import EmptyPage, PageNotAnInteger
+
+
 
 # @login_required
 # def add_online_event(request):
@@ -36,6 +40,7 @@ from django.contrib.auth.models import Group
 
 @login_required
 def personal(request):
+    page = request.GET.get('page', 1)
     current_user = request.user
     if current_user.is_staff:
         online_events = Events_online.objects.filter(events_admin=current_user.pk)
@@ -52,13 +57,21 @@ def personal(request):
     is_offline_group = current_user.groups.filter(name="Оффлайн мероприятия").exists()
     is_attraction_group = current_user.groups.filter(name="Достопримечательности").exists()
     is_for_visiting_group = current_user.groups.filter(name="Доступные к посещению").exists()
-
-
     
     events = list(chain(online_events, offline_events, attractions, for_visiting))
 
+    paginator = Paginator(events, 10)
+    try:
+        current_page = paginator.page(int(page))
+    except PageNotAnInteger:
+        # Если страница не является целым числом, возвращаем первую страницу
+        current_page = paginator.page(1)
+    except EmptyPage:
+        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
+        current_page = paginator.page(paginator.num_pages)
+
     context = {
-        'event_card_views': events,
+        'event_card_views': current_page,
         'online_events': online_events,
         'offline_events': offline_events,
         'is_online_group': is_online_group,
