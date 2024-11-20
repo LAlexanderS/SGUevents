@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import RegistrationForm
 from .models import Department, AdminRightRequest
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
-from .telegram_utils import send_message_to_admin, send_confirmation_to_user
+from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from aiogram import types
@@ -129,12 +129,12 @@ def request_admin_rights(request):
             new_request = AdminRightRequest(user=request.user, reason=justification)
             new_request.save()
 
-            # Отправка сообщения администратору
-            send_message_to_admin(request.user.telegram_id, message)
+            # Отправка сообщения в чат поддержки
+            send_message_to_support_chat(message)
             # Уведомление пользователя о том, что запрос отправлен
             send_confirmation_to_user(request.user.telegram_id)
 
-            return JsonResponse({'success': True, 'message': 'Запрос на админские права отправлен администратору и зарегистрирован в системе.'})
+            return JsonResponse({'success': True, 'message': 'Запрос на админские права отправлен в чат поддержки и зарегистрирован в системе.'})
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Ошибка в формате данных.'})
     return JsonResponse({'success': False, 'error': 'Недопустимый запрос.'})

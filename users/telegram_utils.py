@@ -23,32 +23,16 @@ logger = logging.getLogger('my_debug_logger')
 ADMIN_TG_NAME = os.getenv("ADMIN_TG_NAME")
 
 
-# def send_login_details_sync(telegram_id, login, password):
-#     message_text = f"\U0001FAAA Ваши учетные данные для входа:\nЛогин: {login}\nПароль: {password}"
-#     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
-#     data = {
-#         "chat_id": telegram_id,
-#         "text": message_text,
-#     }
-#     response = requests.post(send_url, data=data)
-#     if not response.ok:
-#         print(f"Ошибка отправки сообщения: {response.text}")
+def send_message_to_support_chat(message):
+    from aiogram import Bot
+    bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
+    support_chat_id = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
+    try:
+        async_to_sync(bot.send_message)(chat_id=support_chat_id, text=message)
+        logger.info(f"Сообщение успешно отправлено в чат поддержки: {message}")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке сообщения в чат поддержки: {e}")
 
-def send_message_to_admin(telegram_id, message):
-    admin_tg_username = ADMIN_TG_NAME
-    send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
-
-
-
-    data = {
-        "chat_id": admin_tg_username,
-        "text": message,
-            }
-
-    print("Sending message to admin:", admin_tg_username)
-    response = requests.post(send_url, data=data)
-    if not response.ok:
-        print(f"Ошибка отправки сообщения администратору: {response.text}")
 
 def send_confirmation_to_user(telegram_id):
     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
