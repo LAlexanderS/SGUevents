@@ -119,3 +119,4 @@ def calendar_view(request):
         'events': json.dumps(events)
     }
     return render(request, 'events_calendar/index.html', context)
+
