@@ -300,7 +300,7 @@ def send_password_change_details_sync(telegram_id, username, new_password):
         logger.error(f"Ошибка при отправке нового пароля в Telegram: {e}")
 
 # Вспомогательная функция для отправки сообщения в Telegram
-def send_message_to_telegram(telegram_id, message):
+def send_message_to_telegram(telegram_id, message, reply_markup=None):
     import requests
     from django.conf import settings
 
@@ -309,9 +309,63 @@ def send_message_to_telegram(telegram_id, message):
         'chat_id': telegram_id,
         'text': message
     }
+
+    # Добавляем обработку reply_markup, если он передан
+    if reply_markup:
+        payload['reply_markup'] = json.dumps(reply_markup)
+
     headers = {
         'Content-Type': 'application/json'
     }
     response = requests.post(url, json=payload, headers=headers)
     if response.status_code != 200:
         logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
+
+# Функция для создания inline-клавиатуры с кнопками
+def create_event_keyboard(event_id, notifications_enabled=True, include_unregister_button=False):
+    """
+    Создание inline клавиатуры для уведомлений о мероприятии.
+
+    :param event_id: Идентификатор мероприятия.
+    :param notifications_enabled: Состояние уведомлений (True для включенных, False для отключенных).
+    :param include_unregister_button: Включать ли кнопку отмены регистрации.
+    :return: Словарь с клавиатурой.
+    """
+    buttons = []
+
+    # Кнопка для включения/отключения уведомлений
+    button_text = "\U0001F534 Откл. уведомления" if notifications_enabled else "\U0001F7E2 Вкл. уведомления"
+    callback_data = f"toggle_{event_id}"
+    buttons.append({
+        "text": button_text,
+        "callback_data": callback_data
+    })
+
+    # Кнопка для отмены регистрации на мероприятие
+    if include_unregister_button:
+        unregister_callback_data = f"unregister_{event_id}"
+        buttons.append({
+            "text": "\U0000274C Отм. регистрацию",
+            "callback_data": unregister_callback_data
+        })
+
+    # Формирование клавиатуры
+    inline_keyboard = {
+        "inline_keyboard": [buttons]
+    }
+
+    return inline_keyboard
+
+# Функция для отправки уведомления с кнопкой отмены регистрации
+def send_event_notification_with_buttons(telegram_id, message, event_id, notifications_enabled=True, include_unregister_button=False):
+    """
+    Отправка сообщения пользователю с кнопками управления уведомлениями и отменой регистрации.
+
+    :param telegram_id: Telegram ID пользователя.
+    :param message: Сообщение для отправки.
+    :param event_id: Идентификатор мероприятия.
+    :param notifications_enabled: Состояние уведомлений (True для включенных, False для отключенных).
+    :param include_unregister_button: Включать ли кнопку отмены регистрации.
+    """
+    reply_markup = create_event_keyboard(event_id, notifications_enabled, include_unregister_button)
+    send_message_to_telegram(telegram_id, message, reply_markup=reply_markup)
