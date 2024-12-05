@@ -335,6 +335,26 @@ async def toggle_event_notification(callback_query: types.CallbackQuery):
         logger.error(f"Ошибка в обработчике toggle_event_notification: {e}")
         await callback_query.answer("Произошла ошибка.")
 
+# Обработчик callback_query для отмены регистрации
+@dp.callback_query_handler(lambda c: c.data.startswith('unregister_'))
+async def unregister_event(callback_query: types.CallbackQuery):
+    from bookmarks.models import Registered
+    try:
+        event_id = int(callback_query.data.split('_')[1])
+        user_id = callback_query.from_user.id
+
+        # Найдите регистрацию пользователя на мероприятие
+        registration = Registered.objects.get(user__telegram_id=user_id, id=event_id)
+        registration.delete()
+
+        await callback_query.answer("Вы успешно отменили регистрацию на мероприятие.")
+        await callback_query.message.edit_text("Вы отменили регистрацию на мероприятие.")
+    except Registered.DoesNotExist:
+        await callback_query.answer("Не удалось найти вашу регистрацию.")
+    except Exception as e:
+        logger.error(f"Ошибка при отмене регистрации: {e}")
+        await callback_query.answer("Произошла ошибка при отмене регистрации.")
+
 # Обработчик вебхука
 async def handle_webhook(request):
     try:
