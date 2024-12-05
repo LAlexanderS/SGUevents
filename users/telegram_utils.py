@@ -300,7 +300,7 @@ def send_password_change_details_sync(telegram_id, username, new_password):
         logger.error(f"Ошибка при отправке нового пароля в Telegram: {e}")
 
 # Вспомогательная функция для отправки сообщения в Telegram
-def send_message_to_telegram(telegram_id, message):
+def send_message_to_telegram(telegram_id, message, reply_markup=None):
     import requests
     from django.conf import settings
 
@@ -309,6 +309,11 @@ def send_message_to_telegram(telegram_id, message):
         'chat_id': telegram_id,
         'text': message
     }
+
+    # Добавляем обработку reply_markup, если он передан
+    if reply_markup:
+        payload['reply_markup'] = json.dumps(reply_markup)
+
     headers = {
         'Content-Type': 'application/json'
     }
@@ -329,7 +334,7 @@ def create_event_keyboard(event_id, notifications_enabled=True, include_unregist
     buttons = []
 
     # Кнопка для включения/отключения уведомлений
-    button_text = "\U0001F534 Отключить уведомления" if notifications_enabled else "\U0001F7E2 Включить уведомления"
+    button_text = "\U0001F534 Откл. уведомления" if notifications_enabled else "\U0001F7E2 Вкл. уведомления"
     callback_data = f"toggle_{event_id}"
     buttons.append({
         "text": button_text,
@@ -340,7 +345,7 @@ def create_event_keyboard(event_id, notifications_enabled=True, include_unregist
     if include_unregister_button:
         unregister_callback_data = f"unregister_{event_id}"
         buttons.append({
-            "text": "\U0000274C Отменить регистрацию",
+            "text": "\U0000274C Отм. регистрацию",
             "callback_data": unregister_callback_data
         })
 

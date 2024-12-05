@@ -323,7 +323,7 @@ async def toggle_event_notification(callback_query: types.CallbackQuery):
             await sync_to_async(registration.save)()
 
             # Обновляем текст кнопки и отправляем новое сообщение
-            new_button_text = "\U0001F7E2 Включить уведомления" if not registration.notifications_enabled else "\U0001F534 Отключить уведомления"
+            new_button_text = "\U0001F7E2 Вкл. уведомления" if not registration.notifications_enabled else "\U0001F534 Откл. уведомления"
             inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
                 [InlineKeyboardButton(text=new_button_text, callback_data=f"notify_toggle_{event_unique_id}")]
             ])
@@ -336,7 +336,7 @@ async def toggle_event_notification(callback_query: types.CallbackQuery):
         await callback_query.answer("Произошла ошибка.")
 
 # Обработчик callback_query для отмены регистрации
-@dp.callback_query_handler(lambda c: c.data.startswith('unregister_'))
+@router.callback_query(F.data.startswith("unregister_"))
 async def unregister_event(callback_query: types.CallbackQuery):
     from bookmarks.models import Registered
     try:
@@ -344,8 +344,8 @@ async def unregister_event(callback_query: types.CallbackQuery):
         user_id = callback_query.from_user.id
 
         # Найдите регистрацию пользователя на мероприятие
-        registration = Registered.objects.get(user__telegram_id=user_id, id=event_id)
-        registration.delete()
+        registration = await sync_to_async(Registered.objects.get)(user__telegram_id=user_id, id=event_id)
+        await sync_to_async(registration.delete)()
 
         await callback_query.answer("Вы успешно отменили регистрацию на мероприятие.")
         await callback_query.message.edit_text("Вы отменили регистрацию на мероприятие.")
