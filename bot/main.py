@@ -275,15 +275,11 @@ async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMCon
 
         user = await get_user_profile(callback_query.from_user.id)
         if user:
-            # Создаем клавиатуру с кнопками "Оставить отзыв" и "Оставить отзыв позже"
+            # Создаем клавиатуру с кнопкой "Отмена"
             reply_markup = InlineKeyboardMarkup(inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text="\U0000270D Оставить отзыв",
-                        callback_data=f"confirm_review:{uuid_obj}:{event_type}"
-                    ),
-                    InlineKeyboardButton(
-                        text="\U000023F9 Оставить отзыв позже",
+                        text="\U0000274C Отмена",
                         callback_data=f"cancel_review:{uuid_obj}"
                     )
                 ]
@@ -291,9 +287,11 @@ async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMCon
 
             # Отправляем сообщение с запросом на отзыв
             await callback_query.message.edit_text(
-                "Пожалуйста, оставьте отзыв или выберите действие:",
+                "Пожалуйста, оставьте отзыв, или отмените запрос.",
                 reply_markup=reply_markup
             )
+            await state.set_state(ReviewForm.waiting_for_review)
+            await state.update_data(event_id=str(uuid_obj), event_type=event_type)
         else:
             await callback_query.answer("Вы не зарегистрированы на портале.")
     except Exception as e:
@@ -301,25 +299,28 @@ async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMCon
         await callback_query.answer(f"Произошла ошибка: {e}")
 
 
+
 @router.callback_query(F.data.startswith("cancel_review:"))
-async def handle_cancel_review(callback_query: types.CallbackQuery):
+async def handle_cancel_review(callback_query: types.CallbackQuery, state: FSMContext):
     try:
         logger.info(f"Получен callback_query: {callback_query.data}")
         _, event_unique_id = callback_query.data.split(":")
 
         # Проверяем, что event_unique_id является валидным UUID
         try:
-            uuid_obj = uuid.UUID(event_unique_id)
+            uuid.UUID(event_unique_id)
         except ValueError:
             await callback_query.answer("Некорректный UUID для события.")
             return
 
-        # Удаляем сообщение с запросом на отзыв
+        # Удаляем сообщение с запросом на отзыв и сбрасываем состояние
         await callback_query.message.delete()
-        await callback_query.answer("Вы отменили отправку отзыва.")
+        await state.clear()
+        await callback_query.answer("Запрос на отзыв отменен.")
     except Exception as e:
         logger.error(f"Ошибка в обработчике handle_cancel_review: {e}")
-        await callback_query.answer("Произошла ошибка при отмене отправки отзыва.")
+        await callback_query.answer("Произошла ошибка при отмене.")
+
 
 
 @router.callback_query(F.data.startswith("notify_toggle_"))
