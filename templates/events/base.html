@@ -337,7 +337,10 @@
                                                     {% if events.place_limit and events.date >= now %}
                                                         {% if events.place_free > 0 %}
                                                             <p>
-                                                                Свободных мест: {{events.place_free }} / <span id="free-places-{{events.slug}}">{{events.place_limit }}</span>
+                                                                {% comment %} Свободных мест: {{events.place_free }} <span id="free-places-{{events.slug}}"> / {{events.place_limit }}</span> {% endcomment %}
+                                                            
+                                                                Свободных мест: <span id="free-places-{{events.slug}}"> {{events.place_free }} </span> / {{events.place_limit }}
+
                                                             </p>
                                                         {% else %}
                                                             <p>
