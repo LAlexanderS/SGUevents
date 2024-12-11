@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.crypto import get_random_string
 from transliterate import translit, exceptions
+import re
 
 
 class Department(models.Model):
@@ -24,6 +25,7 @@ class CustomUserManager(BaseUserManager):
             transliterated = translit(last_name, 'ru', reversed=True)
             transliterated += translit(first_name[0], 'ru', reversed=True) if first_name else ''
             transliterated += translit(middle_name[0], 'ru', reversed=True) if middle_name else ''
+            transliterated = re.sub(r"'", "", transliterated)
         except exceptions.LanguageDetectionError:
             transliterated = last_name + (first_name[0] if first_name else '') + (middle_name[0] if middle_name else '')
 
