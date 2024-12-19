@@ -165,9 +165,9 @@
                                     <nav aria-label="Arrow navigation">
                                         <ul class="pagination justify-content-center">
                                             <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
-                                                <a class="page-link-arrow" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}"><div class="arrow">
+                                                <a class="page-link-arrow" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">
+                                                <div class="arrow">
                                                     {% if not event_card_views.has_next %}
-                                                        {% comment %} <img src="{% static "general/icons/arrow-right-disabled.png" %}" class="arrow" alt="Следующая"> {% endcomment %}
                                                     {% else %}
                                                         <img src="{% static "general/icons/arrow-right.png" %}" class="arrow" alt="Следующая">
                                                     {% endif %}
