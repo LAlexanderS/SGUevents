@@ -284,8 +284,17 @@
                                                 </h5>
                                                 {% if events.category  != 'Достопримечательности' %}
                                                     <h6 class="card-date"> 
-                                                        <split class="card-day"><b>{{ events.date }}</b></split> 
-                                                        <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> 
+                                                        {% if events.date != events.date_end %}
+                                                            <split class="card-day"><b>{{ events.date }} - {{ events.date_end }}</b></split> 
+                                                        {% else %}
+                                                            <split class="card-day"><b>{{ events.date }}</b></split> 
+                                                        {% endif %}
+
+                                                        {% if events.time_start != events.time_end %}
+                                                            <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> 
+                                                        {% else %}
+                                                            <split class="card-time">{{ events.time_start }}</split> 
+                                                        {% endif %}
                                                     </h6> 
                                                 {% endif %}
                                                 {% comment %} <h6 class="event-place"> {{ events.place }} </h6> {% endcomment %}

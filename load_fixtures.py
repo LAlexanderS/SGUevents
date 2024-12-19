@@ -2,11 +2,11 @@ import os
 import subprocess
 import sys
 
-# Список файлов фикстур
+# Список файлов фикстур ё
 fixtures = [
     'fixtures/departments.json',
     'fixtures/groups.json',
-    'fixtures/users.json',
+    'fixtures/users_test.json',
     'fixtures/events_available/events_offline.json',
     'fixtures/events_available/events_online.json',
     'fixtures/events_cultural/attractions.json',

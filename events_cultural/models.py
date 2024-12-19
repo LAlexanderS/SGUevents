@@ -10,12 +10,14 @@ from pytz import timezone as pytz_timezone
 from django.contrib.postgres.indexes import GinIndex
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 class Attractions(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, blank=False, verbose_name='Название')
     slug = models.SlugField(max_length=200, unique=True, blank=False, verbose_name='URL')
     date = models.DateField(max_length=10, blank=False, verbose_name='Дата')
+    date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(blank=False, null=False, verbose_name='Время начала')
     time_end = models.TimeField(blank=False, null=False, verbose_name='Время окончания')
     description = models.TextField(blank=False, null=False, verbose_name='Описание')
@@ -38,14 +40,18 @@ class Attractions(models.Model):
     member =  models.ManyToManyField(User, blank=True, related_name='member_attractions', verbose_name='Участники')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
 
-
-
     class Meta:
         db_table = 'attractions'
         verbose_name = 'Достопримечательности'
         verbose_name_plural = 'Достопримечательности'
-        
 
+    def clean(self):
+        if self.date > self.date_end:
+            raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        elif self.date == self.date_end:
+            if self.time_start > self.time_end:
+                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+                
     def __str__(self):
         return self.name
 
@@ -53,6 +59,8 @@ class Attractions(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        self.clean()
+
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
 
@@ -69,7 +77,8 @@ class Events_for_visiting(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, unique=False, blank=False, null=False, verbose_name='Название')
     slug = models.SlugField(max_length=200, unique=True, blank=False, null=False, verbose_name='URL')
-    date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата')
+    date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата начала')
+    date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время начала')
     time_end = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время окончания')
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
@@ -96,6 +105,13 @@ class Events_for_visiting(models.Model):
         db_table = 'Events_for_visiting'
         verbose_name = 'Доступные к посещению'
         verbose_name_plural = 'Доступные к посещению'
+    
+    def clean(self):
+        if self.date > self.date_end:
+            raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        elif self.date == self.date_end:
+            if self.time_start > self.time_end:
+                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
         
 
     def __str__(self):
@@ -105,6 +121,8 @@ class Events_for_visiting(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        self.clean()
+
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
 
