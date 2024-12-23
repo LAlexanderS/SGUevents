@@ -61,16 +61,20 @@
                                         </p>
                                         <p>{{ speakers }}</p>
                                         
-
-                                        {% if favorite.online.id in registered.online %}
-                                            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.online.id }}">
-                                                Отмена регистрации
-                                            </a>
+                                        {% if favorite.online.date >= now %}
+                                            {% if favorite.online.id in registered.online %}
+                                                <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.online.id }}">
+                                                    Отмена регистрации
+                                                </a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.online.slug }}">
+                                                    Регистрация
+                                                </a>
+                                            {% endif %}
                                         {% else %}
-                                            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.online.slug }}">
-                                                Регистрация
-                                            </a>
+                                            <span class="btn btn-secondary">Регистрация недоступна</span>
                                         {% endif %}
+
 
                                         <button class="btn btn-primary btn-comment" data-event-id="{{ favorite.online.id }}" data-model-type="online">Оставить отзыв</button>
 
@@ -152,17 +156,19 @@
                                         </p>
                                         <p>{{ speakers }}</p>
                                         
-                                        
-                                        {% if favorite.offline.id in registered.offline %}
-                                            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.offline.id }}">
-                                                Отмена регистрации
-                                            </a>
+                                        {% if favorite.offline.date >= now %}
+                                            {% if favorite.offline.id in registered.offline %}
+                                                <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.offline.id }}">
+                                                    Отмена регистрации
+                                                </a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.offline.slug }}">
+                                                    Регистрация
+                                                </a>
+                                            {% endif %}
                                         {% else %}
-                                            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.offline.slug }}">
-                                                Регистрация
-                                            </a>
+                                            <span class="btn btn-secondary">Регистрация недоступна</span>
                                         {% endif %}
-
                                         <button class="btn btn-primary btn-comment" data-event-id="{{ favorite.offline.id }}" data-model-type="offline">Оставить отзыв</button>
 
                                         {% if reviews %}
@@ -323,16 +329,20 @@
                                         </p>
                                         <p>{{ speakers }}</p>
                                         
-                                        {% if favorite.for_visiting.id in registered.for_visiting %}
-                                            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.for_visiting.id }}">
-                                                Отмена регистрации
-                                            </a>
+                                        {% if favorite.for_visiting.date >= now %}
+                                            {% if favorite.for_visiting.id in registered.for_visiting %}
+                                                <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.for_visiting.id }}">
+                                                    Отмена регистрации
+                                                </a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.for_visiting.slug }}">
+                                                    Регистрация
+                                                </a>
+                                            {% endif %}
                                         {% else %}
-                                            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.for_visiting.slug }}">
-                                                Регистрация
-                                            </a>
+                                            <span class="btn btn-secondary">Регистрация недоступна</span>
                                         {% endif %}
-                                        
+
                                         <button class="btn btn-primary btn-comment" data-event-id="{{ favorite.for_visiting.id }}" data-model-type="for_visiting">Оставить отзыв</button>
 
                                         {% if reviews %}

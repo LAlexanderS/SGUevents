@@ -43,6 +43,8 @@
 				Регистрация
 			</a>
 		{% endif %}
+	{% else %}
+		<span class="btn btn-secondary">Регистрация недоступна</span>
 	{% endif %}
 
 	<button class="btn btn-primary btn-comment" data-event-id="{{ event.id }}" data-model-type="offline">Оставить отзыв</button>
@@ -59,6 +61,8 @@
 				Регистрация
 			</a>
 		{% endif %}
+	{% else %}
+		<span class="btn btn-secondary">Регистрация недоступна</span>
 	{% endif %}
 
 		<button class="btn btn-primary btn-comment" data-event-id="{{ event.id }}" data-model-type="online">Оставить отзыв</button>
