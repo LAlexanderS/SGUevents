@@ -97,7 +97,7 @@ class Events_offline(models.Model):
     link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
-    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=False, related_name='admin_offline', verbose_name="Администратор")
+    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_offline', verbose_name="Администратор")
     documents = models.FileField(blank=True, null=True, verbose_name='Документы')
     const_category = 'Оффлайн'
     category = models.CharField(default=const_category, max_length=30, unique=False, blank=False, null=False, verbose_name='Тип мероприятия')
