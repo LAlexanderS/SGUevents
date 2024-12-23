@@ -38,6 +38,11 @@ class AttractionsAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret','events_admin','member')
 
+    def get_exclude(self, request, obj = None):
+        if request.user.is_superuser:
+            return []
+        return ['category']
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if not change and request.user.is_authenticated:
@@ -53,6 +58,11 @@ class Events_for_visitingAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret','events_admin', 'member')
 
+    def get_exclude(self, request, obj = None):
+        if request.user.is_superuser:
+            return []
+        return ['category']
+    
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if not change and request.user.is_authenticated:

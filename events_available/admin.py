@@ -41,6 +41,11 @@ class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')
 
+    def get_exclude(self, request, obj = None):
+        if request.user.is_superuser:
+            return []
+        return ['category']
+    
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if not change and request.user.is_authenticated:
@@ -54,7 +59,12 @@ class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
 @admin.register(Events_offline)
 class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')
+    filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')  
+
+    def get_exclude(self, request, obj = None):
+        if request.user.is_superuser:
+            return []
+        return ['category']
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
