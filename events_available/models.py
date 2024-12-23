@@ -26,7 +26,7 @@ class Events_online(models.Model):
     link = models.URLField(unique=False, blank=False, null=False, verbose_name='Ссылка')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/online', blank=True, null=True, verbose_name='Изображение')
-    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=False, related_name='admin_online', verbose_name="Администратор")
+    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_online', verbose_name="Администратор")
     documents = models.FileField(blank=True, null=True, verbose_name='Документы')
     const_category = 'Онлайн'
     category = models.CharField(default=const_category, max_length=30, unique=False, blank=False, null=False, verbose_name='Тип мероприятия')
@@ -75,24 +75,7 @@ class Events_online(models.Model):
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         # Сначала сохраняем мероприятие (нужно для того, чтобы иметь ID объекта)
-        # super(Events_online, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
-        
-        # Добавляем текущего пользователя в администраторы после первого сохранения
-        if self._current_user and not self.events_admin.filter(pk=self._current_user.pk).exists():
-            self.events_admin.add(self._current_user)
-
-        # # Добавляем администраторов из групп в поле "Участники", не удаляя существующих участников
-        # for group in self.admin_groups.all():
-        #     group_users = group.user_set.all()  # Получаем всех пользователей из группы
-        #     print(f'Группа: {group.name} содержит пользователей: {group_users}')
-        #     for user in group_users:
-        #         if user not in self.member.all():  # Проверяем, есть ли пользователь уже в участниках
-        #             print(f'Добавляю пользователя {user} в участники')
-        #             self.member.add(user)  # Добавляем всех пользователей группы в участники (member)
-        
-        # Сохраняем изменения снова после добавления участников
-        # super(Events_online, self).save(*args, **kwargs)
 
 
 class Events_offline(models.Model):

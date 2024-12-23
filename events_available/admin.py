@@ -39,11 +39,28 @@ class RestrictedAdminMixin:
 @admin.register(Events_online)
 class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    # filter_horizontal = ('secret', 'speakers', 'events_admin', 'member', 'admin_groups')
     filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if not change and request.user.is_authenticated:
+            obj.events_admin.add(request.user)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if not change and request.user.is_authenticated:
+            form.instance.events_admin.add(request.user)
 
 @admin.register(Events_offline)
 class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # Если объект только что создан, добавляем текущего пользователя в администраторы
+        if not change and request.user.is_authenticated:
+            print(f"Добавляю пользователя {request.user} в администраторы")
+            obj.save()  # Убедимся, что объект сохранён перед работой с ManyToManyField
+            obj.events_admin.add(request.user)  # Добавляем текущего пользователя
+            obj.save()  # Повторное сохранение для фиксации изменений
