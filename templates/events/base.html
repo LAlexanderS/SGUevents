@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="{% static 'flatpickr/flatpickr.min.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/notifications.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/filters.css' %}">
+    <link rel="stylesheet" href="{% static 'general/css/stars.css' %}">
+
     {% block title %}{% endblock title %}
 </head>
 
@@ -23,7 +25,7 @@
     <header>
         <nav class="navbar navbar-expand-lg bg-dark text-white">
             <div class="container-fluid">
-                <a class="navbar-brand" href={% url "main:index" %}><img class="home-icon" src="{% static 'general/icons/home.png' %}" alt="Home" width="25" height="25"></a>
+                <a class="navbar-brand" href={% url "main:index" %}><img class="home-icon" src="{% static 'general/icons/home.png' %}" alt="Home" width="25" height="25"></a> 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -200,69 +202,117 @@
                                 <div class="card mb-3">
                                     <div class="row g-0">
                                         <div class="col-md-4">
-                                            {% if events.image %}
-                                                <img src="{{ events.image.url }}" class="img-fluid rounded-start" alt="{{ events.name }}">
-                                            {% else %} 
-                                                <img src="{% static "general/images/img.png" %}" class="img-fluid rounded-start" alt="{{ events.name }}">
-                                            {% endif %}
+                                        <div class="row g-0">
+                                            <div class="col-12">
                                             
-                                            {% if name_page != "Главная" %}
-                                                {% if events.id in favorites %}
-                                                    <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:events.id }}">
-                                                        <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                    </a>
-                                                {% else %}
-                                                    <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                        <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                    </a>
+                                                {% if events.image %}
+                                                    <img src="{{ events.image.url }}" class="img-fluid rounded-start" alt="{{ events.name }}">
+                                                {% else %} 
+                                                    <img src="{% static "general/images/img.png" %}" class="img-fluid rounded-start" alt="{{ events.name }}">
                                                 {% endif %}
-                                            {% else %}
-                                                {% if events|model_name == 'Events_online' %}
-                                                    {% if events.id in favorites.online %}
-                                                        <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.online|get_item:events.id }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% endif %}
-                                                {% elif events|model_name == 'Events_offline' %}
-                                                    {% if events.id in favorites.offline %}
-                                                        <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.offline|get_item:events.id }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% endif %}
-                                                {% elif events|model_name == 'Attractions' %}
-                                                    {% if events.id in favorites.attractions %}
-                                                        <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.attractions|get_item:events.id }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% endif %}
-                                                {% elif events|model_name == 'Events_for_visiting' %}
-                                                    {% if events.id in favorites.for_visiting %}
-                                                        <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.for_visiting|get_item:events.id }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% endif %}
-                                                {% endif %}
-                                            {% endif %}
-                                            <div class="card-img-info">
-                                                {% comment %} <p>id: {{ events.display_id }}</p> {% endcomment %}
-                                                <p>{{ events.category }}</p>
                                             </div>
+                                            <div class="col-md-2">
+                                                {% if name_page != "Главная" %}
+                                                    {% if events.id in favorites %}
+                                                        <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:events.id }}">
+                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
+                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                        </a>
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if events|model_name == 'Events_online' %}
+                                                        {% if events.id in favorites.online %}
+                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.online|get_item:events.id }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                            </a>
+                                                        {% endif %}
+                                                    {% elif events|model_name == 'Events_offline' %}
+                                                        {% if events.id in favorites.offline %}
+                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.offline|get_item:events.id }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                            </a>
+                                                        {% endif %}
+                                                    {% elif events|model_name == 'Attractions' %}
+                                                        {% if events.id in favorites.attractions %}
+                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.attractions|get_item:events.id }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                            </a>
+                                                        {% endif %}
+                                                    {% elif events|model_name == 'Events_for_visiting' %}
+                                                        {% if events.id in favorites.for_visiting %}
+                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.for_visiting|get_item:events.id }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="card-img-info">
+                                                    {% comment %} <p>id: {{ events.display_id }}</p> {% endcomment %}                                            
+                                                    <p>{{ events.category }}</p>     
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="full-stars">
+                                                    <div class="rating-group">
+                                                        <!-- по умолчанию 0 -->
+                                                        <input name="rating_{{ events.unique_id }}" value="0" type="radio" disabled checked />
+                                                        
+                                                            
+                                                            <!-- рейтинг 1 -->    
+                                                            <label for="rating_{{ events.unique_id }}-1">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
+                                                            </label>
+                                                            <input name="rating_{{ events.unique_id }}" id="rating_{{ events.unique_id }}-1" value="1" type="radio" />
+                                                            
+                                                            <!-- рейтинг 2 -->    
+                                                            <label for="rating_{{ events.unique_id }}-2">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
+                                                            </label>
+                                                            <input name="rating_{{ events.unique_id }}" id="rating_{{ events.unique_id }}-2" value="2" type="radio" />
+
+                                                            <!-- рейтинг 3 -->    
+                                                            <label for="rating_{{ events.unique_id }}-3">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
+                                                            </label>
+                                                            <input name="rating_{{ events.unique_id }}" id="rating_{{ events.unique_id }}-3" value="3" type="radio" />
+
+                                                            <!-- рейтинг 4 -->    
+                                                            <label for="rating_{{ events.unique_id }}-4">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
+                                                            </label>
+                                                            <input name="rating_{{ events.unique_id }}" id="rating_{{ events.unique_id }}-4" value="4" type="radio" />
+
+                                                            <!-- рейтинг 5 -->    
+                                                            <label for="rating_{{ events.unique_id }}-5">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
+                                                            </label>
+                                                            <input name="rating_{{ events.unique_id }}" id="rating_{{ events.unique_id }}-5" value="5" type="radio" />
+                                                    </div>
+                                                </div>
+                                            </div>       
+                                        </div>
+
                                         </div>
                                         <div class="col-md-8">
                                             <div class="card-body">
@@ -440,7 +490,6 @@
 	</pagination>
     
     <script src="{% static 'general/js/base.js' %}"></script>
-
     <script src="{% static 'scripts/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'scripts/select2.min.js' %}"></script>
