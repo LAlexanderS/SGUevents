@@ -117,8 +117,7 @@
                                         <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                     </a>
                                     <div class="card-img-info">
-                                        <p>id: {{ favorite.offline.display_id }}</p>
-                                        <p>category: {{ favorite.offline.category }}</p>
+                                        <p> {{ favorite.offline.category }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -210,8 +209,7 @@
                                         <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                     </a>
                                     <div class="card-img-info">
-                                        <p>id: {{ favorite.attractions.display_id }}</p>
-                                        <p>category: {{ favorite.attractions.category }}</p>
+                                        <p>{{ favorite.attractions.category }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -290,8 +288,7 @@
                                         <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                     </a>
                                     <div class="card-img-info">
-                                        <p>id: {{ favorite.for_visiting.display_id }}</p>
-                                        <p>category: {{ favorite.for_visiting.category }}</p>
+                                        <p>{{ favorite.for_visiting.category }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-8">

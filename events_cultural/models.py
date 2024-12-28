@@ -47,7 +47,7 @@ class Attractions(models.Model):
 
     def clean(self):
         if self.date > self.date_end:
-            raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
         elif self.date == self.date_end:
             if self.time_start > self.time_end:
                 raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
@@ -108,7 +108,7 @@ class Events_for_visiting(models.Model):
     
     def clean(self):
         if self.date > self.date_end:
-            raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
         elif self.date == self.date_end:
             if self.time_start > self.time_end:
                 raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
