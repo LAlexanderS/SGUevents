@@ -162,7 +162,7 @@
 
                                                 <h6><strong>Администратор:</strong>
                                                     {% for admin in event.events_admin.all %}
-                                                        {{admin}}
+                                                        {{admin.last_name}} {{admin.first_name}}{% if not forloop.last %}, {% endif %}
                                                     {% endfor %}
                                                 </h6>
 
@@ -174,7 +174,7 @@
                                                     <p>
                                                         <h6><strong>Спикеры:</strong></h6>
                                                         {% for speaker in event.speakers.all %}
-                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if speaker.middle_name %} {{ speaker.middle_name }}{% endif %}{% if not forloop.last %}, {% endif %}
+                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
                                                         {% endfor %}
                                                     </p>
                                                 {% endif %}
