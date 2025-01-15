@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{% static 'flatpickr/flatpickr.min.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/notifications.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/filters.css' %}">
-    <link rel="stylesheet" href="{% static 'general/css/stars.css' %}">
+    {% comment %} <link rel="stylesheet" href="{% static 'general/css/stars.css' %}"> {% endcomment %}
 
     {% block title %}{% endblock title %}
 </head>
@@ -266,7 +266,7 @@
                                                     {% endif %}
                                                 {% endif %}
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-lg-10">
                                                 <div class="card-img-info">
                                                     {% comment %} <p>id: {{ events.display_id }}</p> {% endcomment %}                                            
                                                     <p>{{ events.category }}</p>     
