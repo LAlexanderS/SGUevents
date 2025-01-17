@@ -161,11 +161,7 @@ def events_registered(request, event_slug):
         elif event_type == 'for_visiting':
             registered, created = Registered.objects.get_or_create(user=request.user, for_visiting=event)
 
-
-        if created and event_type == 'for_visiting':
-                event.member.add(request.user)
-
-        
+        event.member.add(request.user)
 
         if created:
             response_data = {'added': True, 'event_id': registered.id, 'event_slug': event_slug}
@@ -202,6 +198,10 @@ def registered_remove(request, event_id):
 
         if event.for_visiting:
             event.for_visiting.member.remove(request.user)
+        elif event.online:
+            event.online.member.remove(request.user)
+        elif event.offline:
+            event.offline.member.remove(request.user)
 
         event.delete()
         telegram_id = request.user.telegram_id
