@@ -132,8 +132,6 @@ def events_registered(request, event_slug):
     event_type = None
     favorites = Favorite.objects.filter(user=request.user)
 
-
-
     try:
         event = Events_online.objects.get(slug=event_slug)
         event_type = 'online'
@@ -162,18 +160,20 @@ def events_registered(request, event_slug):
             registered, created = Registered.objects.get_or_create(user=request.user, attractions=event)
         elif event_type == 'for_visiting':
             registered, created = Registered.objects.get_or_create(user=request.user, for_visiting=event)
-        if created and event_type == 'for_visiting':
-                # Уменьшаем количество свободных мест
-                event.place_free -= 1
-                event.save(update_fields=['place_free'])
-                print(f'Free places after registration: {event.place_free}')
+
 
         if created and event_type == 'for_visiting':
-            return JsonResponse({'added': True, 'event_id': registered.id, 'event_slug': event_slug, 'place_free': event.place_free})
-        elif created and event_type != 'for_visiting':
-            return JsonResponse({'added': True, 'event_id': registered.id, 'event_slug': event_slug})
+                event.member.add(request.user)
+
+        
+
+        if created:
+            response_data = {'added': True, 'event_id': registered.id, 'event_slug': event_slug}
+            if event_type == 'for_visiting':
+                response_data['place_free'] = event.place_free
+            return JsonResponse(response_data)
         else:
-            return JsonResponse({'added': False, 'error': 'Already registered'}, status=400)
+            return JsonResponse({'added': False, 'error': 'Уже зарегистрированы'}, status=400)
 
     return JsonResponse({'error': 'Event not found or user not authenticated'}, status=400)
 
@@ -199,10 +199,9 @@ def registered_remove(request, event_id):
                 )
             )
         )
+
         if event.for_visiting:
-            event.for_visiting.place_free += 1
-            event.for_visiting.save(update_fields=['place_free'])
-            print(f'Free places after unregister: {event.for_visiting.place_free}')
+            event.for_visiting.member.remove(request.user)
 
         event.delete()
         telegram_id = request.user.telegram_id
@@ -210,10 +209,10 @@ def registered_remove(request, event_id):
             message = f"\U0000274C Вы успешно отменили регистрацию на мероприятие: {event_name}"
             send_message_to_user(telegram_id, message)
         
+        response_data = {'removed': True, 'event_slug': event_slug, 'event_name': event_name}
         if event.for_visiting:
-            return JsonResponse({'removed': True, 'event_name': event_name, 'event_slug': event_slug, 'place_free': event.for_visiting.place_free})
-        else:
-            return JsonResponse({'removed': True, 'event_slug': event_slug, 'event_name': event_name})
+            response_data['place_free'] = event.for_visiting.place_free
+        return JsonResponse(response_data)
 
     return JsonResponse({'removed': False, 'error': 'Invalid request method'}, status=400)
 
