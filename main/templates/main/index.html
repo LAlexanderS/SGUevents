@@ -231,10 +231,8 @@
     {% if events.date >= now %}
         {% if events.id in registered.online%}
             <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.online|get_item:events.id }}">
-                Отмена регистрации
-                
-            </a>
-            
+                Отмена регистрации       
+            </a>     
         {% else %}
             <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
                 Регистрация
@@ -244,17 +242,6 @@
 
 	<button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="online">Оставить отзыв</button>
 {% elif events.category  == 'Оффлайн' %}
-    {% if events.date >= now %}
-        {% if events.id in registered.offline %}
-            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.offline|get_item:events.id }}">
-                Отмена регистрации
-            </a>
-        {% else %}
-            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
-                Регистрация
-            </a>
-        {% endif %}
-    {% endif %}
     {% if events.date >= now %}
         {% if events.id in registered.offline %}
             <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.offline|get_item:events.id }}">
@@ -283,17 +270,7 @@
             </a>
         {% endif %}
     {% endif %}
-    {% if events.date >= now %}
-        {% if events.id in registered.for_visiting %}
-            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.for_visiting|get_item:events.id }}">
-                Отмена регистрации
-            </a>
-            {% else %}
-            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
-                Регистрация
-            </a>
-        {% endif %}
-    {% endif %}
+    
 	<button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="for_visiting">Оставить отзыв </button>
 {% endif %}
 
