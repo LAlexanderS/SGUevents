@@ -135,18 +135,18 @@ class Events_for_visiting(models.Model):
 
         super(Events_for_visiting, self).save(*args, **kwargs)
 
-@receiver(m2m_changed, sender=Events_for_visiting.member.through)
-def update_place_free(sender, instance, action, **kwargs):
-    print(f'1 instance.place_limit: {instance.place_limit}')
-    print(f'2 instance.member.count(): {instance.member.count()}')
+# @receiver(m2m_changed, sender=Events_for_visiting.member.through)
+# def update_place_free(sender, instance, action, **kwargs):
+#     print(f'1 instance.place_limit: {instance.place_limit}')
+#     print(f'2 instance.member.count(): {instance.member.count()}')
     
-    if action == 'post_add':
-        instance.place_free = instance.place_limit - instance.member.count()
-        instance.save()
-    elif action == 'post_remove':
-        instance.place_free = instance.place_limit - instance.member.count()
-        instance.save()
-    print(f'3 instance.place_free {instance.place_free}')
+#     if action == 'post_add':
+#         instance.place_free = instance.place_limit - instance.member.count()
+#         instance.save()
+#     elif action == 'post_remove':
+#         instance.place_free = instance.place_limit - instance.member.count()
+#         instance.save()
+#     print(f'3 instance.place_free {instance.place_free}')
 
 
 

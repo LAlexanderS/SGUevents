@@ -166,6 +166,8 @@ def events_registered(request, event_slug):
         if created:
             response_data = {'added': True, 'event_id': registered.id, 'event_slug': event_slug}
             if event_type == 'for_visiting':
+                event.place_free -= 1
+                event.save(update_fields=['place_free'])
                 response_data['place_free'] = event.place_free
             return JsonResponse(response_data)
         else:
@@ -198,6 +200,8 @@ def registered_remove(request, event_id):
 
         if event.for_visiting:
             event.for_visiting.member.remove(request.user)
+            event.for_visiting.place_free += 1
+            event.for_visiting.save(update_fields=['place_free'])
         elif event.online:
             event.online.member.remove(request.user)
         elif event.offline:
