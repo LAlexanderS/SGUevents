@@ -16,7 +16,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
-        (_('Additional info'), {'fields': ('telegram_id',)}),
+        (_('Additional info'), {'fields': ('telegram_id', 'vip')}),
     )
     add_fieldsets = (
         (None, {
@@ -24,7 +24,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'password1', 'password2'),
         }),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'middle_name', 'email', 'department')}),
-        (_('Additional info'), {'fields': ('telegram_id',)}),
+        (_('Additional info'), {'fields': ('telegram_id', 'vip')}),
     )
     list_display = ('username', 'email', 'first_name', 'last_name', 'middle_name', 'department', 'telegram_id', 'is_staff')
     search_fields = ('username', 'first_name', 'last_name', 'middle_name', 'email', 'department__department_id', 'telegram_id')

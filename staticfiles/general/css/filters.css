@@ -1,0 +1,178 @@
+/* ФИЛЬТРЫ */
+/* Убираем padding для чекбоксов тегов */
+.tag-item {
+    margin-bottom: 0px;
+    /* Уменьшенный отступ между тегами */
+    padding: 0px;
+    /* Убираем внутренний отступ */
+}
+
+/* Уменьшаем отступ между чекбоксом и текстом */
+.form-check-input {
+    height: 20px;
+    /* Устанавливаем высоту для чекбокса */
+    width: 20px;
+    /* Можно также задать ширину для соответствия */
+    margin-right: 5px;
+    /* Уменьшаем отступ между чекбоксом и текстом */
+}
+
+/* Настройки для Dropdown Menu */
+.dropdown-menu {
+    min-width: 150px;
+    /* Минимальная ширина */
+    width: 170px;
+    /* Фиксированная ширина */
+    padding: 10px 15px;
+    /* Уменьшаем padding внутри Dropdown Menu */
+}
+
+/* Поле поиска внутри Dropdown */
+#search-tags {
+    padding: 5px;
+    /* Уменьшаем padding для поля поиска */
+    margin-bottom: 10px;
+    /* Добавляем небольшой отступ снизу */
+}
+
+.form-check-label {
+    line-height: 25px;
+    /* Устанавливаем высоту строки текста */
+    font-size: 14px;
+    /* Опционально: можно уменьшить размер шрифта */
+}
+
+
+
+
+/* {% comment %} ФОРМАТ ВВОДА ДАТЫ {% endcomment %}
+ */
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    padding: 15px;
+    /* Увеличиваем padding */
+    min-width: 34px;
+    /* Минимальная ширина зоны клика */
+    min-height: 34px;
+    /* Минимальная высота зоны клика */
+    cursor: pointer;
+    /* Указатель мыши для стрелок */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+/* Ограничиваем ширину полей ввода для дат */
+input[type="date"] {
+    width: 100%;
+    /* Полная ширина контейнера */
+    max-width: 180px;
+    /* Ограничиваем максимальную ширину */
+    box-sizing: border-box;
+    /* Учитываем отступы и границы в общей ширине */
+}
+
+/* Унифицированные стили для контейнеров фильтров */
+.form-check-label {
+    display: block;
+    width: 100%;
+    /* Полная ширина контейнера */
+}
+
+/* Ограничение ширины выпадающих меню */
+.dropdown-menu {
+    min-width: 230px;
+    max-width: 230px;
+    /* Фиксированная ширина для всех dropdown */
+}
+
+/* Настройки для календаря */
+.flatpickr-calendar {
+    z-index: 9999 !important;
+}
+
+
+/* {% comment %} ФИЛЬТР ВРЕМЕНИ {% endcomment %} */
+
+
+.dropdown-menu-custom {
+    min-width: 150px;
+    /* Минимальная ширина */
+    width: 170px;
+    /* Установленная фиксированная ширина */
+}
+
+.dropdown-menu-custom .form-check {
+    padding-left: 10px;
+    /* Добавим небольшой отступ для чекбоксов */
+}
+
+.dropdown-menu-custom input[type="time"] {
+    width: 90%;
+    /* Уменьшаем ширину полей для времени */
+    max-width: 180px;
+    /* Ограничение по максимальной ширине */
+
+
+
+}
+
+/* {% comment %} СОРТИРОВКА  {% endcomment %} */
+#sort-section {
+    position: absolute;
+    right: 0;
+    /* Позиционирование относительно правого края */
+    z-index: 1000;
+    /* Для того, чтобы меню не перекрывалось другими элементами */
+    display: none;
+    /* Скрыто по умолчанию */
+}
+
+
+/* {% comment %} ПОСИК В СПИКЕРАХ {% endcomment %} */
+.form-check.text-white input#search-speakers {
+    width: calc(100% - 10px);
+    /* Полная ширина минус внутренние отступы */
+    margin-left: 0px;
+    /* Смещение для того, чтобы выровнять с остальными элементами */
+    margin-bottom: 10px;
+    /* Нижний отступ для визуального разделения */
+    padding: 0px;
+}
+
+
+/* {% comment %} ПОИСК В ТЕГАХ {% endcomment %} */
+.form-check.text-white input#search-tags {
+    width: calc(100% - 30px);
+    /* Полная ширина минус внутренние отступы */
+    margin-left: 0px;
+    /* Смещение для того, чтобы выровнять с остальными элементами */
+    margin-bottom: 10px;
+    /* Нижний отступ для визуального разделения */
+    padding: 0px;
+
+}
+
+
+
+/* {% comment %} АВТОКОМПЛИТ В ФИЛЬТРЕ НАЗВАНИЯХ {% endcomment %} */
+.autocomplete-results {
+    border: 1px solid #ccc;
+    background-color: white;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+}
+
+.autocomplete-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.autocomplete-item:hover {
+    background-color: #f0f0f0;
+}
