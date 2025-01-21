@@ -8,12 +8,14 @@ from users.models import Department, User
 from django.contrib.postgres.indexes import GinIndex
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
+from django.core.exceptions import ValidationError
 
 class Events_online(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, unique=False, blank=False, null=False, verbose_name='Название')
     slug = models.SlugField(max_length=200, unique=True, blank=False, null=False, verbose_name='URL')
-    date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата')
+    date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата начала')
+    date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время начала')
     time_end = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время окончания')
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
@@ -24,7 +26,7 @@ class Events_online(models.Model):
     link = models.URLField(unique=False, blank=False, null=False, verbose_name='Ссылка')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/online', blank=True, null=True, verbose_name='Изображение')
-    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=False, related_name='admin_online', verbose_name="Администратор")
+    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_online', verbose_name="Администратор")
     documents = models.FileField(blank=True, null=True, verbose_name='Документы')
     const_category = 'Онлайн'
     category = models.CharField(default=const_category, max_length=30, unique=False, blank=False, null=False, verbose_name='Тип мероприятия')
@@ -45,6 +47,13 @@ class Events_online(models.Model):
             GinIndex(fields=["description"], opclasses=["gin_trgm_ops"], name="description_trgm_idx"),
         ]
 
+    def clean(self):
+        if self.date > self.date_end:
+            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
+        elif self.date == self.date_end:
+            if self.time_start > self.time_end:
+                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+            
     def __str__(self):
         return self.name
 
@@ -52,6 +61,8 @@ class Events_online(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        self.clean()
+
     # Сохраняем временную зону и дату для событий
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
@@ -64,31 +75,15 @@ class Events_online(models.Model):
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         # Сначала сохраняем мероприятие (нужно для того, чтобы иметь ID объекта)
-        # super(Events_online, self).save(*args, **kwargs)
         super().save(*args, **kwargs)
-        
-        # Добавляем текущего пользователя в администраторы после первого сохранения
-        if self._current_user and not self.events_admin.filter(pk=self._current_user.pk).exists():
-            self.events_admin.add(self._current_user)
-
-        # # Добавляем администраторов из групп в поле "Участники", не удаляя существующих участников
-        # for group in self.admin_groups.all():
-        #     group_users = group.user_set.all()  # Получаем всех пользователей из группы
-        #     print(f'Группа: {group.name} содержит пользователей: {group_users}')
-        #     for user in group_users:
-        #         if user not in self.member.all():  # Проверяем, есть ли пользователь уже в участниках
-        #             print(f'Добавляю пользователя {user} в участники')
-        #             self.member.add(user)  # Добавляем всех пользователей группы в участники (member)
-        
-        # Сохраняем изменения снова после добавления участников
-        # super(Events_online, self).save(*args, **kwargs)
 
 
 class Events_offline(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, unique=False, blank=False, null=False, verbose_name='Название')
     slug = models.SlugField(max_length=200, unique=True, blank=False, null=False, verbose_name='URL')
-    date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата')
+    date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата начала')
+    date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время начала')
     time_end = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время окончания')
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
@@ -102,7 +97,7 @@ class Events_offline(models.Model):
     link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
-    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=False, related_name='admin_offline', verbose_name="Администратор")
+    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_offline', verbose_name="Администратор")
     documents = models.FileField(blank=True, null=True, verbose_name='Документы')
     const_category = 'Оффлайн'
     category = models.CharField(default=const_category, max_length=30, unique=False, blank=False, null=False, verbose_name='Тип мероприятия')
@@ -117,6 +112,13 @@ class Events_offline(models.Model):
         verbose_name = 'Оффлайн мероприятие'
         verbose_name_plural = 'Оффлайн мероприятия'
 
+    def clean(self):
+        if self.date > self.date_end:
+            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
+        elif self.date == self.date_end:
+            if self.time_start > self.time_end:
+                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+            
     def __str__(self):
         return self.name
 
@@ -124,6 +126,8 @@ class Events_offline(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        self.clean()
+
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
         

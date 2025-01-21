@@ -23,8 +23,7 @@
                                         <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                     </a>
                                     <div class="card-img-info">
-                                        <p>id: {{ favorite.online.display_id }}</p>
-                                        <p>category: {{ favorite.online.category }}</p>
+                                        <p> {{ favorite.online.category }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -62,16 +61,20 @@
                                         </p>
                                         <p>{{ speakers }}</p>
                                         
-
-                                        {% if favorite.online.id in registered.online %}
-                                            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.online.id }}">
-                                                Отмена регистрации
-                                            </a>
+                                        {% if favorite.online.date >= now %}
+                                            {% if favorite.online.id in registered.online %}
+                                                <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.online.id }}">
+                                                    Отмена регистрации
+                                                </a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.online.slug }}">
+                                                    Регистрация
+                                                </a>
+                                            {% endif %}
                                         {% else %}
-                                            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.online.slug }}">
-                                                Регистрация
-                                            </a>
+                                            <span class="btn btn-secondary">Регистрация недоступна</span>
                                         {% endif %}
+
 
                                         <button class="btn btn-primary btn-comment" data-event-id="{{ favorite.online.id }}" data-model-type="online">Оставить отзыв</button>
 
@@ -114,8 +117,7 @@
                                         <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                     </a>
                                     <div class="card-img-info">
-                                        <p>id: {{ favorite.offline.display_id }}</p>
-                                        <p>category: {{ favorite.offline.category }}</p>
+                                        <p> {{ favorite.offline.category }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -153,17 +155,19 @@
                                         </p>
                                         <p>{{ speakers }}</p>
                                         
-                                        
-                                        {% if favorite.offline.id in registered.offline %}
-                                            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.offline.id }}">
-                                                Отмена регистрации
-                                            </a>
+                                        {% if favorite.offline.date >= now %}
+                                            {% if favorite.offline.id in registered.offline %}
+                                                <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.offline.id }}">
+                                                    Отмена регистрации
+                                                </a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.offline.slug }}">
+                                                    Регистрация
+                                                </a>
+                                            {% endif %}
                                         {% else %}
-                                            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.offline.slug }}">
-                                                Регистрация
-                                            </a>
+                                            <span class="btn btn-secondary">Регистрация недоступна</span>
                                         {% endif %}
-
                                         <button class="btn btn-primary btn-comment" data-event-id="{{ favorite.offline.id }}" data-model-type="offline">Оставить отзыв</button>
 
                                         {% if reviews %}
@@ -205,8 +209,7 @@
                                         <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                     </a>
                                     <div class="card-img-info">
-                                        <p>id: {{ favorite.attractions.display_id }}</p>
-                                        <p>category: {{ favorite.attractions.category }}</p>
+                                        <p>{{ favorite.attractions.category }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -285,8 +288,7 @@
                                         <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                     </a>
                                     <div class="card-img-info">
-                                        <p>id: {{ favorite.for_visiting.display_id }}</p>
-                                        <p>category: {{ favorite.for_visiting.category }}</p>
+                                        <p>{{ favorite.for_visiting.category }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -324,16 +326,20 @@
                                         </p>
                                         <p>{{ speakers }}</p>
                                         
-                                        {% if favorite.for_visiting.id in registered.for_visiting %}
-                                            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.for_visiting.id }}">
-                                                Отмена регистрации
-                                            </a>
+                                        {% if favorite.for_visiting.date >= now %}
+                                            {% if favorite.for_visiting.id in registered.for_visiting %}
+                                                <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:favorite.for_visiting.id }}">
+                                                    Отмена регистрации
+                                                </a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.for_visiting.slug }}">
+                                                    Регистрация
+                                                </a>
+                                            {% endif %}
                                         {% else %}
-                                            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ favorite.for_visiting.slug }}">
-                                                Регистрация
-                                            </a>
+                                            <span class="btn btn-secondary">Регистрация недоступна</span>
                                         {% endif %}
-                                        
+
                                         <button class="btn btn-primary btn-comment" data-event-id="{{ favorite.for_visiting.id }}" data-model-type="for_visiting">Оставить отзыв</button>
 
                                         {% if reviews %}
