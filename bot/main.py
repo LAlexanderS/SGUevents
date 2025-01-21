@@ -144,6 +144,7 @@ async def help_request(message: types.Message, state: FSMContext):
     else:
         await message.answer("Вы не зарегистрированы на портале.")
 
+# В обработчике бота
 @router.message(SupportRequestForm.waiting_for_question)
 async def receive_question(message: types.Message, state: FSMContext):
     from users.models import SupportRequest
@@ -154,13 +155,18 @@ async def receive_question(message: types.Message, state: FSMContext):
             user=user,
             question=message.text
         )
-        # Отправляем вопрос в чат поддержки
-        support_message = f"Новый вопрос от пользователя {user.username}:\n\n{message.text}"
+
+        # Формируем сообщение с проверкой VIP статуса
+        vip_emoji = "\U0001F451 " if user.vip else ""
+        support_message = f"Новый вопрос от пользователя {vip_emoji}{user.first_name} {user.last_name}:\n\n{message.text}"
+
+        # Отправляем сообщение в чат поддержки
         send_message_to_support_chat(support_message)
         await message.answer("Ваш вопрос отправлен в техподдержку. Спасибо!")
     else:
         await message.answer("Вы не зарегистрированы на портале.")
     await state.clear()
+
 
 def send_message_to_support_chat(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
