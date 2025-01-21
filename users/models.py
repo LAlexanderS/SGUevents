@@ -46,6 +46,7 @@ class CustomUserManager(BaseUserManager):
         middle_name = extra_fields.pop('middle_name', '')
         department = extra_fields.pop('department', None)
         telegram_id = extra_fields.pop('telegram_id', None)
+        vip = extra_fields.pop('vip', False)
 
         username = extra_fields.pop('username', None) or self.transliterate_username(last_name, first_name, middle_name)
 
@@ -57,6 +58,7 @@ class CustomUserManager(BaseUserManager):
             middle_name=middle_name,
             department=department,
             telegram_id=telegram_id,
+            vip=vip,
             **extra_fields
         )
         user.set_password(password)
@@ -68,8 +70,10 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('first_name', 'Admin')
         extra_fields.setdefault('last_name', 'User')
-        extra_fields.setdefault('department', Department.objects.get_or_create(department_id='1', defaults={'department_name': 'Administration'})[0])
+        extra_fields.setdefault('department', Department.objects.get_or_create(department_id='1', defaults={
+            'department_name': 'Administration'})[0])
         extra_fields.setdefault('telegram_id', 'default_telegram_id')
+        extra_fields.setdefault('vip', False)
 
         if not email:
             raise ValueError('The Email must be set for superuser')
@@ -88,6 +92,7 @@ class User(AbstractUser):
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, verbose_name='Отдел')
     telegram_id = models.CharField(max_length=100, unique=True, null=True, blank=True, verbose_name='Telegram ID')
     email = models.EmailField('email address', blank=True, null=True)
+    vip = models.BooleanField(default=False, verbose_name='VIP')
 
     objects = CustomUserManager()
 

@@ -13,6 +13,8 @@ from django.contrib import messages
 from bookmarks.forms import SendMessageForm
 from users.telegram_utils import send_notification_with_toggle
 from bookmarks.models import Registered
+from django.utils.timezone import now
+
 
 @login_required
 def events_add(request, event_slug):
@@ -116,6 +118,7 @@ def favorites(request):
         'reviews': reviews,
         'favorites': favorites,
         'registered': registered_dict,
+        'now': now().date(),
     }
     return render(request, 'bookmarks/favorites.html', context)
 

@@ -38,10 +38,40 @@ class AttractionsAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret','events_admin','member')
 
+    def get_exclude(self, request, obj = None):
+        if request.user.is_superuser:
+            return []
+        return ['category']
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if not change and request.user.is_authenticated:
+            obj.events_admin.add(request.user)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if not change and request.user.is_authenticated:
+            form.instance.events_admin.add(request.user)
+
 @admin.register(Events_for_visiting)
 class Events_for_visitingAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret','events_admin', 'member')
+
+    def get_exclude(self, request, obj = None):
+        if request.user.is_superuser:
+            return []
+        return ['category']
+    
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if not change and request.user.is_authenticated:
+            obj.events_admin.add(request.user)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if not change and request.user.is_authenticated:
+            form.instance.events_admin.add(request.user)
 
 
 

@@ -1,0 +1,155 @@
+/* @import url(https://fonts.googleapis.com/css?family=Poppins&display=swap); */
+
+body {
+    /* font-family: Poppins, serif; */
+    /* background: linear-gradient(341deg, #8ff0a4 14%, #ffffff 71%); */
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    background: linear-gradient(348deg, #62a0ea 5%, #ffffff 86%);
+}
+
+/* Навигационная панель */
+
+.navbar-brand {
+    color: white;
+}
+
+.nav-link {
+    color: white;
+}
+
+.nav-link:hover {
+    color: #959595;
+    /* Светло-серый цвет при наведении */
+}
+
+.nav-link:active {
+    color: #959595;
+    /* Светло-серый цвет при нажатии */
+}
+
+.nav-item.dropdown:hover>.nav-link {
+    color: #959595;
+}
+
+.navbar-toggler {
+    border-color: white;
+    /* Изменение цвета рамки кнопки на белый */
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='white' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* .name-for-events {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.page-link-arrow {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 576px) {
+    .name-for-events {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+} */
+
+
+
+
+/* Пагинация - стрелки*/
+
+
+nav[aria-label="Arrow navigation"] {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Чтобы скрыть всё, что выходит за границы */
+}
+
+.page-link-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    /* Фиксированная ширина */
+    height: 40px;
+    /* Фиксированная высота */
+    padding: 0px;
+    /* Добавляем небольшой отступ */
+    box-sizing: border-box;
+    overflow: visible;
+    /* Сохраняем видимость изображения */
+
+}
+
+
+/* Стрелки пагинации */
+.arrow img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    min-width: 30px;
+    min-height: 30px;
+}
+
+.name-for-events>div {
+    padding: 0;
+}
+
+.btn.btn-outline-success>img {
+    width: 24px;
+    height: 24 px;
+}
+
+/* Сужение стрелок пагинации сверху при сужении экрана */
+@media (max-width: 555px) {
+    .name-for-events>div {
+        padding: 1px;
+    }
+
+    .page-link-arrow {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 450px) {
+    .name-for-events>div {
+        padding: 1px;
+    }
+
+    .page-link-arrow {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 350px) {
+    h2.namepage-vis {
+        font-size: 8px;
+    }
+}
+
+/* Стрелка назад из карточки мероприятия */
+.arrow-back {
+    width: 35px;
+    height: 35 px;
+}
+
+/* Пагинация */
+.pagination {
+    margin-top: 1rem;
+}
+
+
+
+/*  */
