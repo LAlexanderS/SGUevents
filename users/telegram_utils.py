@@ -13,7 +13,6 @@ import logging
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.serialization import deserialize_telegram_object_to_python
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram import Bot, Dispatcher, types
 from asgiref.sync import async_to_sync
 
 
@@ -23,35 +22,17 @@ logger = logging.getLogger('my_debug_logger')
 
 ADMIN_TG_NAME = os.getenv("ADMIN_TG_NAME")
 
-bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
-dp = Dispatcher()
 
-# def send_login_details_sync(telegram_id, login, password):
-#     message_text = f"\U0001FAAA Ваши учетные данные для входа:\nЛогин: {login}\nПароль: {password}"
-#     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
-#     data = {
-#         "chat_id": telegram_id,
-#         "text": message_text,
-#     }
-#     response = requests.post(send_url, data=data)
-#     if not response.ok:
-#         print(f"Ошибка отправки сообщения: {response.text}")
+def send_message_to_support_chat(message):
+    from aiogram import Bot
+    bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
+    support_chat_id = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
+    try:
+        async_to_sync(bot.send_message)(chat_id=support_chat_id, text=message)
+        logger.info(f"Сообщение успешно отправлено в чат поддержки: {message}")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке сообщения в чат поддержки: {e}")
 
-def send_message_to_admin(telegram_id, message):
-    admin_tg_username = ADMIN_TG_NAME
-    send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
-
-
-
-    data = {
-        "chat_id": admin_tg_username,
-        "text": message,
-            }
-
-    print("Sending message to admin:", admin_tg_username)
-    response = requests.post(send_url, data=data)
-    if not response.ok:
-        print(f"Ошибка отправки сообщения администратору: {response.text}")
 
 def send_confirmation_to_user(telegram_id):
     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -275,7 +256,7 @@ def send_registration_details_sync(telegram_id, username, password):
             f"\U0001F44B Добро пожаловать!\n"
             f"Ваши учетные данные:\n"
             f"Username: {username}\nПароль: {password}\n"
-            f"Вы можете войти на просто через telegram, без логина и пароля"
+            f"Вы можете войти просто через telegram, без логина и пароля"
         )
         send_message_to_telegram(telegram_id, message)
         async_to_sync(cmd_start_user)(telegram_id)  # Автоматически вызываем /start после отправки учетных данных
@@ -286,6 +267,9 @@ def send_registration_details_sync(telegram_id, username, password):
 # Функция для принудительного вызова команды /start для нового пользователя
 async def cmd_start_user(telegram_id):
     try:
+        from aiogram import Bot, Dispatcher, types
+        bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
+
         kb = [
             [
                 types.KeyboardButton(text="\U0001F464 Мой профиль"),
@@ -316,7 +300,7 @@ def send_password_change_details_sync(telegram_id, username, new_password):
         logger.error(f"Ошибка при отправке нового пароля в Telegram: {e}")
 
 # Вспомогательная функция для отправки сообщения в Telegram
-def send_message_to_telegram(telegram_id, message):
+def send_message_to_telegram(telegram_id, message, reply_markup=None):
     import requests
     from django.conf import settings
 
@@ -325,9 +309,63 @@ def send_message_to_telegram(telegram_id, message):
         'chat_id': telegram_id,
         'text': message
     }
+
+    # Добавляем обработку reply_markup, если он передан
+    if reply_markup:
+        payload['reply_markup'] = json.dumps(reply_markup)
+
     headers = {
         'Content-Type': 'application/json'
     }
     response = requests.post(url, json=payload, headers=headers)
     if response.status_code != 200:
         logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
+
+# Функция для создания inline-клавиатуры с кнопками
+def create_event_keyboard(event_id, notifications_enabled=True, include_unregister_button=False):
+    """
+    Создание inline клавиатуры для уведомлений о мероприятии.
+
+    :param event_id: Идентификатор мероприятия.
+    :param notifications_enabled: Состояние уведомлений (True для включенных, False для отключенных).
+    :param include_unregister_button: Включать ли кнопку отмены регистрации.
+    :return: Словарь с клавиатурой.
+    """
+    buttons = []
+
+    # Кнопка для включения/отключения уведомлений
+    button_text = "\U0001F534 Откл. уведомления" if notifications_enabled else "\U0001F7E2 Вкл. уведомления"
+    callback_data = f"toggle_{event_id}"
+    buttons.append({
+        "text": button_text,
+        "callback_data": callback_data
+    })
+
+    # Кнопка для отмены регистрации на мероприятие
+    if include_unregister_button:
+        unregister_callback_data = f"unregister_{event_id}"
+        buttons.append({
+            "text": "\U0000274C Отм. регистрацию",
+            "callback_data": unregister_callback_data
+        })
+
+    # Формирование клавиатуры
+    inline_keyboard = {
+        "inline_keyboard": [buttons]
+    }
+
+    return inline_keyboard
+
+# Функция для отправки уведомления с кнопкой отмены регистрации
+def send_event_notification_with_buttons(telegram_id, message, event_id, notifications_enabled=True, include_unregister_button=False):
+    """
+    Отправка сообщения пользователю с кнопками управления уведомлениями и отменой регистрации.
+
+    :param telegram_id: Telegram ID пользователя.
+    :param message: Сообщение для отправки.
+    :param event_id: Идентификатор мероприятия.
+    :param notifications_enabled: Состояние уведомлений (True для включенных, False для отключенных).
+    :param include_unregister_button: Включать ли кнопку отмены регистрации.
+    """
+    reply_markup = create_event_keyboard(event_id, notifications_enabled, include_unregister_button)
+    send_message_to_telegram(telegram_id, message, reply_markup=reply_markup)

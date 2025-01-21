@@ -1,0 +1,42 @@
+.under_photo {
+    display: inline;
+}
+
+.full-stars {
+    text-align: center;
+    justify-content: flex-end;
+}
+
+.full-stars .rating-group {
+    display: inline-flex;
+}
+
+.full-stars input {
+    position: absolute;
+    left: -9999px;
+}
+
+.full-stars label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.full-stars label svg {
+    margin: 2px;
+    height: 40px;
+    width: 40px;
+    fill: #337AB7;
+    transition: fill 0.3s;
+}
+
+.full-stars input:checked~label svg {
+    fill: #9da4a9;
+}
+
+.full-stars .rating-group:hover label svg {
+    fill: #337AB7;
+}
+
+.full-stars .rating-group input:hover~label svg {
+    fill: #9da4a9;
+}

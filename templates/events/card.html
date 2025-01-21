@@ -113,25 +113,24 @@
 
 					<div class="col-lg-10">
                         <div class="row mt-1">
-                            {% if event.category == "Онлайн"%}
-                                <a href="{% url "events_available:online"%}">
-                                    <img src="{% static "general/icons/back.png" %}" class="arrow-back" alt="Предыдущая">
-                                </a> 
-                            {% elif event.category == "Оффлайн" %}
-                                <a href="{% url "events_available:offline"%}">
-                                    <img src="{% static "general/icons/back.png" %}" class="arrow-back" alt="Предыдущая">
-                                </a> 
-                            {% elif event.category == "Достопримечательности" %}
-                                <a href="{% url "events_cultural:attractions"%}">
-                                    <img src="{% static "general/icons/back.png" %}" class="arrow-back" alt="Предыдущая">
-                                </a> 
-                            {% elif event.category == "Доступные к посещению" %}
-                                <a href="{% url "events_cultural:events_for_visiting"%}">
-                                    <img src="{% static "general/icons/back.png" %}" class="arrow-back" alt="Предыдущая">
-                                </a> 
-                            {% endif %}
-                            
+                            <a href="javascript:void(0);" onclick="goBack()">
+                                <img src="{% static 'general/icons/back.png' %}" class="arrow-back" alt="Предыдущая">
+                            </a>
                         </div>
+                        <script>
+                            function goBack() {
+                                const referrer = document.referrer; // Получаем URL предыдущей страницы
+                                
+                                if (referrer && referrer !== window.location.href) {
+                                    // Если есть реферер и он не равен текущему URL, возвращаемся назад
+                                    window.history.back();
+                                } else {
+                                    // Если реферер пуст или равен текущему URL, переходим на главную страницу
+                                    window.location.href = "{% url 'main:index' %}";
+                                }
+                            }
+                        </script>
+                        
 
 						<div class="row mt-2 event_cards">
 							<div class="col-lg-12">
@@ -163,7 +162,7 @@
 
                                                 <h6><strong>Администратор:</strong>
                                                     {% for admin in event.events_admin.all %}
-                                                        {{admin}}
+                                                        {{admin.last_name}} {{admin.first_name}}{% if not forloop.last %}, {% endif %}
                                                     {% endfor %}
                                                 </h6>
 
@@ -175,7 +174,7 @@
                                                     <p>
                                                         <h6><strong>Спикеры:</strong></h6>
                                                         {% for speaker in event.speakers.all %}
-                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if speaker.middle_name %} {{ speaker.middle_name }}{% endif %}{% if not forloop.last %}, {% endif %}
+                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
                                                         {% endfor %}
                                                     </p>
                                                 {% endif %}

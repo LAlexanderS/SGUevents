@@ -51,7 +51,7 @@ def online(request):
     events_admin_set = set()
     for event in all_info:
         for admin in event.events_admin.all():
-            events_admin_set.add(admin.get_full_name())
+            events_admin_set.add(f"{admin.last_name} {admin.first_name}")
 
     events_admin = list(events_admin_set)
     
@@ -170,6 +170,8 @@ def online(request):
     for event in current_page:
         content_type = ContentType.objects.get_for_model(event)
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
+
+    print(events_admin)
 
     context = {
         'name_page': 'Онлайн',

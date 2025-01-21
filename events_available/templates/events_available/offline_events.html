@@ -135,6 +135,13 @@
                                 <option value="{{ result }}">
                             {% endfor %}
                         </datalist>
+
+                        <!-- Сохранение остальных фильтров -->
+						{% for key, value in request.GET.items %}
+                            {% if key != 'f_place' %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
+                        {% endfor %}
                         <button type="submit" class="btn btn-primary mx-3 mt-3">Применить</button>
                     </div>
                 </form>
@@ -287,6 +294,8 @@
         Регистрация
     </a>
     {% endif %}
+{% else %}
+    <span class="btn btn-secondary">Регистрация недоступна</span>
 {% endif %}
 
 <button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="offline">Оставить отзыв</button>

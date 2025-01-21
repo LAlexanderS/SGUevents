@@ -23,6 +23,7 @@ def attractions(request):
     page = request.GET.get('page', 1)
     f_date = request.GET.get('f_date', None)
     f_tags = request.GET.getlist('f_tags', None)
+    f_place = request.GET.get('f_place', None)
     order_by = request.GET.get('order_by', None)
     date_start = request.GET.get('date_start', None)
     date_end = request.GET.get('date_end', None)
@@ -102,6 +103,11 @@ def attractions(request):
     if order_by and order_by != "default":
         events_cultural = events_cultural.order_by(order_by)
 
+    if f_place:
+        events_cultural = events_cultural.annotate(
+            full_place=Concat('town', Value(' '), 'street', Value(' '), 'house', output_field=CharField())
+        ).filter(full_place__icontains=f_place)
+
     # Пагинация
     paginator = Paginator(events_cultural, 5)
     try:
@@ -126,6 +132,11 @@ def attractions(request):
     # Список тегов
     tags = list(set(tag for event in all_info if event.tags for tag in event.tags.split(',')))
 
+    results = Attractions.objects.annotate(
+    full_address=Concat('town', Value(' '), 'street', Value(' '), 'house', output_field=CharField())
+    ).values_list('full_address', flat=True)
+    results = sorted(set(results))
+
     context = {
         'name_page': 'Достопримечательности',
         'event_card_views': current_page,
@@ -138,6 +149,7 @@ def attractions(request):
         "date_start": date_start,
         "date_end": date_end,
         'filters_applied': filters_applied,
+        "results":results,
         'now': now().date(),
 
     }
@@ -329,6 +341,17 @@ def for_visiting_card(request, event_slug=False, event_id=False):
         'now': now().date(),
     }
     return render(request, 'events_cultural/card.html', context=context)
+
+
+def autocomplete_places(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        query = request.GET.get('term', '')
+        places = Attractions.objects.filter(
+            Q(town__icontains=query) | Q(street__icontains=query) | Q(house__icontains=query)).values_list('town', flat=True).distinct()
+        places_list = list(places)
+        return JsonResponse(places_list, safe=False)
+    else:
+        return JsonResponse({"error": "Invalid request"}, status=400)
 
 @login_required
 @csrf_exempt

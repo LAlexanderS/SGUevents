@@ -101,9 +101,11 @@ def index(request):
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
         available = Events_online.objects.order_by('-date_add')
-        available1 = Events_online.objects.order_by('-date_add')
-        cultural = Events_online.objects.order_by('-date_add')
-        cultural1 = Events_online.objects.order_by('-date_add')
+        available1 = Events_offline.objects.order_by('-date_add')
+        cultural = Attractions.objects.order_by('-date_add')
+        cultural1 = Events_for_visiting.objects.order_by('-date_add')
+        events_all = list(chain(available, available1, cultural, cultural1))
+
 
     # Фильтрация по дате
     if date_start:

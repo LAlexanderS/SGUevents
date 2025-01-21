@@ -10,21 +10,21 @@ from pytz import timezone as pytz_timezone
 from django.contrib.postgres.indexes import GinIndex
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 class Attractions(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, blank=False, verbose_name='Название')
     slug = models.SlugField(max_length=200, unique=True, blank=False, verbose_name='URL')
     date = models.DateField(max_length=10, blank=False, verbose_name='Дата')
+    date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(blank=False, null=False, verbose_name='Время начала')
     time_end = models.TimeField(blank=False, null=False, verbose_name='Время окончания')
     description = models.TextField(blank=False, null=False, verbose_name='Описание')
-    town = models.CharField(max_length=200, blank=False, verbose_name='Город')
-    street = models.CharField(max_length=100, blank=False, verbose_name='Улица')
     link = models.URLField(blank=False, verbose_name='Ссылка')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
-    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=False, related_name='admin_attractions', verbose_name="Администратор")
+    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_attractions', verbose_name="Администратор")
     rating = models.DecimalField(default=0.00, max_digits=4, decimal_places=2, blank=False, verbose_name='Рейтинг 1-10')
     documents = models.FileField(blank=True, null=True, verbose_name='Документы')
     const_category = 'Достопримечательности'
@@ -34,17 +34,24 @@ class Attractions(models.Model):
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
+    house = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Дом')
+    town = models.CharField(max_length=200, blank=False, verbose_name='Город')
+    street = models.CharField(max_length=100, blank=False, verbose_name='Улица')
     member =  models.ManyToManyField(User, blank=True, related_name='member_attractions', verbose_name='Участники')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
-
-
 
     class Meta:
         db_table = 'attractions'
         verbose_name = 'Достопримечательности'
         verbose_name_plural = 'Достопримечательности'
-        
 
+    def clean(self):
+        if self.date > self.date_end:
+            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
+        elif self.date == self.date_end:
+            if self.time_start > self.time_end:
+                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+                
     def __str__(self):
         return self.name
 
@@ -52,6 +59,8 @@ class Attractions(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        self.clean()
+
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
 
@@ -68,7 +77,8 @@ class Events_for_visiting(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, unique=False, blank=False, null=False, verbose_name='Название')
     slug = models.SlugField(max_length=200, unique=True, blank=False, null=False, verbose_name='URL')
-    date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата')
+    date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата начала')
+    date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время начала')
     time_end = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время окончания')
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
@@ -78,7 +88,7 @@ class Events_for_visiting(models.Model):
     link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
-    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=False, related_name='admin_visiting', verbose_name="Администратор")
+    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_visiting', verbose_name="Администратор")
     place_limit = models.IntegerField(unique=False, blank=False, null=False, verbose_name='Количество мест')
     place_free = models.IntegerField(unique=False, blank=False, null=False, verbose_name='Количество свободных мест')
     documents = models.FileField(blank=True, null=True, verbose_name='Документы')
@@ -95,6 +105,13 @@ class Events_for_visiting(models.Model):
         db_table = 'Events_for_visiting'
         verbose_name = 'Доступные к посещению'
         verbose_name_plural = 'Доступные к посещению'
+    
+    def clean(self):
+        if self.date > self.date_end:
+            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
+        elif self.date == self.date_end:
+            if self.time_start > self.time_end:
+                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
         
 
     def __str__(self):
@@ -104,6 +121,8 @@ class Events_for_visiting(models.Model):
         return f'{self.id:05}'
 
     def save(self, *args, **kwargs):
+        self.clean()
+
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
 

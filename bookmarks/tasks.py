@@ -4,7 +4,7 @@ from celery import shared_task
 from django.db.models import Q
 from bookmarks.models import Registered
 from users.models import User
-from users.telegram_utils import send_message_to_user_with_toggle_button, send_message_to_user_with_review_buttons
+from users.telegram_utils import send_message_to_user_with_toggle_button, send_message_to_user_with_review_buttons, send_event_notification_with_buttons
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,14 @@ def send_notification(event_registered_id, user_id, event_name, timeframe):
         if registered_event.notifications_enabled:
             message = f"\U0001F550 Напоминаем, что мероприятие '{event_name}' начнется через {timeframe}."
             if user.telegram_id:
-                send_message_to_user_with_toggle_button(user.telegram_id, message, event_registered_id, True)
+                # Отправляем уведомление с кнопкой отмены регистрации
+                send_event_notification_with_buttons(
+                    user.telegram_id,
+                    message,
+                    event_registered_id,
+                    notifications_enabled=True,
+                    include_unregister_button=True
+                )
             else:
                 logger.warning(f"Пользователь {user.username} не имеет telegram_id, уведомление не отправлено.")
     except User.DoesNotExist:
