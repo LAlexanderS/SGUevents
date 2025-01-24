@@ -1,0 +1,37 @@
+body {
+    background-color: #343a40;
+    color: #f8f9fa;
+}
+
+.profile-card {
+    background-color: #495057;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-header {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.profile-detail {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.profile-detail strong {
+    display: inline-block;
+    width: 150px;
+}
+
+.btn-group {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}

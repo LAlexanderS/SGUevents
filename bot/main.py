@@ -144,6 +144,7 @@ async def help_request(message: types.Message, state: FSMContext):
     else:
         await message.answer("Вы не зарегистрированы на портале.")
 
+# В обработчике бота
 @router.message(SupportRequestForm.waiting_for_question)
 async def receive_question(message: types.Message, state: FSMContext):
     from users.models import SupportRequest
@@ -154,13 +155,18 @@ async def receive_question(message: types.Message, state: FSMContext):
             user=user,
             question=message.text
         )
-        # Отправляем вопрос в чат поддержки
-        support_message = f"Новый вопрос от пользователя {user.username}:\n\n{message.text}"
+
+        # Формируем сообщение с проверкой VIP статуса
+        vip_emoji = "\U0001F451 " if user.vip else ""
+        support_message = f"Новый вопрос от пользователя {vip_emoji}{user.first_name} {user.last_name}:\n\n{message.text}"
+
+        # Отправляем сообщение в чат поддержки
         send_message_to_support_chat(support_message)
         await message.answer("Ваш вопрос отправлен в техподдержку. Спасибо!")
     else:
         await message.answer("Вы не зарегистрированы на портале.")
     await state.clear()
+
 
 def send_message_to_support_chat(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
@@ -259,6 +265,7 @@ async def receive_review(message: types.Message, state: FSMContext):
         await message.answer("Произошла ошибка при приёме отзыва.")
         await state.clear()
 
+
 @router.callback_query(F.data.startswith("review:"))
 async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMContext):
     try:
@@ -274,7 +281,21 @@ async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMCon
 
         user = await get_user_profile(callback_query.from_user.id)
         if user:
-            await callback_query.message.answer("Пожалуйста, напишите ваш отзыв:")
+            # Создаем клавиатуру с кнопкой "Отмена"
+            reply_markup = InlineKeyboardMarkup(inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="\U0000274C Отмена",
+                        callback_data=f"cancel_review:{uuid_obj}"
+                    )
+                ]
+            ])
+
+            # Отправляем сообщение с запросом на отзыв
+            await callback_query.message.edit_text(
+                "Пожалуйста, оставьте отзыв, или отмените запрос.",
+                reply_markup=reply_markup
+            )
             await state.set_state(ReviewForm.waiting_for_review)
             await state.update_data(event_id=str(uuid_obj), event_type=event_type)
         else:
@@ -282,6 +303,31 @@ async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMCon
     except Exception as e:
         logger.error(f"Ошибка в обработчике handle_leave_review: {e}")
         await callback_query.answer(f"Произошла ошибка: {e}")
+
+
+
+@router.callback_query(F.data.startswith("cancel_review:"))
+async def handle_cancel_review(callback_query: types.CallbackQuery, state: FSMContext):
+    try:
+        logger.info(f"Получен callback_query: {callback_query.data}")
+        _, event_unique_id = callback_query.data.split(":")
+
+        # Проверяем, что event_unique_id является валидным UUID
+        try:
+            uuid.UUID(event_unique_id)
+        except ValueError:
+            await callback_query.answer("Некорректный UUID для события.")
+            return
+
+        # Удаляем сообщение с запросом на отзыв и сбрасываем состояние
+        await callback_query.message.delete()
+        await state.clear()
+        await callback_query.answer("Запрос на отзыв отменен.")
+    except Exception as e:
+        logger.error(f"Ошибка в обработчике handle_cancel_review: {e}")
+        await callback_query.answer("Произошла ошибка при отмене.")
+
+
 
 @router.callback_query(F.data.startswith("notify_toggle_"))
 async def toggle_event_notification(callback_query: types.CallbackQuery):
