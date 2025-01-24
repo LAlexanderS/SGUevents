@@ -212,7 +212,7 @@
 
 {% block content %}
 
-{% if events.date >= now and events.place_free > 0 or request,%}
+{% if events.date >= now and events.place_free > 0 %}
     <!-- Контент на странице -->
     {% if events.id in registered %}
     <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
