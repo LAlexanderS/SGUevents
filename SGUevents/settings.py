@@ -103,6 +103,9 @@ SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID")
 ACTIVE_TELEGRAM_BOT_TOKEN = TELEGRAM_DEV_BOT_TOKEN if DJANGO_ENV == 'development' else TELEGRAM_BOT_TOKEN
 ACTIVE_TELEGRAM_SUPPORT_CHAT_ID = DEV_SUPPORT_CHAT_ID if DJANGO_ENV == 'development' else SUPPORT_CHAT_ID
 
+# Telegram Bot settings
+TELEGRAM_BOT_USERNAME = os.getenv('DEV_BOT_NAME') if os.getenv('DJANGO_ENV') == 'development' else os.getenv('BOT_NAME')
+
 if DJANGO_ENV == 'development':
     DATABASES = {
         'default': {

@@ -25,6 +25,7 @@ from bot.django_initializer import setup_django_environment
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from users.models import Department
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -39,7 +40,9 @@ dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 
 WEBHOOK_HOST = os.getenv('WEBHOOK_HOST')  # URL вашего сервера (например, https://abcd1234.ngrok-free.app)
-WEBHOOK_PATH = os.getenv('WEBHOOK_PATH')  # Уникальный путь для webhook, например '/webhook/'
+WEBHOOK_PATH = os.getenv('WEBHOOK_PATH', '/webhook/')  # Уникальный путь для webhook
+if not WEBHOOK_PATH.startswith('/'):
+    WEBHOOK_PATH = f"/{WEBHOOK_PATH}"
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 class SupportRequestForm(StatesGroup):
@@ -47,6 +50,10 @@ class SupportRequestForm(StatesGroup):
 
 class ReviewForm(StatesGroup):
     waiting_for_review = State()
+
+class RegistrationForm(StatesGroup):
+    waiting_for_full_name = State()
+    waiting_for_department_code = State()
 
 async def get_user_profile(telegram_id):
     User = get_user_model()
@@ -87,20 +94,92 @@ async def get_user_events(user):
 
 # Используем router для всех обработчиков
 @router.message(CommandStart())
-async def cmd_start(message: types.Message):
-    kb = [
-        [
-            types.KeyboardButton(text="\U0001F464 Мой профиль"),
-            types.KeyboardButton(text="\U0001F5D3 Мои мероприятия"),
-            types.KeyboardButton(text="\U00002754 Помощь")
-        ],
-    ]
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
-        input_field_placeholder="Выберите пункт меню"
+async def cmd_start(message: types.Message, state: FSMContext):
+    user = await get_user_profile(message.from_user.id)
+    if user:
+        kb = [
+            [
+                types.KeyboardButton(text="\U0001F464 Мой профиль"),
+                types.KeyboardButton(text="\U0001F5D3 Мои мероприятия"),
+                types.KeyboardButton(text="\U00002754 Помощь")
+            ],
+        ]
+        keyboard = types.ReplyKeyboardMarkup(
+            keyboard=kb,
+            resize_keyboard=True,
+            input_field_placeholder="Выберите пункт меню"
+        )
+        await message.answer("Вас приветствует Event бот СГУ", reply_markup=keyboard)
+    else:
+        await message.answer("Добрый день! Рад приветствовать вас! Я - персональный помощник по Платформе мероприятий. Давайте познакомимся! Как вас зовут (введите полное ФИО)?")
+        await state.set_state(RegistrationForm.waiting_for_full_name)
+
+@router.message(RegistrationForm.waiting_for_full_name)
+async def process_full_name(message: types.Message, state: FSMContext):
+    # Разбиваем ФИО на части
+    full_name_parts = message.text.strip().split()
+    if len(full_name_parts) < 2:
+        await message.answer("Пожалуйста, введите полное ФИО (минимум фамилию и имя)")
+        return
+    
+    # Сохраняем данные в состоянии
+    await state.update_data(
+        last_name=full_name_parts[0],
+        first_name=full_name_parts[1],
+        middle_name=full_name_parts[2] if len(full_name_parts) > 2 else None
     )
-    await message.answer("Вас приветствует Event бот СГУ", reply_markup=keyboard)
+    
+    await message.answer("Замечательно! Введите ваш персональный код подключения")
+    await state.set_state(RegistrationForm.waiting_for_department_code)
+
+@router.message(RegistrationForm.waiting_for_department_code)
+async def process_department_code(message: types.Message, state: FSMContext):
+    department_code = message.text.strip()
+    
+    # Получаем сохраненные данные
+    user_data = await state.get_data()
+    
+    try:
+        # Проверяем существование отдела
+        department = await sync_to_async(Department.objects.get)(department_id=department_code)
+        
+        # Создаем токен авторизации
+        from users.models import TelegramAuthToken
+        auth_token = await sync_to_async(TelegramAuthToken.objects.create)(
+            telegram_id=str(message.from_user.id),
+            first_name=user_data['first_name'],
+            last_name=user_data['last_name'],
+            middle_name=user_data.get('middle_name', ''),
+            department_id=department_code
+        )
+        
+        # Очищаем состояние
+        await state.clear()
+        
+        # Формируем URL с токеном авторизации
+        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://sguevents.help"
+        auth_url = f"{base_url}/users/auth/telegram/{auth_token.token}"
+        
+        # Создаем клавиатуру с кнопкой
+        keyboard = types.InlineKeyboardMarkup(
+            inline_keyboard=[
+                [types.InlineKeyboardButton(
+                    text="Завершить регистрацию",
+                    url=auth_url
+                )]
+            ]
+        )
+        
+        await message.answer(
+            "Для завершения регистрации нажмите на кнопку ниже:",
+            reply_markup=keyboard
+        )
+        
+    except Department.DoesNotExist:
+        await message.answer("Указанный код подразделения не найден. Пожалуйста, проверьте код и попробуйте снова.")
+    except Exception as e:
+        logger.error(f"Ошибка при регистрации пользователя: {e}")
+        await message.answer("Произошла ошибка при регистрации. Пожалуйста, попробуйте позже или обратитесь в поддержку.")
 
 @router.chat_member(ChatMemberUpdatedFilter(member_status_changed=True))
 async def handle_new_member(event: ChatMemberUpdated):
