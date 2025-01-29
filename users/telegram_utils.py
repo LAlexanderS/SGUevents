@@ -30,19 +30,8 @@ def send_message_to_support_chat(message):
     bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
     support_chat_id = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
     try:
-        # Получаем пользователя и проверяем статус VIP
-        user_model = get_user_model()
-        user = async_to_sync(user_model.objects.get)(telegram_id=message.from_user.id)
-        vip_emoji = "\U0001F451 " if user.vip else ""  # Добавляем эмодзи короны, если пользователь VIP
-
-        # Форматируем имя пользователя с иконкой
-        user_name_with_emoji = f"{vip_emoji}{user.first_name} {user.last_name}"
-
-        # Форматируем сообщение
-        formatted_message = f"Новый вопрос от пользователя {user_name_with_emoji}:\n\n{message.text}"
-
-        async_to_sync(bot.send_message)(chat_id=support_chat_id, text=formatted_message)
-        logger.info(f"Сообщение успешно отправлено в чат поддержки: {formatted_message}")
+        async_to_sync(bot.send_message)(chat_id=support_chat_id, text=message)
+        logger.info(f"Сообщение успешно отправлено в чат поддержки: {message}")
     except Exception as e:
         logger.error(f"Ошибка при отправке сообщения в чат поддержки: {e}")
 

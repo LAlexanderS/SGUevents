@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import uuid
+import os.path
 
 import requests
 from aiogram import Bot, Dispatcher, types, F, Router
@@ -38,12 +39,14 @@ SUPPORT_CHAT_ID = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=MemoryStorage())
 router = Router()
+dp.include_router(router)
 
-WEBHOOK_HOST = os.getenv('WEBHOOK_HOST')  # URL вашего сервера (например, https://abcd1234.ngrok-free.app)
-WEBHOOK_PATH = os.getenv('WEBHOOK_PATH', '/webhook/')  # Уникальный путь для webhook
-if not WEBHOOK_PATH.startswith('/'):
-    WEBHOOK_PATH = f"/{WEBHOOK_PATH}"
+# Настройки вебхука
+WEBHOOK_HOST = os.getenv('WEBHOOK_HOST', '').rstrip('/')
+WEBHOOK_PATH = '/webhook'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+logger.info(f"Настройки вебхука: HOST={WEBHOOK_HOST}, PATH={WEBHOOK_PATH}, URL={WEBHOOK_URL}")
 
 class SupportRequestForm(StatesGroup):
     waiting_for_question = State()
@@ -67,40 +70,47 @@ async def get_user_events(user):
     from bookmarks.models import Registered
     events = await sync_to_async(list)(Registered.objects.filter(user=user))
     event_details = []
+    
     for event in events:
-        if await sync_to_async(lambda: event.online)():
-            event_name = await sync_to_async(lambda: event.online.name)()
-            start_datetime = await sync_to_async(lambda: event.online.start_datetime)()
-        elif await sync_to_async(lambda: event.offline)():
-            event_name = await sync_to_async(lambda: event.offline.name)()
-            start_datetime = await sync_to_async(lambda: event.offline.start_datetime)()
-        elif await sync_to_async(lambda: event.attractions)():
-            event_name = await sync_to_async(lambda: event.attractions.name)()
-            start_datetime = await sync_to_async(lambda: event.attractions.start_datetime)()
-        elif await sync_to_async(lambda: event.for_visiting)():
-            event_name = await sync_to_async(lambda: event.for_visiting.name)()
-            start_datetime = await sync_to_async(lambda: event.for_visiting.start_datetime)()
-        else:
-            event_name = "Неизвестное мероприятие"
-            start_datetime = None
-
-        if start_datetime:
-            start_datetime_local = localtime(start_datetime)
-            event_details.append(f"{event_name}\n\U0001F5D3 {start_datetime_local.strftime('%d.%m.%Y %H:%M')}")
-        else:
-            event_details.append(event_name)
+        event_name = None
+        start_datetime = None
+        
+        # Используем лямбды для корректной работы с async/await
+        if await sync_to_async(lambda e: bool(e.online))(event):
+            event_name = await sync_to_async(lambda e: e.online.name)(event)
+            start_datetime = await sync_to_async(lambda e: e.online.start_datetime)(event)
+        elif await sync_to_async(lambda e: bool(e.offline))(event):
+            event_name = await sync_to_async(lambda e: e.offline.name)(event)
+            start_datetime = await sync_to_async(lambda e: e.offline.start_datetime)(event)
+        elif await sync_to_async(lambda e: bool(e.attractions))(event):
+            event_name = await sync_to_async(lambda e: e.attractions.name)(event)
+            start_datetime = await sync_to_async(lambda e: e.attractions.start_datetime)(event)
+        elif await sync_to_async(lambda e: bool(e.for_visiting))(event):
+            event_name = await sync_to_async(lambda e: e.for_visiting.name)(event)
+            start_datetime = await sync_to_async(lambda e: e.for_visiting.start_datetime)(event)
+        
+        if event_name:
+            if start_datetime:
+                start_datetime_local = localtime(start_datetime)
+                event_details.append(f"{event_name}\n\U0001F5D3 {start_datetime_local.strftime('%d.%m.%Y %H:%M')}")
+            else:
+                event_details.append(event_name)
 
     return event_details
 
 # Используем router для всех обработчиков
 @router.message(CommandStart())
 async def cmd_start(message: types.Message, state: FSMContext):
+    # Проверяем, что это личный чат
+    if message.chat.type != 'private':
+        return
+        
     user = await get_user_profile(message.from_user.id)
     if user:
         kb = [
             [
                 types.KeyboardButton(text="\U0001F464 Мой профиль"),
-                types.KeyboardButton(text="\U0001F5D3 Мои мероприятия"),
+                types.KeyboardButton(text="📓 Мои мероприятия"),
                 types.KeyboardButton(text="\U00002754 Помощь")
             ],
         ]
@@ -188,6 +198,10 @@ async def handle_new_member(event: ChatMemberUpdated):
 
 @router.message(F.text == "\U0001F464 Мой профиль")
 async def profile(message: types.Message):
+    # Проверяем, что это личный чат
+    if message.chat.type != 'private':
+        return
+        
     user = await get_user_profile(message.from_user.id)
     if user:
         department_name = await sync_to_async(get_department_name)(user)
@@ -200,15 +214,20 @@ async def profile(message: types.Message):
 def get_department_name(user):
     return user.department.department_name if user.department else "Не указан"
 
-@router.message(F.text == "\U0001F5D3 Мои мероприятия")
+@router.message(F.text == "📓 Мои мероприятия")
 async def my_events(message: types.Message):
+    # Проверяем, что это личный чат
+    if message.chat.type != 'private':
+        return
+        
     user = await get_user_profile(message.from_user.id)
     if user:
         event_details = await get_user_events(user)
         if event_details:
-            for event_detail in event_details:
-                response_text = f"Мероприятие: {event_detail}"
-                await message.answer(response_text)
+            response_text = "Ваши мероприятия:\n\n"
+            for i, event_detail in enumerate(event_details, 1):
+                response_text += f"{i}. {event_detail}\n\n"
+            await message.answer(response_text)
         else:
             await message.answer("Вы не зарегистрированы на какие-либо мероприятия.")
     else:
@@ -216,6 +235,10 @@ async def my_events(message: types.Message):
 
 @router.message(F.text == "\U00002754 Помощь")
 async def help_request(message: types.Message, state: FSMContext):
+    # Проверяем, что это личный чат
+    if message.chat.type != 'private':
+        return
+        
     user = await get_user_profile(message.from_user.id)
     if user:
         await message.answer("\U00002754 Пожалуйста, введите ваш вопрос:")
@@ -480,38 +503,46 @@ async def unregister_event(callback_query: types.CallbackQuery):
         logger.error(f"Ошибка при отмене регистрации: {e}")
         await callback_query.answer("Произошла ошибка при отмене регистрации.")
 
-# Обработчик вебхука
 async def handle_webhook(request):
+    """
+    Обработчик вебхука
+    """
     try:
         data = await request.json()
-        logger.info(f"Получены данные вебхука: {json.dumps(data, ensure_ascii=False)}")
+        logger.info(f"Получены данные вебхука: {json.dumps(data)}")
+        
         update = Update(**data)
-        await dp.feed_update(bot, update)  # Передаем bot и update
-        return web.Response(text='OK')
-    except json.JSONDecodeError:
-        logger.error("Invalid JSON")
-        return web.Response(status=400, text='Invalid JSON')
+        await dp.feed_update(bot=bot, update=update)
+        
+        return web.Response(status=200, text='OK')
     except Exception as e:
-        logger.error(f"Ошибка в обработчике вебхука: {e}")
-        return web.Response(status=500, text=str(e))
+        logger.error(f"Ошибка при обработке вебхука: {e}")
+        return web.Response(status=500)
 
-# Функция запуска бота с поддержкой Webhook
 async def run_bot():
+    """
+    Запуск бота с поддержкой вебхуков
+    """
     # Настраиваем приложение aiohttp
     app = web.Application()
     app.router.add_post(WEBHOOK_PATH, handle_webhook)
-    dp.include_router(router)
-
-    # Устанавливаем вебхук с разрешёнными обновлениями
-    await bot.set_webhook(WEBHOOK_URL, allowed_updates=["message", "callback_query", "chat_member"])
+    
+    # Устанавливаем вебхук
+    webhook_info = await bot.get_webhook_info()
+    current_url = webhook_info.url
+    logger.info(f"Текущий URL вебхука: {current_url}")
+    
+    if current_url != WEBHOOK_URL:
+        await bot.set_webhook(url=WEBHOOK_URL)
+        logger.info(f"Вебхук успешно установлен на {WEBHOOK_URL}")
 
     # Запускаем сервер aiohttp
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, '0.0.0.0', 8443)  # Убедитесь, что используете правильный порт
+    site = web.TCPSite(runner, '0.0.0.0', 8443)
     await site.start()
 
-    logger.info("Бот запущен и слушает вебхуки на порту 8443.")
+    logger.info("Бот запущен и слушает вебхуки на порту 8443")
 
     # Держим бота запущенным
     try:

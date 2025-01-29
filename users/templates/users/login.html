@@ -106,22 +106,38 @@ function getCookie(name) {
 }
 
 function onTelegramAuth(user) {
-    console.log(user);
+    console.log('Telegram auth data:', user);
     fetch('/users/telegram-auth/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({ telegram_id: user.id })
+        body: JSON.stringify({
+            telegram_id: user.id.toString()
+        })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             window.location.href = data.redirect_url;
         } else {
-            alert(data.error);
+            const messageArea = document.getElementById('messageArea');
+            messageArea.style.display = 'block';
+            messageArea.className = 'alert alert-danger';
+            messageArea.textContent = data.error || 'Произошла ошибка при входе';
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const messageArea = document.getElementById('messageArea');
+        messageArea.style.display = 'block';
+        messageArea.className = 'alert alert-danger';
+        messageArea.textContent = 'Произошла ошибка при входе';
     });
 }
 </script>

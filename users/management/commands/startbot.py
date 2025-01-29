@@ -1,12 +1,12 @@
-from django.core.management.base import BaseCommand
-from bot.main import run_bot  # Правильный импорт функции run_bot
 import asyncio
+from django.core.management.base import BaseCommand
+from bot.main import run_bot
 
 class Command(BaseCommand):
-    help = 'Запускает телеграм-бота'
+    help = 'Запускает Telegram бота с поддержкой вебхуков'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('Запускаю бота...'))
+        self.stdout.write('Запуск Telegram бота...')
         asyncio.run(run_bot())
 
 

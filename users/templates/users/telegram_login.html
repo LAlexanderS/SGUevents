@@ -62,12 +62,7 @@
                     'X-CSRFToken': '{{ csrf_token }}'
                 },
                 body: JSON.stringify({
-                    id: user.id,
-                    first_name: user.first_name,
-                    username: user.username,
-                    photo_url: user.photo_url,
-                    auth_date: user.auth_date,
-                    hash: user.hash
+                    telegram_id: user.id.toString(),
                 })
             })
             .then(response => {
