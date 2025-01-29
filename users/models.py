@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from transliterate import translit, exceptions
 import re
+from django.utils import timezone
 
 
 class Department(models.Model):
@@ -129,4 +130,30 @@ class SupportRequest(models.Model):
     class Meta:
         verbose_name = "Запрос в техподдержку"
         verbose_name_plural = "Запросы в техподдержку"
+
+class TelegramAuthToken(models.Model):
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    telegram_id = models.CharField(max_length=20, default='0')
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    middle_name = models.CharField(max_length=150, blank=True)
+    department_id = models.CharField(max_length=50, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    is_used = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timezone.timedelta(minutes=15)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        return not self.is_used and self.expires_at > timezone.now()
+
+    def __str__(self):
+        return f"Token {self.token} for {self.telegram_id} ({'used' if self.is_used else 'not used'})"
+
+    class Meta:
+        verbose_name = "Токен авторизации Telegram"
+        verbose_name_plural = "Токены авторизации Telegram"
 

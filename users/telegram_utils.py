@@ -14,6 +14,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.serialization import deserialize_telegram_object_to_python
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from asgiref.sync import async_to_sync
+import aiohttp
+import asyncio
 
 
 
@@ -28,19 +30,8 @@ def send_message_to_support_chat(message):
     bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
     support_chat_id = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
     try:
-        # Получаем пользователя и проверяем статус VIP
-        user_model = get_user_model()
-        user = async_to_sync(user_model.objects.get)(telegram_id=message.from_user.id)
-        vip_emoji = "\U0001F451 " if user.vip else ""  # Добавляем эмодзи короны, если пользователь VIP
-
-        # Форматируем имя пользователя с иконкой
-        user_name_with_emoji = f"{vip_emoji}{user.first_name} {user.last_name}"
-
-        # Форматируем сообщение
-        formatted_message = f"Новый вопрос от пользователя {user_name_with_emoji}:\n\n{message.text}"
-
-        async_to_sync(bot.send_message)(chat_id=support_chat_id, text=formatted_message)
-        logger.info(f"Сообщение успешно отправлено в чат поддержки: {formatted_message}")
+        async_to_sync(bot.send_message)(chat_id=support_chat_id, text=message)
+        logger.info(f"Сообщение успешно отправлено в чат поддержки: {message}")
     except Exception as e:
         logger.error(f"Ошибка при отправке сообщения в чат поддержки: {e}")
 
@@ -264,6 +255,9 @@ def send_notification_with_toggle(telegram_id, message, event_id, notifications_
 # Функция для отправки учетных данных новому пользователю
 # Включает команду /start, чтобы автоматически начать взаимодействие с ботом
 def send_registration_details_sync(telegram_id, username, password):
+    """
+    Отправляет учетные данные новому пользователю через Telegram
+    """
     try:
         message = (
             f"\U0001F44B Добро пожаловать!\n"
@@ -271,9 +265,44 @@ def send_registration_details_sync(telegram_id, username, password):
             f"Username: {username}\nПароль: {password}\n"
             f"Вы можете войти просто через telegram, без логина и пароля"
         )
-        send_message_to_telegram(telegram_id, message)
-        async_to_sync(cmd_start_user)(telegram_id)  # Автоматически вызываем /start после отправки учетных данных
-        logger.info(f"Учетные данные отправлены новому пользователю {username}")
+        
+        url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': telegram_id,
+            'text': message,
+            'parse_mode': 'HTML'
+        }
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code == 200:
+            logger.info(f"Учетные данные отправлены новому пользователю {username}")
+        else:
+            logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
+            
+        # Отправляем клавиатуру меню
+        kb = [
+            [
+                "👤 Мой профиль",
+                "📓 Мои мероприятия",
+                "❔ Помощь"
+            ]
+        ]
+        keyboard = {
+            'keyboard': kb,
+            'resize_keyboard': True,
+            'one_time_keyboard': False
+        }
+        
+        payload['text'] = "Вас приветствует Event бот СГУ"
+        payload['reply_markup'] = json.dumps(keyboard)
+        
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code != 200:
+            logger.error(f"Ошибка при отправке клавиатуры: {response.status_code}, {response.text}")
+            
     except Exception as e:
         logger.error(f"Ошибка при отправке учетных данных в Telegram: {e}")
 
@@ -382,3 +411,35 @@ def send_event_notification_with_buttons(telegram_id, message, event_id, notific
     """
     reply_markup = create_event_keyboard(event_id, notifications_enabled, include_unregister_button)
     send_message_to_telegram(telegram_id, message, reply_markup=reply_markup)
+
+async def _send_telegram_message(chat_id: str, text: str) -> None:
+    """
+    Асинхронно отправляет сообщение в Telegram
+    """
+    bot_token = settings.ACTIVE_TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        raise ValueError("ACTIVE_TELEGRAM_BOT_TOKEN не установлен")
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json={
+            'chat_id': chat_id,
+            'text': text,
+            'parse_mode': 'HTML'
+        }) as response:
+            if response.status != 200:
+                response_text = await response.text()
+                raise Exception(f"Ошибка отправки сообщения в Telegram: {response_text}")
+
+def send_password_to_user(telegram_id: str, password: str) -> None:
+    """
+    Отправляет пароль пользователю через Telegram
+    """
+    message = (
+        "🔐 <b>Ваши данные для входа на сайт:</b>\n\n"
+        f"Пароль: <code>{password}</code>\n\n"
+        "Пожалуйста, сохраните эти данные в надежном месте."
+    )
+    
+    # Используем синхронную функцию отправки сообщения вместо асинхронной
+    send_message_to_telegram(telegram_id, message)
