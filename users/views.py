@@ -85,11 +85,16 @@ def login_view(request):
         if user:
             auth_login(request, user)
             request.session['login_method'] = 'Через логин и пароль'
+            # Перенаправляем на next URL если он есть, иначе на главную
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
             return redirect('main:index')
         else:
             messages.error(request, "Неверный логин или пароль.")
     context = {
-        'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
+        'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME,
+        'next': request.GET.get('next', '')
     }
     return render(request, 'users/login.html', context)
 
@@ -275,6 +280,7 @@ def telegram_login_callback(request):
             
             # Telegram виджет может отправить id в разных форматах
             telegram_id = str(data.get('id') or data.get('telegram_id'))
+            next_url = data.get('next')
             
             if not telegram_id:
                 logger.error("Telegram ID отсутствует в данных")
@@ -298,7 +304,9 @@ def telegram_login_callback(request):
             auth_login(request, authenticated_user)
             request.session['login_method'] = 'Через Telegram'
             
-            return JsonResponse({'success': True, 'redirect_url': reverse('main:index')})
+            # Перенаправляем на next URL если он есть, иначе на главную
+            redirect_url = next_url if next_url else reverse('main:index')
+            return JsonResponse({'success': True, 'redirect_url': redirect_url})
             
         except json.JSONDecodeError as e:
             logger.error(f"Ошибка декодирования JSON: {str(e)}")

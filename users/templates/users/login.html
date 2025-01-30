@@ -76,6 +76,9 @@
             <label for="password" class="form-label">Пароль</label>
             <input type="password" class="form-control" id="password" name="password" placeholder="Введите ваш пароль">
         </div>
+        {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
         <button type="submit" class="btn btn-primary w-100">Войти</button>
     </form>
 
@@ -107,6 +110,10 @@ function getCookie(name) {
 
 function onTelegramAuth(user) {
     console.log('Telegram auth data:', user);
+    // Получаем параметр next из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const nextUrl = urlParams.get('next');
+
     fetch('/users/telegram-auth/', {
         method: 'POST',
         headers: {
@@ -114,7 +121,8 @@ function onTelegramAuth(user) {
             'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({
-            telegram_id: user.id.toString()
+            telegram_id: user.id.toString(),
+            next: nextUrl
         })
     })
     .then(response => {
