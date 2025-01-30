@@ -12,22 +12,35 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
-
-from .forms import RegistrationForm
-from .models import Department, AdminRightRequest
-from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
-from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from aiogram import types
+from django.utils import timezone
+from django.db import transaction
+from django.conf import settings
+from transliterate import translit
 from asgiref.sync import async_to_sync
 from bot.main import handle_webhook
+
+from .forms import RegistrationForm
+from .models import Department, AdminRightRequest, TelegramAuthToken
+from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
+from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
 DEV_BOT_NAME = os.getenv('DEV_BOT_NAME')
 BOT_NAME = os.getenv('BOT_NAME')
+
+def transliterate_to_eng(text):
+    """
+    Транслитерация текста с русского на английский
+    """
+    return translit(text, 'ru', reversed=True).lower().replace(' ', '')
+
+def generate_random_password():
+    """
+    Генерация случайного пароля
+    """
+    return get_random_string(12)
 
 def home(request):
     return render(request, 'users/home.html')
@@ -60,7 +73,7 @@ def register(request):
 
     context = {
         'form': form,
-        'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else 'EventsSGUbot',
+        'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME,
     }
     return render(request, 'users/register.html', context)
 
@@ -81,19 +94,75 @@ def login_view(request):
     return render(request, 'users/login.html', context)
 
 @csrf_exempt
-def telegram_auth(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        telegram_id = data.get('telegram_id')
-        user = User.objects.filter(telegram_id=telegram_id).first()
-        if user:
-            auth_login(request, user)
-            request.session['login_method'] = 'Через Telegram'
-            return JsonResponse({'success': True, 'redirect_url': '/'})
-        else:
-            return JsonResponse({'success': False, 'error': 'У вас нет учетной записи.\nПожалуйста, пройдите регистрацию.', 'redirect_url': '/users/register'})
-    else:
-        return JsonResponse({'success': False, 'error': 'Invalid request'})
+def telegram_auth(request, token):
+    """
+    Обработка авторизации через Telegram
+    """
+    try:
+        with transaction.atomic():
+            auth_token = TelegramAuthToken.objects.select_for_update().get(token=token)
+            
+            # Если токен уже использован, просто показываем страницу входа
+            if auth_token.is_used:
+                return render(request, 'users/telegram_login.html', {
+                    'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
+                })
+            
+            if not auth_token.is_valid():
+                logger.warning(f"Токен недействителен: is_used={auth_token.is_used}, expires_at={auth_token.expires_at}")
+                return render(request, 'users/telegram_login.html', {
+                    'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
+                })
+
+            # Создаем отдел если не существует
+            department, _ = Department.objects.get_or_create(
+                department_id=auth_token.department_id,
+                defaults={'department_name': f'Отдел {auth_token.department_id}'}
+            )
+            
+            # Генерируем пароль до создания пользователя
+            password = get_random_string(8)
+            
+            # Создаем пользователя используя CustomUserManager
+            user_kwargs = {
+                'first_name': auth_token.first_name,
+                'last_name': auth_token.last_name,
+                'middle_name': auth_token.middle_name,
+                'department': department,
+                'telegram_id': auth_token.telegram_id,
+                'password': password
+            }
+            
+            user = User.objects.create_user(**user_kwargs)
+            logger.info(f"Создан новый пользователь: {user.username}")
+            
+            # Отправляем данные для входа в Telegram
+            try:
+                send_registration_details_sync(auth_token.telegram_id, user.username, password)
+                logger.info(f"Данные для входа отправлены пользователю {user.username}")
+            except Exception as e:
+                logger.error(f"Ошибка при отправке данных для входа: {str(e)}")
+            
+            # Помечаем токен как использованный
+            auth_token.is_used = True
+            auth_token.save()
+            logger.info(f"Токен помечен как использованный")
+            
+            # После успешной регистрации показываем страницу входа
+            return render(request, 'users/telegram_login.html', {
+                'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
+            })
+            
+    except TelegramAuthToken.DoesNotExist:
+        logger.error(f"Токен не найден в базе: {token}")
+        return render(request, 'users/telegram_login.html', {
+            'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
+        })
+    except Exception as e:
+        logger.error(f"Ошибка при авторизации: {str(e)}")
+        return render(request, 'users/telegram_login.html', {
+            'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
+        })
 
 @csrf_exempt
 @login_required
@@ -102,10 +171,15 @@ def change_password(request):
         new_password = get_random_string(8)
         request.user.set_password(new_password)
         request.user.save()
-        send_password_change_details_sync(request.user.telegram_id, request.user.username, new_password)
-        logger.info("Password changed, logging out user and redirecting to login page")
-        logout(request)
-        return JsonResponse({'success': True, 'message': 'Пароль успешно изменен. Новый пароль отправлен в Telegram.'})
+        
+        try:
+            send_password_change_details_sync(request.user.telegram_id, request.user.username, new_password)
+            logger.info(f"Новый пароль отправлен пользователю {request.user.username}")
+            logout(request)
+            return JsonResponse({'success': True, 'message': 'Пароль успешно изменен. Новый пароль отправлен в Telegram.'})
+        except Exception as e:
+            logger.error(f"Ошибка при отправке нового пароля: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Ошибка при отправке пароля в Telegram.'})
     else:
         logger.error("Failed to change password: Access denied or missing telegram_id")
         return JsonResponse({'success': False, 'error': 'Access denied.'})
@@ -118,25 +192,44 @@ def request_admin_rights(request):
             # Проверяем, есть ли уже активный запрос от этого пользователя
             existing_request = AdminRightRequest.objects.filter(user=request.user, status='pending').first()
             if existing_request:
+                logger.info(f"Найден существующий запрос от пользователя {request.user.username}")
                 return JsonResponse({'success': False, 'message': 'Ваш запрос на админские права уже рассматривается.'})
 
             data = json.loads(request.body)
             justification = data.get('reason', '')
             user_full_name = f"{request.user.last_name} {request.user.first_name} {' ' + request.user.middle_name if request.user.middle_name else ''}".strip()
             message = f"Запрос на админские права от {user_full_name}: {justification}"
+            
+            logger.info(f"Подготовлено сообщение для отправки: {message}")
 
             # Создание новой записи запроса на админские права
             new_request = AdminRightRequest(user=request.user, reason=justification)
             new_request.save()
+            logger.info(f"Создан новый запрос на админские права в базе данных")
 
             # Отправка сообщения в чат поддержки
-            send_message_to_support_chat(message)
+            try:
+                logger.info(f"Попытка отправки сообщения в чат поддержки. Chat ID: {settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID}")
+                send_message_to_support_chat(message)
+                logger.info("Сообщение успешно отправлено в чат поддержки")
+            except Exception as e:
+                logger.error(f"Ошибка при отправке сообщения в чат поддержки: {str(e)}")
+
             # Уведомление пользователя о том, что запрос отправлен
-            send_confirmation_to_user(request.user.telegram_id)
+            try:
+                logger.info(f"Попытка отправки подтверждения пользователю. Telegram ID: {request.user.telegram_id}")
+                send_confirmation_to_user(request.user.telegram_id)
+                logger.info("Подтверждение успешно отправлено пользователю")
+            except Exception as e:
+                logger.error(f"Ошибка при отправке подтверждения пользователю: {str(e)}")
 
             return JsonResponse({'success': True, 'message': 'Запрос на админские права отправлен в чат поддержки и зарегистрирован в системе.'})
         except json.JSONDecodeError:
+            logger.error("Ошибка при декодировании JSON из запроса")
             return JsonResponse({'success': False, 'error': 'Ошибка в формате данных.'})
+        except Exception as e:
+            logger.error(f"Неожиданная ошибка при обработке запроса: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Произошла ошибка при обработке запроса.'})
     return JsonResponse({'success': False, 'error': 'Недопустимый запрос.'})
 
 @login_required
@@ -156,6 +249,62 @@ def general(request):
 
 @csrf_exempt
 def telegram_webhook(request):
+    """
+    Обработчик вебхука от Telegram
+    """
     if request.method == 'POST':
-        return async_to_sync(handle_webhook)(request)  # Используем async_to_sync для вызова асинхронной функции
+        try:
+            logger.info("Получен вебхук от Telegram")
+            response = async_to_sync(handle_webhook)(request)
+            logger.info("Вебхук успешно обработан")
+            return response
+        except Exception as e:
+            logger.error(f"Ошибка при обработке вебхука: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def telegram_login_callback(request):
+    """
+    Обработка входа через Telegram после нажатия на виджет
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            logger.info(f"Получены данные от виджета Telegram: {data}")
+            
+            # Telegram виджет может отправить id в разных форматах
+            telegram_id = str(data.get('id') or data.get('telegram_id'))
+            
+            if not telegram_id:
+                logger.error("Telegram ID отсутствует в данных")
+                return JsonResponse({'success': False, 'error': 'Не указан Telegram ID'})
+            
+            logger.info(f"Поиск пользователя с telegram_id: {telegram_id}")
+            user = User.objects.filter(telegram_id=telegram_id).first()
+            
+            if not user:
+                logger.error(f"Пользователь с telegram_id {telegram_id} не найден")
+                return JsonResponse({'success': False, 'error': 'Пользователь не найден'})
+            
+            logger.info(f"Пользователь найден: {user.username}")
+            
+            # Используем authenticate для проверки пользователя
+            authenticated_user = authenticate(request, telegram_id=telegram_id)
+            if authenticated_user is None:
+                logger.error(f"Ошибка аутентификации пользователя с telegram_id {telegram_id}")
+                return JsonResponse({'success': False, 'error': 'Ошибка аутентификации'})
+            
+            auth_login(request, authenticated_user)
+            request.session['login_method'] = 'Через Telegram'
+            
+            return JsonResponse({'success': True, 'redirect_url': reverse('main:index')})
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"Ошибка декодирования JSON: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Неверный формат данных'})
+        except Exception as e:
+            logger.error(f"Ошибка при входе через Telegram: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Произошла ошибка при входе'})
+    
+    return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})

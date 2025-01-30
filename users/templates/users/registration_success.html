@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Регистрация успешна</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
+    <script src="https://telegram.org/js/telegram-widget.js?22"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        .success-message {
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        .telegram-login {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Регистрация успешна!</h2>
+        
+        <div class="success-message">
+            Регистрация успешно завершена! Данные для входа отправлены вам в Telegram.
+        </div>
+        
+        <div class="telegram-login">
+            <script async src="https://telegram.org/js/telegram-widget.js?22"
+                    data-telegram-login="{{ telegram_bot_username }}"
+                    data-size="large"
+                    data-radius="10"
+                    data-onauth="onTelegramAuth(user)"
+                    data-request-access="write">
+            </script>
+        </div>
+        
+        <p class="mt-3">
+            Нажмите на кнопку выше, чтобы войти через Telegram.
+            После входа вы будете автоматически перенаправлены на главную страницу.
+        </p>
+    </div>
+
+    <script>
+        function onTelegramAuth(user) {
+            console.log('Telegram auth data:', user);  // Логируем данные для отладки
+            fetch('/users/telegram-auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    id: user.id,
+                    first_name: user.first_name,
+                    username: user.username,
+                    photo_url: user.photo_url,
+                    auth_date: user.auth_date,
+                    hash: user.hash
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);  // Логируем статус ответа
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);  // Логируем данные ответа
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(data.error || 'Произошла ошибка при входе');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при входе');
+            });
+        }
+    </script>
+</body>
+</html> 
