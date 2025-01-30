@@ -94,7 +94,7 @@ class Events_offline(models.Model):
     street = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Улица')
     house = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Дом')
     cabinet = models.CharField(max_length=50, unique=False, blank=True, null=True, verbose_name='Кабинет')
-    link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка')
+    link = models.URLField(unique=False, blank=False, null=False, verbose_name='Ссылка на чат пользователей')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
     events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_offline', verbose_name="Администратор")

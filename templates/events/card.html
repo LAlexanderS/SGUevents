@@ -178,6 +178,11 @@
                                                         {% endfor %}
                                                     </p>
                                                 {% endif %}
+                                               
+
+                                                {% if event.category == "Оффлайн" %}
+                                                    <p><a href="{{event.link}}">Тг чат</a></p> 
+                                                {% endif %}
 
 												<p class="card-text">
 													<small class="text-muted"
