@@ -7,14 +7,31 @@
 {% block content %}
 <div class="container mt-5">
     <h1>Отправка сообщения участникам</h1>
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            {{ form.event_type.label_tag }}<br>
-            {{ form.event_type }}
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
         </div>
-        <div class="form-group">
-            {{ form.event.label_tag }}<br>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" id="messageForm">
+        {% csrf_token %}
+        
+        <div class="form-group mb-3">
+            {{ form.event_type.label_tag }}
+            <select name="event_type" id="id_event_type" class="form-control">
+                {% for value, text in form.event_type.field.choices %}
+                    <option value="{{ value }}">{{ text }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group mb-3">
+            {{ form.event.label_tag }}
             <select name="event" id="id_event" class="form-control">
                 <option value="">---------</option>
                 {% for event in form.event.field.queryset %}
@@ -22,13 +39,73 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="form-group">
-            {{ form.message.label_tag }}<br>
-            {{ form.message }}
+
+        <div class="form-group mb-3">
+            {{ form.message.label_tag }}
+            <textarea name="message" id="id_message" class="form-control" rows="4"></textarea>
         </div>
+
+        <div class="form-group mb-3">
+            <div class="form-check">
+                {{ form.send_to_all }}
+                {{ form.send_to_all.label_tag }}
+            </div>
+        </div>
+
+        <div class="form-group mb-3" id="userSelectGroup" style="display: none;">
+            {{ form.selected_users.label_tag }}
+            {{ form.selected_users }}
+        </div>
+
         <button type="submit" class="btn btn-primary">Отправить сообщение</button>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sendToAllCheckbox = document.getElementById('id_send_to_all');
+    const userSelectGroup = document.getElementById('userSelectGroup');
+    const eventSelect = document.getElementById('id_event');
+    const eventTypeSelect = document.getElementById('id_event_type');
+    const selectedUsersSelect = document.getElementById('id_selected_users');
+
+    // Функция для обновления списка пользователей
+    function updateUsersList() {
+        if (eventSelect.value) {
+            fetch(`/bookmarks/get_event_participants/?event_id=${eventSelect.value}&event_type=${eventTypeSelect.value}`)
+                .then(response => response.json())
+                .then(data => {
+                    selectedUsersSelect.innerHTML = '';
+                    data.forEach(user => {
+                        const option = new Option(user.name, user.id);
+                        selectedUsersSelect.add(option);
+                    });
+                });
+        }
+    }
+
+    // Обработчик изменения чекбокса "Отправить всем"
+    sendToAllCheckbox.addEventListener('change', function() {
+        userSelectGroup.style.display = this.checked ? 'none' : 'block';
+        selectedUsersSelect.style.display = this.checked ? 'none' : 'block';
+    });
+
+    // Обработчик изменения выбранного мероприятия
+    eventSelect.addEventListener('change', updateUsersList);
+    
+    // Обработчик изменения типа мероприятия
+    eventTypeSelect.addEventListener('change', function() {
+        eventSelect.value = '';
+        selectedUsersSelect.innerHTML = '';
+    });
+
+    // Инициализация при загрузке страницы
+    if (!sendToAllCheckbox.checked) {
+        userSelectGroup.style.display = 'block';
+        selectedUsersSelect.style.display = 'block';
+    }
+});
+</script>
 {% endblock content %}
 
 

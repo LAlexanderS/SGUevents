@@ -23,4 +23,6 @@ urlpatterns = [
     path('send_message/', send_message_to_participants, name='send_message_to_participants'),
     path('get-event-choices/', get_event_choices, name='get_event_choices'),
     path('submit_review/<int:event_id>/', views.submit_review, name='submit_review'),
+    path('send_message_to_participants/', views.send_message_to_participants, name='send_message_to_participants'),
+    path('get_event_participants/', views.get_event_participants, name='get_event_participants'),
 ]

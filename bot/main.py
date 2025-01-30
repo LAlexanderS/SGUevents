@@ -49,10 +49,10 @@ WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 logger.info(f"Настройки вебхука: HOST={WEBHOOK_HOST}, PATH={WEBHOOK_PATH}, URL={WEBHOOK_URL}")
 
 # В начале файла после импортов
-print(f"Loading settings: DJANGO_ENV={settings.DJANGO_ENV}")
-print(f"DEV_SUPPORT_CHAT_ID={settings.DEV_SUPPORT_CHAT_ID}")
-print(f"SUPPORT_CHAT_ID={settings.SUPPORT_CHAT_ID}")
-print(f"ACTIVE_TELEGRAM_SUPPORT_CHAT_ID={settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID}")
+# print(f"Loading settings: DJANGO_ENV={settings.DJANGO_ENV}")
+# print(f"DEV_SUPPORT_CHAT_ID={settings.DEV_SUPPORT_CHAT_ID}")
+# print(f"SUPPORT_CHAT_ID={settings.SUPPORT_CHAT_ID}")
+# print(f"ACTIVE_TELEGRAM_SUPPORT_CHAT_ID={settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID}")
 
 class SupportRequestForm(StatesGroup):
     waiting_for_question = State()
@@ -279,7 +279,6 @@ async def receive_question(message: types.Message, state: FSMContext):
 
 def send_message_to_support_chat(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    # Добавим проверку типа
     chat_id = str(SUPPORT_CHAT_ID)
     if not chat_id.startswith('-'):
         chat_id = f"-{chat_id}"
@@ -292,14 +291,9 @@ def send_message_to_support_chat(text):
     headers = {
         'Content-Type': 'application/json'
     }
-    print(f"Trying to send message to support chat {chat_id}")
-    print(f"Using bot token: {TOKEN[:5]}...")  # Печатаем только первые 5 символов токена для безопасности
     response = requests.post(url, json=payload, headers=headers)
     if response.status_code != 200:
-        print(f"Failed to send message: {response.status_code}, {response.text}")
-        print(f"Payload was: {payload}")
-    else:
-        print(f"Successfully sent message to support chat")
+        logger.error(f"Failed to send message to support chat: {response.status_code}")
 
 # Обработчики callback_query
 @router.callback_query(F.data.startswith("toggle_"))
