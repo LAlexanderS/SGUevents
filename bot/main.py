@@ -48,6 +48,12 @@ WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 logger.info(f"Настройки вебхука: HOST={WEBHOOK_HOST}, PATH={WEBHOOK_PATH}, URL={WEBHOOK_URL}")
 
+# В начале файла после импортов
+print(f"Loading settings: DJANGO_ENV={settings.DJANGO_ENV}")
+print(f"DEV_SUPPORT_CHAT_ID={settings.DEV_SUPPORT_CHAT_ID}")
+print(f"SUPPORT_CHAT_ID={settings.SUPPORT_CHAT_ID}")
+print(f"ACTIVE_TELEGRAM_SUPPORT_CHAT_ID={settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID}")
+
 class SupportRequestForm(StatesGroup):
     waiting_for_question = State()
 
@@ -258,9 +264,10 @@ async def receive_question(message: types.Message, state: FSMContext):
             question=message.text
         )
 
-        # Формируем сообщение с проверкой VIP статуса
+        # Формируем сообщение с проверкой VIP статуса и HTML разметкой
         vip_emoji = "\U0001F451 " if user.vip else ""
-        support_message = f"Новый вопрос от пользователя {vip_emoji}{user.first_name} {user.last_name}:\n\n{message.text}"
+        user_link = f'<a href="tg://user?id={user.telegram_id}">{user.first_name} {user.last_name}</a>'
+        support_message = f"Новый вопрос от пользователя {vip_emoji}{user_link}:\n\n<pre>{message.text}</pre>"
 
         # Отправляем сообщение в чат поддержки
         send_message_to_support_chat(support_message)
@@ -272,16 +279,27 @@ async def receive_question(message: types.Message, state: FSMContext):
 
 def send_message_to_support_chat(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    # Добавим проверку типа
+    chat_id = str(SUPPORT_CHAT_ID)
+    if not chat_id.startswith('-'):
+        chat_id = f"-{chat_id}"
+    
     payload = {
-        'chat_id': SUPPORT_CHAT_ID,
-        'text': text
+        'chat_id': chat_id,
+        'text': text,
+        'parse_mode': 'HTML'
     }
     headers = {
         'Content-Type': 'application/json'
     }
+    print(f"Trying to send message to support chat {chat_id}")
+    print(f"Using bot token: {TOKEN[:5]}...")  # Печатаем только первые 5 символов токена для безопасности
     response = requests.post(url, json=payload, headers=headers)
     if response.status_code != 200:
         print(f"Failed to send message: {response.status_code}, {response.text}")
+        print(f"Payload was: {payload}")
+    else:
+        print(f"Successfully sent message to support chat")
 
 # Обработчики callback_query
 @router.callback_query(F.data.startswith("toggle_"))
