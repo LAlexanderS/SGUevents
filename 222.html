@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница мероприятия</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+        integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="static/css/styles.css">
+    <link rel="stylesheet" href="static/css/card.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+    <script src="https://hammerjs.github.io/dist/hammer.js"></script>
+
+
+</head>
+
+<body style="background-image: url(background2.jpg);">
+    <header>
+        <nav class="navbar navbar-expand-lg bg-dark text-white">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" href='index.html'>Home</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Доступные мероприятия
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="example.html">Онлайн
+                                        мероприятия</a></li>
+                                <li><a class="dropdown-item" href="#">Оффлайн
+                                        мероприятия</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Культурные мероприятия
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Достопримечательности</a></li>
+
+                                <li><a class="dropdown-item" href="#">Доступные к посещению</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" aria-current="page" href="#">Календарь мероприятий</a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false"> Мой профиль </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item text-black" href="personal_account.html">Личный
+                                        кабинет</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-black" href='#'>Зарегистрированные</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-black" href="#">Избранные</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-black" href="#">Посещенные</a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider" />
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">Выйти</a>
+                                </li>
+                            </ul>
+                        </li>
+
+
+                    </ul>
+                    <form class="d-flex" role="search" action="#" events_available:search_online" %}{% elif
+                        name_page=='Оффлайн' %}{% url "events_available:search_offline" %}{% elif
+                        name_page=='Доступные к посещению' %}{% url "events_cultural:search_events_for_visiting" %}{%
+                        elif name_page=='Достопримечательности' %}{% url "events_cultural:search_attractions" %}{% elif
+                        name_page=='Все мероприятия' %}{% url "main:search_all" %}{% endif %}" method="get">
+                        <input class="form-control me-2" type="search" name="q" placeholder="Поиск" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">
+                            <img src="static/general/icons/search.svg"
+                                style="height: 20px; width: 20px; margin-top: 0;">
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main class="row">
+        <div class="col-lg-1 left-column"></div>
+        <div class="col-lg-10 feed" style="padding: 0; text-indent: 0;">
+            <section class="event-page-section" style="width: 100%;">
+                <a href="index.html" class="to-main">
+                    <img src="static/general/icons/home.png" alt="" class="large-to-main-arrow">
+                    <img src="static/general/icons/arrow-left(1).png" alt="" class="small-to-main-arrow">
+                </a>
+                <div class="event-page-image" style="padding: 0; text-indent: 0;">
+                    <img class="img-desktop" src="static/online_event_header.png" alt="" style="width: 100%;">
+                    <img class="img-mobile" src="static/online_event_header_mobile.png" alt="" style="width: 100%;">
+                </div>
+                <h1>FINOPOLIS 2024 пройдет в Сочи</h1>
+                <div class="main-image-mobile" style="text-align: center; text-indent: 0;">
+                    <a href="#" class="add-to-cart-big to-cart-big-2" data-event-slug=""
+                        style="box-shadow: none; border: none; ">
+                        <img class="heart-icon" src="static/general/icons/heart_blue.svg" alt="Catalog Icon"
+                            style="height: 20px; box-shadow: none; border-radius: 0;">
+                    </a>
+                    <img src="static/finopolis_preview.jpg" alt="">
+                </div>
+                <div class="row mt-3" style="margin-bottom: 0; height: 100%; margin-top: 0;">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-10" style="padding-inline: 0;">
+                        <div class="row mb-3 mob-row">
+                            <div class="col-lg-6 about-event" style="text-indent: 0;">
+                                <h2 class="what-awaits-header">Что вас ждет</h2>
+                                <div class="text-container">
+                                    <!-- Текст будет добавлен динамически -->
+                                </div>
+                                <div class="button-container">
+                                    <button class="prev-btn"><img src="static/general/icons/arrow-left(1).png"
+                                            alt=""></button>
+                                    <div style="display: flex; vertical-align: middle;">
+                                        <div class="indicators"></div>
+                                    </div>
+                                    <button class="next-btn"><img src="static/general/icons/arrow-right(1).png"
+                                            alt=""></button>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <a href="#" class="add-to-cart-big to-cart-big-1" data-event-slug="">
+                                    <img class="mx-1 heart-icon" src="static/general/icons/heart_blue.svg"
+                                        alt="Catalog Icon" width="32" height="32">
+                                </a>
+                                <div class="main-image">
+                                    <img src="static/finopolis_preview.jpg" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1 right-column" style="padding: 0;"></div>
+                        <div class="blocks">
+                            <div class="info-block speaker">
+                                <div class="title">Спикер</div>
+                                <div class="info-content">
+                                    <label for="speaker">Лобанова Стефания Даниловна</label>
+                                </div>
+                            </div>
+                            <div class="info-block date-time">
+                                <div class="title">Дата проведения</div>
+                                <div class="info-content">
+                                    <label for="date">8 января 2024</label> <br>
+                                    <label for="time">1:00 - 16:00</label>
+                                </div>
+                            </div>
+                            <div class="info-block connection">
+                                <div class="title">Подключение</div>
+                                <div class="info-content">
+                                    <label><a href="" class="connection-link">Ссылка для подключения</a></label>
+                                    <label><a href="" class="connection-link open-modal"
+                                            id="openModal">QR-код</a></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mobile-blocks" style="width: 100%; padding-left: 22px;">
+                            <div class="col-lg-1"></div>
+                            <div class="col-lg-10">
+                                <table>
+                                    <tr>
+                                        <td><img class="info-icon" src="static/general/icons/speaker.png" alt=""></td>
+                                        <td><img class="info-icon" src="static/general/icons/datetime.png" alt=""></td>
+                                        <td><img class="info-icon" src="static/general/icons/link.png" alt=""></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="info-title">Спикер</div>
+                                        </td>
+                                        <td style="padding-inline: 0;">
+                                            <div class="info-title">Дата и время</div>
+                                        </td>
+                                        <td>
+                                            <div class="info-title">Подключение</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-cell"><label for="speaker">Лобанова Стефания Даниловна</label>
+                                        </td>
+                                        <td class="info-cell"><label for="date">8 января 2024</label> <br>
+                                            <label for="time">1:00 - 16:00</label>
+                                        </td>
+                                        <td class="info-cell"><a href="" class="connection-link">Ссылка для
+                                                подключения</a>
+                                            <label><a href="" class="connection-link open-modal"
+                                                    id="openModal2">QR-код</a></label>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-lg-1"></div>
+                        </div>
+                        <div class="event-hashtags">
+                            <div class="hashtags"
+                                style="text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 500; text-indent: 0;">
+                                <span>#САДД</span>
+                            </div>
+                        </div>
+                        <h2 class="gallery">фотогалерея</h2>
+                        <div class="slide-container">
+                            <div class="slide active"> <!-- Добавили класс active -->
+                                <img src='static/finopolis_preview.jpg' alt=''>
+                            </div>
+                            <div class="slide ">
+                                <img src='static/finopolis_png1.png' alt=''>
+                            </div>
+                            <div class="slide ">
+                                <img src='static/monetary_conditions.jpg' alt=''>
+                            </div>
+                            <div class="prev" title="Previous"><img src="static/general/icons/arrow-left(1).png" alt="">
+                            </div>
+                            <div class="next" title="Next"><img src="static/general/icons/arrow-right(1).png" alt="">
+                            </div>
+                        </div>
+                        <div class="dots-container" style="opacity: 0;">
+                            <span class="dot active"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                        <h2 class="comment-title">что о нас говорят</h2>
+                        <div class="half-stars">
+                            <div class="rating-group">
+                                <!-- по умолчанию 0 -->
+                                <input disabled checked name="hsr" value="0" type="radio">
+
+                                <!-- рейтинг 0.5 -->
+                                <label class="hsr" for="hsr-05">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-05" value="0.5" type="radio">
+
+                                <!-- рейтинг 1 -->
+                                <label for="hsr-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-10" value="1" type="radio">
+
+                                <!-- рейтинг 1.5 -->
+                                <label class="hsr" for="hsr-15">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-15" value="1.5" type="radio">
+
+                                <!-- рейтинг 2 -->
+                                <label for="hsr-20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-20" value="2" type="radio">
+
+                                <!-- рейтинг 2.5 -->
+                                <label class="hsr" for="hsr-25">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-25" value="2.5" type="radio">
+
+                                <!-- рейтинг 3 -->
+                                <label for="hsr-30">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-30" value="3" type="radio">
+
+                                <!-- рейтинг 3.5 -->
+                                <label class="hsr" for="hsr-35">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-35" value="3.5" type="radio">
+
+                                <!-- рейтинг 4 -->
+                                <label for="hsr-40">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-40" value="4" type="radio">
+
+                                <!-- рейтинг 4.5 -->
+                                <label class="hsr" for="hsr-45">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-45" value="4.5" type="radio">
+
+                                <!-- рейтинг 5 -->
+                                <label for="hsr-50">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                        <path
+                                            d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                    </svg>
+                                </label>
+                                <input disabled name="hsr" id="hsr-50" value="5" type="radio">
+                            </div>
+                        </div>
+                        <div class="review-container review-container-large" style="text-indent: 0;">
+                            <div class="items">
+                                <div class="item item1">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                первый отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item2">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                второй отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item3">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                третий отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item4">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote">
+                                                <img src="static/general/icons/quotes.png" alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                четвертый отзыв
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item5">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                пятый отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item6">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                шестой отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item7">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                седьмой отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item8">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                восьмой отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item9">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                девятый отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item item10">
+                                    <div class="review">
+                                        <div class="col-lg-4 user-info">
+                                            <div class="user-icon">
+                                                <img src="static/general/icons/profile-image-default.png" alt="">
+                                            </div>
+                                            <div class="username">username</div>
+                                            <div class="full-stars-com">
+                                                <div class="rating-group-com">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="fst" value="0" type="radio" disabled checked />
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="fst-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="fst-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="fst-3">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="fst-4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="fst-5">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input name="fst" id="fst-5" value="5" type="radio" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 review-block">
+                                            <div class="col-lg-1 quote"><img src="static/general/icons/quotes.png"
+                                                    alt="">
+                                            </div>
+                                            <div class="col-lg-11 review-text"
+                                                style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
+                                                десятый отзыв</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="prev-reviews" title="Previous"><img src="static/general/icons/arrow-left(1).png"
+                                    alt=""></div>
+                            <div class="next-reviews" title="Next"><img src="static/general/icons/arrow-right(1).png"
+                                    alt=""></div>
+                        </div>
+                        <div class="comments-mobile">
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+                            <div class="review-container-mobile">
+                                <div class="user-info-mobile">
+                                    <div class="user-icon-mobile"><img
+                                            src="static/general/icons/profile-image-default.png" alt=""></div>
+                                    <div class="username-mobile">username</div>
+                                    <div class="full-stars-com">
+                                        <div class="rating-group-com">
+                                            <!-- по умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="review-content-mobile">
+                                    <div class="review-text review-text-mobile">текст отзыва Lorem ipsum dolor sit amet
+                                        consectetur adipisicing elit.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; text-indent: 0;" class="docs">
+                            <img src="static/general/icons/paperclip.png" alt="" style="max-height: 30px; width: auto;"
+                                class="paperclip"><a class="docs-link" href="static/lending_pace.jpeg" target="_blank"
+                                download>Документы</a>
+                        </div>
+
+                        <div style="text-align: center; text-indent: 0;" class="docs">
+                            <img src="static/general/icons/tg-link.png" alt="" style="max-height: 30px; width: auto;"
+                                class="paperclip"><a class="telegram-link" href="" target="_blank" download>Чат в
+                                telegram</a>
+                        </div>
+
+                        <div class="row mob-row">
+                            <div class="col-lg-3 buttons-3"></div>
+                            <div class="col-lg-6 main-buttons">
+                                <div class="row">
+                                    <div class="col-lg-6 main-button" style="text-align: center;">
+                                        <button class="btn btn-sent_app card-button"> Отправить заявку</button>
+                                        <button class="btn btn-remove_app card-button hidden"> Отмена
+                                            регистрации</button>
+                                    </div>
+                                    <div class="col-lg-6 main-button" style="text-align: center;">
+                                        <button class="btn btn-comment card-button"> Оставить отзыв</button>
+                                    </div>
+                                    <div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
+                                            class="btn btn-secondary"
+                                            style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
+                                                src="static/general/icons/admin2(1).png" alt=""
+                                                style="max-height: 30px; width: auto;">Связь с администратором</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 buttons-3"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1"></div>
+                </div>
+        </div>
+        </section>
+        <div class="modal" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-modal="true"
+            role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="commentModalLabel">Оставить отзыв</h5>
+                        <button type="button" class="button-close" data-bs-dismiss="modal" aria-label="Close">
+                            <img src="static/general/icons/close-button.png" alt="">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="commentForm">
+                            <input type="hidden" id="eventId" name="event_id" value="7">
+                            <input type="hidden" id="modelType" name="model_type" value="online">
+
+                            <!-- Контейнер для оценки и звезд -->
+                            <div style="text-indent: 0;">
+                                <div class="rating-container">
+                                    <label for="commentText" class="form-label"
+                                        style="text-indent: 0; margin-right: 10px;">Оценка:</label>
+                                    <div class="full-stars">
+                                        <div class="rating-group">
+                                            <!-- По умолчанию 0 -->
+                                            <input name="fst" value="0" type="radio" disabled checked />
+
+                                            <!-- Рейтинг 1 -->
+                                            <label for="fst-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-1" value="1" type="radio" />
+
+                                            <!-- Рейтинг 2 -->
+                                            <label for="fst-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-2" value="2" type="radio" />
+
+                                            <!-- Рейтинг 3 -->
+                                            <label for="fst-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-3" value="3" type="radio" />
+
+                                            <!-- Рейтинг 4 -->
+                                            <label for="fst-4">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-4" value="4" type="radio" />
+
+                                            <!-- Рейтинг 5 -->
+                                            <label for="fst-5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                    <path
+                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                </svg>
+                                            </label>
+                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Поле для отзыва -->
+                            <div class="mb-3" style="text-indent: 0;">
+                                <label for="commentText" class="form-label" style="text-indent: 0;">Ваш отзыв:</label>
+                                <textarea class="form-control" id="commentText" name="comment" rows="3"></textarea>
+                            </div>
+
+                            <!-- Кнопка отправки -->
+                            <button type="submit" class="btn btn-outline-success">Отправить</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-qr" class="modal">
+            <div class="modal-content-photo" style="text-indent: 0;">
+                <span id="closeModal" class="close">&times;</span>
+                <img src="static/qr-code.png" alt="QR-код" style="max-width: 300px; height: auto;">
+            </div>
+        </div>
+
+    </main>
+
+    <script src="static/js/rating_script.js"></script>
+
+    <script src="static/js/create_comment.js"></script>
+
+    <script src="static/js/qr_modal_script.js"></script>
+
+    <script src="static/js/comment_slide_script.js"></script>
+
+    <script src="static/js/sent_remove_script.js"></script>
+
+    <script src="static/js/page_indicator_script.js"></script>
+
+    <script src="static/js/gallery_slider_script.js"></script>
+
+    <script src="static/js/review_slider_script.js"></script>
+
+</body>
+
+</html>
