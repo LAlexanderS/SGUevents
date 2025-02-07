@@ -122,10 +122,24 @@
             <div class="col-lg-1 left-column"></div>
             <div class="col-lg-10 feed" style="padding: 0; text-indent: 0;">
                 <section class="event-page-section" style="width: 100%;">
-                    <a href="index.html" class="to-main">
+                    <a href="javascript:void(0);" onclick="goBack()" class="to-main">
                         <img src="{% static "icons/back_home.png" %}" alt="" class="large-to-main-arrow">
                         <img src="{% static "icons/arrow-left.png" %}" alt="" class="small-to-main-arrow">
                     </a>
+                    <script>
+                        function goBack() {
+                            const referrer = document.referrer; // Получаем URL предыдущей страницы
+                            
+                            if (referrer && referrer !== window.location.href) {
+                                // Если есть реферер и он не равен текущему URL, возвращаемся назад
+                                window.history.back();
+                            } else {
+                                // Если реферер пуст или равен текущему URL, переходим на главную страницу
+                                window.location.href = "{% url 'main:index' %}";
+                            }
+                        }
+                    </script>
+                    
                     <div class="event-page-image" style="padding: 0; text-indent: 0;">
                         <img class="img-desktop" src="{% static "images/online_event_header.png" %}" alt="" style="width: 100%;">
                         <img class="img-mobile" src="{% static "images/online_event_header_mobile.png" %}" alt="" style="width: 100%;">
