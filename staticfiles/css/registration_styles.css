@@ -1,0 +1,139 @@
+body {
+    background: linear-gradient(#63738acb, #b3bfd1cb 15%, #63738acb 105%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h2 {
+    text-align: center;
+}
+
+iframe {
+    border-radius: 10px;
+}
+
+.container {
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 320px;
+    background-color: rgba(217, 217, 217, 0.8);
+    box-shadow: -1px 1px 4px 0px rgba(0, 0, 0, 0.25), 1px 1px 4px 0px rgba(0, 0, 0, 0.25);
+    color: rgb(39, 66, 106);
+    text-indent: 0;
+}
+
+.btn-primary {
+    background-color: #0088BB;
+    /* Корпоративный цвет */
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0077A3;
+    /* Немного темнее при наведении */
+}
+
+a {
+    color: #0088BB;
+    /* Ссылки в корпоративном цвете */
+}
+
+a:hover {
+    color: #005577;
+    /* Темнее при наведении */
+}
+
+.alert-info {
+    border-color: #0088BB;
+    color: rgb(39, 66, 106);
+    padding-inline: 10px;
+    background-color: #e0f3ff80;
+    border-radius: 10px;
+}
+
+.alert-success {
+    background-color: #ccf2e8;
+    border-color: #2ca8a0;
+    color: #055D53;
+}
+
+.auth-status {
+    margin-bottom: 15px;
+    display: none;
+    /* Скрыто по умолчанию */
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+    /* Светлее для более тонкого вида */
+}
+
+.divider::before {
+    margin-right: 10px;
+}
+
+.divider::after {
+    margin-left: 10px;
+}
+
+/* Новый класс для скрытия кнопки */
+.hidden-button {
+    display: none;
+}
+
+/* Стиль для серой кнопки Telegram */
+.disabled-telegram-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    background-color: #6c757d;
+    /* Серый цвет */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: not-allowed;
+    font-size: 16px;
+}
+
+#id_last_name,
+#id_first_name,
+#id_middle_name,
+#id_department_id {
+    width: 100%;
+    font-weight: 400;
+    min-height: 24px;
+    max-height: 30px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 70%;
+    }
+
+    h2 {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .alert-info {
+        font-size: 16px;
+        line-height: 32px;
+    }
+}

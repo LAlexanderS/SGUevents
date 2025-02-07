@@ -1,0 +1,97 @@
+body {
+    background: linear-gradient(#63738acb, #b3bfd1cb 15%, #63738acb 105%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h2 {
+    text-align: center;
+}
+
+iframe {
+    border-radius: 10px;
+    margin-left: 0;
+}
+
+.container {
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 320px;
+    background-color: rgba(217, 217, 217, 0.8);
+    box-shadow: -1px 1px 4px 0px rgba(0, 0, 0, 0.25), 1px 1px 4px 0px rgba(0, 0, 0, 0.25);
+    color: rgb(39, 66, 106);
+    text-indent: 0;
+    font-size: 16px;
+}
+
+.enter {
+    background-color: #0088BB;
+    /* Корпоративный цвет */
+    border: none;
+    color: #d9d9d9;
+    margin-top: 10px;
+    width: 100%;
+    min-height: 24px;
+    max-height: 30px;
+}
+
+.btn-primary:hover {
+    background-color: #0077A3;
+    /* Немного темнее при наведении */
+}
+
+a {
+    color: #0088BB;
+    /* Ссылки в корпоративном цвете */
+}
+
+a:hover {
+    color: #005577;
+    /* Темнее при наведении */
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgb(39, 66, 106);
+}
+
+.divider::before {
+    margin-right: 10px;
+}
+
+.divider::after {
+    margin-left: 10px;
+}
+
+#username,
+#password {
+    width: 100%;
+    font-weight: 400;
+    min-height: 24px;
+    max-height: 30px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 70%;
+    }
+
+    h2 {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+}

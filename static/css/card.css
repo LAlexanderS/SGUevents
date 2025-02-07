@@ -1,0 +1,545 @@
+.index-link {
+    font-family: 'Days One', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    color: aliceblue;
+    font-size: 20pt;
+}
+
+.mobile-blocks {
+    display: none;
+}
+
+.small-to-main-arrow {
+    display: none;
+}
+
+.footer {
+    background-color: darken(skyblue, 10%);
+    grid-area: footer;
+    padding: 0.6em;
+}
+
+.items {
+    margin: auto;
+    margin-left: 140px;
+    /* position: relative; */
+    width: 73%;
+    padding-left: 5px;
+    text-indent: 0;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    transition: all 0.2s;
+    transform: scale(0.98);
+    will-change: transform;
+    user-select: none;
+    cursor: pointer;
+}
+
+.items.active {
+    background: rgba(255, 255, 255, 0.3);
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+    transform: scale(1);
+}
+
+.item {
+    display: inline-block;
+    background: none;
+    min-height: 150px;
+    width: 230px;
+    margin: 5px;
+
+}
+
+p {
+    text-align: left;
+    text-indent: 20px;
+    font-weight: 100;
+}
+
+
+.review-container {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.review-row {
+    display: flex;
+    justify-content: center;
+    width: 90%;
+    overflow: hidden;
+}
+
+.review {
+    min-width: 0;
+    background-color: #fff;
+    border-radius: 25px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin: 10px;
+    width: 220px;
+    height: 300px;
+    box-shadow: -1px 1px 4px 0px rgba(0, 0, 0, 0.25), 1px 1px 4px 0px rgba(0, 0, 0, 0.25);
+    background: rgba(217, 217, 217, 0.8);
+    transition: transform 0.5s ease-in-out;
+    flex: 0 0 auto;
+}
+
+.review.slide-review.active {
+    display: block;
+}
+
+.review.slide-review {
+    display: none;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    width: 100%;
+    max-height: fit-content;
+    height: auto;
+    /* Устанавливаем высоту на auto, чтобы она подстраивалась под содержимое */
+}
+
+.user-icon {
+    width: 100%;
+    height: 45px;
+    border-radius: 50%;
+    display: inline;
+    text-align: center;
+}
+
+.user-icon img {
+    width: 45px;
+    height: 45px;
+}
+
+.username {
+    margin-top: 0px;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    text-indent: 0;
+    color: rgb(39, 66, 106);
+    font-family: 'Onest';
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 130%;
+    letter-spacing: 0%;
+    text-align: center;
+}
+
+.review-block {
+    min-width: 0;
+    /* display: flex;
+    flex-direction: column;
+    align-items: center; */
+    width: 100%;
+    padding: 0%;
+}
+
+.review-text {
+    min-width: 0;
+    padding: 0%;
+    border-radius: 4px;
+    font-family: 'Onest';
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 130%;
+    letter-spacing: 0;
+    color: rgb(39, 66, 106);
+}
+
+.quote {
+    text-indent: 0;
+}
+
+.quote img {
+    display: inline;
+    vertical-align: top;
+    margin-top: 2px;
+    height: 20px;
+    width: auto;
+}
+
+.prev-reviews,
+.next-reviews {
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+i {
+    color: skyblue;
+}
+
+.review-container-small {
+    display: none;
+}
+
+.review-container-mobile {
+    display: none;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    margin-top: 0;
+    text-indent: 0;
+}
+
+.img-desktop {
+    display: block;
+}
+
+.img-mobile {
+    display: none;
+}
+
+.docs-link, .telegram-link {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 500;
+    text-indent: 0;
+    padding: 10px;
+    padding-top: 0%;
+    border-radius: 4px;
+    font-family: 'Onest';
+    font-size: 20px;
+    line-height: 130%;
+    letter-spacing: 0%;
+    color: rgb(39, 66, 106);
+}
+
+.modal-content-photo {
+    position: relative;
+    margin: 10% auto;
+    padding: 20px;
+    padding-inline: 0;
+    width: 315px;
+    background: none;
+    text-align: center;
+}
+
+.close {
+    position: absolute;
+    top: 5px;
+    right: 0px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+
+@media (max-width: 1440px) {
+    .review-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+
+    .review-row {
+        display: flex;
+        justify-content: center;
+        width: 80%;
+        overflow: hidden;
+    }
+
+    .item {
+        margin-inline: 0;
+        width: fit-content;
+        text-indent: 0;
+    }
+
+    .review {
+        background-color: #fff;
+        border-radius: 25px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin: 15px;
+        margin-left: 5px;
+        margin-right: 5px;
+        width: 195px;
+        height: 300px;
+        box-shadow: -1px 1px 4px 0px rgba(0, 0, 0, 0.25), 1px 1px 4px 0px rgba(0, 0, 0, 0.25);
+        background: rgba(217, 217, 217, 0.8);
+        transition: transform 0.5s ease-in-out;
+        flex: 0 0 auto;
+    }
+
+    .review.slide-review.active {
+        display: block;
+    }
+
+    .review.slide-review {
+        display: none;
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0;
+        width: 100%;
+        max-height: fit-content;
+        height: auto;
+        /* Устанавливаем высоту на auto, чтобы она подстраивалась под содержимое */
+    }
+
+    .user-icon {
+        width: 100%;
+        height: 45px;
+        border-radius: 50%;
+        display: inline;
+        text-align: center;
+    }
+
+    .user-icon img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .username {
+        margin-top: 0px;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        text-indent: 0;
+        color: rgb(39, 66, 106);
+        font-family: 'Onest';
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 130%;
+        letter-spacing: 0%;
+        text-align: center;
+    }
+
+    .review-block {
+        /* display: flex;
+    flex-direction: column;
+    align-items: center; */
+        width: 100%;
+        padding: 0%;
+
+    }
+
+    .review-text {
+        display: block;
+        padding: 0%;
+        width: 130px;
+        border-radius: 4px;
+        font-family: 'Onest';
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 130%;
+        letter-spacing: 0%;
+        color: rgb(39, 66, 106);
+        width: 130px;
+        overflow-wrap: break-word;
+
+    }
+
+    .quote {
+        text-indent: 0;
+    }
+
+    .quote img {
+        display: inline;
+        vertical-align: top;
+        margin-top: 2px;
+        height: 20px;
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .blocks {
+        display: none;
+    }
+
+    .mobile-blocks {
+        display: block;
+        padding-top: 10px;
+        margin-bottom: 5px;
+    }
+
+    tr {
+        margin-right: 10px;
+    }
+
+    td {
+        width: 33%;
+        text-align: center;
+    }
+
+    .info-icon {
+        width: 50px;
+        height: 50px;
+    }
+
+    .info-title {
+        font-family: 'Days One', sans-serif;
+        text-indent: 0;
+        text-align: center;
+        font-size: 12px;
+        color: rgb(39, 66, 106);
+        line-height: 115%;
+        text-shadow: 0px 1px 7px #686868ab;
+    }
+
+    .info-cell {
+        text-indent: 0;
+        font-size: 12px;
+        color: rgb(39, 66, 106);
+        line-height: 110%;
+        text-shadow: 0px 1px 7px #686868ab;
+    }
+
+    .small-to-main-arrow {
+        display: block;
+        height: 20px;
+        width: auto;
+        margin-top: 0;
+        margin-left: 4px;
+    }
+
+    .large-to-main-arrow {
+        display: none;
+    }
+
+    .review-container-large {
+        display: none;
+    }
+
+    .review-container-small {
+        display: block;
+    }
+
+    .items-small {
+        overflow-y: auto;
+        height: 200px;
+    }
+
+    .comments-mobile {
+        border-radius: 20px;
+        max-width: 350px;
+        text-align: center;
+        display: block;
+        height: 160px;
+        margin: auto;
+        overflow-y: scroll;
+    }
+
+    .review-container-mobile {
+        display: flex;
+        align-items: flex-start;
+        margin: auto;
+        margin-bottom: 5px;
+        background-color: #e0e0e0;
+        max-width: 330px;
+        border-radius: 20px;
+        padding: 10px;
+        gap: 10px;
+        font-family: sans-serif;
+        box-shadow: -1px 1px 4px 0px rgba(0, 0, 0, 0.25), 1px 1px 4px 0px rgba(0, 0, 0, 0.25);
+    }
+
+    .user-info-mobile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 0px;
+    }
+
+    .user-icon-mobile {
+        width: 30px;
+        height: 30px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-bottom: 5px;
+        text-indent: 0;
+    }
+
+    .user-icon-mobile img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .username-mobile {
+        text-align: center;
+        font-weight: bold;
+        text-indent: 0;
+        color: rgb(39, 66, 106);
+        font-family: 'Onest';
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 130%;
+        letter-spacing: 0%;
+        text-align: center;
+    }
+
+    .review-content-mobile {
+        border-radius: 5px;
+
+    }
+
+    .quote-mark-mobile {
+        margin-right: 5px;
+        color: #777;
+    }
+
+    .review-text-mobile {
+        line-height: 110%;
+        width: 90%;
+        text-indent: 0;
+        font-size: 14px;
+
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 0px;
+        margin-top: 0;
+        text-indent: 0;
+    }
+
+    .img-desktop {
+        display: none;
+    }
+
+    .img-mobile {
+        display: block;
+    }
+
+    .docs-link, .telegram-link {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-weight: 500;
+        text-indent: 0;
+        padding: 10px;
+        padding-top: 0%;
+        border-radius: 4px;
+        font-family: 'Onest';
+        font-size: 16px;
+        line-height: 130%;
+        letter-spacing: 0%;
+        color: rgb(39, 66, 106);
+    }
+
+    .docs .paperclip{
+        height: 20px;
+    }
+
+}

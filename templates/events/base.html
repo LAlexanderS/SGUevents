@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{% static 'flatpickr/flatpickr.min.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/notifications.css' %}">
     <link rel="stylesheet" href="{% static 'general/css/filters.css' %}"> {% endcomment %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    {% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="static/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
@@ -26,10 +26,24 @@
         integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
         crossorigin="anonymous"></script>
     <script src="static/js/script.js"></script>
-    <link rel="stylesheet" href="{% static 'general/css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet"> {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static "css/styles.css" %}">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+        integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+        crossorigin="anonymous"></script>
+    {% comment %} <script src="static/js/script.js"></script> {% endcomment %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+    
 
 
     {% comment %} <link rel="stylesheet" href="{% static 'general/css/stars.css' %}"> {% endcomment %}
@@ -37,11 +51,11 @@
     {% block title %}{% endblock title %}
 </head>
 
-<body>
+<body style="background-image: url({% static "images/background.jpg" %});">
     <header>
         <nav class="navbar navbar-expand-lg bg-dark text-white">
             <div class="container-fluid">
-                <a class="navbar-brand" href={% url "main:index" %}><img class="home-icon" src="{% static 'general/icons/home.png' %}" alt="Home" width="25" height="25"></a> 
+                <a class="navbar-brand" href={% url "main:index" %}><img class="home-icon" src="{% static 'icons/home.png' %}" alt="Home" width="25" height="25"></a> 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -133,10 +147,8 @@
                             <li class="page-item ">
                                 <a class="page-link-arrow" href="#">
                                     <div class="arrow">
-                                        {% if not event_card_views.has_previous %}
-                                            <img src="{% static "icons/arrow-left-disabled.png" %}" class="arrow" alt="Предыдущая"> 
-                                        {% else %}
-                                            <img src="{% static "icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">     
+                                        {% if event_card_views.has_previous %}
+                                            <img src="{% static "general/icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">     
                                         {% endif %}
                                     </div>
                                 </a>
@@ -172,11 +184,13 @@
                         style="position: fixed; width: fit-content;">
                         <ul class="pagination" style="margin-top: 10px;">
                             <li class="page-item ">
-                                <a class="page-link-arrow" href="#">
+                                <a class="page-link-arrow" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">
                                     <div class="arrow">
-
-                                        <img src="static/general/icons/arrow-right.png" class="arrow"
+                                        {% if event_card_views.has_next %}
+                                            <img src="{% static "icons/arrow-right.png" %}" class="arrow"
                                             alt="Следующая">
+                                            {% else %}
+                                        {% endif %}
 
                                     </div>
                                 </a>
@@ -467,7 +481,7 @@
                             Сортировка: <span id="filter-sort-value"></span>
                             <button class="delete-filter delete-sort-filter" id="delete-sort-filter"
                                 style="border: none; background: none; box-shadow: none;">
-                                <img src="static/general/icons/cancel-close.svg"
+                                <img src="{% static "icons/cancel-close.svg" %}"
                                     style="height: 20px; width: 20px; margin-top: 0;">
                             </button>
                         </div>
@@ -481,7 +495,7 @@
                             Фильтр по названию: <span id="filter-name-value"></span>
                             <button class="delete-filter delete-name-filter" type="submit"
                                 style="border: none; background: none; box-shadow: none;" id="delete-name-filter">
-                                <img src="static/general/icons/cancel-close.svg"
+                                <img src="{% static "icons/cancel-close.svg" %}"
                                     style="height: 20px; width: 20px; margin-top: 0;">
                             </button>
                         </div>
@@ -494,7 +508,7 @@
                             <span id="filter-end-date-value"></span>
                             <button class="delete-filter delete-date-filter" type="submit"
                                 style="border: none; background: none; box-shadow: none;" id="delete-date-filter">
-                                <img src="static/general/icons/cancel-close.svg"
+                                <img src="{% static "icons/cancel-close.svg" %}"
                                     style="height: 20px; width: 20px; margin-top: 0;">
                             </button>
                         </div>
@@ -507,7 +521,7 @@
                             <span id="filter-end-time-value"></span>
                             <button class="delete-filter delete-time-filter" type="submit" id="delete-time-filter"
                                 style="border: none; background: none; box-shadow: none;">
-                                <img src="static/general/icons/cancel-close.svg"
+                                <img src="{% static "icons/cancel-close.svg" %}"
                                     style="height: 20px; width: 20px; margin-top: 0;">
                             </button>
                         </div>
@@ -519,7 +533,7 @@
                             Выбранные спикеры: <span id="filter-speakers-value"></span>
                             <button class="delete-filter delete-speakers-filter" type="submit"
                                 id="delete-speakers-filter" style="border: none; background: none; box-shadow: none;">
-                                <img src="static/general/icons/cancel-close.svg"
+                                <img src="{% static "icons/cancel-close.svg" %}"
                                     style="height: 20px; width: 20px; margin-top: 0;">
                             </button>
                         </div>
@@ -531,7 +545,7 @@
                             Выбранные теги: <span id="filter-tags-value"></span>
                             <button class="delete-filter delete-tags-filter" type="submit" id="delete-tags-filter"
                                 style="border: none; background: none; box-shadow: none;">
-                                <img src="static/general/icons/cancel-close.svg"
+                                <img src="{% static "icons/cancel-close.svg" %}"
                                     style="height: 20px; width: 20px; margin-top: 0;">
                             </button>
                         </div>
@@ -554,50 +568,50 @@
                                                 alt="Catalog Icon" width="32" height="32">
                                         </a>
                                         {% if name_page != "Главная" %}
-                                                    {% if events.id in favorites %}
-                                                        <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:events.id }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                            {% if events.id in favorites %}
+                                                        <a href="#" class="mx-1 remove-from-favorites heart-red-icon hidden" data-event-id="{{ favorites|get_item:events.id }}">
+                                                            <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                                         </a>
-                                                    {% else %}
-                                                        <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                            {% else %}
+                                                        <a href="#" class="heart-red-icon hidden" data-event-slug="{{ events.slug }}">
+                                                            <img class="mx-1 add-to-cart heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
                                                         </a>
-                                                    {% endif %}
-                                                {% else %}
+                                            {% endif %}
+                                        {% else %}
                                                     {% if events|model_name == 'Events_online' %}
                                                         {% if events.id in favorites.online %}
-                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.online|get_item:events.id }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                            <a href="#" class="mx-1 remove-from-favorites heart-red-icon hidden" data-event-id="{{ favorites.online|get_item:events.id }}">
+                                                                <img class="mx-1 add-to-cart heart-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
                                                             </a>
                                                         {% else %}
-                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                            <a href="#" class="heart-red-icon hidden" data-event-slug="{{ events.slug }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                                             </a>
                                                         {% endif %}
                                                     {% elif events|model_name == 'Events_offline' %}
                                                         {% if events.id in favorites.offline %}
-                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.offline|get_item:events.id }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                            <a href="#" class="mx-1 remove-from-favorites heart-red-icon hidden" data-event-id="{{ favorites.offline|get_item:events.id }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
                                                             </a>
                                                         {% else %}
-                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                            <a href="#" class="eart-red-icon hidden" data-event-slug="{{ events.slug }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                                             </a>
                                                         {% endif %}
                                                     {% elif events|model_name == 'Attractions' %}
                                                         {% if events.id in favorites.attractions %}
-                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.attractions|get_item:events.id }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                            <a href="#" class="mx-1 remove-from-favorites heart-red-icon hidden" data-event-id="{{ favorites.attractions|get_item:events.id }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                                             </a>
                                                         {% else %}
-                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                            <a href="#" class="heart-red-icon hidden" data-event-slug="{{ events.slug }}">
+                                                                <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
                                                             </a>
                                                         {% endif %}
                                                     {% elif events|model_name == 'Events_for_visiting' %}
                                                         {% if events.id in favorites.for_visiting %}
                                                             <a href="#" class="add-to-card" data-event-id="{{ favorites.for_visiting|get_item:events.id }}">
-                                                                <img class="mx-1 heart-red-icon hidden" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                                <img class="mx-1 remove-from-favorites heart-red-icon hidden" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
                                                             </a>
                                                         {% else %}
                                                             <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
@@ -605,20 +619,13 @@
                                                             </a>
                                                         {% endif %}
                                                     {% endif %}
-                                                {% endif %}
-
-
-
-
-
-
-
+                                        {% endif %}
 
                                         
                                         {% if events.image %}
                                             <img src="{{ events.image.url }}" alt="" class="preview-photo">
                                         {% else %}
-                                            <img src="{% static "general/images/img.png" %}" alt="" class="preview-photo">
+                                            <img src="{% static "images/no_photo.png" %}" alt="" class="preview-photo">
                                         {% endif %}
                                         
                                         <div class="rating-overlay">
@@ -731,27 +738,82 @@
 
                                     </div>
                                     <div class="col-lg-7 col-md-7 col-sm-7 event-preview-text">
-                                        <a href="online_card_v2.html" class="show-more">
-                                            <h4 class="event-title-preview">FINOPOLIS 2024 пройдет в Сочи</h4>
+                                        <a href="{% if events.category  == 'Онлайн' %}
+                                                    {% url "events_available:online_card" events.slug %}
+                                                {% elif events.category  == 'Оффлайн' %}
+                                                    {% url "events_available:offline_card" events.slug %}
+                                                {% elif events.category  == 'Достопримечательности' %}
+                                                    {% url "events_cultural:attractions_card" events.slug %}
+                                                {% elif events.category  == 'Доступные к посещению' %}
+                                                    {% url "events_cultural:events_for_visiting_card" events.slug %}
+                                                {% endif %}" class="show-more">
+                                            <h4 class="event-title-preview">{{ events.name|truncatechars:82 }}</h4>
                                         </a>
+                                        {% comment %} <a href="
+                                                {% if events.category  == 'Онлайн' %}
+                                                    {% url "events_available:online_card" events.slug %}
+                                                {% elif events.category  == 'Оффлайн' %}
+                                                    {% url "events_available:offline_card" events.slug %}
+                                                {% elif events.category  == 'Достопримечательности' %}
+                                                    {% url "events_cultural:attractions_card" events.slug %}
+                                                {% elif events.category  == 'Доступные к посещению' %}
+                                                    {% url "events_cultural:events_for_visiting_card" events.slug %}
+                                                {% endif %}
+                                                " class="show-more">
+                                                
+                                            <h4 class="event-title-preview">
+                                                    {% autoescape off %}
+                                                        {% if events.headline_name %}{{ events.headline_name|safe }}{% else %}{{ events.name }}{% endif %}
+                                                    {% endautoescape %}
+                                            </h4>
+                                        </a> {% endcomment %}
                                         <div class="row">
                                             <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
-                                                <p class="preview-date">8 января 2025 г.</p>
-                                                <p class="preview-time">11:00-16:00</p>
+                                                <p class="preview-date">
+                                                    {% if events.category  != 'Достопримечательности' %}
+                                                    <h6 class="card-date"> 
+                                                        {% if events.date != events.date_end %}
+                                                            <split class="card-day"><b>{{ events.date }} - {{ events.date_end }}</b></split> 
+                                                        {% else %}
+                                                            <split class="card-day"><b>{{ events.date }}</b></split> 
+                                                        {% endif %}
+                                                    </h6> 
+                                                {% endif %}
+                                                </p>
+                                                <p class="preview-time">
+                                                    {% if events.time_start != events.time_end %}
+                                                        <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> 
+                                                    {% else %}
+                                                        <split class="card-time">{{ events.time_start }}</split> 
+                                                    {% endif %}
+                                                </p>
                                             </div>
                                             <div class="col-lg-6 col-md-5 col-sm-5 event-preview-speaker">
                                                 <label for="speaker" class="preview-speaker">Спикер:</label>
-                                                Лобанова Стефания Данииловна
+                                                {% for admin in events.events_admin.all %}
+                                                    {{admin.last_name}} {{admin.first_name}}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
                                             </div>
                                         </div>
                                         <div class="event-preview-description">
                                             <label for="" class="preview-about">О мероприятии:</label>
                                             <p class="preview-description">
-                                                Форум инновационных финансовых технологий FINOPOLIS в этом году вернется
-                                                в Сочи.
-                                                Он пройдет с 6 по 8 ноября на территории Образовательного центра «Сириус».
-                                                FINOPOLIS традиционно... <a href="online_card_v2.html"
-                                                    class="show-more">Подробнее</a>
+                                                {% autoescape off %}
+                                                    {% if events.headline_description %}
+                                                        {{ events.headline_description|truncatechars:200 }}
+                                                    {% else %}
+                                                        {{ events.description|truncatechars:200 }}
+                                                    {% endif %}
+                                                {% endautoescape %}
+                                                <a href="{% if events.category  == 'Онлайн' %}
+                                                    {% url "events_available:online_card" events.slug %}
+                                                {% elif events.category  == 'Оффлайн' %}
+                                                    {% url "events_available:offline_card" events.slug %}
+                                                {% elif events.category  == 'Достопримечательности' %}
+                                                    {% url "events_cultural:attractions_card" events.slug %}
+                                                {% elif events.category  == 'Доступные к посещению' %}
+                                                    {% url "events_cultural:events_for_visiting_card" events.slug %}
+                                                {% endif %}"  class="show-more">Подробнее</a>
                                             </p>
                                         </div>
                                         <div class="preview-event-id">
@@ -760,7 +822,11 @@
                                                     data-bs-target="#exampleModal">Посмотреть отзывы</a>
                                             </div>
                                             <label for="event-id" class="event-id"></label>
-                                            <div class="event-tags">#САДД</div>
+                                            <div class="event-tags">
+                                                {% if events.tags %} 
+                                                    {{ events.tags }}
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -772,25 +838,27 @@
             </section>
 
             <pagination>
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination">
-                        <li class="pagination__item pagination__item--prev">
-                            <a href="#" class="pagination__link">Назад</a>
-                        </li>
-                        <li class="pagination__item pagination__item--active">
-                            <a href="#" class="pagination__link">1</a>
-                        </li>
-                        <li class="pagination__item">
-                            <a href="#" class="pagination__link">2</a>
-                        </li>
-                        <li class="pagination__item">
-                            <a href="#" class="pagination__link">3</a>
-                        </li>
-                        <li class="pagination__item pagination__item--next">
-                            <a href="#" class="pagination__link">Следующая</a>
-                        </li>
-                    </ul>
-                </nav>
+                {% if user.is_authenticated %}
+                    {% if event_card_views %}
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
+                                    <a class="page-link" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">Назад</a>
+                                </li>
+                                {% for page in event_card_views.paginator.page_range %}
+                                    {% if page >= event_card_views.number|add:-2 and page <= event_card_views.number|add:2 %}
+                                        <li class="page-item {% if event_card_views.number == page %} active {% endif %}">
+                                            <a class="page-link" href="?{% change_params page=page %}">{{ page }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
+                                    <a class="page-link" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">Следующая</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% endif %}
             </pagination>
         </div>
         <div class="col-lg-1 right-column" style="padding: 0;"></div>
@@ -802,7 +870,7 @@
                     <div class="modal-header">
                         <h5 class="modal-title" id="commentModalLabel">Оставить отзыв</h5>
                         <button type="button" class="button-close" data-bs-dismiss="modal" aria-label="Close">
-                            <img src="static/general/icons/close-button.png" alt="">
+                            <img src="{% static "icons/close-button.png" %}" alt="">
                         </button>
                     </div>
                     <div class="modal-body">
@@ -890,7 +958,7 @@
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="exampleModalLabel">Отзывы</h1>
                         <button type="button" class="button-close" data-bs-dismiss="modal" aria-label="Close">
-                            <img src="static/general/icons/close-button.png" alt="">
+                            <img src="{% static "icons/close-button.png" %}" alt="">
                         </button>
                     </div>
                     <div class="modal-body">
@@ -900,7 +968,7 @@
                                     <div class="" style="width: fit-content;">
                                         <div class="user-icon-existent-review"
                                             style="margin: auto; height: fit-content; text-align: center;">
-                                            <img src="static/general/icons/profile-image-default.png" alt=""
+                                            <img src="{% static "icons/profile-image-default.png" %}" alt=""
                                                 style="height: 30px; width: auto;">
                                         </div>
                                         <div class="username-existent-review">username</div>
@@ -959,7 +1027,7 @@
 
                                 </div>
                                 <div class="review-block review-block-existent-review" style="max-width: 70%;">
-                                    <div class="quote quote-existent-review"><img src="static/general/icons/quotes.png"
+                                    <div class="quote quote-existent-review"><img src="{% static "icons/quotes.png" %} "
                                             alt="">
                                     </div>
                                     <div class="review-text review-text-existent-review" style="margin: 0;">Lorem ipsum
@@ -1289,27 +1357,28 @@
 		{% endif %}
 	</pagination> {% endcomment %}
     
-    <script src="{% static "js/front/like.js" %}"></script>
+    <script src="{% static "js/like.js" %}"></script>
 
-    <script src="{% static "js/front/rating_script.js" %}"></script>
+    <script src="{% static "js/rating_script.js" %}"></script>
 
-    <script src="{% static "js/front/pagination_script.js" %}"></script>
+    <script src="{% static "js/pagination_script.js" %}"></script>
 
-    <script src="{% static "js/front/registration_disallowed_script.js" %}"></script>
+    <script src="{% static "js/registration_disallowed_script.js" %}"></script>
 
-    <script src="{% static "js/front/create_comment.js" %}"></script>
+    <script src="{% static "js/create_comment.js" %}"></script>
 
-    <script src="{% static "js/front/filters_script.js" %}"></script>
+    <script src="{% static "js/filters_script.js" %}"></script>
 
-    <script src="{% static "js/front/sort_script.js" %}"></script>
+    <script src="{% static "js/sort_script.js" %}"></script>
 
-    <script src="{% static "js/front/filters_selected_script.js" %}"></script>
+    <script src="{% static "js/filters_selected_script.js" %}"></script>
 
-    <script src="{% static "js/front/sort_selected_script.js" %}"></script>
+    <script src="{% static "js/sort_selected_script.js" %}"></script>
 
-    <script src="{% static "js/front/content_load_script.js" %}"></script>
+    <script src="{% static "js/content_load_script.js" %}"></script>
 
-    {% comment %} <script src="{% static 'general/js/base.js' %}"></script>
+    {% comment %} <script src="{% static 'general/js/base.js' %}"></script> {% endcomment %}
+     {% comment %}
     <script src="{% static 'scripts/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'scripts/select2.min.js' %}"></script>
