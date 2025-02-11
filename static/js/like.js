@@ -1,59 +1,129 @@
-document.addEventListener('click', function(event) {
-    const targetElement = event.target.closest('.add-to-cart, .remove-from-favorites');
-
-    if (!targetElement) {
-        return; // Если клик не по нужному элементу, выходим
-    }
-
-    event.preventDefault(); // Предотвращаем стандартное поведение ссылки
-
-    const heartIcon = targetElement.querySelector('.heart-icon');
-    const heartRedIcon = targetElement.querySelector('.heart-red-icon');
-    const eventSlug = targetElement.dataset.eventSlug; // Уникальный идентификатор
-
-    if (targetElement.classList.contains('add-to-cart')) {
-        // Логика добавления в избранное
-        heartIcon.classList.add('hidden');
-        heartRedIcon.classList.remove('hidden');
-
-        targetElement.classList.remove('add-to-cart');
-        targetElement.classList.add('remove-from-favorites');
-        // Сохраняем состояние в localStorage
-        localStorage.setItem(`event-${eventSlug}`, 'liked');
-
-    } else if (targetElement.classList.contains('remove-from-favorites')) {
-        // Логика удаления из избранного
-        heartIcon.classList.remove('hidden');
-        heartRedIcon.classList.add('hidden');
-
-        targetElement.classList.remove('remove-from-favorites');
-        targetElement.classList.add('add-to-cart');
-        // Удаляем состояние из localStorage
-        localStorage.removeItem(`event-${eventSlug}`);
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const elements = document.querySelectorAll('[data-event-slug]');
-
-    elements.forEach(element => {
-        const eventSlug = element.dataset.eventSlug; // Уникальный идентификатор
-        const heartIcon = element.querySelector('.heart-icon');
-        const heartRedIcon = element.querySelector('.heart-red-icon');
-        const isLiked = localStorage.getItem(`event-${eventSlug}`) === 'liked';
-
-        if (isLiked) {
-            // Если элемент был "лайкнут", применяем соответствующие изменения
-            heartIcon.classList.add('hidden');
-            heartRedIcon.classList.remove('hidden');
-            element.classList.remove('add-to-cart');
-            element.classList.add('remove-from-favorites');
-        } else {
-            // Если элемент не был "лайкнут", сбрасываем состояние
-            heartIcon.classList.remove('hidden');
-            heartRedIcon.classList.add('hidden');
-            element.classList.remove('remove-from-favorites');
-            element.classList.add('add-to-cart');
+function getCookie(name) {
+    let cookieValue = null
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';')
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim()
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+                break
+            }
         }
-    });
-});
+    }
+    return cookieValue
+}
+
+const csrftoken = getCookie('csrftoken')  // Получаем CSRF-токен из cookies
+
+
+function initializeFavoriteButtons() {
+    // Обработчик для добавления в избранное
+    document.querySelectorAll('.add-to-cart').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault()
+            const heartRedIconURL = '/static/icons/heart_red.png'
+            const heartIconURL = '/static/icons/heart.svg'
+            const eventSlug = this.getAttribute('data-event-slug')
+            const icon = this.querySelector('.heart-icon')
+            const button = this
+
+            fetch(`/bookmarks/events_add/${eventSlug}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ 'slug': eventSlug })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.added) {
+                        icon.src = heartRedIconURL
+                        button.classList.remove('add-to-cart')
+                        button.classList.add('remove-from-favorites')
+                        button.setAttribute('data-event-id', data.event_id)
+                        showNotification("Добавлено в избранное")
+                    } else {
+                        icon.src = heartIconURL
+                        button.classList.remove('remove-from-favorites')
+                        button.classList.add('add-to-cart')
+                        button.removeAttribute('data-event-id')
+                        showNotification("Удалено из избранного")
+                    }
+                })
+                .catch(error => console.error('Error:', error))
+        })
+    })
+
+    // Обработчик для удаления из избранного
+    document.querySelectorAll('.remove-from-favorites').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            event.preventDefault()
+            const eventId = this.getAttribute('data-event-id')
+            const buttonElement = this
+            const icon = this.querySelector('.heart-icon')
+            const heartIconURL = '/static/icons/heart.svg'
+
+            fetch(`/bookmarks/events_remove/${eventId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ 'id': eventId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.removed) {
+                        icon.src = heartIconURL
+                        buttonElement.classList.remove('remove-from-favorites')
+                        buttonElement.classList.add('add-to-cart')
+                        buttonElement.removeAttribute('data-event-id')
+                        showNotification("Удалено из избранного")
+                    } else {
+                        console.error('Ошибка:', data.error)
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error))
+        })
+    })
+}
+
+function showNotification(message) {
+    const notification = document.getElementById('favoriteNotification')
+    notification.querySelector('p').textContent = message
+    notification.style.display = 'block'
+    setTimeout(() => {
+        notification.classList.add('fade-in')
+    }, 10)
+
+    setTimeout(function () {
+        notification.classList.remove('fade-in')
+        notification.classList.add('fade-out')
+
+        setTimeout(function () {
+            notification.style.display = 'none'
+            notification.classList.remove('fade-out')
+        }, 700)
+    }, 1000)
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    initializeFavoriteButtons()
+})
+
+function initializeRegistrationButtons() {
+    document.querySelectorAll('.btn-sent_app').forEach(function (button) {
+        button.removeEventListener('click', handleRegister)
+        button.addEventListener('click', handleRegister)
+    })
+
+    document.querySelectorAll('.btn-remove_app').forEach(function (button) {
+        button.removeEventListener('click', handleUnregister)
+        button.addEventListener('click', handleUnregister)
+    })
+}
+
+
+
+
