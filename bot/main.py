@@ -9,7 +9,7 @@ import requests
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import ChatMemberUpdatedFilter
+from aiogram.filters import ChatMemberUpdatedFilter, Command
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -49,10 +49,10 @@ WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 logger.info(f"Настройки вебхука: HOST={WEBHOOK_HOST}, PATH={WEBHOOK_PATH}, URL={WEBHOOK_URL}")
 
 # В начале файла после импортов
-print(f"Loading settings: DJANGO_ENV={settings.DJANGO_ENV}")
-print(f"DEV_SUPPORT_CHAT_ID={settings.DEV_SUPPORT_CHAT_ID}")
-print(f"SUPPORT_CHAT_ID={settings.SUPPORT_CHAT_ID}")
-print(f"ACTIVE_TELEGRAM_SUPPORT_CHAT_ID={settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID}")
+# print(f"Loading settings: DJANGO_ENV={settings.DJANGO_ENV}")
+# print(f"DEV_SUPPORT_CHAT_ID={settings.DEV_SUPPORT_CHAT_ID}")
+# print(f"SUPPORT_CHAT_ID={settings.SUPPORT_CHAT_ID}")
+# print(f"ACTIVE_TELEGRAM_SUPPORT_CHAT_ID={settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID}")
 
 class SupportRequestForm(StatesGroup):
     waiting_for_question = State()
@@ -252,6 +252,20 @@ async def help_request(message: types.Message, state: FSMContext):
     else:
         await message.answer("Вы не зарегистрированы на портале.")
 
+@router.message(Command("getid"))
+async def get_chat_id(message: types.Message):
+    # Проверяем, что это групповой чат
+    if message.chat.type == 'private':
+        await message.answer("Эта команда работает только в групповых чатах")
+        return
+
+    # Проверяем тип чата
+    chat_info = await bot.get_chat(message.chat.id)
+    if chat_info.type == 'group' or chat_info.type == 'supergroup':
+        await message.answer(f"ID этого чата: {message.chat.id}")
+    else:
+        await message.answer("Эта команда работает только в групповых чатах")
+
 # В обработчике бота
 @router.message(SupportRequestForm.waiting_for_question)
 async def receive_question(message: types.Message, state: FSMContext):
@@ -279,7 +293,6 @@ async def receive_question(message: types.Message, state: FSMContext):
 
 def send_message_to_support_chat(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    # Добавим проверку типа
     chat_id = str(SUPPORT_CHAT_ID)
     if not chat_id.startswith('-'):
         chat_id = f"-{chat_id}"
@@ -292,14 +305,9 @@ def send_message_to_support_chat(text):
     headers = {
         'Content-Type': 'application/json'
     }
-    print(f"Trying to send message to support chat {chat_id}")
-    print(f"Using bot token: {TOKEN[:5]}...")  # Печатаем только первые 5 символов токена для безопасности
     response = requests.post(url, json=payload, headers=headers)
     if response.status_code != 200:
-        print(f"Failed to send message: {response.status_code}, {response.text}")
-        print(f"Payload was: {payload}")
-    else:
-        print(f"Successfully sent message to support chat")
+        logger.error(f"Failed to send message to support chat: {response.status_code}")
 
 # Обработчики callback_query
 @router.callback_query(F.data.startswith("toggle_"))

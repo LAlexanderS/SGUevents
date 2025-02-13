@@ -17,6 +17,77 @@
 		<link rel="stylesheet" href="{% static "general/css/general-page.css" %}">
 		<link rel="stylesheet" href="{% static "general/css/events_available.css" %}">
 
+        <style>
+            .popup-form {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #fff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                width: 400px;
+                max-width: 90%;
+            }
+        
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+        
+            .popup-form h2 {
+                text-align: center;
+                margin: 0;
+                padding: 10px;
+                position: relative;
+            }
+        
+            .popup-form .close-btn {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                color: #000;
+            }
+        
+            .popup-form textarea {
+                width: 100%;
+                margin-top: 10px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                resize: none;
+            }
+        
+            .popup-form form button[type="button"] {
+                display: block;
+                margin: 20px auto 0;
+                padding: 10px 20px;
+                border: none;
+                background: #007bff;
+                color: #fff;
+                border-radius: 5px;
+                cursor: pointer;
+                text-align: center;
+            }
+        
+            .popup-form form button[type="button"]:hover {
+                background: #0056b3;
+            }
+        </style>
+
 		<title>Мероприятие</title>
 	</head>
 	<body>
@@ -178,7 +249,6 @@
                                                         {% endfor %}
                                                     </p>
                                                 {% endif %}
-                                               
 
                                                 {% if event.category == "Оффлайн" %}
                                                     <p><a href="{{event.link_chat}} " target="_blank">Тг чат</a></p> 
@@ -208,126 +278,36 @@
 													</div>
 												{% endif %}
 
-
-                                                <style>
-                                                    .popup-form {
-                                                        display: none; /* Форма скрыта */
-                                                        position: fixed;
-                                                        top: 50%;
-                                                        left: 50%;
-                                                        transform: translate(-50%, -50%);
-                                                        background: #fff;
-                                                        padding: 20px;
-                                                        border-radius: 10px;
-                                                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-                                                        z-index: 1000;
-                                                        width: 400px;
-                                                        max-width: 90%;
-                                                    }
-                                                
-                                                    .overlay {
-                                                        display: none; /* Overlay скрыт */
-                                                        position: fixed;
-                                                        top: 0;
-                                                        left: 0;
-                                                        width: 100%;
-                                                        height: 100%;
-                                                        background: rgba(0, 0, 0, 0.5);
-                                                        z-index: 999;
-                                                    }
-                                                
-                                                    .popup-form h2 {
-                                                        text-align: center;
-                                                        margin: 0;
-                                                        padding: 10px;
-                                                        position: relative;
-                                                    }
-                                                
-                                                    .popup-form .close-btn {
-                                                        position: absolute;
-                                                        top: 10px;
-                                                        right: 10px;
-                                                        background: none;
-                                                        border: none;
-                                                        font-size: 20px;
-                                                        cursor: pointer;
-                                                        color: #000;
-                                                    }
-                                                
-                                                    textarea {
-                                                        width: 100%;
-                                                        margin-top: 10px;
-                                                        padding: 10px;
-                                                        border: 1px solid #ccc;
-                                                        border-radius: 5px;
-                                                        resize: none;
-                                                    }
-                                                
-                                                    .popup-form form button[type="button"] {
-                                                        display: block;
-                                                        margin: 20px auto 0;
-                                                        padding: 10px 20px;
-                                                        border: none;
-                                                        background: #007bff;
-                                                        color: #fff;
-                                                        border-radius: 5px;
-                                                        cursor: pointer;
-                                                        text-align: center;
-                                                    }
-                                                
-                                                    .popup-form form button[type="button"]:hover {
-                                                        background: #0056b3;
-                                                    }
-
-                                                    
-                                                    .content {
-                                                        flex: 1;
-                                                    }
-
-                                                    .admin-help { 
-                                                        display: flex;
-                                                        justify-content: flex-end;
-                                                        align-items: center;
-                                                    }
-
-                                                    @media (max-width: 1140px) {
-                                                        .admin-help {
-                                                            justify-content: flex-start; /* Центрируем кнопку в начале строки */
-                                                            margin-top: 10px; /* Отступ сверху, чтобы отделить кнопку от предыдущего содержимого */
-                                                        }
-                                                
-                                                        .buttons-card {
-                                                            flex-direction: column; /* Переключаем элементы на вертикальное расположение */
-                                                        }
-                                                    }
-                                                </style>
-            
                                                 <div class="row buttons-card">
-                                                    <div class="col-lg-7 сol-md-12 col-sm-12 content">
+                                                    <div class="col-lg-12 content">
                                                         {% block content %}{% endblock %}
                                                     </div>
-                                                
-                                                    <div class="col-lg-5 admin-help d-flex">
-                                                        <button class="btn btn-info" onclick="openForm()">Связь с администратором</button>
-                                                    </div>
-                                                
-                                                    <!--форма-->
-                                                    <div class="overlay" id="overlay" onclick="closeForm()"></div>
-                                                    <div class="popup-form" id="popup-form">
-                                                        <button class="close-btn" onclick="closeForm()">&times;</button>
-                                                        <h2>Оставить обращение</h2>
-                                                        <form id="feedbackForm">
-                                                            <label for="message">Сообщение:</label>
-                                                            <textarea id="message" name="message" rows="4" required></textarea>
-                                                            
-                                                            <button type="button" onclick="sendFeedback()">Отправить</button>
-                                                        </form>
-                                                    </div>
+                                                </div>
+
+                                                <!--форма-->
+                                                <div class="overlay" id="overlay" onclick="closeForm()"></div>
+                                                <div class="popup-form" id="popup-form">
+                                                    <button class="close-btn" onclick="closeForm()">&times;</button>
+                                                    <h2>Оставить обращение</h2>
+                                                    <form id="feedbackForm">
+                                                        <label for="message">Сообщение:</label>
+                                                        <textarea id="message" name="message" rows="4" required></textarea>
+                                                        
+                                                        <button type="button" onclick="sendFeedback()">Отправить</button>
+                                                    </form>
                                                 </div>
 
                                                 <script>
                                                     // Открытие
                                                     function openForm() {
+                                                        const button = event.currentTarget;
+                                                        const eventId = button.getAttribute('data-event-id');
+                                                        const modelType = button.getAttribute('data-model-type');
+                                                        
+                                                        // Сохраняем данные в форме
+                                                        document.getElementById('feedbackForm').setAttribute('data-event-id', eventId);
+                                                        document.getElementById('feedbackForm').setAttribute('data-model-type', modelType);
+                                                        
                                                         document.getElementById('popup-form').style.display = 'block';
                                                         document.getElementById('overlay').style.display = 'block';
                                                     }
@@ -336,6 +316,45 @@
                                                     function closeForm() {
                                                         document.getElementById('popup-form').style.display = 'none';
                                                         document.getElementById('overlay').style.display = 'none';
+                                                    }
+
+                                                    // Отправка сообщения
+                                                    function sendFeedback() {
+                                                        const message = document.getElementById('message').value;
+                                                        if (!message.trim()) {
+                                                            alert('Пожалуйста, введите сообщение');
+                                                            return;
+                                                        }
+
+                                                        const form = document.getElementById('feedbackForm');
+                                                        const eventId = form.getAttribute('data-event-id');
+                                                        const modelType = form.getAttribute('data-model-type');
+
+                                                        fetch('/users/event_support_request/', {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                'Content-Type': 'application/json',
+                                                                'X-CSRFToken': '{{ csrf_token }}'
+                                                            },
+                                                            body: JSON.stringify({
+                                                                event_id: eventId,
+                                                                model_type: modelType,
+                                                                question: message
+                                                            })
+                                                        })
+                                                        .then(response => response.json())
+                                                        .then(data => {
+                                                            if (data.success) {
+                                                                alert('Сообщение успешно отправлено');
+                                                                closeForm();
+                                                            } else {
+                                                                alert(data.error || 'Произошла ошибка при отправке сообщения');
+                                                            }
+                                                        })
+                                                        .catch(error => {
+                                                            console.error('Error:', error);
+                                                            alert('Произошла ошибка при отправке сообщения');
+                                                        });
                                                     }
                                                 </script>
 											</div>
@@ -357,7 +376,6 @@
 			crossorigin="anonymous"
 		></> {% endcomment %}
         <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-
 
 		<!-- Notification ДОБАВЛЕНИЕ В ИЗБРАННЫЕ И УДАЛЕНИЕ ИЗ ИЗБРАННЫХ -->
 <div id="favoriteNotification" class="notification" style="display: none;">
