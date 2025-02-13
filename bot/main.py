@@ -9,7 +9,7 @@ import requests
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import ChatMemberUpdatedFilter
+from aiogram.filters import ChatMemberUpdatedFilter, Command
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -251,6 +251,20 @@ async def help_request(message: types.Message, state: FSMContext):
         await state.set_state(SupportRequestForm.waiting_for_question)
     else:
         await message.answer("Вы не зарегистрированы на портале.")
+
+@router.message(Command("getid"))
+async def get_chat_id(message: types.Message):
+    # Проверяем, что это групповой чат
+    if message.chat.type == 'private':
+        await message.answer("Эта команда работает только в групповых чатах")
+        return
+
+    # Проверяем тип чата
+    chat_info = await bot.get_chat(message.chat.id)
+    if chat_info.type == 'group' or chat_info.type == 'supergroup':
+        await message.answer(f"ID этого чата: {message.chat.id}")
+    else:
+        await message.answer("Эта команда работает только в групповых чатах")
 
 # В обработчике бота
 @router.message(SupportRequestForm.waiting_for_question)
