@@ -316,3 +316,53 @@ def telegram_login_callback(request):
             return JsonResponse({'success': False, 'error': 'Произошла ошибка при входе'})
     
     return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+
+@csrf_exempt
+@login_required
+def event_support_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            event_id = data.get('event_id')
+            model_type = data.get('model_type')
+            question = data.get('question')
+
+            if not all([event_id, model_type, question]):
+                return JsonResponse({'success': False, 'error': 'Не все необходимые данные предоставлены'})
+
+            # Получаем модель в зависимости от типа мероприятия
+            if model_type == 'offline':
+                from events_available.models import Events_offline as EventModel
+            elif model_type == 'online':
+                from events_available.models import Events_online as EventModel
+            else:
+                return JsonResponse({'success': False, 'error': 'Неверный тип мероприятия'})
+
+            # Получаем мероприятие
+            event = EventModel.objects.get(id=event_id)
+            if not event.support_chat_id:
+                return JsonResponse({'success': False, 'error': 'Для данного мероприятия не настроен чат поддержки'})
+
+            # Формируем сообщение с HTML разметкой
+            user_link = f'<a href="tg://user?id={request.user.telegram_id}">{request.user.first_name} {request.user.last_name}</a>'
+            message = (
+                f"Вопрос по мероприятию \"{event.name}\" от {user_link}:\n\n"
+                f"<pre>{question}</pre>"
+            )
+
+            # Отправляем сообщение в чат поддержки мероприятия
+            from users.telegram_utils import send_message_to_event_support_chat
+            if send_message_to_event_support_chat(message, event.support_chat_id):
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False, 'error': 'Ошибка отправки сообщения'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Неверный формат данных'})
+        except EventModel.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Мероприятие не найдено'})
+        except Exception as e:
+            logger.error(f"Ошибка при обработке запроса в поддержку: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Произошла ошибка при обработке запроса'})
+
+    return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})

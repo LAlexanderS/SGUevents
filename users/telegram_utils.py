@@ -448,3 +448,33 @@ def send_password_to_user(telegram_id: str, password: str) -> None:
     
     # Используем синхронную функцию отправки сообщения вместо асинхронной
     send_message_to_telegram(telegram_id, message)
+
+def send_message_to_event_support_chat(text, support_chat_id, bot_token=None):
+    """
+    Отправляет сообщение в чат поддержки конкретного мероприятия
+    """
+    if not bot_token:
+        bot_token = settings.ACTIVE_TELEGRAM_BOT_TOKEN
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    chat_id = str(support_chat_id)
+    if not chat_id.startswith('-'):
+        chat_id = f"-{chat_id}"
+    
+    payload = {
+        'chat_id': chat_id,
+        'text': text,
+        'parse_mode': 'HTML'
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code != 200:
+            logger.error(f"Failed to send message to event support chat: {response.status_code}")
+            return False
+        return True
+    except Exception as e:
+        logger.error(f"Error sending message to event support chat: {str(e)}")
+        return False

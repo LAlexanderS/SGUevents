@@ -49,6 +49,11 @@
 
 	<button class="btn btn-primary btn-comment" data-event-id="{{ event.id }}" data-model-type="offline">Оставить отзыв</button>
 
+	{% if event.support_chat_id %}
+	<button class="btn btn-info btn-support" onclick="openForm()" data-event-id="{{ event.id }}" data-model-type="offline">
+		Связаться с администрацией
+	</button>
+	{% endif %}
 
 {% elif event.category == "Онлайн" %}
 	{% if event.date >= now %}
@@ -65,7 +70,13 @@
 		<span class="btn btn-secondary">Регистрация недоступна</span>
 	{% endif %}
 
-		<button class="btn btn-primary btn-comment" data-event-id="{{ event.id }}" data-model-type="online">Оставить отзыв</button>
+	<button class="btn btn-primary btn-comment" data-event-id="{{ event.id }}" data-model-type="online">Оставить отзыв</button>
+
+	{% if event.support_chat_id %}
+	<button class="btn btn-info btn-support" onclick="openForm()" data-event-id="{{ event.id }}" data-model-type="online">
+		Связаться с администрацией
+	</button>
+	{% endif %}
 {% endif %}
 
 {% endblock content %}
