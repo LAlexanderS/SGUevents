@@ -4,6 +4,8 @@ import logging
 import os
 import uuid
 import os.path
+import yadisk
+from datetime import datetime
 
 import requests
 from aiogram import Bot, Dispatcher, types, F, Router
@@ -20,21 +22,30 @@ from aiogram.types import Update
 from aiohttp import web
 from asgiref.sync import sync_to_async
 from dotenv import load_dotenv
-
-load_dotenv()
-from bot.django_initializer import setup_django_environment
-
-from django.contrib.auth import get_user_model
-from django.conf import settings
-from users.models import Department
+from pathlib import Path
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Получаем путь к корневой директории проекта
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+from bot.django_initializer import setup_django_environment
+setup_django_environment()
+
+from django.contrib.auth import get_user_model
+from django.conf import settings
+from users.models import Department
+
 # Инициализируем бота и диспетчера глобально
 TOKEN = settings.ACTIVE_TELEGRAM_BOT_TOKEN
 SUPPORT_CHAT_ID = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
+
+# Инициализируем переменные Яндекс.Диска глобально
+YANDEX_DISK_CLIENT_ID = settings.YANDEX_DISK_CLIENT_ID
+YANDEX_DISK_CLIENT_SECRET = settings.YANDEX_DISK_CLIENT_SECRET
+YANDEX_DISK_OAUTH_TOKEN = settings.YANDEX_DISK_OAUTH_TOKEN
 
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=MemoryStorage())
@@ -47,12 +58,6 @@ WEBHOOK_PATH = '/webhook'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 logger.info(f"Настройки вебхука: HOST={WEBHOOK_HOST}, PATH={WEBHOOK_PATH}, URL={WEBHOOK_URL}")
-
-# В начале файла после импортов
-# print(f"Loading settings: DJANGO_ENV={settings.DJANGO_ENV}")
-# print(f"DEV_SUPPORT_CHAT_ID={settings.DEV_SUPPORT_CHAT_ID}")
-# print(f"SUPPORT_CHAT_ID={settings.SUPPORT_CHAT_ID}")
-# print(f"ACTIVE_TELEGRAM_SUPPORT_CHAT_ID={settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID}")
 
 class SupportRequestForm(StatesGroup):
     waiting_for_question = State()
@@ -545,10 +550,54 @@ async def handle_webhook(request):
         logger.error(f"Ошибка при обработке вебхука: {e}")
         return web.Response(status=500)
 
+async def check_yadisk_permissions():
+    """
+    Проверка прав доступа к Яндекс.Диску
+    """
+    try:
+        logger.info("Начинаю проверку прав доступа к Яндекс.Диску")
+        y = yadisk.YaDisk(id=YANDEX_DISK_CLIENT_ID, secret=YANDEX_DISK_CLIENT_SECRET, token=YANDEX_DISK_OAUTH_TOKEN)
+        
+        # Проверяем валидность токена
+        if not await sync_to_async(y.check_token)():
+            logger.error("Недействительный OAuth токен Яндекс.Диска")
+            return False
+            
+        # Проверяем информацию о диске
+        disk_info = await sync_to_async(y.get_disk_info)()
+        logger.info(f"Информация о диске: Всего {disk_info['total_space']/1024/1024/1024:.2f} ГБ, "
+                   f"Занято {disk_info['used_space']/1024/1024/1024:.2f} ГБ")
+        
+        # Пробуем создать тестовую папку
+        test_folder = "/test_permissions"
+        try:
+            if not await sync_to_async(y.exists)(test_folder):
+                await sync_to_async(y.mkdir)(test_folder)
+                logger.info("Тестовая папка успешно создана")
+            await sync_to_async(y.remove)(test_folder, permanently=True)
+            logger.info("Тестовая папка успешно удалена")
+        except yadisk.exceptions.ForbiddenError:
+            logger.error("Нет прав на создание/удаление папок")
+            return False
+        except Exception as e:
+            logger.error(f"Ошибка при проверке прав доступа: {e}")
+            return False
+            
+        logger.info("Проверка прав доступа успешно завершена")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Ошибка при проверке Яндекс.Диска: {e}")
+        return False
+
 async def run_bot():
     """
     Запуск бота с поддержкой вебхуков
     """
+    # Проверяем права доступа к Яндекс.Диску
+    if not await check_yadisk_permissions():
+        logger.error("Ошибка при проверке прав доступа к Яндекс.Диску. Проверьте настройки и токены.")
+    
     # Настраиваем приложение aiohttp
     app = web.Application()
     app.router.add_post(WEBHOOK_PATH, handle_webhook)
@@ -577,6 +626,171 @@ async def run_bot():
         await bot.delete_webhook()
         await runner.cleanup()
 
+# Добавляем новые функции для работы с Яндекс Диском
+async def init_yadisk():
+    """
+    Инициализация клиента Яндекс.Диска с использованием OAuth токена
+    """
+    try:
+        y = yadisk.YaDisk(id=YANDEX_DISK_CLIENT_ID, secret=YANDEX_DISK_CLIENT_SECRET, token=YANDEX_DISK_OAUTH_TOKEN)
+        # Проверяем валидность токена
+        if not await sync_to_async(y.check_token)():
+            logger.error("Недействительный OAuth токен Яндекс.Диска")
+            return None
+        return y
+    except Exception as e:
+        logger.error(f"Ошибка при инициализации Яндекс.Диска: {e}")
+        return None
+
+async def save_file_to_yadisk(y: yadisk.YaDisk, file_path: str, save_path: str):
+    """
+    Сохранение файла на Яндекс.Диск
+    """
+    try:
+        # В новой версии upload возвращает объект операции
+        operation = await sync_to_async(y.upload)(file_path, save_path, overwrite=True)
+        # Ждем завершения операции
+        await sync_to_async(operation.wait)()
+        return True
+    except Exception as e:
+        logger.error(f"Ошибка при загрузке файла на Яндекс.Диск: {e}")
+        return False
+
+async def process_media_message(message: types.Message):
+    """
+    Обработка медиасообщений и сохранение их на Яндекс.Диск
+    """
+    from events_available.models import Events_offline
+    
+    logger.info(f"Начало обработки медиа-сообщения из чата {message.chat.id}")
+    logger.info(f"Тип сообщения: {message.content_type}")
+    logger.info(f"Содержимое сообщения: {message}")
+    
+    # Проверяем, есть ли медиафайлы в сообщении
+    has_media = any([
+        message.content_type == 'photo',
+        message.content_type == 'video',
+        message.content_type == 'document'
+    ])
+    
+    logger.info(f"Тип контента: {message.content_type}")
+    if message.photo:
+        logger.info(f"Найдены фото: {len(message.photo)} шт.")
+        for i, photo in enumerate(message.photo):
+            logger.info(f"Фото {i+1}: file_id={photo.file_id}, размер={photo.width}x{photo.height}")
+    
+    if not has_media:
+        logger.info(f"Медиафайлы не найдены в сообщении. Тип контента: {message.content_type}")
+        return
+
+    # Получаем все офлайн мероприятия с этим чатом
+    try:
+        events = await sync_to_async(list)(
+            Events_offline.objects.filter(
+                users_chat_id=str(message.chat.id),
+                save_media_to_disk=True,
+                yandex_disk_link__isnull=False
+            )
+        )
+        logger.info(f"Найдено мероприятий для сохранения: {len(events)}")
+    except Exception as e:
+        logger.error(f"Ошибка при получении мероприятий: {e}")
+        return
+
+    if not events:
+        logger.info("Нет мероприятий для сохранения медиафайлов")
+        return
+
+    # Инициализируем Яндекс.Диск
+    try:
+        y = yadisk.YaDisk(id=YANDEX_DISK_CLIENT_ID, secret=YANDEX_DISK_CLIENT_SECRET, token=YANDEX_DISK_OAUTH_TOKEN)
+        # Проверяем валидность токена
+        if not await sync_to_async(y.check_token)():
+            logger.error("Недействительный OAuth токен Яндекс.Диска")
+            return
+        logger.info("Яндекс.Диск успешно инициализирован")
+    except Exception as e:
+        logger.error(f"Ошибка при инициализации Яндекс.Диска: {e}")
+        return
+
+    for event in events:
+        # Создаем базовую папку для мероприятия
+        event_folder = f"/Events/{event.name}_{event.unique_id}"
+        try:
+            if not await sync_to_async(y.exists)(event_folder):
+                await sync_to_async(y.mkdir)(event_folder)
+                logger.info(f"Создана папка для мероприятия: {event_folder}")
+        except Exception as e:
+            logger.error(f"Ошибка при создании папки мероприятия: {e}")
+            continue
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        try:
+            if message.content_type == 'photo':
+                photo = message.photo[-1]  # Берем самое большое фото
+                file = await bot.get_file(photo.file_id)
+                file_path = file.file_path
+                local_path = f"temp_{photo.file_id}.jpg"
+                logger.info(f"Начало загрузки фото: {local_path}")
+                
+                await bot.download_file(file_path, local_path)
+                yadisk_path = f"{event_folder}/photo_{timestamp}.jpg"
+                
+                if await save_file_to_yadisk(y, local_path, yadisk_path):
+                    logger.info(f"Фото успешно сохранено на Яндекс.Диск: {yadisk_path}")
+                else:
+                    logger.error("Ошибка при сохранении фото на Яндекс.Диск")
+                
+                os.remove(local_path)
+                logger.info(f"Временный файл удален: {local_path}")
+                
+            elif message.content_type == 'video':
+                file = await bot.get_file(message.video.file_id)
+                file_path = file.file_path
+                local_path = f"temp_{message.video.file_id}.mp4"
+                logger.info(f"Начало загрузки видео: {local_path}")
+                
+                await bot.download_file(file_path, local_path)
+                yadisk_path = f"{event_folder}/video_{timestamp}.mp4"
+                
+                if await save_file_to_yadisk(y, local_path, yadisk_path):
+                    logger.info(f"Видео успешно сохранено на Яндекс.Диск: {yadisk_path}")
+                else:
+                    logger.error("Ошибка при сохранении видео на Яндекс.Диск")
+                
+                os.remove(local_path)
+                logger.info(f"Временный файл удален: {local_path}")
+                
+            elif message.content_type == 'document':
+                file = await bot.get_file(message.document.file_id)
+                file_path = file.file_path
+                local_path = f"temp_{message.document.file_id}{os.path.splitext(message.document.file_name)[1]}"
+                logger.info(f"Начало загрузки документа: {local_path}")
+                
+                await bot.download_file(file_path, local_path)
+                yadisk_path = f"{event_folder}/document_{timestamp}_{message.document.file_name}"
+                
+                if await save_file_to_yadisk(y, local_path, yadisk_path):
+                    logger.info(f"Документ успешно сохранен на Яндекс.Диск: {yadisk_path}")
+                else:
+                    logger.error("Ошибка при сохранении документа на Яндекс.Диск")
+                
+                os.remove(local_path)
+                logger.info(f"Временный файл удален: {local_path}")
+                
+        except Exception as e:
+            logger.error(f"Ошибка при обработке медиафайла: {e}")
+
+# Обновляем обработчики медиафайлов
+@router.message(F.photo)
+@router.message(F.video)
+@router.message(F.document)
+async def handle_media(message: types.Message):
+    logger.info(f"Получено сообщение типа: {message.content_type}")
+    if message.photo:
+        logger.info(f"Получено фото: {len(message.photo)} версий")
+    await process_media_message(message)
+
 if __name__ == "__main__":
-    setup_django_environment()
     asyncio.run(run_bot())
