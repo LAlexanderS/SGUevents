@@ -32,7 +32,6 @@ logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 from bot.django_initializer import setup_django_environment
-setup_django_environment()
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -594,6 +593,9 @@ async def run_bot():
     """
     Запуск бота с поддержкой вебхуков
     """
+    # Инициализируем Django
+    setup_django_environment()
+    
     # Проверяем права доступа к Яндекс.Диску
     if not await check_yadisk_permissions():
         logger.error("Ошибка при проверке прав доступа к Яндекс.Диску. Проверьте настройки и токены.")
@@ -619,9 +621,10 @@ async def run_bot():
 
     logger.info("Бот запущен и слушает вебхуки на порту 8443")
 
-    # Держим бота запущенным
     try:
         await asyncio.Event().wait()
+    except Exception as e:
+        logger.error(f"Ошибка в основном цикле бота: {e}")
     finally:
         await bot.delete_webhook()
         await runner.cleanup()
