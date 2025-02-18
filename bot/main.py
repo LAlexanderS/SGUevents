@@ -686,7 +686,6 @@ async def process_media_message(message: types.Message):
         logger.info(f"Медиафайлы не найдены в сообщении. Тип контента: {message.content_type}")
         return
 
-    # Получаем все офлайн мероприятия с этим чатом
     try:
         events = await sync_to_async(list)(
             Events_offline.objects.filter(
@@ -704,10 +703,8 @@ async def process_media_message(message: types.Message):
         logger.info("Нет мероприятий для сохранения медиафайлов")
         return
 
-    # Инициализируем Яндекс.Диск
     try:
         y = yadisk.YaDisk(id=YANDEX_DISK_CLIENT_ID, secret=YANDEX_DISK_CLIENT_SECRET, token=YANDEX_DISK_OAUTH_TOKEN)
-        # Проверяем валидность токена
         if not await sync_to_async(y.check_token)():
             logger.error("Недействительный OAuth токен Яндекс.Диска")
             return
@@ -717,7 +714,6 @@ async def process_media_message(message: types.Message):
         return
 
     for event in events:
-        # Создаем базовую папку для мероприятия
         event_folder = f"/Events/{event.name}_{event.unique_id}"
         try:
             if not await sync_to_async(y.exists)(event_folder):
