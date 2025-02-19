@@ -690,8 +690,7 @@ async def process_media_message(message: types.Message):
         events = await sync_to_async(list)(
             Events_offline.objects.filter(
                 users_chat_id=str(message.chat.id),
-                save_media_to_disk=True,
-                yandex_disk_link__isnull=False
+                save_media_to_disk=True
             )
         )
         logger.info(f"Найдено мероприятий для сохранения: {len(events)}")
