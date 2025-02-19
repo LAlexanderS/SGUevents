@@ -22,8 +22,8 @@ from django.core.paginator import EmptyPage, PageNotAnInteger
 def online(request):
     page = request.GET.get('page', 1)
     f_date = request.GET.get('f_date', None)
-    f_speakers = request.GET.getlist('f_speakers', None)
-    f_tags = request.GET.getlist('f_tags', None)
+    f_speakers = request.GET.getlist('f_speakers[]', None)
+    f_tags = request.GET.getlist('f_tags[]', None)
     order_by = request.GET.get('order_by', None)
     date_start = request.GET.get('date_start', None)
     date_end = request.GET.get('date_end', None)
@@ -119,12 +119,13 @@ def online(request):
         events_available = events_available.order_by(order_by)
 
 
+    
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
+        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
         events_available = events_available.filter(date__gte=date_start_formatted)
 
     if date_end:
-        date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
+        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
         events_available = events_available.filter(date__lte=date_end_formatted)
 
 
