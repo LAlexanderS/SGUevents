@@ -593,8 +593,7 @@ async def run_bot():
     """
     Запуск бота с поддержкой вебхуков
     """
-    # Инициализируем Django
-    setup_django_environment()
+
     
     # Проверяем права доступа к Яндекс.Диску
     if not await check_yadisk_permissions():
@@ -799,3 +798,5 @@ async def handle_media(message: types.Message):
 
 if __name__ == "__main__":
     asyncio.run(run_bot())
+    # Инициализируем Django
+    setup_django_environment()
