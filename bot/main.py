@@ -726,14 +726,17 @@ async def process_media_message(message: types.Message):
 
         try:
             if message.content_type == 'photo':
-                photo = message.photo[-1]  # Берем самое большое фото
+                # Берем самое большое фото (последнее в списке)
+                photo = message.photo[-1]  # В списке фото отсортированы по размеру, последнее - самое большое
+                logger.info(f"Выбрано фото максимального качества: {photo.width}x{photo.height}")
+                
                 file = await bot.get_file(photo.file_id)
                 file_path = file.file_path
                 local_path = f"temp_{photo.file_id}.jpg"
                 logger.info(f"Начало загрузки фото: {local_path}")
                 
                 await bot.download_file(file_path, local_path)
-                yadisk_path = f"{event_folder}/photo_{timestamp}.jpg"
+                yadisk_path = f"{event_folder}/photo_{timestamp}_{photo.width}x{photo.height}.jpg"
                 
                 if await save_file_to_yadisk(y, local_path, yadisk_path):
                     logger.info(f"Фото успешно сохранено на Яндекс.Диск: {yadisk_path}")
@@ -744,13 +747,17 @@ async def process_media_message(message: types.Message):
                 logger.info(f"Временный файл удален: {local_path}")
                 
             elif message.content_type == 'video':
-                file = await bot.get_file(message.video.file_id)
+                # Для видео сохраняем информацию о качестве
+                video = message.video
+                logger.info(f"Видео: {video.width}x{video.height}, длительность: {video.duration}с")
+                
+                file = await bot.get_file(video.file_id)
                 file_path = file.file_path
-                local_path = f"temp_{message.video.file_id}.mp4"
+                local_path = f"temp_{video.file_id}.mp4"
                 logger.info(f"Начало загрузки видео: {local_path}")
                 
                 await bot.download_file(file_path, local_path)
-                yadisk_path = f"{event_folder}/video_{timestamp}.mp4"
+                yadisk_path = f"{event_folder}/video_{timestamp}_{video.width}x{video.height}.mp4"
                 
                 if await save_file_to_yadisk(y, local_path, yadisk_path):
                     logger.info(f"Видео успешно сохранено на Яндекс.Диск: {yadisk_path}")
