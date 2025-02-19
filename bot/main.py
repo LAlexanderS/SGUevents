@@ -51,6 +51,14 @@ dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 dp.include_router(router)
 
+# Добавляем команды в список команд бота
+BOT_COMMANDS = [
+    types.BotCommand(command="help", description="Задать вопрос в поддержку")
+]
+
+async def setup_bot_commands():
+    await bot.set_my_commands(BOT_COMMANDS)
+
 # Настройки вебхука
 WEBHOOK_HOST = os.getenv('WEBHOOK_HOST', '').rstrip('/')
 WEBHOOK_PATH = '/webhook'
@@ -243,18 +251,77 @@ async def my_events(message: types.Message):
     else:
         await message.answer("Вы не зарегистрированы на портале.")
 
-@router.message(F.text == "\U00002754 Помощь")
+@router.message(Command("help"))
 async def help_request(message: types.Message, state: FSMContext):
-    # Проверяем, что это личный чат
-    if message.chat.type != 'private':
+    # Проверяем, что это групповой чат
+    if message.chat.type == 'private':
+        await message.answer("❗️ Команда /help работает только в групповых чатах.")
         return
         
     user = await get_user_profile(message.from_user.id)
-    if user:
-        await message.answer("\U00002754 Пожалуйста, введите ваш вопрос:")
-        await state.set_state(SupportRequestForm.waiting_for_question)
-    else:
+    if not user:
         await message.answer("Вы не зарегистрированы на портале.")
+        return
+
+    # Получаем мероприятие по chat_id
+    from events_available.models import Events_offline
+    try:
+        event = await sync_to_async(Events_offline.objects.get)(users_chat_id=str(message.chat.id))
+        if not event.support_chat_id:
+            await message.answer("❌ Для данного мероприятия не настроен чат поддержки.")
+            return
+    except Events_offline.DoesNotExist:
+        await message.answer("❌ Этот чат не привязан к мероприятию.")
+        return
+
+    # Получаем текст после команды /help
+    command_args = message.text.split(maxsplit=1)
+    if len(command_args) > 1:
+        # Если есть текст после команды, отправляем его как вопрос
+        question = command_args[1]
+        from users.models import SupportRequest
+        
+        try:
+            # Сохраняем вопрос в базе данных
+            support_request = await sync_to_async(SupportRequest.objects.create)(
+                user=user,
+                question=question
+            )
+
+            # Формируем сообщение с проверкой VIP статуса и HTML разметкой
+            vip_emoji = "\U0001F451 " if user.vip else ""
+            user_link = f'<a href="tg://user?id={user.telegram_id}">{user.first_name} {user.last_name}</a>'
+            support_message = f"Новый вопрос по мероприятию \"{event.name}\" от {vip_emoji}{user_link}:\n\n<pre>{question}</pre>"
+
+            # Отправляем сообщение в чат поддержки мероприятия через requests
+            url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+            payload = {
+                'chat_id': str(event.support_chat_id),
+                'text': support_message,
+                'parse_mode': 'HTML'
+            }
+            response = requests.post(url, json=payload)
+            
+            if response.status_code == 200:
+                await message.answer("✅ Ваш вопрос отправлен в техподдержку. Спасибо!")
+                logger.info(f"Вопрос успешно отправлен в поддержку мероприятия: {question}")
+            else:
+                await message.answer("❌ Произошла ошибка при отправке вопроса. Попробуйте позже.")
+                logger.error(f"Ошибка отправки в поддержку: {response.status_code} - {response.text}")
+                
+        except Exception as e:
+            logger.error(f"Ошибка при обработке вопроса: {e}")
+            await message.answer("❌ Произошла ошибка при обработке вопроса. Попробуйте позже.")
+    else:
+        # Если команда отправлена без текста, отправляем инструкцию
+        instruction = (
+            "ℹ️ Для отправки вопроса в техподдержку используйте команду /help следующим образом:\n\n"
+            "<code>/help ваш вопрос</code>\n\n"
+            "Например:\n"
+            "<code>/help как отменить регистрацию на мероприятие?</code>\n\n"
+            "❗️ Пожалуйста, пишите вопрос сразу после команды /help"
+        )
+        await message.answer(instruction)
 
 @router.message(Command("getid"))
 async def get_chat_id(message: types.Message):
@@ -593,7 +660,8 @@ async def run_bot():
     """
     Запуск бота с поддержкой вебхуков
     """
-
+    # Устанавливаем команды бота
+    await setup_bot_commands()
     
     # Проверяем права доступа к Яндекс.Диску
     if not await check_yadisk_permissions():
