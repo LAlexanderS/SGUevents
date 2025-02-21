@@ -10,6 +10,24 @@ from django.utils import timezone
 from pytz import timezone as pytz_timezone
 from django.core.exceptions import ValidationError
 
+class MediaFile(models.Model):
+    message_id = models.CharField(max_length=100, verbose_name='ID сообщения')
+    chat_id = models.CharField(max_length=100, verbose_name='ID чата')
+    file_path = models.CharField(max_length=500, verbose_name='Путь к файлу на Яндекс.Диске')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    is_deleted = models.BooleanField(default=False, verbose_name='Удален')
+    celery_task_id = models.CharField(max_length=100, null=True, blank=True, verbose_name='ID задачи Celery')
+
+    class Meta:
+        verbose_name = 'Медиафайл'
+        verbose_name_plural = 'Медиафайлы'
+        indexes = [
+            models.Index(fields=['message_id', 'chat_id']),
+        ]
+
+    def __str__(self):
+        return f"Файл {self.file_path} из чата {self.chat_id}"
+
 class Events_online(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, unique=False, blank=False, null=False, verbose_name='Название')

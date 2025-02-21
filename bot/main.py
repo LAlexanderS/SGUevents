@@ -702,7 +702,11 @@ async def init_yadisk():
     Инициализация клиента Яндекс.Диска с использованием OAuth токена
     """
     try:
-        y = yadisk.YaDisk(id=YANDEX_DISK_CLIENT_ID, secret=YANDEX_DISK_CLIENT_SECRET, token=YANDEX_DISK_OAUTH_TOKEN)
+        y = yadisk.YaDisk(
+            id=settings.YANDEX_DISK_CLIENT_ID,
+            secret=settings.YANDEX_DISK_CLIENT_SECRET,
+            token=settings.YANDEX_DISK_OAUTH_TOKEN
+        )
         # Проверяем валидность токена
         if not await sync_to_async(y.check_token)():
             logger.error("Недействительный OAuth токен Яндекс.Диска")
@@ -714,14 +718,13 @@ async def init_yadisk():
 
 async def save_file_to_yadisk(y: yadisk.YaDisk, file_path: str, save_path: str):
     """
-    Сохранение файла на Яндекс.Диск
+    Сохраняет файл на Яндекс.Диск
     """
     try:
-        # В новой версии upload возвращает объект операции
-        operation = await sync_to_async(y.upload)(file_path, save_path, overwrite=True)
-        # Ждем завершения операции
-        await sync_to_async(operation.wait)()
-        return True
+        with open(file_path, 'rb') as f:
+            await sync_to_async(y.upload)(f, save_path)
+            logger.info(f"Файл успешно загружен на Яндекс.Диск: {save_path}")
+            return True
     except Exception as e:
         logger.error(f"Ошибка при загрузке файла на Яндекс.Диск: {e}")
         return False
@@ -730,27 +733,29 @@ async def process_media_message(message: types.Message):
     """
     Обработка медиасообщений и сохранение их на Яндекс.Диск
     """
-    from events_available.models import Events_offline
+    from events_available.models import Events_offline, MediaFile
+    from SGUevents.celery import check_deleted_message
+    from datetime import datetime, timedelta
     
     logger.info(f"Начало обработки медиа-сообщения из чата {message.chat.id}")
     logger.info(f"Тип сообщения: {message.content_type}")
-    logger.info(f"Содержимое сообщения: {message}")
     
-    # Проверяем, есть ли медиафайлы в сообщении
-    has_media = any([
-        message.content_type == 'photo',
-        message.content_type == 'video',
-        message.content_type == 'document'
-    ])
+    # Определяем тип медиафайла и получаем информацию о нем
+    file_info = None
+    file_extension = None
     
-    logger.info(f"Тип контента: {message.content_type}")
     if message.photo:
-        logger.info(f"Найдены фото: {len(message.photo)} шт.")
-        for i, photo in enumerate(message.photo):
-            logger.info(f"Фото {i+1}: file_id={photo.file_id}, размер={photo.width}x{photo.height}")
+        file_info = message.photo[-1]  # Берем последнее (самое качественное) фото
+        file_extension = "jpg"
+    elif message.video:
+        file_info = message.video
+        file_extension = "mp4"
+    elif message.document:
+        file_info = message.document
+        file_extension = message.document.file_name.split('.')[-1] if '.' in message.document.file_name else 'unknown'
     
-    if not has_media:
-        logger.info(f"Медиафайлы не найдены в сообщении. Тип контента: {message.content_type}")
+    if not file_info:
+        logger.info("Медиафайл не найден в сообщении")
         return
 
     try:
@@ -758,8 +763,7 @@ async def process_media_message(message: types.Message):
             Events_offline.objects.filter(
                 users_chat_id=str(message.chat.id),
                 save_media_to_disk=True
-            )
-        )
+            ))
         logger.info(f"Найдено мероприятий для сохранения: {len(events)}")
     except Exception as e:
         logger.error(f"Ошибка при получении мероприятий: {e}")
@@ -769,90 +773,67 @@ async def process_media_message(message: types.Message):
         logger.info("Нет мероприятий для сохранения медиафайлов")
         return
 
+    event = events[0]
+    y = yadisk.YaDisk(
+        id=settings.YANDEX_DISK_CLIENT_ID,
+        secret=settings.YANDEX_DISK_CLIENT_SECRET,
+        token=settings.YANDEX_DISK_OAUTH_TOKEN
+    )
+
     try:
-        y = yadisk.YaDisk(id=YANDEX_DISK_CLIENT_ID, secret=YANDEX_DISK_CLIENT_SECRET, token=YANDEX_DISK_OAUTH_TOKEN)
-        if not await sync_to_async(y.check_token)():
-            logger.error("Недействительный OAuth токен Яндекс.Диска")
-            return
-        logger.info("Яндекс.Диск успешно инициализирован")
+        # Скачиваем файл
+        file = await bot.get_file(file_info.file_id)
+        local_path = f"temp_{file_info.file_id}.{file_extension}"
+        await bot.download_file(file.file_path, local_path)
+        
+        # Создаем базовую директорию events, если её нет
+        base_folder = "/events"
+        if not await sync_to_async(y.exists)(base_folder):
+            await sync_to_async(y.mkdir)(base_folder)
+            logger.info(f"Создана базовая директория {base_folder}")
+
+        # Создаем директорию мероприятия
+        event_folder = f"{base_folder}/{event.name}"
+        if not await sync_to_async(y.exists)(event_folder):
+            await sync_to_async(y.mkdir)(event_folder)
+            logger.info(f"Создана директория мероприятия {event_folder}")
+
+        # Генерируем уникальное имя файла
+        timestamp = datetime.now().strftime("%H-%M-%S")
+        yandex_filename = f"{timestamp}_{file_info.file_id}.{file_extension}"
+        yandex_path = f"{event_folder}/{yandex_filename}"
+            
+        # Сохраняем файл на Яндекс.Диск
+        if await save_file_to_yadisk(y, local_path, yandex_path):
+            # Создаем запись в базе данных
+            media_file = await sync_to_async(MediaFile.objects.create)(
+                message_id=str(message.message_id),
+                chat_id=str(message.chat.id),
+                file_path=yandex_path
+            )
+            
+            # Создаем отложенную задачу (1 час)
+            task = check_deleted_message.apply_async(
+                args=[media_file.id],
+                countdown=3600  # 1 час
+            )
+            
+            # Сохраняем ID задачи
+            media_file.celery_task_id = task.id
+            await sync_to_async(media_file.save)()
+            
+            logger.info(f"Создана задача Celery с ID {task.id} для проверки файла через 1 час")
+        
+        # Удаляем временный файл
+        if os.path.exists(local_path):
+            os.remove(local_path)
+            logger.info(f"Временный файл {local_path} удален")
+            
     except Exception as e:
-        logger.error(f"Ошибка при инициализации Яндекс.Диска: {e}")
-        return
-
-    for event in events:
-        event_folder = f"/Events/{event.name}_{event.unique_id}"
-        try:
-            if not await sync_to_async(y.exists)(event_folder):
-                await sync_to_async(y.mkdir)(event_folder)
-                logger.info(f"Создана папка для мероприятия: {event_folder}")
-        except Exception as e:
-            logger.error(f"Ошибка при создании папки мероприятия: {e}")
-            continue
-
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        try:
-            if message.content_type == 'photo':
-                # Берем самое большое фото (последнее в списке)
-                photo = message.photo[-1]  # В списке фото отсортированы по размеру, последнее - самое большое
-                logger.info(f"Выбрано фото максимального качества: {photo.width}x{photo.height}")
-                
-                file = await bot.get_file(photo.file_id)
-                file_path = file.file_path
-                local_path = f"temp_{photo.file_id}.jpg"
-                logger.info(f"Начало загрузки фото: {local_path}")
-                
-                await bot.download_file(file_path, local_path)
-                yadisk_path = f"{event_folder}/photo_{timestamp}_{photo.width}x{photo.height}.jpg"
-                
-                if await save_file_to_yadisk(y, local_path, yadisk_path):
-                    logger.info(f"Фото успешно сохранено на Яндекс.Диск: {yadisk_path}")
-                else:
-                    logger.error("Ошибка при сохранении фото на Яндекс.Диск")
-                
-                os.remove(local_path)
-                logger.info(f"Временный файл удален: {local_path}")
-                
-            elif message.content_type == 'video':
-                # Для видео сохраняем информацию о качестве
-                video = message.video
-                logger.info(f"Видео: {video.width}x{video.height}, длительность: {video.duration}с")
-                
-                file = await bot.get_file(video.file_id)
-                file_path = file.file_path
-                local_path = f"temp_{video.file_id}.mp4"
-                logger.info(f"Начало загрузки видео: {local_path}")
-                
-                await bot.download_file(file_path, local_path)
-                yadisk_path = f"{event_folder}/video_{timestamp}_{video.width}x{video.height}.mp4"
-                
-                if await save_file_to_yadisk(y, local_path, yadisk_path):
-                    logger.info(f"Видео успешно сохранено на Яндекс.Диск: {yadisk_path}")
-                else:
-                    logger.error("Ошибка при сохранении видео на Яндекс.Диск")
-                
-                os.remove(local_path)
-                logger.info(f"Временный файл удален: {local_path}")
-                
-            elif message.content_type == 'document':
-                file = await bot.get_file(message.document.file_id)
-                file_path = file.file_path
-                local_path = f"temp_{message.document.file_id}{os.path.splitext(message.document.file_name)[1]}"
-                logger.info(f"Начало загрузки документа: {local_path}")
-                
-                await bot.download_file(file_path, local_path)
-                yadisk_path = f"{event_folder}/document_{timestamp}_{message.document.file_name}"
-                
-                if await save_file_to_yadisk(y, local_path, yadisk_path):
-                    logger.info(f"Документ успешно сохранен на Яндекс.Диск: {yadisk_path}")
-                else:
-                    logger.error("Ошибка при сохранении документа на Яндекс.Диск")
-                
-                os.remove(local_path)
-                logger.info(f"Временный файл удален: {local_path}")
-                
-        except Exception as e:
-            logger.error(f"Ошибка при обработке медиафайла: {e}")
+        logger.error(f"Ошибка при обработке файла: {e}")
+        if 'local_path' in locals() and os.path.exists(local_path):
+            os.remove(local_path)
+            logger.info(f"Временный файл {local_path} удален после ошибки")
 
 # Обновляем обработчики медиафайлов
 @router.message(F.photo)
