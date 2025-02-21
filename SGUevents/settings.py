@@ -106,6 +106,11 @@ ACTIVE_TELEGRAM_SUPPORT_CHAT_ID = DEV_SUPPORT_CHAT_ID if DJANGO_ENV == 'developm
 # Telegram Bot settings
 TELEGRAM_BOT_USERNAME = os.getenv('DEV_BOT_NAME') if os.getenv('DJANGO_ENV') == 'development' else os.getenv('BOT_NAME')
 
+# Yandex Disk settings
+YANDEX_DISK_CLIENT_ID = os.getenv('YANDEX_DISK_CLIENT_ID')
+YANDEX_DISK_CLIENT_SECRET = os.getenv('YANDEX_DISK_CLIENT_SECRET')
+YANDEX_DISK_OAUTH_TOKEN = os.getenv('YANDEX_DISK_OAUTH_TOKEN')
+
 if DJANGO_ENV == 'development':
     DATABASES = {
         'default': {

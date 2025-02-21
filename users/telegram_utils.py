@@ -436,6 +436,53 @@ async def _send_telegram_message(chat_id: str, text: str) -> None:
                 response_text = await response.text()
                 raise Exception(f"Ошибка отправки сообщения в Telegram: {response_text}")
 
+async def get_chat_info(chat_id: str) -> dict:
+    """
+    Получает информацию о чате через Telegram API
+    """
+    bot_token = settings.ACTIVE_TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        raise ValueError("ACTIVE_TELEGRAM_BOT_TOKEN не установлен")
+
+    url = f"https://api.telegram.org/bot{bot_token}/getChat"
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json={'chat_id': chat_id}) as response:
+            if response.status != 200:
+                response_text = await response.text()
+                raise Exception(f"Ошибка получения информации о чате: {response_text}")
+            return await response.json()
+
+def send_chat_id_info(chat_id: str) -> None:
+    """
+    Отправляет информацию об ID чата пользователю
+    """
+    try:
+        chat_info = async_to_sync(get_chat_info)(chat_id)
+        chat_data = chat_info.get('result', {})
+        chat_type = chat_data.get('type', 'неизвестный')
+        
+        message = (
+            f"ℹ️ <b>Информация о чате:</b>\n\n"
+            f"ID чата: <code>{chat_id}</code>\n"
+            f"Тип чата: {chat_type}\n"
+        )
+        
+        if chat_type in ['group', 'supergroup']:
+            message += f"Название: {chat_data.get('title', 'не указано')}\n"
+        elif chat_type == 'private':
+            username = chat_data.get('username', 'не указано')
+            first_name = chat_data.get('first_name', '')
+            last_name = chat_data.get('last_name', '')
+            full_name = f"{first_name} {last_name}".strip()
+            message += f"Имя: {full_name}\n"
+            if username:
+                message += f"Username: @{username}\n"
+        
+        send_message_to_telegram(chat_id, message)
+    except Exception as e:
+        error_message = f"❌ Ошибка при получении информации о чате: {str(e)}"
+        send_message_to_telegram(chat_id, error_message)
+
 def send_password_to_user(telegram_id: str, password: str) -> None:
     """
     Отправляет пароль пользователю через Telegram
