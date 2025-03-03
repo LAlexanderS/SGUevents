@@ -27,18 +27,26 @@ function handleRegister(event) {
         .then(response => response.json())
         .then(data => {
             if (data.added) {
-                // Обновление кнопок в соответствии с новым дизайном
-                const sentAppButton = card.querySelector('.btn-sent_app')
-                const removeAppButton = card.querySelector('.btn-remove_app')
+                // Создаём кнопку "Отмена регистрации"
+                const removeAppButton = document.createElement('a')
+                removeAppButton.href = "#"
+                removeAppButton.classList.add('btn', 'btn-remove_app')
+                removeAppButton.setAttribute('data-event-id', data.event_id)
+                removeAppButton.innerText = 'Отмена регистрации'
 
-                sentAppButton.classList.add('hidden')
-                removeAppButton.classList.remove('hidden')
+                // Назначаем обработчик
+                removeAppButton.addEventListener('click', handleUnregister)
 
+                // Меняем кнопку "Регистрация" на "Отмена регистрации"
+                buttonElement.replaceWith(removeAppButton)
+
+                // Сохраняем состояние в localStorage
                 localStorage.setItem(`event-${eventSlug}-app`, 'sent')
-                // Обновите количество свободных мест
+
+                // Обновляем количество свободных мест
                 const freePlacesElement = document.getElementById(`free-places-${data.event_slug}`)
                 if (freePlacesElement) {
-                    freePlacesElement.textContent = data.place_free  // Обновляем свободные места
+                    freePlacesElement.textContent = data.place_free
                 }
 
                 showRegistrationNotification("Зарегистрировано")
@@ -50,43 +58,6 @@ function handleRegister(event) {
 }
 
 
-// function handleRegister(event) {
-//     event.preventDefault()
-//     const eventSlug = this.getAttribute('data-event-slug')
-//     const buttonElement = this
-
-//     fetch(`/bookmarks/events_registered/${eventSlug}/`, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'X-CSRFToken': csrftoken
-//         },
-//         body: JSON.stringify({ 'slug': eventSlug })
-//     })
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.added) {
-//                 buttonElement.classList.remove('btn-danger', 'btn-sent_app')
-//                 buttonElement.classList.add('btn-light', 'btn-remove_app')
-//                 buttonElement.innerHTML = 'Отмена регистрации'
-//                 buttonElement.setAttribute('data-event-id', data.event_id)
-//                 buttonElement.removeAttribute('data-event-slug')
-
-//                 // Обновляем количество свободных мест
-//                 // Обновите количество свободных мест
-//                 const freePlacesElement = document.getElementById(`free-places-${data.event_slug}`)
-//                 if (freePlacesElement) {
-//                     freePlacesElement.textContent = data.place_free  // Обновляем свободные места
-//                 }
-
-//                 showRegistrationNotification("Зарегистрировано")
-//                 initializeRegistrationButtons()
-//             } else {
-//                 console.error('Ошибка при регистрации:', data.error)
-//             }
-//         })
-//         .catch(error => console.error('Error:', error))
-// }
 function handleUnregister(event) {
     event.preventDefault()
     const eventId = this.getAttribute('data-event-id')
@@ -104,19 +75,26 @@ function handleUnregister(event) {
         .then(response => response.json())
         .then(data => {
             if (data.removed) {
-                // Обновление кнопок в соответствии с новым дизайном
-                const sentAppButton = card.querySelector('.btn-sent_app')
-                const removeAppButton = card.querySelector('.btn-remove_app')
+                // Создаём кнопку "Регистрация"
+                const sentAppButton = document.createElement('a')
+                sentAppButton.href = "#"
+                sentAppButton.classList.add('btn', 'btn-sent_app')
+                sentAppButton.setAttribute('data-event-slug', data.event_slug)
+                sentAppButton.innerText = 'Регистрация'
 
-                removeAppButton.classList.add('hidden')
-                sentAppButton.classList.remove('hidden')
+                // Назначаем обработчик
+                sentAppButton.addEventListener('click', handleRegister)
 
+                // Меняем кнопку "Отмена регистрации" обратно на "Регистрация"
+                buttonElement.replaceWith(sentAppButton)
+
+                // Удаляем запись из localStorage
                 localStorage.removeItem(`event-${data.event_slug}-app`)
 
-                // Обновите количество свободных мест
+                // Обновляем количество свободных мест
                 const freePlacesElement = document.getElementById(`free-places-${data.event_slug}`)
                 if (freePlacesElement) {
-                    freePlacesElement.textContent = data.place_free  // Обновляем свободные места
+                    freePlacesElement.textContent = data.place_free
                 }
 
                 showRegistrationNotification("Регистрация отменена")
@@ -128,42 +106,7 @@ function handleUnregister(event) {
 }
 
 
-// function handleUnregister(event) {
-//     event.preventDefault()
-//     const eventId = this.getAttribute('data-event-id')
-//     const buttonElement = this
 
-//     fetch(`/bookmarks/registered_remove/${eventId}/`, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'X-CSRFToken': csrftoken
-//         },
-//         body: JSON.stringify({ 'id': eventId })
-//     })
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.removed) {
-//                 buttonElement.classList.remove('btn-light', 'btn-remove_app')
-//                 buttonElement.classList.add('btn-danger', 'btn-sent_app')
-//                 buttonElement.innerHTML = 'Регистрация'
-//                 buttonElement.setAttribute('data-event-slug', data.event_slug)
-//                 buttonElement.removeAttribute('data-event-id')
-
-//                 // Обновите количество свободных мест
-//                 const freePlacesElement = document.getElementById(`free-places-${data.event_slug}`)
-//                 if (freePlacesElement) {
-//                     freePlacesElement.textContent = data.place_free  // Обновляем свободные места
-//                 }
-
-//                 showRegistrationNotification("Регистрация отменена")
-//                 initializeRegistrationButtons()
-//             } else {
-//                 console.error('Ошибка при отмене регистрации:', data.error)
-//             }
-//         })
-//         .catch(error => console.error('Ошибка:', error))
-// }
 
 function showRegistrationNotification(message) {
     const notification = document.getElementById('registrationNotification')
