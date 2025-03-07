@@ -1300,6 +1300,8 @@ td {
 .user-icon-existent-review img {
     height: 25px;
     width: auto;
+    display: block;
+    margin: auto;
 }
 
 .username-existent-review {
@@ -3563,6 +3565,7 @@ td {
         text-indent: 0;
         width: fit-content;
         padding-right: 0;
+
     }
 
     .user-icon-existent-review img {
@@ -4273,4 +4276,89 @@ td {
     .img-mobile {
         display: block;
     }
+}
+
+
+.modal-dialog {
+    max-width: 600px;
+    /* Увеличиваем ширину модального окна */
+    width: 90%;
+}
+
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Гибкое размещение отзывов */
+.existent-review {
+    display: flex;
+    align-items: flex-start;
+    /* Выравниваем аватар и текст по верхнему краю */
+    gap: 15px;
+    /* Отступ между элементами */
+    width: 100%;
+    /* Заполняет всю доступную ширину */
+}
+
+/* Блок с именем */
+.username-existent-review {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    max-width: 150px;
+    /* Ограничиваем ширину имени */
+    word-break: break-word;
+    /* Переносим длинные слова */
+}
+
+/* Блок с самим отзывом */
+.review-block-existent-review {
+    flex-grow: 1;
+    /* Растягиваем блок на всю доступную ширину */
+    max-width: 100%;
+}
+
+.review-text-existent-review {
+    display: block;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-align: left;
+    font-size: 16px;
+    /* Сделаем текст читаемым */
+}
+
+.username-existent-review {
+    display: flex;
+    flex-direction: column;
+    /* Размещаем фамилию сверху, имя снизу */
+    align-items: center;
+    text-align: center;
+    width: 180px;
+    /* Увеличиваем ширину блока */
+    min-width: 180px;
+    /* Гарантируем, что блок не будет сжиматься */
+    max-width: 100%;
+    /* Не позволяем блоку быть слишком большим */
+    white-space: nowrap;
+    /* Запрещаем перенос строк */
+    overflow: hidden;
+    /* Предотвращает выход за границы */
+    text-overflow: ellipsis;
+    /* Добавляет "..." при слишком длинном тексте */
+}
+
+.user-lastname,
+.user-firstname {
+    width: 100%;
+    /* Делаем, чтобы занимало всю ширину */
+    text-align: center;
+    /* Центрируем текст */
+    overflow: hidden;
+    /* Защита от выхода за границы */
+    text-overflow: ellipsis;
+    /* Если фамилия слишком длинная, добавляет "..." */
+    white-space: nowrap;
+    /* Запрещает перенос строк */
 }
