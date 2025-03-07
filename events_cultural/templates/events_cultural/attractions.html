@@ -252,9 +252,9 @@
 
 {% block content %}
 <!-- Контент на странице -->
-<button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="attractions">Оставить отзыв</button>
-
-
+<div class="button-substrate">
+	<button class="btn btn-comment" data-event-id="{{ events.id }}" data-model-type="attractions">Оставить отзыв</button>
+</div>
 {% endblock content %}
 
 {% block script_js %}     

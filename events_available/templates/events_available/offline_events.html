@@ -283,22 +283,24 @@
 
 {% block content %}
 <!-- Контент на странице -->
-{% if events.date >= now or request.user in events.member.all %}
-    {% if events.id in registered %}
+<div class="button-substrate">
 
-    <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
-        Отмена регистрации
-    </a>
+    {% if events.date >= now or request.user in events.member.all %}
+        {% if events.id in registered %}
+            <a href="#" class="btn btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">
+                Отмена регистрации
+            </a>
+        {% else %}
+            <a href="#" class="btn btn-sent_app" data-event-slug="{{ events.slug }}">
+                Регистрация
+            </a>
+        {% endif %}
     {% else %}
-    <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
-        Регистрация
-    </a>
+        <span class="btn btn-secondary">Регистрация недоступна</span>
     {% endif %}
-{% else %}
-    <span class="btn btn-secondary">Регистрация недоступна</span>
-{% endif %}
 
-<button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="offline">Оставить отзыв</button>
+    <button class="btn btn-comment" data-event-id="{{ events.id }}" data-model-type="offline">Оставить отзыв</button>
+</div>
 
 {% endblock content %}
 

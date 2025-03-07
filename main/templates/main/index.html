@@ -228,52 +228,64 @@
 {% block content %}
 <!-- Контент на странице -->
 {% if events.category  == 'Онлайн' %}
-    {% if events.date >= now %}
-        {% if events.id in registered.online%}
-            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.online|get_item:events.id }}">
-                Отмена регистрации       
-            </a>     
-        {% else %}
-            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
-                Регистрация
-            </a>
-        {% endif %}
-    {% endif %}
-
-	<button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="online">Оставить отзыв</button>
-{% elif events.category  == 'Оффлайн' %}
-    {% if events.date >= now %}
-        {% if events.id in registered.offline %}
-            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.offline|get_item:events.id }}">
-                Отмена регистрации
-            </a>
-        {% else %}
-            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
-                Регистрация
-            </a>
-        {% endif %}
-    {% endif %}
-
-	<button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="offline">Оставить отзыв</button>
-
-{% elif events.category  == 'Достопримечательности' %}
-	<button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="attractions">Оставить отзыв</button>
-{% elif events.category  == 'Доступные к посещению' %}
-    {% if events.date >= now %}
-        {% if events.id in registered.for_visiting %}
-            <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered.for_visiting|get_item:events.id }}">
-                Отмена регистрации
-            </a>
+    <div class="button-substrate">
+        {% if events.date >= now or request.user in events.member.all %}
+            {% if events.id in registered.online %}
+                <a href="#" class="btn btn-remove_app" data-event-id="{{ registered.online|get_item:events.id }}">
+                    Отмена регистрации
+                </a>
             {% else %}
-            <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ events.slug }}">
-                Регистрация
-            </a>
+                <a href="#" class="btn btn-sent_app" data-event-slug="{{ events.slug }}">
+                    Регистрация
+                </a>
+            {% endif %}
+        {% else %}
+            <span class="btn btn-secondary">Регистрация недоступна</span>
         {% endif %}
-    {% endif %}
-    
-	<button class="btn btn-primary btn-comment" data-event-id="{{ events.id }}" data-model-type="for_visiting">Оставить отзыв </button>
-{% endif %}
 
+        <button class="btn btn-comment" data-event-id="{{ events.id }}" data-model-type="online">Оставить отзыв</button>
+    </div>
+{% elif events.category  == 'Оффлайн' %}
+    <div class="button-substrate">
+        {% if events.date >= now or request.user in events.member.all %}
+            {% if events.id in registered.offline %}
+                <a href="#" class="btn btn-remove_app" data-event-id="{{ registered.offline|get_item:events.id }}">
+                    Отмена регистрации
+                </a>
+            {% else %}
+                <a href="#" class="btn btn-sent_app" data-event-slug="{{ events.slug }}">
+                    Регистрация
+                </a>
+            {% endif %}
+        {% else %}
+            <span class="btn btn-secondary">Регистрация недоступна</span>
+        {% endif %}
+
+        <button class="btn btn-comment" data-event-id="{{ events.id }}" data-model-type="offline">Оставить отзыв</button>
+    </div>
+{% elif events.category  == 'Достопримечательности' %}
+    <div class="button-substrate">
+        <button class="btn btn-comment" data-event-id="{{ events.id }}" data-model-type="attractions">Оставить отзыв</button>
+    </div>
+{% elif events.category  == 'Доступные к посещению' %}
+    <div class="button-substrate">
+        {% if events.date >= now and events.place_free > 0 or request.user in events.member.all %}
+            {% if events.id in registered.for_visiting %}
+                <a href="#" class="btn btn-remove_app" data-event-id="{{ registered.for_visiting|get_item:events.id }}">
+                    Отмена регистрации
+                </a>
+            {% else %}
+                <a href="#" class="btn btn-sent_app" data-event-slug="{{ events.slug }}">
+                    Регистрация
+                </a>
+            {% endif %}
+        {% else %}
+            <span class="btn btn-secondary">Регистрация недоступна</span>
+        {% endif %}
+
+        <button class="btn btn-comment" data-event-id="{{ events.id }}" data-model-type="for_visiting">Оставить отзыв</button>
+    </div>
+{% endif %}
 
 {% endblock content %}
              
