@@ -183,20 +183,24 @@
                                 <div class="info-block speaker">
                                     <div class="title">Спикер</div>
                                     <div class="info-content">
-                                        <label for="speaker">Лобанова Стефания Даниловна</label>
+                                        {% for speaker in event.speakers.all %}
+                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
                                     </div>
                                 </div>
                                 <div class="info-block date-time">
                                     <div class="title">Дата проведения</div>
                                     <div class="info-content">
-                                        <label for="date">8 января 2024</label> <br>
-                                        <label for="time">1:00 - 16:00</label>
+                                        <label for="date">{{ event.date }}</label> <br>
+                                        <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
                                     </div>
                                 </div>
                                 <div class="info-block connection">
                                     <div class="title">Подключение</div>
                                     <div class="info-content">
-                                        <label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
+                                        {% if event.link %}
+                                            <label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
+                                        {% endif %}
                                         <label><a href="" class="connection-link open-modal"
                                                 id="openModal">QR-код</a></label>
                                     </div>
@@ -223,12 +227,17 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="info-cell"><label for="speaker">Лобанова Стефания Даниловна</label>
+                                            <td class="info-cell">
+                                                <label for="speaker">
+                                                    {% for speaker in event.speakers.all %}
+                                                        {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </label>
                                             </td>
-                                            <td class="info-cell"><label for="date">8 января 2024</label> <br>
-                                                <label for="time">1:00 - 16:00</label>
+                                            <td class="info-cell"><label for="date">{{ event.date }}</label> <br>
+                                                <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
                                             </td>
-                                            <td class="info-cell"><a href="" class="connection-link">Ссылка для
+                                            <td class="info-cell"><a href="{{event.link}}" class="connection-link">Ссылка для
                                                     подключения</a>
                                                 <label><a href="" class="connection-link open-modal"
                                                         id="openModal2">QR-код</a></label>
@@ -768,7 +777,11 @@
             <div id="modal-qr" class="modal">
                 <div class="modal-content-photo" style="text-indent: 0;">
                     <span id="closeModal" class="close">&times;</span>
-                    <img src="{% static "images/qr-code.png" %}" alt="QR-код" style="max-width: 300px; height: auto;">
+                    {% if event.qr %}
+                        <img src="{{ event.qr }}" alt="QR-код" style="max-width: 300px; height: auto;">
+                    {% else %}
+                        <img src="{% static "images/qr-code.png" %}" alt="QR-код" style="max-width: 300px; height: auto;">
+                    {% endif %}
                 </div>
             </div>
     

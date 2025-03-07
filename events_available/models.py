@@ -23,7 +23,7 @@ class Events_online(models.Model):
     member =  models.ManyToManyField(User, blank=True, related_name='member_online', verbose_name='Участники')
     tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
     platform = models.CharField(max_length=50, unique=False, blank=False, null=False, verbose_name='Платформа')
-    link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на подключение')
+    link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка для подключения')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/online', blank=True, null=True, verbose_name='Изображение')
     events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_online', verbose_name="Администратор")
