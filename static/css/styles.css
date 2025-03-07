@@ -1540,6 +1540,14 @@ td {
     font-size: 36px;
 }
 
+.preview-photo {
+    height: 310px;
+}
+
+
+.preview-event-id {
+    margin-top: 20px;
+}
 
 
 @media (max-width: 1705px) {
@@ -2442,6 +2450,9 @@ td {
 
     }
 
+    .event-reviews-link {
+        margin-top: 20px;
+    }
 
 
 }
@@ -2450,6 +2461,10 @@ td {
     .card-button {
         padding-inline: 6px;
         font-size: 16px;
+    }
+
+    .preview-event-id {
+        margin-top: 20px;
     }
 }
 
@@ -2604,7 +2619,13 @@ td {
         margin-top: 20px;
         margin-bottom: 0px;
     }
+
+    .preview-event-id {
+        margin-top: 20px;
+    }
 }
+
+
 
 @media (max-width: 978px) {
 
@@ -2685,6 +2706,10 @@ td {
 
     .hidden {
         display: none;
+    }
+
+    .preview-event-id {
+        margin-top: 20px;
     }
 
 }
@@ -2817,6 +2842,10 @@ td {
         padding-right: 100px;
     }
 
+    .preview-event-id {
+        margin-top: 20px;
+    }
+
 }
 
 @media (max-width: 850px) {
@@ -2827,6 +2856,10 @@ td {
         height: 30px;
         padding-inline: 3px;
         margin: 0;
+    }
+
+    .preview-event-id {
+        margin-top: 20px;
     }
 }
 
@@ -2882,6 +2915,10 @@ td {
         margin-top: 0;
     }
 
+    .preview-event-id {
+        margin-top: 20px;
+    }
+
 }
 
 
@@ -2897,9 +2934,16 @@ td {
     .text-container {
         height: 189px;
     }
+
+    .preview-event-id {
+        margin-top: 20px;
+    }
 }
 
 @media (max-width: 756px) {
+    .btn {
+        text-align: center;
+    }
 
     .left-column {
         width: 7%;
@@ -2929,7 +2973,7 @@ td {
     }
 
     .event-preview-photo {
-        height: auto;
+        height: 309.91px;
         width: 95%;
     }
 
@@ -2964,6 +3008,9 @@ td {
         margin-left: 0;
     }
 
+    .preview-event-id {
+        margin-top: 20px;
+    }
 
 }
 
@@ -3081,6 +3128,7 @@ td {
     }
 
     .preview-photo {
+        height: 200px;
         width: 100%;
         border-radius: 15px;
     }
@@ -3683,6 +3731,9 @@ td {
         font-size: 16px;
     }
 
+    .preview-event-id {
+        margin-top: 20px;
+    }
 
 }
 
@@ -3766,6 +3817,10 @@ td {
     .mob-row {
         width: 100vw;
     }
+
+    .preview-event-id {
+        margin-top: 20px;
+    }
 }
 
 @media (max-width: 428px) {
@@ -3795,6 +3850,10 @@ td {
 
     .main-header {
         padding-inline: 10px;
+    }
+
+    .preview-event-id {
+        margin-top: 20px;
     }
 
 }
@@ -3834,11 +3893,19 @@ td {
         left: 2px;
     }
 
+    .preview-event-id {
+        margin-top: 20px;
+    }
+
 }
 
 @media (max-width: 412px) {
     .arrow-nav-left {
         left: 5px;
+    }
+
+    .preview-event-id {
+        margin-top: 20px;
     }
 
 }
@@ -3884,6 +3951,10 @@ td {
 
     .img-mobile {
         display: block;
+    }
+
+    .preview-event-id {
+        margin-top: 20px;
     }
 
 }
