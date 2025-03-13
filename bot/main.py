@@ -58,11 +58,32 @@ BOT_COMMANDS = [
 ]
 
 async def setup_bot_commands():
-    await bot.set_my_commands(BOT_COMMANDS)
+    """
+    Установка команд бота только для групповых чатов с техподдержкой
+    """
+    from events_available.models import Events_offline
+    
+    try:
+        # Получаем все мероприятия с настроенной техподдержкой
+        events = await sync_to_async(list)(Events_offline.objects.filter(support_chat_id__isnull=False))
+        
+        # Для каждого мероприятия устанавливаем команды
+        for event in events:
+            if event.users_chat_id:
+                try:
+                    await bot.set_my_commands(
+                        commands=BOT_COMMANDS,
+                        scope=types.BotCommandScopeChat(chat_id=int(event.users_chat_id))
+                    )
+                    logger.info(f"Команды установлены для чата {event.users_chat_id}")
+                except Exception as e:
+                    logger.error(f"Ошибка при установке команд для чата {event.users_chat_id}: {e}")
+    except Exception as e:
+        logger.error(f"Ошибка при установке команд бота: {e}")
 
 # Настройки вебхука
 WEBHOOK_HOST = os.getenv('WEBHOOK_HOST', '').rstrip('/')
-WEBHOOK_PATH = '/webhook'
+WEBHOOK_PATH = '/webhook/'  # Добавляем trailing slash
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 logger.info(f"Настройки вебхука: HOST={WEBHOOK_HOST}, PATH={WEBHOOK_PATH}, URL={WEBHOOK_URL}")
@@ -604,76 +625,38 @@ async def unregister_event(callback_query: types.CallbackQuery):
         logger.error(f"Ошибка при отмене регистрации: {e}")
         await callback_query.answer("Произошла ошибка при отмене регистрации.")
 
+# Обработчик вебхука
 async def handle_webhook(request):
     """
     Обработчик вебхука
     """
     try:
         data = await request.json()
-        logger.info(f"Получены данные вебхука: {json.dumps(data)}")
+        logger.info(f"Получены данные вебхука: {json.dumps(data, ensure_ascii=False)}")
         
         update = Update(**data)
         await dp.feed_update(bot=bot, update=update)
         
-        return web.Response(status=200, text='OK')
+        return web.Response(text='OK')
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON")
+        return web.Response(status=400, text='Invalid JSON')
     except Exception as e:
-        logger.error(f"Ошибка при обработке вебхука: {e}")
-        return web.Response(status=500)
-
-async def check_yadisk_permissions():
-    """
-    Проверка прав доступа к Яндекс.Диску
-    """
-    try:
-        logger.info("Начинаю проверку прав доступа к Яндекс.Диску")
-        y = yadisk.YaDisk(id=YANDEX_DISK_CLIENT_ID, secret=YANDEX_DISK_CLIENT_SECRET, token=YANDEX_DISK_OAUTH_TOKEN)
-        
-        # Проверяем валидность токена
-        if not await sync_to_async(y.check_token)():
-            logger.error("Недействительный OAuth токен Яндекс.Диска")
-            return False
-            
-        # Проверяем информацию о диске
-        disk_info = await sync_to_async(y.get_disk_info)()
-        logger.info(f"Информация о диске: Всего {disk_info['total_space']/1024/1024/1024:.2f} ГБ, "
-                   f"Занято {disk_info['used_space']/1024/1024/1024:.2f} ГБ")
-        
-        # Пробуем создать тестовую папку
-        test_folder = "/test_permissions"
-        try:
-            if not await sync_to_async(y.exists)(test_folder):
-                await sync_to_async(y.mkdir)(test_folder)
-                logger.info("Тестовая папка успешно создана")
-            await sync_to_async(y.remove)(test_folder, permanently=True)
-            logger.info("Тестовая папка успешно удалена")
-        except yadisk.exceptions.ForbiddenError:
-            logger.error("Нет прав на создание/удаление папок")
-            return False
-        except Exception as e:
-            logger.error(f"Ошибка при проверке прав доступа: {e}")
-            return False
-            
-        logger.info("Проверка прав доступа успешно завершена")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Ошибка при проверке Яндекс.Диска: {e}")
-        return False
+        logger.error(f"Ошибка в обработчике вебхука: {e}")
+        return web.Response(status=500, text=str(e))
 
 async def run_bot():
     """
     Запуск бота с поддержкой вебхуков
     """
-    # Устанавливаем команды бота
-    await setup_bot_commands()
-    
-    # Проверяем права доступа к Яндекс.Диску
-    if not await check_yadisk_permissions():
-        logger.error("Ошибка при проверке прав доступа к Яндекс.Диску. Проверьте настройки и токены.")
-    
     # Настраиваем приложение aiohttp
     app = web.Application()
+    
+    # Добавляем обработчик вебхука
     app.router.add_post(WEBHOOK_PATH, handle_webhook)
+    
+    # Устанавливаем команды бота
+    await setup_bot_commands()
     
     # Устанавливаем вебхук
     webhook_info = await bot.get_webhook_info()
@@ -681,7 +664,10 @@ async def run_bot():
     logger.info(f"Текущий URL вебхука: {current_url}")
     
     if current_url != WEBHOOK_URL:
-        await bot.set_webhook(WEBHOOK_URL, allowed_updates=["message", "callback_query"])
+        await bot.set_webhook(
+            url=WEBHOOK_URL,
+            allowed_updates=["message", "callback_query", "chat_member"]
+        )
         logger.info(f"Вебхук успешно установлен на {WEBHOOK_URL}")
 
     # Запускаем сервер aiohttp

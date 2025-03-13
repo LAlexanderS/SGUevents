@@ -255,18 +255,26 @@ def general(request):
 @csrf_exempt
 def telegram_webhook(request):
     """
-    Обработчик вебхука от Telegram
+    Обработчик вебхука для Django
     """
-    if request.method == 'POST':
-        try:
-            logger.info("Получен вебхук от Telegram")
-            response = async_to_sync(handle_webhook)(request)
-            logger.info("Вебхук успешно обработан")
-            return response
-        except Exception as e:
-            logger.error(f"Ошибка при обработке вебхука: {str(e)}")
-            return JsonResponse({"error": str(e)}, status=500)
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+    try:
+        data = json.loads(request.body)
+        logger.info(f"Получены данные вебхука: {json.dumps(data, ensure_ascii=False)}")
+        
+        # Импортируем здесь, чтобы избежать циклической зависимости
+        from bot.main import bot, dp
+        from telegram import Update
+        
+        update = Update(**data)
+        async_to_sync(dp.feed_update)(bot=bot, update=update)
+        
+        return JsonResponse({'status': 'ok'})
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON")
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        logger.error(f"Ошибка в обработчике вебхука: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
 def telegram_login_callback(request):
