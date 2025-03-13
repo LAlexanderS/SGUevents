@@ -849,6 +849,5 @@ async def handle_media(message: types.Message):
     await process_media_message(message)
 
 if __name__ == "__main__":
-    asyncio.run(run_bot())
-    # Инициализируем Django
     setup_django_environment()
+    asyncio.run(run_bot())
