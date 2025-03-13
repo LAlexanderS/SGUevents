@@ -35,7 +35,7 @@ from bot.django_initializer import setup_django_environment
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from users.models import Department
+# from users.models import Department
 
 # Инициализируем бота и диспетчера глобально
 TOKEN = settings.ACTIVE_TELEGRAM_BOT_TOKEN
@@ -162,6 +162,7 @@ async def process_full_name(message: types.Message, state: FSMContext):
 
 @router.message(RegistrationForm.waiting_for_department_code)
 async def process_department_code(message: types.Message, state: FSMContext):
+    from users.models import Department
     department_code = message.text.strip()
     
     # Получаем сохраненные данные
@@ -216,6 +217,7 @@ async def handle_new_member(event: ChatMemberUpdated):
 
 @router.message(F.text == "\U0001F464 Мой профиль")
 async def profile(message: types.Message):
+    from users.models import Department
     # Проверяем, что это личный чат
     if message.chat.type != 'private':
         return
@@ -230,6 +232,7 @@ async def profile(message: types.Message):
     await message.answer(response_text)
 
 def get_department_name(user):
+    from users.models import Department
     return user.department.department_name if user.department else "Не указан"
 
 @router.message(F.text == "📓 Мои мероприятия")
