@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 # Получаем путь к корневой директории проекта
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
 from bot.django_initializer import setup_django_environment
 
 from django.contrib.auth import get_user_model
@@ -680,7 +681,7 @@ async def run_bot():
     logger.info(f"Текущий URL вебхука: {current_url}")
     
     if current_url != WEBHOOK_URL:
-        await bot.set_webhook(url=WEBHOOK_URL)
+        await bot.set_webhook(WEBHOOK_URL, allowed_updates=["message", "callback_query"])
         logger.info(f"Вебхук успешно установлен на {WEBHOOK_URL}")
 
     # Запускаем сервер aiohttp
