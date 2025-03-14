@@ -176,9 +176,10 @@ async def process_full_name(message: types.Message, state: FSMContext):
     await state.update_data(
         last_name=full_name_parts[0],
         first_name=full_name_parts[1],
-        middle_name=full_name_parts[2] if len(full_name_parts) > 2 else None
+        middle_name=full_name_parts[2] if len(full_name_parts) > 2 else ""
     )
     
+    # Продолжаем регистрацию независимо от количества слов (минимум 2)
     await message.answer("Замечательно! Введите ваш персональный код подключения")
     await state.set_state(RegistrationForm.waiting_for_department_code)
 
@@ -200,7 +201,7 @@ async def process_department_code(message: types.Message, state: FSMContext):
             telegram_id=str(message.from_user.id),
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
-            middle_name=user_data.get('middle_name', ''),
+            middle_name=user_data.get('middle_name', ''),  # Гарантируем пустую строку по умолчанию
             department_id=department_code
         )
         
@@ -834,6 +835,19 @@ async def handle_media(message: types.Message):
     if message.photo:
         logger.info(f"Получено фото: {len(message.photo)} версий")
     await process_media_message(message)
+
+@router.message(F.text == "\U00002754 Помощь")
+async def help_request_button(message: types.Message, state: FSMContext):
+    # Проверяем, что это личный чат
+    if message.chat.type != 'private':
+        return
+        
+    user = await get_user_profile(message.from_user.id)
+    if user:
+        await message.answer("\U00002754 Пожалуйста, введите ваш вопрос:")
+        await state.set_state(SupportRequestForm.waiting_for_question)
+    else:
+        await message.answer("Вы не зарегистрированы на портале.")
 
 if __name__ == "__main__":
     setup_django_environment()
