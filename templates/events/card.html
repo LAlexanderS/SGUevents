@@ -249,7 +249,11 @@
                                                         {% endfor %}
                                                     </p>
                                                 {% endif %}
-
+                                                
+                                                {% if event.link %}
+                                                    <p><a href="{{event.link}}" target="_blank">Ссылка на подключение</a> </p>
+                                                {% endif %}
+                                                <p></p> 
                                                 {% if event.category == "Оффлайн" %}
                                                     <p><a href="{{event.link_chat}} " target="_blank">Тг чат</a></p> 
                                                 {% endif %}
