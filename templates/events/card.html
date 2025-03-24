@@ -664,12 +664,13 @@
                                 </div>
 
                             </div>
-    
-                            <div style="text-align: center; text-indent: 0;" class="docs">
-                                <img src="{% static "icons/paperclip.png" %}" alt="" style="max-height: 30px; width: auto;"
-                                    class="paperclip"><a class="docs-link" href="static/lending_pace.jpeg" target="_blank"
-                                    download>Документы</a>
-                            </div>
+                            {% if event.documents %}
+                                <div style="text-align: center; text-indent: 0;" class="docs">
+                                    <img src="{% static "icons/paperclip.png" %}" alt="" style="max-height: 30px; width: auto;"
+                                        class="paperclip"><a class="docs-link" href="{{ event.documents.url }}" target="_blank"
+                                        download>Документы</a>
+                                </div>
+                            {% endif %}
     
                             <div style="text-align: center; text-indent: 0;" class="docs">
                                 <img src="{% static "icons/tg-link.png" %}" alt="" style="max-height: 30px; width: auto;"
