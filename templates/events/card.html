@@ -783,7 +783,7 @@
                 <div class="modal-content-photo" style="text-indent: 0;">
                     <span id="closeModal" class="close">&times;</span>
                     {% if event.qr %}
-                        <img src="{{ event.qr }}" alt="QR-код" style="max-width: 300px; height: auto;">
+                        <img src="{{ event.qr.url }}" alt="QR-код" style="max-width: 300px; height: auto;">
                     {% else %}
                         <img src="{% static "images/qr-code.png" %}" alt="QR-код" style="max-width: 300px; height: auto;">
                     {% endif %}
