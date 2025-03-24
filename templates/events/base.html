@@ -638,15 +638,21 @@
                                             </div>
                                         </div>
                                         <div class="type-substrate">
-                                            <div class="event-type online">online</div>
+                                            <div class="event-type online">
+                                                {% if events.category  == 'Онлайн' %}
+                                                    онлайн
+                                                {% elif events.category  == 'Оффлайн' %}
+                                                    оффлайн
+                                                {% elif events.category  == 'Достопримечательности' %}
+                                                    достопримечательности
+                                                {% elif events.category  == 'Доступные к посещению' %}
+                                                    для посещения
+                                                {% endif %} 
+                                            </div>
                                         </div>
 
                                         {% block content %}{% endblock content %}
-                                        {% comment %} <div class="button-substrate">
-                                            <button class="btn btn-remove_app"> Отмена регистрации</button>
-                                            <button class="btn btn-sent_app hidden"> Отправить заявку</button>
-                                            <button class="btn btn-comment"> Оставить отзыв</button>
-                                        </div> {% endcomment %}
+                                        
 
                                     </div>
                                     <div class="col-lg-7 col-md-7 col-sm-7 event-preview-text">

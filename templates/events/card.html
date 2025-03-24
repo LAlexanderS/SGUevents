@@ -775,91 +775,10 @@
             </div>
     
         </main>
-<<<<<<< HEAD
         
         <script src="{% static "js/events_registration.js" %}"></script>
 
         {% comment %} <script src="{% static "js/registration_disallowed_script.js" %}"></script> {% endcomment %}
-=======
-    
-        <script>
-            function initializeRegistrationButtons() {
-                document.querySelectorAll('.btn-sent_app').forEach(function(button) {
-                    button.removeEventListener('click', handleRegister);
-                    button.addEventListener('click', handleRegister);
-                });
-        
-                document.querySelectorAll('.btn-remove_app').forEach(function(button) {
-                    button.removeEventListener('click', handleUnregister);
-                    button.addEventListener('click', handleUnregister);
-                });
-            }
-        
-            function handleRegister(event) {
-                event.preventDefault();
-                const eventSlug = this.getAttribute('data-event-slug');
-                const buttonElement = this;
-        
-                fetch(`/bookmarks/events_registered/${eventSlug}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({ 'slug': eventSlug })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.added) {
-                        buttonElement.classList.remove('btn-danger', 'btn-sent_app');
-                        buttonElement.classList.add('btn-light', 'btn-remove_app');
-                        buttonElement.innerHTML = 'Отмена регистрации';
-                        buttonElement.setAttribute('data-event-id', data.event_id);
-                        buttonElement.removeAttribute('data-event-slug');
-                        showRegistrationNotification("Зарегистрировано");
-                        initializeRegistrationButtons();
-                    } else {
-                        console.error('Ошибка при регистрации:', data.error);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-        
-            function handleUnregister(event) {
-                event.preventDefault();
-                const eventId = this.getAttribute('data-event-id');
-                const buttonElement = this;
-        
-                fetch(`/bookmarks/registered_remove/${eventId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({ 'id': eventId })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.removed) {
-                        buttonElement.classList.remove('btn-light', 'btn-remove_app');
-                        buttonElement.classList.add('btn-danger', 'btn-sent_app');
-                        buttonElement.innerHTML = 'Регистрация';
-                        buttonElement.setAttribute('data-event-slug', data.event_slug);
-                        buttonElement.removeAttribute('data-event-id');
-                        showRegistrationNotification("Регистрация отменена");
-                        initializeRegistrationButtons();
-                    } else {
-                        console.error('Ошибка при отмене регистрации:', data.error);
-                    }
-                })
-                .catch(error => console.error('Ошибка:', error));
-            }
-        </script>
-
-        {% comment %} <script src="{% static "js/events_registration.js" %}"></script> {% endcomment %}
-        
-        <script src="{% static "js/card_like.js" %}"></script>
->>>>>>> d5eda289a6cf09ec6f396c558c1ae98a17de7590
 
         <script src="{% static "js/rating_script.js" %}"></script>
     
@@ -877,12 +796,9 @@
     
         <script src="{% static "js/review_slider_script.js" %}"></script>
 
-<<<<<<< HEAD
         
     
     
-=======
->>>>>>> d5eda289a6cf09ec6f396c558c1ae98a17de7590
     </body>
 
 
