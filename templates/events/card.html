@@ -129,10 +129,25 @@
                             }
                         }
                     </script>
-                    
-                    <div class="event-page-image" style="padding: 0; text-indent: 0;">
+                    {% comment %} <div class="event-page-image" style="padding: 0; text-indent: 0;">
                         <img class="img-desktop" src="{% static "images/online_event_header.png" %}" alt="" style="width: 100%;">
                         <img class="img-mobile" src="{% static "images/online_event_header_mobile.png" %}" alt="" style="width: 100%;">
+                    </div> {% endcomment %}
+
+                    <div class="event-page-image" style="padding: 0; text-indent: 0;">
+                        {% if event.category == 'Онлайн' %}
+                            <img class="img-desktop" src="{% static "images/online_event_header.png" %}" alt="" style="width: 100%;">  
+                            <img class="img-mobile" src="{% static "images/online_event_header_mobile.png" %}" alt="" style="width: 100%;">
+                        {% elif event.category == 'Оффлайн' %}
+                            <img class="img-desktop" src="{% static "images/offline_event_header.png" %}" alt="" style="width: 100%;">  
+                            <img class="img-mobile" src="{% static "images/offline_event_header_mobile.png" %}" alt="" style="width: 100%;">
+                        {% elif event.category == 'Доступные к посещению' %}
+                            <img class="img-desktop" src="{% static "images/attraction_header.png" %}" alt="" style="width: 100%;">  
+                            <img class="img-mobile" src="{% static "images/attraction_header_mobile.png" %}" alt="" style="width: 100%;">
+                        {% elif event.category == 'Достопримечательности' %}
+                            <img class="img-desktop" src="{% static "images/attraction_header.png" %}" alt="" style="width: 100%;">  
+                            <img class="img-mobile" src="{% static "images/attraction_header_mobile.png" %}" alt="" style="width: 100%;">
+                        {% endif %}
                     </div>
                     <h1>{{ event.name }}</h1>
                     <div class="main-image-mobile" style="text-align: center; text-indent: 0;">
@@ -154,7 +169,7 @@
                         <div class="col-lg-10" style="padding-inline: 0;">
                             <div class="row mb-3 mob-row">
                                 <div class="col-lg-6 about-event" style="text-indent: 0;">
-                                    <h2 class="what-awaits-header">Что вас ждет</h2>
+                                    <h2 class="what-awaits-header"> Что вас ждет</h2>
                                     <div class="text-container">
                                         <!-- Текст будет добавлен динамически -->
                                     </div>

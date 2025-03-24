@@ -4,7 +4,6 @@
 {% load events_available_tags %}
 
 {% block heart %}
-
 {% if event.category == "Доступные к посещению" %}
 	{% if event.id in favorites %}
 		<a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:event.id }}">
@@ -26,27 +25,46 @@
 		</a>
 	{% endif %}
 {% endif %}
+
 
 {% endblock heart %}
 
 {% block content %}
-{% if event.category == "Доступные к посещению" %}
-	{% if event.date >= now %}
-		{% if event.id in registered %}
-			<a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:event.id }}">
-				Отмена регистрации
-			</a>
-		{% else %}
-			<a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ event.slug }}">
-				Регистрация
-			</a>
-		{% endif %}
-	{% else %}
-		<span class="btn btn-secondary">Регистрация недоступна</span>
+<!-- Контент на странице -->
+<div class="row">
+	{% if event.category == "Доступные к посещению" %}
+		<div class="col-lg-6 main-button" style="text-align: center;">
+			{% if event.date >= now %}
+				{% if event.id in registered %}
+					<a href="#" class="btn btn-remove_app card-button" data-event-id="{{ registered|get_item:event.id }}">
+						Отмена регистрации
+					</a>
+				{% else %}
+					<a href="#" class="btn btn-sent_app card-button" data-event-slug="{{ event.slug }}">
+						Регистрация
+					</a>
+				{% endif %}
+			{% else %}
+				<span class="btn btn-secondary">Регистрация недоступна</span>
+			{% endif %}
+		</div>
+		
+		<div class="col-lg-6 main-button" style="text-align: center;">
+			<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="for_visiting">Оставить отзыв</button>
+		</div>
+		
+	{% elif event.category == "Достопримечательности" %}
+		<div class="col-lg-12 main-button" style="text-align: center;">
+			<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="attractions">Оставить отзыв</button>
+		</div>
 	{% endif %}
 
-	<button class="btn btn-primary btn-comment" data-event-id="{{ event.id }}" data-model-type="for_visiting">Оставить отзыв</button>
-{% elif event.category == "Достопримечательности" %}
-	<button class="btn btn-primary btn-comment" data-event-id="{{ event.id }}" data-model-type="attractions">Оставить отзыв</button>
-{% endif %}
+	<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
+		class="btn btn-secondary"
+		style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
+			src="{% static "icons/admin.png" %}" alt=""
+			style="max-height: 30px; width: auto;">Связь с администратором</button>
+	</div>
+</div>
+
 {% endblock content %}
