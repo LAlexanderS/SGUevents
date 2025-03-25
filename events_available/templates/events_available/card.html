@@ -52,6 +52,13 @@
 			<div class="col-lg-6 main-button" style="text-align: center;">
 				<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="offline">Оставить отзыв</button>
 			</div>
+
+			<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
+				class="btn btn-secondary btn-support"
+				style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
+					src="{% static "icons/admin.png" %}" alt=""
+					style="max-height: 30px; width: auto;" onclick="openForm()" data-event-id="{{ event.id }}" data-model-type="offline">Связь с администратором</button>
+			</div>
 			
 		{% elif event.category == "Онлайн" %}
 			<div class="col-lg-6 main-button" style="text-align: center;">
@@ -72,14 +79,16 @@
 			<div class="col-lg-6 main-button" style="text-align: center;">
 				<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="online">Оставить отзыв</button>
 			</div>
+
+			<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
+				class="btn btn-secondary btn-support"
+				style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
+					src="{% static "icons/admin.png" %}" alt=""
+					style="max-height: 30px; width: auto;" onclick="openForm()" data-event-id="{{ event.id }}" data-model-type="online">Связь с администратором</button>
+			</div>
 		{% endif %}
 
-	<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
-		class="btn btn-secondary"
-		style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
-			src="{% static "icons/admin.png" %}" alt=""
-			style="max-height: 30px; width: auto;">Связь с администратором</button>
-	</div>
+	
 </div>
 
 

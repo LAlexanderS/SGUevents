@@ -6,7 +6,7 @@
 {% block heart %}
 {% if event.category == "Доступные к посещению" %}
 	{% if event.id in favorites %}
-		<a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:event.id }}">
+		<a href="#" class="remove-from-favorites" data-event-id="{{ favorites|get_item:event.id }}">
 			<img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
 		</a>
 	{% else %}
@@ -52,19 +52,28 @@
 		<div class="col-lg-6 main-button" style="text-align: center;">
 			<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="for_visiting">Оставить отзыв</button>
 		</div>
+
+		<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
+			class="btn btn-secondary"
+			style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
+				src="{% static "icons/admin.png" %}" alt=""
+				style="max-height: 30px; width: auto;" onclick="openForm()" data-event-id="{{ event.id }}" data-model-type="for_visiting">Связь с администратором</button>
+		</div>
 		
 	{% elif event.category == "Достопримечательности" %}
 		<div class="col-lg-12 main-button" style="text-align: center;">
 			<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="attractions">Оставить отзыв</button>
 		</div>
+
+		<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
+			class="btn btn-secondary btn-support"
+			style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
+				src="{% static "icons/admin.png" %}" alt=""
+				style="max-height: 30px; width: auto;" onclick="openForm()" data-event-id="{{ event.id }}" data-model-type="attractions">Связь с администратором</button>
+		</div>
 	{% endif %}
 
-	<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
-		class="btn btn-secondary"
-		style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
-			src="{% static "icons/admin.png" %}" alt=""
-			style="max-height: 30px; width: auto;">Связь с администратором</button>
-	</div>
+	
 </div>
 
 {% endblock content %}
