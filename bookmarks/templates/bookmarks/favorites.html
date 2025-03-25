@@ -8,7 +8,117 @@
     <h2>Избранные мероприятия</h2>
     <ul>
         {% for favorite in favorites %}
-            {% if favorite.online %}
+            {% with favorite.online|default:favorite.offline|default:favorite.attractions|default:favorite.for_visiting as item %}
+                {% if item %}
+                    <div class="row mt-2 event_cards">
+                        <div class="col-lg-12">
+                            <div class="card mb-3">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        {% if item.image %}
+                                            <img src="{{ item.image.url }}" class="img-fluid rounded-start" alt="{{ item.name }}">
+                                        {% else %}
+                                            <img src="{% static 'general/images/img.png' %}" class="img-fluid rounded-start" alt="{{ item.name }}">
+                                        {% endif %}
+                                        <a href="{% url 'bookmarks:events_remove' favorite.id %}" class="btn remove-from-favorites" data-event-id="{{ favorite.id }}">
+                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                        </a>
+                                        <div class="card-img-info">
+                                            <p>{{ item.category }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                {% if favorite.online %}
+                                                    <a href="{% url 'events_available:online_card' item.slug %}">
+                                                {% elif favorite.offline %}
+                                                    <a href="{% url 'events_available:offline_card' item.slug %}">
+                                                {% elif favorite.attractions %}
+                                                    <a href="{% url 'events_cultural:attractions_card' item.slug %}">
+                                                {% elif favorite.for_visiting %}
+                                                    <a href="{% url 'events_cultural:events_for_visiting_card' item.slug %}">
+                                                {% endif %}
+                                                
+                                                    {% autoescape off %}
+                                                        {% if item.headline %}{{ item.headline }}{% else %}{{ item.name }}{% endif %}
+                                                    {% endautoescape %}
+                                                </a>
+                                            </h5>
+                                            <h6 class="card-date">
+                                                <split class="card-day"><b>{{ item.date }}</b></split>
+                                                <split class="card-time">{{ item.time_start }} - {{ item.time_end }}</split>
+                                            </h6>
+                                            <h6 class="event-place">{{ item.place }}</h6>
+                                            <h6 class="event-place">{{ item.speakers }}</h6>
+                                            {% autoescape off %}
+                                                {% if item.bodyline %}
+                                                    {{ item.bodyline }}
+                                                {% else %}
+                                                    <p class="card-text">{{ item.description|truncatechars:625 }}</p>
+                                                {% endif %}
+                                            {% endautoescape %}
+                                            <p class="card-text">
+                                                <small class="text-muted">{{ item.tags }}</small>
+                                            </p>
+                                            <p>
+                                                {% if item.town %}{{ item.town }}{% endif %}
+                                                {% if item.street %}{{ item.street }}{% endif %}
+                                                {% if item.cabinet %}{{ item.cabinet }}{% endif %}
+                                            </p>
+                                            <p>{{ speakers }}</p>
+
+                                            {% if item.date >= now %}
+                                                {% if item.id in registered|get_item:item.model_type %}
+                                                    <a href="#" class="btn btn-light btn-remove_app" data-event-id="{{ registered|get_item:item.id }}">
+                                                        Отмена регистрации
+                                                    </a>
+                                                {% else %}
+                                                    <a href="#" class="btn btn-danger btn-sent_app" data-event-slug="{{ item.slug }}">
+                                                        Регистрация
+                                                    </a>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="btn btn-secondary">Регистрация недоступна</span>
+                                            {% endif %}
+
+                                            <button class="btn btn-primary btn-comment" data-event-id="{{ item.id }}" data-model-type="{{ item.model_type }}">Оставить отзыв</button>
+
+                                            {% if reviews %}
+                                                <div class="reviews">
+                                                    <ul>
+                                                        {% for review in reviews|get_item:item.unique_id %}
+                                                            {% for i in reviews %}
+                                                                {% if item.unique_id == i %}
+                                                                    <li>
+                                                                        <h5>Отзыв:</h5>
+                                                                        <p><strong>{{ review.user.last_name }} {{ review.user.first_name }}</strong> ({{ review.formatted_date }}):</p>
+                                                                        <p>{{ review.comment }}</p>
+                                                                    </li>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% comment %} {% with favorite.online|default:favorite.offline|default:favorite.attractions|default:favorite.for_visiting as item %}
+                {% if item %}
+                    {{ item.category }}
+                    {{ item.image.url }}
+                {% endif %}
+            {% endwith %} {% endcomment %}
+
+
+            {% comment %} {% if favorite.online %}
                 <div class="row mt-2 event_cards">
                     <div class="col-lg-12">
                         <div class="card mb-3">
@@ -365,7 +475,7 @@
                         </div>
                     </div>
                 </div>
-            {% endif %}
+            {% endif %}  {% endcomment %}
         {% endfor %}
     </ul>
 </div>

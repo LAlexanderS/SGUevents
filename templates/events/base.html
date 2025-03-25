@@ -472,10 +472,6 @@
                             <div class="card">
                                 <div class="row event">
                                     <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo">
-                                    
-                                        {% comment %} {% for xx in favorites.online %} 
-                                            <p>xx = {{xx}}</p>
-                                        {% endfor %}  {% endcomment %}
                                         {% if name_page != "Главная" %}
                                             {% if events.id in favorites %}
                                                 <a href="#" class="remove-from-favorites" data-event-id="{{ favorites|get_item:events.id }}">
@@ -667,24 +663,7 @@
                                                 {% endif %}" class="show-more">
                                             <h4 class="event-title-preview">{{ events.name|truncatechars:82 }}</h4>
                                         </a>
-                                        {% comment %} <a href="
-                                                {% if events.category  == 'Онлайн' %}
-                                                    {% url "events_available:online_card" events.slug %}
-                                                {% elif events.category  == 'Оффлайн' %}
-                                                    {% url "events_available:offline_card" events.slug %}
-                                                {% elif events.category  == 'Достопримечательности' %}
-                                                    {% url "events_cultural:attractions_card" events.slug %}
-                                                {% elif events.category  == 'Доступные к посещению' %}
-                                                    {% url "events_cultural:events_for_visiting_card" events.slug %}
-                                                {% endif %}
-                                                " class="show-more">
-                                                
-                                            <h4 class="event-title-preview">
-                                                    {% autoescape off %}
-                                                        {% if events.headline_name %}{{ events.headline_name|safe }}{% else %}{{ events.name }}{% endif %}
-                                                    {% endautoescape %}
-                                            </h4>
-                                        </a> {% endcomment %}
+
                                         <div class="row">
                                             <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
                                                 <p class="preview-date">
@@ -797,6 +776,8 @@
                     {% endif %}
                 {% endfor %}
             </section>
+
+            {% block favorite %}{% endblock favorite %}
 
             <pagination>
                 {% if user.is_authenticated %}
