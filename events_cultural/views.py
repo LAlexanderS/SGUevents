@@ -137,6 +137,9 @@ def attractions(request):
     ).values_list('full_address', flat=True)
     results = sorted(set(results))
 
+    liked_slugs = [favorite.attractions.slug for favorite in favorites]
+
+
     context = {
         'name_page': 'Достопримечательности',
         'event_card_views': current_page,
@@ -151,6 +154,7 @@ def attractions(request):
         'filters_applied': filters_applied,
         "results":results,
         'now': now().date(),
+        'liked': liked_slugs,
 
     }
 
@@ -294,6 +298,9 @@ def events_for_visiting(request):
         content_type = ContentType.objects.get_for_model(event)
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
+    liked_slugs = [favorite.for_visiting.slug for favorite in favorites]
+
+
     context = {
         'name_page': 'Доступные к посещению',
         'event_card_views': current_page,
@@ -308,8 +315,7 @@ def events_for_visiting(request):
         "date_end": date_end,
         'filters_applied': filters_applied,
         'now': now().date(),
-
-        
+        'liked': liked_slugs,
     }
     return render(request, 'events_cultural/events_for_visiting.html', context)
 

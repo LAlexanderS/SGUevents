@@ -172,7 +172,8 @@ def online(request):
         content_type = ContentType.objects.get_for_model(event)
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
-    print(events_admin)
+    liked_slugs = [favorite.online.slug for favorite in favorites]
+
 
     context = {
         'name_page': 'Онлайн',
@@ -189,6 +190,7 @@ def online(request):
         "date_end": date_end,
         'filters_applied': filters_applied,
         'now': now().date(),
+        'liked': liked_slugs,
 
     }
 
@@ -379,6 +381,9 @@ def offline(request):
     full_address=Concat('town', Value(' '), 'street', Value(' '), 'house', Value(' '), 'cabinet', output_field=CharField())
     ).values_list('full_address', flat=True)
     results = sorted(set(results))
+
+    liked_slugs = [favorite.offline.slug for favorite in favorites]
+
    
 
     context = {
@@ -397,7 +402,7 @@ def offline(request):
         "date_end": date_end,
         'filters_applied': filters_applied,
         'now': now().date(),
-
+        'liked': liked_slugs,
     }
 
     return render(request, 'events_available/offline_events.html', context=context)

@@ -1,4 +1,3 @@
-// Получаем CSRF-токен
 function getCookie(name) {
     let cookieValue = null
     if (document.cookie && document.cookie !== '') {
@@ -16,7 +15,6 @@ function getCookie(name) {
 
 window.csrftoken = getCookie('csrftoken')
 
-// Уведомление
 function showNotification(message) {
     const notification = document.getElementById('favoriteNotification')
     if (!notification) return
@@ -38,7 +36,6 @@ function showNotification(message) {
     }, 1000)
 }
 
-// Обработка кликов по сердцу
 document.addEventListener('click', function (event) {
     const button = event.target.closest('.add-to-cart, .remove-from-favorites')
     if (!button) return
@@ -50,7 +47,7 @@ document.addEventListener('click', function (event) {
     const eventSlug = button.getAttribute('data-event-slug')
     const eventId = button.getAttribute('data-event-id')
 
-    // Добавление в избранное
+    // ДОБАВИТЬ В ИЗБРАННОЕ
     if (button.classList.contains('add-to-cart')) {
         if (!eventSlug) return
 
@@ -65,8 +62,22 @@ document.addEventListener('click', function (event) {
             .then(response => response.json())
             .then(data => {
                 if (data.added) {
-                    heartIcon.classList.add('hidden')
-                    heartRedIcon.classList.remove('hidden')
+                    if (heartIcon && heartRedIcon) {
+                        heartIcon.classList.add('hidden')
+                        heartRedIcon.classList.remove('hidden')
+                    } else {
+                        if (heartIcon) {
+                            heartIcon.classList.add('hidden')
+                            const redIcon = document.createElement('img')
+                            redIcon.src = '/static/icons/heart_red.png'
+                            redIcon.alt = 'Красное сердце'
+                            redIcon.width = 32
+                            redIcon.height = 32
+                            redIcon.className = 'heart-red-icon'
+                            heartIcon.after(redIcon)
+                        }
+                    }
+
                     button.classList.remove('add-to-cart')
                     button.classList.add('remove-from-favorites')
                     button.setAttribute('data-event-id', data.event_id)
@@ -76,7 +87,7 @@ document.addEventListener('click', function (event) {
             })
             .catch(error => console.error('Ошибка добавления в избранное:', error))
 
-        // Удаление из избранного
+        // УДАЛИТЬ ИЗ ИЗБРАННОГО
     } else if (button.classList.contains('remove-from-favorites')) {
         if (!eventId || !eventSlug) return
 
@@ -91,8 +102,10 @@ document.addEventListener('click', function (event) {
             .then(response => response.json())
             .then(data => {
                 if (data.removed) {
-                    heartIcon.classList.remove('hidden')
-                    heartRedIcon.classList.add('hidden')
+                    if (heartIcon && heartRedIcon) {
+                        heartIcon.classList.remove('hidden')
+                        heartRedIcon.classList.add('hidden')
+                    }
                     button.classList.remove('remove-from-favorites')
                     button.classList.add('add-to-cart')
                     button.removeAttribute('data-event-id')
