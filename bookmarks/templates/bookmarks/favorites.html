@@ -146,6 +146,35 @@
                                             </div>
                                     </div>
 
+                                    <div class="button-substrate">
+
+                                        {% if item.date >= now or request.user in item.member.all %}
+                                            {% if item.id in registered %}
+                                                <a href="#" class="btn btn-remove_app" data-event-id="{{ registered|get_item:item.id }}">
+                                                    Отмена регистрации
+                                                </a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-sent_app" data-event-slug="{{ item.slug }}">
+                                                    Регистрация
+                                                </a>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="btn btn-secondary">Регистрация недоступна</span>
+                                        {% endif %}
+                                    
+                                        <button class="btn btn-comment" data-event-id="{{ item.id }}" data-model-type=
+                                        {% if item.category  == 'Онлайн' %}
+                                            "online"
+                                        {% elif item.category  == 'Оффлайн' %}
+                                            "offline"
+                                        {% elif item.category  == 'Достопримечательности' %}
+                                            "attractions"
+                                        {% elif item.category  == 'Доступные к посещению' %}
+                                            "for_visiting"
+                                        {% endif %}>
+                                        Оставить отзыв</button>
+                                    </div>
+                                    
                                 </div>
 
                                 <div class="col-lg-7 col-md-7 col-sm-7 event-preview-text">
