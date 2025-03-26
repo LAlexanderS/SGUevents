@@ -14,8 +14,16 @@
                         {% with favorite.online|default:favorite.offline|default:favorite.attractions|default:favorite.for_visiting as item %}
                             {% if item %}
                                 <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo">
-                                    <a href="{% url 'bookmarks:events_remove' favorite.id %}" class="remove-from-favorites" data-event-id="{{ favorite.id }}">
-                                        <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                    <a href="{% url 'bookmarks:events_remove' favorite.id %}" class="remove-from-favorites" data-event-id="{{ favorite.id }}" data-event-slug="{{ item.slug }}">
+                                        <!-- Белое (пустое) сердце -->
+                                        <img class="heart-icon {% if item.slug in liked %}hidden{% endif %}"
+                                        src="{% static 'icons/heart.svg' %}"
+                                        alt="Белое сердце" width="32" height="32">
+
+                                        <!-- Красное сердце -->
+                                        <img class="heart-red-icon {% if not item.slug in liked %}hidden{% endif %}"
+                                            src="{% static 'icons/heart_red.png' %}"
+                                            alt="Красное сердце" width="32" height="32">
                                     </a>
 
                                     {% if item.image %}
@@ -151,7 +159,7 @@
                                         {% elif favorite.for_visiting %}
                                             {% url 'events_cultural:events_for_visiting_card' item.slug %}
                                         {% endif %}" class="show-more">
-                                        <h4 class="event-title-preview">{{ item.name|truncatechars:82 }}</h4>
+                                        <h4 class="event-title-preview">11 {{item.slug}}11{{ item.name|truncatechars:82 }}</h4>
                                     </a> 
 
                                     <div class="row">

@@ -1,4 +1,4 @@
-// Получаем CSRF-токен из cookies (глобально один раз)
+// Получаем CSRF-токен
 function getCookie(name) {
     let cookieValue = null
     if (document.cookie && document.cookie !== '') {
@@ -14,9 +14,9 @@ function getCookie(name) {
     return cookieValue
 }
 
-window.csrftoken = getCookie('csrftoken')  // Объявляем глобально, чтобы не было конфликта между скриптами
+window.csrftoken = getCookie('csrftoken')
 
-// всплывающее уведомление
+// Уведомление
 function showNotification(message) {
     const notification = document.getElementById('favoriteNotification')
     if (!notification) return
@@ -27,10 +27,7 @@ function showNotification(message) {
     }
 
     notification.style.display = 'block'
-    setTimeout(() => {
-        notification.classList.add('fade-in')
-    }, 10)
-
+    setTimeout(() => notification.classList.add('fade-in'), 10)
     setTimeout(() => {
         notification.classList.remove('fade-in')
         notification.classList.add('fade-out')
@@ -41,20 +38,21 @@ function showNotification(message) {
     }, 1000)
 }
 
+// Обработка кликов по сердцу
 document.addEventListener('click', function (event) {
     const button = event.target.closest('.add-to-cart, .remove-from-favorites')
     if (!button) return
 
     event.preventDefault()
 
-    const heartRedIconURL = '/static/icons/heart_red.png'
-    const heartIconURL = '/static/icons/heart.svg'
-    const icon = button.querySelector('.heart-icon')
+    const heartIcon = button.querySelector('.heart-icon')
+    const heartRedIcon = button.querySelector('.heart-red-icon')
+    const eventSlug = button.getAttribute('data-event-slug')
+    const eventId = button.getAttribute('data-event-id')
 
-    // ДОБАВИТЬ В ИЗБРАННОЕ
+    // Добавление в избранное
     if (button.classList.contains('add-to-cart')) {
-        const eventSlug = button.getAttribute('data-event-slug')
-        if (!eventSlug || !icon) return
+        if (!eventSlug) return
 
         fetch(`/bookmarks/events_add/${eventSlug}/`, {
             method: 'POST',
@@ -62,12 +60,13 @@ document.addEventListener('click', function (event) {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': window.csrftoken
             },
-            body: JSON.stringify({ 'slug': eventSlug })
+            body: JSON.stringify({ slug: eventSlug })
         })
             .then(response => response.json())
             .then(data => {
                 if (data.added) {
-                    icon.src = heartRedIconURL
+                    heartIcon.classList.add('hidden')
+                    heartRedIcon.classList.remove('hidden')
                     button.classList.remove('add-to-cart')
                     button.classList.add('remove-from-favorites')
                     button.setAttribute('data-event-id', data.event_id)
@@ -77,11 +76,9 @@ document.addEventListener('click', function (event) {
             })
             .catch(error => console.error('Ошибка добавления в избранное:', error))
 
-        // УДАЛИТЬ ИЗ ИЗБРАННОГО
+        // Удаление из избранного
     } else if (button.classList.contains('remove-from-favorites')) {
-        const eventId = button.getAttribute('data-event-id')
-        const eventSlug = button.getAttribute('data-event-slug')
-        if (!eventId || !icon) return
+        if (!eventId || !eventSlug) return
 
         fetch(`/bookmarks/events_remove/${eventId}/`, {
             method: 'POST',
@@ -89,12 +86,13 @@ document.addEventListener('click', function (event) {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': window.csrftoken
             },
-            body: JSON.stringify({ 'id': eventId })
+            body: JSON.stringify({ id: eventId })
         })
             .then(response => response.json())
             .then(data => {
                 if (data.removed) {
-                    icon.src = heartIconURL
+                    heartIcon.classList.remove('hidden')
+                    heartRedIcon.classList.add('hidden')
                     button.classList.remove('remove-from-favorites')
                     button.classList.add('add-to-cart')
                     button.removeAttribute('data-event-id')

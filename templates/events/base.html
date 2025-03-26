@@ -477,9 +477,20 @@
                                     <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo">
                                         {% if name_page != "Главная" %}
                                             {% if events.id in favorites %}
-                                                <a href="#" class="remove-from-favorites" data-event-id="{{ favorites|get_item:events.id }}">
+                                                <a href="#" class="remove-from-favorites" data-event-id="{{ favorites|get_item:events.id }}" data-event-slug="{{ events.slug }}">
+                                                    <!-- Белое (пустое) сердце -->
+                                                    <img class="heart-icon {% if events.slug in liked %}hidden{% endif %}"
+                                                    src="{% static 'icons/heart.svg' %}"
+                                                    alt="Белое сердце" width="32" height="32">
+
+                                                    <!-- Красное сердце -->
+                                                    <img class="heart-red-icon {% if not events.slug in liked %}hidden{% endif %}"
+                                                        src="{% static 'icons/heart_red.png' %}"
+                                                        alt="Красное сердце" width="32" height="32">
+                                                    </a>
+                                                {% comment %} <a href="#" class="remove-from-favorites" data-event-id="{{ favorites|get_item:events.id }}" data-event-slug="{{ events.slug }}">
                                                 <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                </a>
+                                                </a> {% endcomment %}
                                             {% else %}
                                                 <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
                                                 <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
