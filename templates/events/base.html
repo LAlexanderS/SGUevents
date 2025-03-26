@@ -464,6 +464,8 @@
                     </div>
                     <div class="col-lg-1"></div>
                 </div>
+
+                {% block favorites %}{% endblock favorites %}
                 <!-- в строке ниже убран mt-3 из класса-->
                 {% for events in event_card_views %}
                     <div class="row mb-3 events">
@@ -471,6 +473,7 @@
                         <div class="col-lg-10 cards">
                             <div class="card">
                                 <div class="row event">
+                                    
                                     <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo">
                                         {% if name_page != "Главная" %}
                                             {% if events.id in favorites %}
@@ -726,6 +729,8 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    
                                 </div>
                             </div>
                         </div>

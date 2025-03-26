@@ -3,14 +3,234 @@
 {% load bookmarks_tags %}
 {% user_favorites request as event_card_views %}
 {% block title %} <title>Избранные мероприятия</title> {% endblock %} 
-{% block favorite %}
-<div class="container-fluid">
-    <h2>Избранные мероприятия</h2>
-    <ul>
-        {% for favorite in favorites %}
-            {% with favorite.online|default:favorite.offline|default:favorite.attractions|default:favorite.for_visiting as item %}
-                {% if item %}
-                    <div class="row mt-2 event_cards">
+{% block favorite %}   
+    {% for favorite in favorites %}
+        <div class="row mb-3 events">
+            <div class="col-lg-1 feed-left-column"></div>
+
+            <div class="col-lg-10 cards">
+                <div class="card">
+                    <div class="row event">
+                        {% with favorite.online|default:favorite.offline|default:favorite.attractions|default:favorite.for_visiting as item %}
+                            {% if item %}
+                                <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo">
+                                    <a href="{% url 'bookmarks:events_remove' favorite.id %}" class="remove-from-favorites" data-event-id="{{ favorite.id }}">
+                                        <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                    </a>
+
+                                    {% if item.image %}
+                                        <img src="{{ item.image.url }}" alt="" class="preview-photo">
+                                    {% else %}
+                                            <img src="{% static "images/no_photo.png" %}" alt="" class="preview-photo">
+                                    {% endif %}
+
+                                    <div class="rating-overlay">
+                                            <div class="half-stars">
+                                                <div class="rating-group">
+                                                    <!-- по умолчанию 0 -->
+                                                    <input disabled checked name="hsr" value="0" type="radio">
+
+                                                    <!-- рейтинг 0.5 -->
+                                                    <label class="hsr" for="hsr1-05">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-05" value="0.5" type="radio">
+
+                                                    <!-- рейтинг 1 -->
+                                                    <label for="hsr1-10">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-10" value="1" type="radio">
+
+                                                    <!-- рейтинг 1.5 -->
+                                                    <label class="hsr" for="hsr1-15">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-15" value="1.5" type="radio">
+
+                                                    <!-- рейтинг 2 -->
+                                                    <label for="hsr1-20">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-20" value="2" type="radio">
+
+                                                    <!-- рейтинг 2.5 -->
+                                                    <label class="hsr" for="hsr1-25">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-25" value="2.5" type="radio">
+
+                                                    <!-- рейтинг 3 -->
+                                                    <label for="hsr1-30">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-30" value="3" type="radio">
+
+                                                    <!-- рейтинг 3.5 -->
+                                                    <label class="hsr" for="hsr1-35">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-35" value="3.5" type="radio">
+
+                                                    <!-- рейтинг 4 -->
+                                                    <label for="hsr1-40">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-40" value="4" type="radio">
+
+                                                    <!-- рейтинг 4.5 -->
+                                                    <label class="hsr" for="hsr1-45">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-45" value="4.5" type="radio">
+
+                                                    <!-- рейтинг 5 -->
+                                                    <label for="hsr1-50">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                                    </label>
+                                                    <input disabled name="hsr" id="hsr1-50" value="5" type="radio">
+                                                </div>
+                                                <div class="total-raiting">0</div>
+                                            </div>
+                                    </div>
+
+                                    <div class="type-substrate">
+                                            <div class="event-type online">
+                                                {% if item.category  == 'Онлайн' %}
+                                                    онлайн
+                                                {% elif item.category  == 'Оффлайн' %}
+                                                    оффлайн
+                                                {% elif item.category  == 'Достопримечательности' %}
+                                                    достопримечательности
+                                                {% elif item.category  == 'Доступные к посещению' %}
+                                                    для посещения
+                                                {% endif %} 
+                                            </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-lg-7 col-md-7 col-sm-7 event-preview-text">
+                                    <a href="
+                                        {% if favorite.online %}
+                                            {% url 'events_available:online_card' item.slug %}
+                                        {% elif favorite.offline %}
+                                            {% url 'events_available:offline_card' item.slug %}
+                                        {% elif favorite.attractions %}
+                                            {% url 'events_cultural:attractions_card' item.slug %}
+                                        {% elif favorite.for_visiting %}
+                                            {% url 'events_cultural:events_for_visiting_card' item.slug %}
+                                        {% endif %}" class="show-more">
+                                        <h4 class="event-title-preview">{{ item.name|truncatechars:82 }}</h4>
+                                    </a> 
+
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
+                                            <p class="preview-date">
+                                                {% if item.category  != 'Достопримечательности' %}
+                                                <h6 class="card-date"> 
+                                                    {% if item.date != item.date_end %}
+                                                        <split class="card-day"><b>{{ item.date }} - {{ item.date_end }}</b></split> 
+                                                    {% else %}
+                                                        <split class="card-day"><b>{{ item.date }}</b></split> 
+                                                    {% endif %}
+                                                </h6> 
+                                            {% endif %}
+                                            </p>
+                                            <p class="preview-time">
+                                                {% if item.time_start != item.time_end %}
+                                                    <split class="card-time">{{ item.time_start }} - {{ item.time_end }}</split> 
+                                                {% else %}
+                                                    <split class="card-time">{{ item.time_start }}</split> 
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-lg-6 col-md-5 col-sm-5 event-preview-speaker">
+                                            <label for="speaker" class="preview-speaker">Спикеры:</label>
+                                            {% for speaker in item.speakers.all %}
+                                                {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="event-preview-description">
+                                        <label for="" class="preview-about">О мероприятии:</label>
+                                        <p class="preview-description">
+                                            {% autoescape off %}
+                                                {% if item.headline_description %}
+                                                    {{ item.headline_description|truncatechars:200 }}
+                                                {% else %}
+                                                    {{ item.description|truncatechars:200 }}
+                                                {% endif %}
+                                            {% endautoescape %}
+                                            <a href="{% if item.category  == 'Онлайн' %}
+                                                {% url "events_available:online_card" item.slug %}
+                                            {% elif item.category  == 'Оффлайн' %}
+                                                {% url "events_available:offline_card" item.slug %}
+                                            {% elif item.category  == 'Достопримечательности' %}
+                                                {% url "events_cultural:attractions_card" item.slug %}
+                                            {% elif item.category  == 'Доступные к посещению' %}
+                                                {% url "events_cultural:events_for_visiting_card" item.slug %}
+                                            {% endif %}"  class="show-more">Подробнее</a>
+                                        </p>
+                                    </div>
+
+                                    <div class="preview-event-id">
+                                        <div class="event-reviews-link">
+                                            <a href="#" class="reviews-link" type="button" data-bs-toggle="modal"
+                                                data-bs-target="#modal-{{ item.unique_id }}">Посмотреть отзывы </a>
+                                        </div>
+                                        <label for="event-id" class="event-id"></label>
+                                        <div class="event-tags">
+                                            {% if item.tags %} 
+                                                {{ item.tags }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-1 right-column"></div>
+    {% endfor %}
+{% endblock favorite %}
+
+
+        {% comment %} <div class="row mt-2 event_cards">
                         <div class="col-lg-12">
                             <div class="card mb-3">
                                 <div class="row g-0">
@@ -107,9 +327,12 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endif %}
-            {% endwith %}
+                    </div> {% endcomment %}
+
+
+
+
+
             {% comment %} {% with favorite.online|default:favorite.offline|default:favorite.attractions|default:favorite.for_visiting as item %}
                 {% if item %}
                     {{ item.category }}
@@ -476,9 +699,6 @@
                     </div>
                 </div>
             {% endif %}  {% endcomment %}
-        {% endfor %}
-    </ul>
-</div>
-{% endblock favorite %}
+
 
 

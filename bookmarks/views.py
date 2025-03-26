@@ -119,6 +119,7 @@ def favorites(request):
         'favorites': favorites,
         'registered': registered_dict,
         'now': now().date(),
+        'name_page': 'Избранные',
     }
     return render(request, 'bookmarks/favorites.html', context)
 
