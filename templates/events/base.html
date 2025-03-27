@@ -807,7 +807,7 @@
                                 </li>
                                 {% for page in event_card_views.paginator.page_range %}
                                     {% if page >= event_card_views.number|add:-2 and page <= event_card_views.number|add:2 %}
-                                        <li class="pagination__item {% if event_card_views.number == page %} active {% endif %}">
+                                        <li class="pagination__item {% if event_card_views.number == page %} pagination__item--active {% endif %}">
                                             <a class="pagination__link" href="?{% change_params page=page %}">{{ page }}</a>
                                         </li>
                                     {% endif %}
