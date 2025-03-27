@@ -116,8 +116,8 @@
                     <nav class="arrow-nav-left" aria-label="Arrow navigation"
                         style="position: fixed; width: fit-content;">
                         <ul class="pagination" style="margin-top: 10px;">
-                            <li class="page-item ">
-                                <a class="page-link-arrow" href="#">
+                            <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
+                                <a class="page-link-arrow" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">
                                     <div class="arrow">
                                         {% if event_card_views.has_previous %}
                                             <img src="{% static "icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">     
@@ -486,11 +486,11 @@
                                          
                                                 <!-- Белое (пустое) сердце -->
                                                 <img class="heart-icon {% if events.slug in liked %}hidden{% endif %}"
-                                                    src="{% static 'icons/heart.svg' %}" alt="Белое сердце" width="32" height="32">
+                                                    src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                             
                                                 <!-- Красное сердце -->
                                                 <img class="heart-red-icon {% if not events.slug in liked %}hidden{% endif %}"
-                                                    src="{% static 'icons/heart_red.png' %}" alt="Красное сердце" width="32" height="32">
+                                                    src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
                                             </a>
 
                                             {% else %}
@@ -801,23 +801,21 @@
             <pagination>
                 {% if user.is_authenticated %}
                     {% if event_card_views %}
-                        <nav aria-label="Page navigation example">
-                            <ul class="pagination">
-                                <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %} pagination__item">
-                                    <a class="page-link pagination__link" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">Назад</a>
+                        <ul class="pagination">
+                                <li class="{% if not event_card_views.has_previous %} disabled {% endif %} pagination__item pagination__item--prev">
+                                    <a class="pagination__link" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">Назад</a>
                                 </li>
                                 {% for page in event_card_views.paginator.page_range %}
                                     {% if page >= event_card_views.number|add:-2 and page <= event_card_views.number|add:2 %}
-                                        <li class="page-item pagination__item {% if event_card_views.number == page %} active {% endif %}">
-                                            <a class="page-link pagination__link" href="?{% change_params page=page %}">{{ page }}</a>
+                                        <li class="pagination__item {% if event_card_views.number == page %} active {% endif %}">
+                                            <a class="pagination__link" href="?{% change_params page=page %}">{{ page }}</a>
                                         </li>
                                     {% endif %}
                                 {% endfor %}
-                                <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %} pagination__item">
-                                    <a class="page-link pagination__link" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">Следующая</a>
+                                <li class="{% if not event_card_views.has_next %} disabled {% endif %} pagination__item pagination__item--next">
+                                    <a class="pagination__link" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">Следующая</a>
                                 </li>
-                            </ul>
-                        </nav>
+                        </ul>        
                     {% endif %}
                 {% endif %}
             </pagination>
