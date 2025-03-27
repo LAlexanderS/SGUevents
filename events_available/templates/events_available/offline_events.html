@@ -284,7 +284,7 @@
 {% block content %}
 <!-- Контент на странице -->
 <div class="button-substrate">
-
+    <p>{{events.member.all}}</p> 
     {% if events.date >= now or request.user in events.member.all %}
         {% if events.id in registered %}
             <a href="#" class="btn btn-remove_app" data-event-id="{{ registered|get_item:events.id }}">

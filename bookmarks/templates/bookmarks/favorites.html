@@ -188,7 +188,7 @@
                                         {% elif favorite.for_visiting %}
                                             {% url 'events_cultural:events_for_visiting_card' item.slug %}
                                         {% endif %}" class="show-more">
-                                        <h4 class="event-title-preview">11 {{item.slug}}11{{ item.name|truncatechars:82 }}</h4>
+                                        <h4 class="event-title-preview">{{ item.name|truncatechars:82 }}</h4>
                                     </a> 
 
                                     <div class="row">

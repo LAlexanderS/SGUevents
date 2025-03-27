@@ -250,22 +250,40 @@ def registered(request):
         content_type = ContentType.objects.get_for_model(event)
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
-    favorites_online = Favorite.objects.filter(user=request.user, online_id__in=online_ids).values_list('online_id', 'id')
-    favorites_offline = Favorite.objects.filter(user=request.user, offline_id__in=offline_ids).values_list('offline_id', 'id')
-    favorites_attractions = Favorite.objects.filter(user=request.user, attractions_id__in=attractions_ids).values_list('attractions_id', 'id')
-    favorites_for_visiting = Favorite.objects.filter(user=request.user, for_visiting_id__in=for_visiting_ids).values_list('for_visiting_id', 'id')
+    favorites_online_id = Favorite.objects.filter(user=request.user, online_id__in=online_ids).values_list('online_id', 'id')
+    favorites_offline_id = Favorite.objects.filter(user=request.user, offline_id__in=offline_ids).values_list('offline_id', 'id')
+    favorites_attractions_id = Favorite.objects.filter(user=request.user, attractions_id__in=attractions_ids).values_list('attractions_id', 'id')
+    favorites_for_visiting_id = Favorite.objects.filter(user=request.user, for_visiting_id__in=for_visiting_ids).values_list('for_visiting_id', 'id')
 
     favorites_dict = {
-        'online': {item[0]: item[1] for item in favorites_online},
-        'offline': {item[0]: item[1] for item in favorites_offline},
-        'attractions': {item[0]: item[1] for item in favorites_attractions},
-        'for_visiting': {item[0]: item[1] for item in favorites_for_visiting},
+        'online': {item[0]: item[1] for item in favorites_online_id},
+        'offline': {item[0]: item[1] for item in favorites_offline_id},
+        'attractions': {item[0]: item[1] for item in favorites_attractions_id},
+        'for_visiting': {item[0]: item[1] for item in favorites_for_visiting_id},
     }
+
+    favorites_online = Favorite.objects.filter(user=request.user, online_id__in=online_ids).select_related('online')
+    favorites_offline = Favorite.objects.filter(user=request.user, offline_id__in=offline_ids).select_related('offline')
+    favorites_attractions = Favorite.objects.filter(user=request.user, attractions_id__in=attractions_ids).select_related('attractions')
+    favorites_for_visiting = Favorite.objects.filter(user=request.user, for_visiting_id__in=for_visiting_ids).select_related('for_visiting')
+
+    liked_slugs = [
+    favorite.online.slug for favorite in favorites_online if favorite.online
+] + [
+    favorite.offline.slug for favorite in favorites_offline if favorite.offline
+] + [
+    favorite.attractions.slug for favorite in favorites_attractions if favorite.attractions
+] + [
+    favorite.for_visiting.slug for favorite in favorites_for_visiting if favorite.for_visiting
+]
 
     context = {
         'registered': registered,
         'reviews': reviews,
+        'name_page': 'Зарегистрированные',
+        'liked': liked_slugs,
         'favorites': favorites_dict,
+
     }
     return render(request, 'bookmarks/registered.html', context)
 
