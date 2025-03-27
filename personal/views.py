@@ -78,6 +78,7 @@ def personal(request):
         'is_offline_group': is_offline_group,
         'is_attraction_group': is_attraction_group,
         'is_for_visiting_group': is_for_visiting_group,
+        'name_page': "Кабинет администратора",
     }
     
     return render(request, 'personal/personal.html', context)

@@ -797,23 +797,24 @@
 
             {% block favorite %}{% endblock favorite %}
 
+            
             <pagination>
                 {% if user.is_authenticated %}
                     {% if event_card_views %}
                         <nav aria-label="Page navigation example">
                             <ul class="pagination">
-                                <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
-                                    <a class="page-link" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">Назад</a>
+                                <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %} pagination__item">
+                                    <a class="page-link pagination__link" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">Назад</a>
                                 </li>
                                 {% for page in event_card_views.paginator.page_range %}
                                     {% if page >= event_card_views.number|add:-2 and page <= event_card_views.number|add:2 %}
-                                        <li class="page-item {% if event_card_views.number == page %} active {% endif %}">
-                                            <a class="page-link" href="?{% change_params page=page %}">{{ page }}</a>
+                                        <li class="page-item pagination__item {% if event_card_views.number == page %} active {% endif %}">
+                                            <a class="page-link pagination__link" href="?{% change_params page=page %}">{{ page }}</a>
                                         </li>
                                     {% endif %}
                                 {% endfor %}
-                                <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
-                                    <a class="page-link" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">Следующая</a>
+                                <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %} pagination__item">
+                                    <a class="page-link pagination__link" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">Следующая</a>
                                 </li>
                             </ul>
                         </nav>
@@ -915,317 +916,6 @@
         
 
     </main>
-    {% comment %} <section>
-		{% if user.is_authenticated %}
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-lg-1">
-                    
-                </div>
-		
-				<div class="col-lg-10 col-sm-12 col-12">
-                    <div class="row mt-3 mb-3 name-for-events">
-                        <div class="col-lg-1 col-sm-1 col-1 d-flex justify-content-center arrow">
-                            {% if user.is_authenticated %}
-                                {% if event_card_views %}
-                                    <nav aria-label="Arrow navigation">
-                                        <ul class="pagination justify-content-center">
-                                            <li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
-                                                <a class="page-link-arrow" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}"><div class="arrow">
-                                                    {% if not event_card_views.has_previous %}
-                                                        
-                                                    {% else %}
-                                                        <img src="{% static "general/icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">
-                                                    {% endif %}
-                                                </div></a>
-                                            </li>
-                                        </ul>
-                                    </nav>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                        <div class="col-lg-10 col-sm-10 col-10 align-items-center">
-                            <div class="row">
-                                {% block filters %}{% endblock filters %}
-                                {% block sort %}{% endblock sort %}
-                            </div>  
-                            
-                        </div>
-                        <div class="col-lg-1 col-sm-1 col-1 d-flex justify-content-center">
-                            {% if user.is_authenticated %}
-                                {% if event_card_views %}
-                                    <nav aria-label="Arrow navigation">
-                                        <ul class="pagination justify-content-center">
-                                            <li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
-                                                <a class="page-link-arrow" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">
-                                                <div class="arrow">
-                                                    {% if not event_card_views.has_next %}
-                                                    {% else %}
-                                                        <img src="{% static "general/icons/arrow-right.png" %}" class="arrow" alt="Следующая">
-                                                    {% endif %}
-                                                </div></a>
-                                            </li>
-                                        </ul>
-                                    </nav>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    </div> 
-                    
-
-                    {% block script_js %}{% endblock script_js %}
-                    
-                         
-					{% if request.GET.q %}
-						<h3 class="mt-4">Результаты поиска по запросу {{ request.GET.q }}</h3>
-						{% if not event_card_views %}
-							<h2 class="mt-4">По запросу ничего не найдено</h2>
-						{% endif %}
-					{% endif %}
-
-                    
-                    
-                    {% block form_events %}{% endblock form_events %}
-                    {% for events in event_card_views %}
-                        <div class="row mt-2 event_cards">
-                            <div class="col-lg-12">
-                                <div class="card mb-3">
-                                    <div class="row g-0">
-                                        <div class="col-md-4">
-                                        <div class="row g-0">
-                                            <div class="col-12">
-                                            
-                                                {% if events.image %}
-                                                    <img src="{{ events.image.url }}" class="img-fluid rounded-start" alt="{{ events.name }}">
-                                                {% else %} 
-                                                    <img src="{% static "general/images/img.png" %}" class="img-fluid rounded-start" alt="{{ events.name }}">
-                                                {% endif %}
-                                            </div>
-                                            <div class="col-md-2">
-                                                {% if name_page != "Главная" %}
-                                                    {% if events.id in favorites %}
-                                                        <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:events.id }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% else %}
-                                                        <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                            <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                        </a>
-                                                    {% endif %}
-                                                {% else %}
-                                                    {% if events|model_name == 'Events_online' %}
-                                                        {% if events.id in favorites.online %}
-                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.online|get_item:events.id }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                            </a>
-                                                        {% else %}
-                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                            </a>
-                                                        {% endif %}
-                                                    {% elif events|model_name == 'Events_offline' %}
-                                                        {% if events.id in favorites.offline %}
-                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.offline|get_item:events.id }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                            </a>
-                                                        {% else %}
-                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                            </a>
-                                                        {% endif %}
-                                                    {% elif events|model_name == 'Attractions' %}
-                                                        {% if events.id in favorites.attractions %}
-                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.attractions|get_item:events.id }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                            </a>
-                                                        {% else %}
-                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                            </a>
-                                                        {% endif %}
-                                                    {% elif events|model_name == 'Events_for_visiting' %}
-                                                        {% if events.id in favorites.for_visiting %}
-                                                            <a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites.for_visiting|get_item:events.id }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-                                                            </a>
-                                                        {% else %}
-                                                            <a href="#" class="btn add-to-cart" data-event-slug="{{ events.slug }}">
-                                                                <img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                                            </a>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                {% endif %}
-                                            </div>
-                                            <div class="col-md-10">
-                                                <div class="card-img-info">
-                                                
-                                                    <p>{{ events.category }}</p>     
-                                                </div>
-                                            </div>
-                                                  
-                                        </div>
-
-                                        </div>
-                                        <div class="col-md-8">
-                                            <div class="card-body">
-                                                <h5 class="card-title">
-                                                    <a href="
-                                                    {% if events.category  == 'Онлайн' %}
-                                                        {% url "events_available:online_card" events.slug %}
-                                                    {% elif events.category  == 'Оффлайн' %}
-                                                        {% url "events_available:offline_card" events.slug %}
-                                                    {% elif events.category  == 'Достопримечательности' %}
-                                                        {% url "events_cultural:attractions_card" events.slug %}
-                                                    {% elif events.category  == 'Доступные к посещению' %}
-                                                        {% url "events_cultural:events_for_visiting_card" events.slug %}
-                                                    {% endif %}">
-                                                    {% autoescape off %}
-                                                        {% if events.headline_name %}{{ events.headline_name|safe }}{% else %}{{ events.name }}{% endif %}
-                                                    {% endautoescape %}
-                                                    </a>
-                                                </h5>
-                                                {% if events.category  != 'Достопримечательности' %}
-                                                    <h6 class="card-date"> 
-                                                        {% if events.date != events.date_end %}
-                                                            <split class="card-day"><b>{{ events.date }} - {{ events.date_end }}</b></split> 
-                                                        {% else %}
-                                                            <split class="card-day"><b>{{ events.date }}</b></split> 
-                                                        {% endif %}
-
-                                                        {% if events.time_start != events.time_end %}
-                                                            <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> 
-                                                        {% else %}
-                                                            <split class="card-time">{{ events.time_start }}</split> 
-                                                        {% endif %}
-                                                    </h6> 
-                                                {% endif %}
-                                               
-                                                
-                                                <h6><strong>Администратор:</strong>
-                                                    {% for admin in events.events_admin.all %}
-                                                        {{admin.last_name}} {{admin.first_name}}{% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                                                </h6>
-                                                      
-                                                
-                                                {% autoescape off %}
-                                                    {% if events.headline_name %}
-                                                        {{ events.headline_name }}
-                                                    {% else %}
-                                                        {{ events.name }}
-                                                    {% endif %}
-                                                {% endautoescape %}
-
-                                                {% autoescape off %}
-                                                    {% if events.headline_description %}
-                                                        {{ events.headline_description|truncatechars:250 }}
-                                                    {% else %}
-                                                        {{ events.description|truncatechars:250 }}
-                                                    {% endif %}
-                                                {% endautoescape %}
-                                                
-                                                <p class="card-text">
-                                                    <small class="text-muted">{% if events.tags %} 
-                                                        {{ events.tags }}
-                                                        {% else %}
-                                                        {% endif %}
-                                                    </small>
-                                                </p>
-                                                <p>
-                                                    {% if events.town %}г.{{ events.town }}{% endif %} {% if events.street %}ул.{{ events.street }}{% endif %} {% if events.house %} д.{{ events.house }}{% endif %}{% if events.cabinet %} кабинет {{ events.cabinet }}{% endif %}
-                                                </p>
-                                                
-                                                {% if events.speakers.all %}
-                                                    <p>
-                                                        <h6><strong>Спикеры:</strong></h6>
-                                                        {% for speaker in events.speakers.all %}
-                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-                                                    </p>
-                                                {% endif %}
-                                                
-                                                {% if events.category == "Доступные к посещению"%}
-                                                    {% if events.place_limit and events.date >= now %}
-                                                        {% if events.place_free > 0 %}
-                                                            <p>
-                                                                
-                                                            
-                                                                Свободных мест: <span id="free-places-{{events.slug}}"> {{events.place_free }} </span> / {{events.place_limit }}
-
-                                                            </p>
-                                                        {% else %}
-                                                            <p>
-                                                                Нет свободных мест
-                                                            </p> 
-                                                        {% endif %}
-                                                    {% endif %}                          
-                                                {% endif %}
-
-                                                
-                                                {% block content %}{% endblock content %}
-                                                
-                                                {% block admins_events %}{% endblock admins_events %}
-                                                <div class="event" id="event-{{ events.id }}">
-                                                    {% if reviews %}
-                                                        <div class="reviews" data-event-id="{{ events.id }}">
-                                                           
-                                                                <ul>
-                                                                    {% for review in reviews|get_item:events.unique_id %}
-                                                                        <li>
-                                                                            <h5>Отзыв:</h5>
-                                                                            <p><strong>{{ review.user.last_name }} {{ review.user.first_name }} </strong> ({{ review.formatted_date }}):</p>
-                                                                            <p>{{ review.comment }}</p>
-                                                                        </li>
-                                                                    {% endfor %}
-                                                                </ul>
-                                                        
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
- 
-                    {% block favorite %}{% endblock favorite %}
-                    {% block register %}{% endblock register %}
-				</div>
-                
-				<div class="col-lg-1">
-                    
-                </div>
-			</div>
-		</div>
-		{% endif %}
-        
-    </section>
-    {% endcomment %}
-    {% comment %} <pagination>
-		{% if user.is_authenticated %}
-			{% if event_card_views %}
-				<nav aria-label="Page navigation example">
-					<ul class="pagination justify-content-center">
-						<li class="page-item {% if not event_card_views.has_previous %} disabled {% endif %}">
-							<a class="page-link" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">Назад</a>
-						</li>
-						{% for page in event_card_views.paginator.page_range %}
-							{% if page >= event_card_views.number|add:-2 and page <= event_card_views.number|add:2 %}
-								<li class="page-item {% if event_card_views.number == page %} active {% endif %}">
-									<a class="page-link" href="?{% change_params page=page %}">{{ page }}</a>
-								</li>
-							{% endif %}
-						{% endfor %}
-						<li class="page-item {% if not event_card_views.has_next %} disabled {% endif %}">
-							<a class="page-link" href="{% if event_card_views.has_next %}?{% change_params page=event_card_views.next_page_number %}{% else %}#{% endif %}">Следующая</a>
-						</li>
-					</ul>
-				</nav>
-			{% endif %}
-		{% endif %}
-	</pagination> {% endcomment %}
     
     <script src="{% static "js/card_popup_script.js" %}"></script>
 
@@ -1235,7 +925,7 @@
 
     <script src="{% static "js/rating_script.js" %}"></script>
 
-    <script src="{% static "js/pagination_script.js" %}"></script>
+    {% comment %} <script src="{% static "js/pagination_script.js" %}"></script> {% endcomment %}
 
     <script src="{% static "js/registration_disallowed_script.js" %}"></script>
 
@@ -1250,17 +940,6 @@
     <script src="{% static "js/sort_selected_script.js" %}"></script>
 
     <script src="{% static "js/content_load_script.js" %}"></script>
-
-    {% comment %} <script src="{% static 'general/js/base.js' %}"></script> {% endcomment %}
-     {% comment %}
-    <script src="{% static 'scripts/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'scripts/select2.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap-datepicker.ru.min.js' %}"></script>
-    <script src="{% static 'scripts/moment.min.js' %}"></script>
-    <script src="{% static 'django_select2/django_select2.js' %}"></script>
-    <script src="{% static 'flatpickr/flatpickr.js' %}"></script> {% endcomment %}
 
     <script type="text/javascript">
         $(document).ready(function() {
