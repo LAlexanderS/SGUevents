@@ -171,6 +171,9 @@
                     </nav>
                     <div class="col-lg-1"></div>
                 </div>
+
+                
+
                 <div id="rools" class="row filter-events-row hidden">
                     <div class="row filter-events-row">
                         <div class="col-lg-1 feed-left-column"></div>
@@ -386,6 +389,8 @@
                     </form>
                 </div>
 
+                
+
                 <div class="row">
                     <div class="col-lg-1 feed-left-column"></div>
                     <div class="col-lg-10">
@@ -464,10 +469,11 @@
                     </div>
                     <div class="col-lg-1"></div>
                 </div>
-
+                
+                {% block form_events %}{% endblock form_events %}
                 {% block favorites %}{% endblock favorites %}
                 {% block register %}{% endblock register %}
-
+                
                 <!-- в строке ниже убран mt-3 из класса-->
                 {% for events in event_card_views %}
                     <div class="row mb-3 events">

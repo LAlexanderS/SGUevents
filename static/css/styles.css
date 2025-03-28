@@ -305,6 +305,14 @@ button {
     background: rgb(39, 66, 106);
 }
 
+.btn-edit {
+    background: rgb(39, 66, 106);
+}
+
+.btn-delete {
+    background: rgb(170, 88, 63);
+}
+
 .btn-none_sent_app {
     background: #8a8363c7;
 }
