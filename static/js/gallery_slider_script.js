@@ -1,61 +1,72 @@
-// Инициализация переменной для отслеживания текущего слайда
-let currentSlide = 0;
+let currentSlide = 0
+const slides = document.querySelectorAll(".slide")
+const dots = document.querySelectorAll(".dot")
 
-// Получение всех слайдов и точек (индикаторов) на странице
-const slides = document.querySelectorAll(".slide");
-const dots = document.querySelectorAll(".dot");
-
-// Функция для инициализации слайдера
+// Функция отображения нужного слайда
 const init = (n) => {
-  // Скрываем все слайды и удаляем активный класс у всех точек
   slides.forEach((slide, index) => {
-    slide.style.display = "none";
-    dots.forEach((dot) => dot.classList.remove("active"));
-  });
-  
-  // Показываем текущий слайд и активируем соответствующую точку
-  slides[n].style.display = "block";
-  dots[n].classList.add("active");
-};
+    slide.style.display = "none"
+    dots.forEach((dot) => dot.classList.remove("active"))
+  })
 
-// Инициализация слайдера при загрузке страницы
-document.addEventListener("DOMContentLoaded", () => init(currentSlide));
+  slides[n].style.display = "block"
+  dots[n].classList.add("active")
+}
 
-// Функция для перехода к следующему слайду
+// Сброс интервала
+let interval = null
+function resetInterval() {
+  clearInterval(interval)
+  interval = setInterval(() => {
+    next()
+  }, 5000)
+}
+
+// Инициализация слайдера
+document.addEventListener("DOMContentLoaded", () => {
+  init(currentSlide)
+  resetInterval()  // Запуск таймера при загрузке
+})
+
+// Переключение вперёд
 const next = () => {
-  // Если текущий слайд последний, переходим к первому, иначе к следующему
-  currentSlide = (currentSlide >= slides.length - 1) ? 0 : currentSlide + 1;
-  init(currentSlide);
-};
+  currentSlide = (currentSlide >= slides.length - 1) ? 0 : currentSlide + 1
+  init(currentSlide)
+  resetInterval()  // <--- сброс таймера при ручном переключении
+}
 
-// Функция для перехода к предыдущему слайду
+// Переключение назад
 const prev = () => {
-  // Если текущий слайд первый, переходим к последнему, иначе к предыдущему
-  currentSlide = (currentSlide <= 0) ? slides.length - 1 : currentSlide - 1;
-  init(currentSlide);
-};
+  currentSlide = (currentSlide <= 0) ? slides.length - 1 : currentSlide - 1
+  init(currentSlide)
+  resetInterval()
+}
 
-// Добавление обработчиков событий для кнопок "next" и "prev"
-document.querySelector(".next").addEventListener("click", next);
-document.querySelector(".prev").addEventListener("click", prev);
+// Обработчики стрелок
+document.querySelector(".next").addEventListener("click", next)
+document.querySelector(".prev").addEventListener("click", prev)
 
-// Автоматическое перелистывание слайдов каждые 5 секунд
-setInterval(() => {
-  next();
-}, 5000);
-
-// Добавление обработчиков событий для точек
+// Обработка точек
 dots.forEach((dot, i) => {
   dot.addEventListener("click", () => {
-    init(i); // Показываем слайд, соответствующий точке
-    currentSlide = i; // Обновляем текущий слайд
-  });
-});
+    init(i)
+    currentSlide = i
+    resetInterval()
+  })
+})
 
-// Инициализация Hammer.js для обработки свайпов на мобильных устройствах
-const sliderContainer = document.querySelector('.slide-container');
-const hammer = new Hammer(sliderContainer);
+// Свайпы
+const sliderContainer = document.querySelector('.slide-container')
+const hammer = new Hammer(sliderContainer)
 
-// Обработка свайпов
-hammer.on('swipeleft', next);
-hammer.on('swiperight', prev);
+hammer.on('swipeleft', next)
+hammer.on('swiperight', prev)
+
+// --- ⏸ Пауза при наведении ---
+sliderContainer.addEventListener('mouseenter', () => {
+  clearInterval(interval)  // Останавливаем автопрокрутку
+})
+
+sliderContainer.addEventListener('mouseleave', () => {
+  resetInterval()  // Возобновляем автопрокрутку
+})

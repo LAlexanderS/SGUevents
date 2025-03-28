@@ -316,22 +316,23 @@
                                     <span>#САДД</span>
                                 </div>
                             </div>
-                            <h2 class="gallery">фотогалерея</h2>
-                            <div class="slide-container">
-                                <div class="slide active"> <!-- Добавили класс active -->
-                                    <img src='static/finopolis_preview.jpg' alt=''>
+                            {% if event.gallery %}
+                                <h2 class="gallery">фотогалерея</h2>
+                                <div class="slide-container">
+                                    
+                                    {% for photo in event.gallery.all %}
+                                        <div class="slide {% if forloop.first %}active{% endif %}">
+                                            <img src="{{photo.image.url}}" alt=''>
+                                        </div>
+                                    {% endfor %}
+
+                                    <div class="prev" title="Previous"><img src="{% static "icons/arrow-left.png" %}" alt="">
+                                    </div>
+                                    <div class="next" title="Next"><img src="{% static "icons/arrow-right.png" %}" alt="">
+                                    </div>
                                 </div>
-                                <div class="slide ">
-                                    <img src='static/finopolis_png1.png' alt=''>
-                                </div>
-                                <div class="slide ">
-                                    <img src='static/monetary_conditions.jpg' alt=''>
-                                </div>
-                                <div class="prev" title="Previous"><img src="{% static "icons/arrow-left.png" %}" alt="">
-                                </div>
-                                <div class="next" title="Next"><img src="{% static "icons/arrow-right.png" %}" alt="">
-                                </div>
-                            </div>
+                            {% endif %}
+                            
                             <div class="dots-container" style="opacity: 0;">
                                 <span class="dot active"></span>
                                 <span class="dot"></span>

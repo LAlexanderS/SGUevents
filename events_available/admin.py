@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.contrib.auth import get_user_model
 
-from events_available.models import Events_offline, Events_online
+from events_available.models import Events_offline, Events_online, EventOnlineGallery
 
 User = get_user_model()
 
@@ -35,11 +35,19 @@ class RestrictedAdminMixin:
             is_admin = obj.events_admin.filter(pk=request.user.pk).exists()
             return is_admin
         return super().has_delete_permission(request, obj)
+    
+class EventOnlineGalleryInline(admin.TabularInline):
+    model = EventOnlineGallery
+    extra = 1
+    verbose_name = "Фотография"
+    verbose_name_plural = "Галерея"
+     
 
 @admin.register(Events_online)
 class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')
+    inlines = [EventOnlineGalleryInline]
 
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:

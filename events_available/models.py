@@ -77,7 +77,17 @@ class Events_online(models.Model):
         # Сначала сохраняем мероприятие (нужно для того, чтобы иметь ID объекта)
         super().save(*args, **kwargs)
 
+class EventOnlineGallery(models.Model):
+    event = models.ForeignKey('Events_online', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')
+    image = models.ImageField(upload_to='event_online_gallery/', verbose_name='Фотография')
 
+    class Meta:
+        verbose_name = 'Фотография мероприятия'
+        verbose_name_plural = 'Галерея мероприятия'
+
+    def __str__(self):
+        return f'Фото для {self.event.name}'
+    
 class Events_offline(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, unique=False, blank=False, null=False, verbose_name='Название')
