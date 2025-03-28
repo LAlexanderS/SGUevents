@@ -219,38 +219,43 @@ def send_custom_notification_with_toggle(telegram_id, message, event_unique_id, 
         logger.error(f"Ошибка отправки сообщения пользователю с telegram_id: {telegram_id}. Ответ: {response.text}")
 
 
-def send_notification_with_toggle(telegram_id, message, event_id, notifications_enabled):
+def send_notification_with_toggle(telegram_id, message, event_id=None, notifications_enabled=True):
     """
-    Отправка сообщения пользователю с кнопкой для включения/отключения уведомлений.
-
-    :param telegram_id: Telegram ID пользователя
-    :param message: Сообщение для отправки
-    :param event_id: UUID мероприятия
-    :param notifications_enabled: Состояние уведомлений (True для включенных, False для отключенных)
+    Отправляет уведомление пользователю с кнопкой включения/отключения уведомлений
     """
-    send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
-    button_text = "\U0001F534 Отключить уведомления" if notifications_enabled else "\U0001F7E2 Включить уведомления"
-    callback_data = f"notify_toggle_{event_id}"  # Используем UUID и префикс "notify_toggle_" для обработки в новом хендлере
-    inline_keyboard = {
-        "inline_keyboard": [[
-            {
-                "text": button_text,
-                "callback_data": callback_data
-            }
-        ]]
-    }
-
-    data = {
-        "chat_id": telegram_id,
-        "text": message,
-        "reply_markup": json.dumps(inline_keyboard)
-    }
-
-    response = requests.post(send_url, data=data)
-    if response.ok:
-        print(f"Сообщение успешно отправлено пользователю с telegram_id: {telegram_id}")
-    else:
-        print(f"Ошибка отправки сообщения пользователю: {response.text}")
+    try:
+        send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
+        
+        button_text = "\U0001F534 Отключить уведомления" if notifications_enabled else "\U0001F7E2 Включить уведомления"
+        
+        data = {
+            "chat_id": telegram_id,
+            "text": message,
+            "parse_mode": "HTML",
+            "reply_markup": json.dumps({
+                "inline_keyboard": [[{
+                    "text": button_text,
+                    "callback_data": f"toggle_notifications:{event_id}:{not notifications_enabled}"
+                }]]
+            })
+        }
+        
+        logger.info(f"Отправка запроса в Telegram API: URL={send_url}, data={json.dumps(data, ensure_ascii=False)}")
+        
+        response = requests.post(send_url, json=data)
+        response_data = response.json()
+        
+        logger.info(f"Ответ от Telegram API: {json.dumps(response_data, ensure_ascii=False)}")
+        
+        if not response.ok or not response_data.get('ok'):
+            logger.error(f"Ошибка при отправке сообщения в Telegram: {response_data.get('description', 'Неизвестная ошибка')}")
+            return False
+            
+        return response_data
+        
+    except Exception as e:
+        logger.error(f"Исключение при отправке сообщения в Telegram: {str(e)}")
+        return False
 
 # Функция для отправки учетных данных новому пользователю
 # Включает команду /start, чтобы автоматически начать взаимодействие с ботом
@@ -431,6 +436,53 @@ async def _send_telegram_message(chat_id: str, text: str) -> None:
                 response_text = await response.text()
                 raise Exception(f"Ошибка отправки сообщения в Telegram: {response_text}")
 
+async def get_chat_info(chat_id: str) -> dict:
+    """
+    Получает информацию о чате через Telegram API
+    """
+    bot_token = settings.ACTIVE_TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        raise ValueError("ACTIVE_TELEGRAM_BOT_TOKEN не установлен")
+
+    url = f"https://api.telegram.org/bot{bot_token}/getChat"
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json={'chat_id': chat_id}) as response:
+            if response.status != 200:
+                response_text = await response.text()
+                raise Exception(f"Ошибка получения информации о чате: {response_text}")
+            return await response.json()
+
+def send_chat_id_info(chat_id: str) -> None:
+    """
+    Отправляет информацию об ID чата пользователю
+    """
+    try:
+        chat_info = async_to_sync(get_chat_info)(chat_id)
+        chat_data = chat_info.get('result', {})
+        chat_type = chat_data.get('type', 'неизвестный')
+        
+        message = (
+            f"ℹ️ <b>Информация о чате:</b>\n\n"
+            f"ID чата: <code>{chat_id}</code>\n"
+            f"Тип чата: {chat_type}\n"
+        )
+        
+        if chat_type in ['group', 'supergroup']:
+            message += f"Название: {chat_data.get('title', 'не указано')}\n"
+        elif chat_type == 'private':
+            username = chat_data.get('username', 'не указано')
+            first_name = chat_data.get('first_name', '')
+            last_name = chat_data.get('last_name', '')
+            full_name = f"{first_name} {last_name}".strip()
+            message += f"Имя: {full_name}\n"
+            if username:
+                message += f"Username: @{username}\n"
+        
+        send_message_to_telegram(chat_id, message)
+    except Exception as e:
+        error_message = f"❌ Ошибка при получении информации о чате: {str(e)}"
+        send_message_to_telegram(chat_id, error_message)
+
 def send_password_to_user(telegram_id: str, password: str) -> None:
     """
     Отправляет пароль пользователю через Telegram
@@ -443,3 +495,33 @@ def send_password_to_user(telegram_id: str, password: str) -> None:
     
     # Используем синхронную функцию отправки сообщения вместо асинхронной
     send_message_to_telegram(telegram_id, message)
+
+def send_message_to_event_support_chat(text, support_chat_id, bot_token=None):
+    """
+    Отправляет сообщение в чат поддержки конкретного мероприятия
+    """
+    if not bot_token:
+        bot_token = settings.ACTIVE_TELEGRAM_BOT_TOKEN
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    chat_id = str(support_chat_id)
+    if not chat_id.startswith('-'):
+        chat_id = f"-{chat_id}"
+    
+    payload = {
+        'chat_id': chat_id,
+        'text': text,
+        'parse_mode': 'HTML'
+    }
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code != 200:
+            logger.error(f"Failed to send message to event support chat: {response.status_code}")
+            return False
+        return True
+    except Exception as e:
+        logger.error(f"Error sending message to event support chat: {str(e)}")
+        return False

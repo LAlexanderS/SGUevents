@@ -10,6 +10,24 @@ from django.utils import timezone
 from pytz import timezone as pytz_timezone
 from django.core.exceptions import ValidationError
 
+class MediaFile(models.Model):
+    message_id = models.CharField(max_length=100, verbose_name='ID сообщения')
+    chat_id = models.CharField(max_length=100, verbose_name='ID чата')
+    file_path = models.CharField(max_length=500, verbose_name='Путь к файлу на Яндекс.Диске')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    is_deleted = models.BooleanField(default=False, verbose_name='Удален')
+    celery_task_id = models.CharField(max_length=100, null=True, blank=True, verbose_name='ID задачи Celery')
+
+    class Meta:
+        verbose_name = 'Медиафайл'
+        verbose_name_plural = 'Медиафайлы'
+        indexes = [
+            models.Index(fields=['message_id', 'chat_id']),
+        ]
+
+    def __str__(self):
+        return f"Файл {self.file_path} из чата {self.chat_id}"
+
 class Events_online(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, unique=False, blank=False, null=False, verbose_name='Название')
@@ -105,7 +123,10 @@ class Events_offline(models.Model):
     house = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Дом')
     cabinet = models.CharField(max_length=50, unique=False, blank=True, null=True, verbose_name='Кабинет')
     link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка к мероприятию')
-    link_chat = models.URLField(unique=False, blank=False, null=False, verbose_name='Ссылка на чат пользователей')
+    yandex_disk_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на Яндекс Диск')
+    users_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата пользователей')
+    save_media_to_disk = models.BooleanField(default=False, verbose_name='Сохранять медиафайлы на Яндекс Диск')
+    support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
     events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_offline', verbose_name="Администратор")

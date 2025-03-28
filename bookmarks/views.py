@@ -14,6 +14,9 @@ from bookmarks.forms import SendMessageForm
 from users.telegram_utils import send_notification_with_toggle
 from bookmarks.models import Registered
 from django.utils.timezone import now
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -312,34 +315,113 @@ def send_message_to_participants(request):
         return redirect('home')
 
     if request.method == 'POST':
-        event_type = request.POST.get('event_type')  # Получаем тип мероприятия из POST-запроса
-        form = SendMessageForm(request.POST, event_type=event_type)
+        event_type = request.POST.get('event_type')
+        logger.info(f"Получены POST-данные: {request.POST}")
+        logger.info(f"Выбранный тип мероприятия: {event_type}")
+        
+        form = SendMessageForm(request.POST, event_type=event_type, user=request.user)
         if form.is_valid():
+            logger.info("Форма валидна")
             event = form.cleaned_data['event']
             message = form.cleaned_data['message']
+            send_to_all = form.cleaned_data['send_to_all']
+            selected_users = form.cleaned_data.get('selected_users', [])
 
+            logger.info(f"Очищенные данные формы: event={event}, send_to_all={send_to_all}, selected_users={[user.username for user in selected_users]}")
+            
             if not event:
                 messages.error(request, "Пожалуйста, выберите мероприятие.")
                 return redirect('bookmarks:send_message_to_participants')
 
+            # Проверяем права доступа к мероприятию
+            if not request.user.is_superuser and event.author != request.user:
+                messages.error(request, "У вас нет прав для отправки сообщений участникам этого мероприятия.")
+                return redirect('bookmarks:send_message_to_participants')
+
             # Получаем всех зарегистрированных участников для данного мероприятия
-            registered_users = Registered.objects.filter(**{event_type: event})
+            filter_kwargs = {f"{event_type}": event}
+            registered_users = Registered.objects.filter(**filter_kwargs)
+            
+            logger.info(f"Найдено {registered_users.count()} участников для мероприятия {event.name}")
 
             if not registered_users.exists():
                 messages.error(request, "Нет зарегистрированных участников для выбранного мероприятия.")
                 return redirect('bookmarks:send_message_to_participants')
 
+            # Отправляем сообщения
+            sent_count = 0
             for registration in registered_users:
-                if registration.user.telegram_id and registration.notifications_enabled:
-                    send_notification_with_toggle(
-                        telegram_id=registration.user.telegram_id,
-                        message=message,
-                        event_id=event.unique_id,
-                        notifications_enabled=registration.notifications_enabled
-                    )
-            messages.success(request, "Сообщения успешно отправлены участникам.")
+                should_send = send_to_all or (selected_users and registration.user in selected_users)
+                logger.info(f"Проверка отправки для {registration.user.username}: send_to_all={send_to_all}, selected_users_empty={not selected_users}, в selected_users={registration.user in selected_users}, итоговое решение={should_send}")
+                
+                if should_send:
+                    if registration.user.telegram_id:
+                        try:
+                            logger.info(f"Отправка сообщения пользователю {registration.user.username} (Telegram ID: {registration.user.telegram_id})")
+                            response = send_notification_with_toggle(
+                                telegram_id=registration.user.telegram_id,
+                                message=message,
+                                event_id=event.unique_id,
+                                notifications_enabled=True
+                            )
+                            logger.info(f"Ответ от Telegram API: {response}")
+                            if response and response.get('ok'):
+                                sent_count += 1
+                                logger.info(f"Сообщение успешно отправлено пользователю {registration.user.username}")
+                            else:
+                                logger.error(f"Ошибка отправки сообщения пользователю {registration.user.username}: {response.get('description', 'Неизвестная ошибка')}")
+                        except Exception as e:
+                            logger.error(f"Ошибка отправки сообщения пользователю {registration.user.username}: {e}")
+                    else:
+                        logger.warning(f"У пользователя {registration.user.username} нет Telegram ID")
+
+            if sent_count > 0:
+                messages.success(request, f"Сообщения успешно отправлены {sent_count} участникам.")
+            else:
+                messages.warning(request, "Не удалось отправить ни одного сообщения.")
             return redirect('bookmarks:send_message_to_participants')
+        else:
+            logger.error(f"Ошибки формы: {form.errors}")
+            messages.error(request, f"Ошибка в форме: {form.errors}")
     else:
-        form = SendMessageForm()
+        form = SendMessageForm(user=request.user)
 
     return render(request, 'bookmarks/send_message.html', {'form': form})
+
+@staff_member_required
+def get_event_participants(request):
+    event_id = request.GET.get('event_id')
+    event_type = request.GET.get('event_type')
+    
+    if not event_id or not event_type:
+        return JsonResponse({'error': 'Missing parameters'}, status=400)
+        
+    model_map = {
+        'online': Events_online,
+        'offline': Events_offline,
+        'attractions': Attractions,
+        'for_visiting': Events_for_visiting
+    }
+    
+    model = model_map.get(event_type)
+    if not model:
+        return JsonResponse({'error': 'Invalid event type'}, status=400)
+        
+    try:
+        event = model.objects.get(id=event_id)
+        
+        # Проверяем права доступа
+        if not request.user.is_superuser and event.author != request.user:
+            return JsonResponse({'error': 'Access denied'}, status=403)
+            
+        registered_users = Registered.objects.filter(**{event_type: event}).select_related('user')
+        participants = [
+            {
+                'id': reg.user.id,
+                'name': f"{reg.user.last_name} {reg.user.first_name} ({reg.user.username})"
+            }
+            for reg in registered_users
+        ]
+        return JsonResponse(participants, safe=False)
+    except model.DoesNotExist:
+        return JsonResponse({'error': 'Event not found'}, status=404)

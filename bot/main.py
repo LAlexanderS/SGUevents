@@ -4,12 +4,14 @@ import logging
 import os
 import uuid
 import os.path
+import yadisk
+from datetime import datetime
 
 import requests
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import ChatMemberUpdatedFilter
+from aiogram.filters import ChatMemberUpdatedFilter, Command
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -20,39 +22,71 @@ from aiogram.types import Update
 from aiohttp import web
 from asgiref.sync import sync_to_async
 from dotenv import load_dotenv
+from pathlib import Path
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Получаем путь к корневой директории проекта
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 from bot.django_initializer import setup_django_environment
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from users.models import Department
-
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# from users.models import Department
 
 # Инициализируем бота и диспетчера глобально
 TOKEN = settings.ACTIVE_TELEGRAM_BOT_TOKEN
 SUPPORT_CHAT_ID = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
+
+# Инициализируем переменные Яндекс.Диска глобально
+YANDEX_DISK_CLIENT_ID = settings.YANDEX_DISK_CLIENT_ID
+YANDEX_DISK_CLIENT_SECRET = settings.YANDEX_DISK_CLIENT_SECRET
+YANDEX_DISK_OAUTH_TOKEN = settings.YANDEX_DISK_OAUTH_TOKEN
 
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 dp.include_router(router)
 
+# Добавляем команды в список команд бота
+BOT_COMMANDS = [
+    types.BotCommand(command="help", description="Задать вопрос в поддержку")
+]
+
+async def setup_bot_commands():
+    """
+    Установка команд бота только для групповых чатов с техподдержкой
+    """
+    from events_available.models import Events_offline
+    
+    try:
+        # Получаем все мероприятия с настроенной техподдержкой
+        events = await sync_to_async(list)(Events_offline.objects.filter(support_chat_id__isnull=False))
+        
+        # Для каждого мероприятия устанавливаем команды
+        for event in events:
+            if event.users_chat_id:
+                try:
+                    await bot.set_my_commands(
+                        commands=BOT_COMMANDS,
+                        scope=types.BotCommandScopeChat(chat_id=int(event.users_chat_id))
+                    )
+                    logger.info(f"Команды установлены для чата {event.users_chat_id}")
+                except Exception as e:
+                    logger.error(f"Ошибка при установке команд для чата {event.users_chat_id}: {e}")
+    except Exception as e:
+        logger.error(f"Ошибка при установке команд бота: {e}")
+
 # Настройки вебхука
 WEBHOOK_HOST = os.getenv('WEBHOOK_HOST', '').rstrip('/')
-WEBHOOK_PATH = '/webhook'
+WEBHOOK_PATH = '/webhook/'  # Добавляем trailing slash
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 logger.info(f"Настройки вебхука: HOST={WEBHOOK_HOST}, PATH={WEBHOOK_PATH}, URL={WEBHOOK_URL}")
-
-# В начале файла после импортов
-print(f"Loading settings: DJANGO_ENV={settings.DJANGO_ENV}")
-print(f"DEV_SUPPORT_CHAT_ID={settings.DEV_SUPPORT_CHAT_ID}")
-print(f"SUPPORT_CHAT_ID={settings.SUPPORT_CHAT_ID}")
-print(f"ACTIVE_TELEGRAM_SUPPORT_CHAT_ID={settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID}")
 
 class SupportRequestForm(StatesGroup):
     waiting_for_question = State()
@@ -142,14 +176,16 @@ async def process_full_name(message: types.Message, state: FSMContext):
     await state.update_data(
         last_name=full_name_parts[0],
         first_name=full_name_parts[1],
-        middle_name=full_name_parts[2] if len(full_name_parts) > 2 else None
+        middle_name=full_name_parts[2] if len(full_name_parts) > 2 else ""
     )
     
+    # Продолжаем регистрацию независимо от количества слов (минимум 2)
     await message.answer("Замечательно! Введите ваш персональный код подключения")
     await state.set_state(RegistrationForm.waiting_for_department_code)
 
 @router.message(RegistrationForm.waiting_for_department_code)
 async def process_department_code(message: types.Message, state: FSMContext):
+    from users.models import Department
     department_code = message.text.strip()
     
     # Получаем сохраненные данные
@@ -165,7 +201,7 @@ async def process_department_code(message: types.Message, state: FSMContext):
             telegram_id=str(message.from_user.id),
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
-            middle_name=user_data.get('middle_name', ''),
+            middle_name=user_data.get('middle_name', ''),  # Гарантируем пустую строку по умолчанию
             department_id=department_code
         )
         
@@ -204,6 +240,7 @@ async def handle_new_member(event: ChatMemberUpdated):
 
 @router.message(F.text == "\U0001F464 Мой профиль")
 async def profile(message: types.Message):
+    from users.models import Department
     # Проверяем, что это личный чат
     if message.chat.type != 'private':
         return
@@ -218,6 +255,7 @@ async def profile(message: types.Message):
     await message.answer(response_text)
 
 def get_department_name(user):
+    from users.models import Department
     return user.department.department_name if user.department else "Не указан"
 
 @router.message(F.text == "📓 Мои мероприятия")
@@ -239,18 +277,91 @@ async def my_events(message: types.Message):
     else:
         await message.answer("Вы не зарегистрированы на портале.")
 
-@router.message(F.text == "\U00002754 Помощь")
+@router.message(Command("help"))
 async def help_request(message: types.Message, state: FSMContext):
-    # Проверяем, что это личный чат
-    if message.chat.type != 'private':
+    # Проверяем, что это групповой чат
+    if message.chat.type == 'private':
+        await message.answer("❗️ Команда /help работает только в групповых чатах.")
         return
         
     user = await get_user_profile(message.from_user.id)
-    if user:
-        await message.answer("\U00002754 Пожалуйста, введите ваш вопрос:")
-        await state.set_state(SupportRequestForm.waiting_for_question)
-    else:
+    if not user:
         await message.answer("Вы не зарегистрированы на портале.")
+        return
+
+    # Получаем мероприятие по chat_id
+    from events_available.models import Events_offline
+    try:
+        event = await sync_to_async(Events_offline.objects.get)(users_chat_id=str(message.chat.id))
+        if not event.support_chat_id:
+            await message.answer("❌ Для данного мероприятия не настроен чат поддержки.")
+            return
+    except Events_offline.DoesNotExist:
+        await message.answer("❌ Этот чат не привязан к мероприятию.")
+        return
+
+    # Получаем текст после команды /help
+    command_args = message.text.split(maxsplit=1)
+    if len(command_args) > 1:
+        # Если есть текст после команды, отправляем его как вопрос
+        question = command_args[1]
+        from users.models import SupportRequest
+        
+        try:
+            # Сохраняем вопрос в базе данных
+            support_request = await sync_to_async(SupportRequest.objects.create)(
+                user=user,
+                question=question
+            )
+
+            # Формируем сообщение с проверкой VIP статуса и HTML разметкой
+            vip_emoji = "\U0001F451 " if user.vip else ""
+            user_link = f'<a href="tg://user?id={user.telegram_id}">{user.first_name} {user.last_name}</a>'
+            support_message = f"Новый вопрос по мероприятию \"{event.name}\" от {vip_emoji}{user_link}:\n\n<pre>{question}</pre>"
+
+            # Отправляем сообщение в чат поддержки мероприятия через requests
+            url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+            payload = {
+                'chat_id': str(event.support_chat_id),
+                'text': support_message,
+                'parse_mode': 'HTML'
+            }
+            response = requests.post(url, json=payload)
+            
+            if response.status_code == 200:
+                await message.answer("✅ Ваш вопрос отправлен в техподдержку. Спасибо!")
+                logger.info(f"Вопрос успешно отправлен в поддержку мероприятия: {question}")
+            else:
+                await message.answer("❌ Произошла ошибка при отправке вопроса. Попробуйте позже.")
+                logger.error(f"Ошибка отправки в поддержку: {response.status_code} - {response.text}")
+                
+        except Exception as e:
+            logger.error(f"Ошибка при обработке вопроса: {e}")
+            await message.answer("❌ Произошла ошибка при обработке вопроса. Попробуйте позже.")
+    else:
+        # Если команда отправлена без текста, отправляем инструкцию
+        instruction = (
+            "ℹ️ Для отправки вопроса в техподдержку используйте команду /help следующим образом:\n\n"
+            "<code>/help ваш вопрос</code>\n\n"
+            "Например:\n"
+            "<code>/help как отменить регистрацию на мероприятие?</code>\n\n"
+            "❗️ Пожалуйста, пишите вопрос сразу после команды /help"
+        )
+        await message.answer(instruction)
+
+@router.message(Command("getid"))
+async def get_chat_id(message: types.Message):
+    # Проверяем, что это групповой чат
+    if message.chat.type == 'private':
+        await message.answer("Эта команда работает только в групповых чатах")
+        return
+
+    # Проверяем тип чата
+    chat_info = await bot.get_chat(message.chat.id)
+    if chat_info.type == 'group' or chat_info.type == 'supergroup':
+        await message.answer(f"ID этого чата: {message.chat.id}")
+    else:
+        await message.answer("Эта команда работает только в групповых чатах")
 
 # В обработчике бота
 @router.message(SupportRequestForm.waiting_for_question)
@@ -279,7 +390,6 @@ async def receive_question(message: types.Message, state: FSMContext):
 
 def send_message_to_support_chat(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    # Добавим проверку типа
     chat_id = str(SUPPORT_CHAT_ID)
     if not chat_id.startswith('-'):
         chat_id = f"-{chat_id}"
@@ -292,14 +402,9 @@ def send_message_to_support_chat(text):
     headers = {
         'Content-Type': 'application/json'
     }
-    print(f"Trying to send message to support chat {chat_id}")
-    print(f"Using bot token: {TOKEN[:5]}...")  # Печатаем только первые 5 символов токена для безопасности
     response = requests.post(url, json=payload, headers=headers)
     if response.status_code != 200:
-        print(f"Failed to send message: {response.status_code}, {response.text}")
-        print(f"Payload was: {payload}")
-    else:
-        print(f"Successfully sent message to support chat")
+        logger.error(f"Failed to send message to support chat: {response.status_code}")
 
 # Обработчики callback_query
 @router.callback_query(F.data.startswith("toggle_"))
@@ -521,21 +626,25 @@ async def unregister_event(callback_query: types.CallbackQuery):
         logger.error(f"Ошибка при отмене регистрации: {e}")
         await callback_query.answer("Произошла ошибка при отмене регистрации.")
 
+# Обработчик вебхука
 async def handle_webhook(request):
     """
     Обработчик вебхука
     """
     try:
         data = await request.json()
-        logger.info(f"Получены данные вебхука: {json.dumps(data)}")
+        logger.info(f"Получены данные вебхука: {json.dumps(data, ensure_ascii=False)}")
         
         update = Update(**data)
         await dp.feed_update(bot=bot, update=update)
         
-        return web.Response(status=200, text='OK')
+        return web.Response(text='OK')
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON")
+        return web.Response(status=400, text='Invalid JSON')
     except Exception as e:
-        logger.error(f"Ошибка при обработке вебхука: {e}")
-        return web.Response(status=500)
+        logger.error(f"Ошибка в обработчике вебхука: {e}")
+        return web.Response(status=500, text=str(e))
 
 async def run_bot():
     """
@@ -543,7 +652,12 @@ async def run_bot():
     """
     # Настраиваем приложение aiohttp
     app = web.Application()
+    
+    # Добавляем обработчик вебхука
     app.router.add_post(WEBHOOK_PATH, handle_webhook)
+    
+    # Устанавливаем команды бота
+    await setup_bot_commands()
     
     # Устанавливаем вебхук
     webhook_info = await bot.get_webhook_info()
@@ -551,7 +665,10 @@ async def run_bot():
     logger.info(f"Текущий URL вебхука: {current_url}")
     
     if current_url != WEBHOOK_URL:
-        await bot.set_webhook(url=WEBHOOK_URL)
+        await bot.set_webhook(
+            url=WEBHOOK_URL,
+            allowed_updates=["message", "callback_query", "chat_member"]
+        )
         logger.info(f"Вебхук успешно установлен на {WEBHOOK_URL}")
 
     # Запускаем сервер aiohttp
@@ -562,12 +679,175 @@ async def run_bot():
 
     logger.info("Бот запущен и слушает вебхуки на порту 8443")
 
-    # Держим бота запущенным
     try:
         await asyncio.Event().wait()
+    except Exception as e:
+        logger.error(f"Ошибка в основном цикле бота: {e}")
     finally:
         await bot.delete_webhook()
         await runner.cleanup()
+
+# Добавляем новые функции для работы с Яндекс Диском
+async def init_yadisk():
+    """
+    Инициализация клиента Яндекс.Диска с использованием OAuth токена
+    """
+    try:
+        y = yadisk.YaDisk(
+            id=settings.YANDEX_DISK_CLIENT_ID,
+            secret=settings.YANDEX_DISK_CLIENT_SECRET,
+            token=settings.YANDEX_DISK_OAUTH_TOKEN
+        )
+        # Проверяем валидность токена
+        if not await sync_to_async(y.check_token)():
+            logger.error("Недействительный OAuth токен Яндекс.Диска")
+            return None
+        return y
+    except Exception as e:
+        logger.error(f"Ошибка при инициализации Яндекс.Диска: {e}")
+        return None
+
+async def save_file_to_yadisk(y: yadisk.YaDisk, file_path: str, save_path: str):
+    """
+    Сохраняет файл на Яндекс.Диск
+    """
+    try:
+        with open(file_path, 'rb') as f:
+            await sync_to_async(y.upload)(f, save_path)
+            logger.info(f"Файл успешно загружен на Яндекс.Диск: {save_path}")
+            return True
+    except Exception as e:
+        logger.error(f"Ошибка при загрузке файла на Яндекс.Диск: {e}")
+        return False
+
+async def process_media_message(message: types.Message):
+    """
+    Обработка медиасообщений и сохранение их на Яндекс.Диск
+    """
+    from events_available.models import Events_offline, MediaFile
+    from SGUevents.celery import check_deleted_message
+    from datetime import datetime, timedelta
+    
+    logger.info(f"Начало обработки медиа-сообщения из чата {message.chat.id}")
+    logger.info(f"Тип сообщения: {message.content_type}")
+    
+    # Определяем тип медиафайла и получаем информацию о нем
+    file_info = None
+    file_extension = None
+    
+    if message.photo:
+        file_info = message.photo[-1]  # Берем последнее (самое качественное) фото
+        file_extension = "jpg"
+    elif message.video:
+        file_info = message.video
+        file_extension = "mp4"
+    elif message.document:
+        file_info = message.document
+        file_extension = message.document.file_name.split('.')[-1] if '.' in message.document.file_name else 'unknown'
+    
+    if not file_info:
+        logger.info("Медиафайл не найден в сообщении")
+        return
+
+    try:
+        events = await sync_to_async(list)(
+            Events_offline.objects.filter(
+                users_chat_id=str(message.chat.id),
+                save_media_to_disk=True
+            ))
+        logger.info(f"Найдено мероприятий для сохранения: {len(events)}")
+    except Exception as e:
+        logger.error(f"Ошибка при получении мероприятий: {e}")
+        return
+
+    if not events:
+        logger.info("Нет мероприятий для сохранения медиафайлов")
+        return
+
+    event = events[0]
+    y = yadisk.YaDisk(
+        id=settings.YANDEX_DISK_CLIENT_ID,
+        secret=settings.YANDEX_DISK_CLIENT_SECRET,
+        token=settings.YANDEX_DISK_OAUTH_TOKEN
+    )
+
+    try:
+        # Скачиваем файл
+        file = await bot.get_file(file_info.file_id)
+        local_path = f"temp_{file_info.file_id}.{file_extension}"
+        await bot.download_file(file.file_path, local_path)
+        
+        # Создаем базовую директорию events, если её нет
+        base_folder = "/events"
+        if not await sync_to_async(y.exists)(base_folder):
+            await sync_to_async(y.mkdir)(base_folder)
+            logger.info(f"Создана базовая директория {base_folder}")
+
+        # Создаем директорию мероприятия
+        event_folder = f"{base_folder}/{event.name}"
+        if not await sync_to_async(y.exists)(event_folder):
+            await sync_to_async(y.mkdir)(event_folder)
+            logger.info(f"Создана директория мероприятия {event_folder}")
+
+        # Генерируем уникальное имя файла
+        timestamp = datetime.now().strftime("%H-%M-%S")
+        yandex_filename = f"{timestamp}_{file_info.file_id}.{file_extension}"
+        yandex_path = f"{event_folder}/{yandex_filename}"
+            
+        # Сохраняем файл на Яндекс.Диск
+        if await save_file_to_yadisk(y, local_path, yandex_path):
+            # Создаем запись в базе данных
+            media_file = await sync_to_async(MediaFile.objects.create)(
+                message_id=str(message.message_id),
+                chat_id=str(message.chat.id),
+                file_path=yandex_path
+            )
+            
+            # Создаем отложенную задачу (1 час)
+            task = check_deleted_message.apply_async(
+                args=[media_file.id],
+                countdown=3600  # 1 час
+            )
+            
+            # Сохраняем ID задачи
+            media_file.celery_task_id = task.id
+            await sync_to_async(media_file.save)()
+            
+            logger.info(f"Создана задача Celery с ID {task.id} для проверки файла через 1 час")
+        
+        # Удаляем временный файл
+        if os.path.exists(local_path):
+            os.remove(local_path)
+            logger.info(f"Временный файл {local_path} удален")
+            
+    except Exception as e:
+        logger.error(f"Ошибка при обработке файла: {e}")
+        if 'local_path' in locals() and os.path.exists(local_path):
+            os.remove(local_path)
+            logger.info(f"Временный файл {local_path} удален после ошибки")
+
+# Обновляем обработчики медиафайлов
+@router.message(F.photo)
+@router.message(F.video)
+@router.message(F.document)
+async def handle_media(message: types.Message):
+    logger.info(f"Получено сообщение типа: {message.content_type}")
+    if message.photo:
+        logger.info(f"Получено фото: {len(message.photo)} версий")
+    await process_media_message(message)
+
+@router.message(F.text == "\U00002754 Помощь")
+async def help_request_button(message: types.Message, state: FSMContext):
+    # Проверяем, что это личный чат
+    if message.chat.type != 'private':
+        return
+        
+    user = await get_user_profile(message.from_user.id)
+    if user:
+        await message.answer("\U00002754 Пожалуйста, введите ваш вопрос:")
+        await state.set_state(SupportRequestForm.waiting_for_question)
+    else:
+        await message.answer("Вы не зарегистрированы на портале.")
 
 if __name__ == "__main__":
     setup_django_environment()

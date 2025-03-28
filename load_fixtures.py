@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 
+
 # Список файлов фикстур ё
 fixtures = [
     'fixtures/departments.json',
