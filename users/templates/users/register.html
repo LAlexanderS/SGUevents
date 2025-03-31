@@ -20,8 +20,8 @@
     <div class="container">
         <h2 class="text-center register">Регистрация</h2>
         <div class="alert alert-info" role="alert">
-            Код подразделения можно посмотреть на корпоративном портале.
-            <br>Для регистрации необходимо авторизоватья через Telegram.
+            Код подразделения можно посмотреть на корпоративном портале.<br>
+            Для регистрации необходимо авторизоватья через Telegram.
         </div>
         <form method="post" action="{% url 'users:register' %}">
             {% csrf_token %}

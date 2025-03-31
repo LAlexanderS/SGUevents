@@ -51,6 +51,7 @@ a:hover {
     padding-inline: 10px;
     background-color: #e0f3ff80;
     border-radius: 10px;
+    text-indent: 0 !important;
 }
 
 .alert-success {
