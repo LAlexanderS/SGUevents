@@ -17,75 +17,75 @@
 
 </head>
 <body>
+    <div class="container">
+        <h2 class="text-center register">Регистрация</h2>
+        <div class="alert alert-info" role="alert">
+            Код подразделения можно посмотреть на корпоративном портале.
+            <br>Для регистрации необходимо авторизоватья через Telegram.
+        </div>
+        <form method="post" action="{% url 'users:register' %}">
+            {% csrf_token %}
 
-<div class="container">
-    <h2 class="text-center">Регистрация</h2>
-    <div class="alert alert-info" role="alert">
-        Код подразделения можно посмотреть на корпоративном портале.
-        <br>Для регистрации необходимо авторизоватья через Telegram.
-    </div>
-    <form method="post" action="{% url 'users:register' %}">
-        {% csrf_token %}
-        
-        <div class="mb-1 style="text-indent: 0;"">
-            <label for="id_last_name" class="form-label">Фамилия</label>
-            {{ form.last_name|add_class:"form-control" }}
-            {% if form.last_name.errors %}
-                <div class="text-danger">{{ form.last_name.errors }}</div>
-            {% endif %}
-        </div>
-    
-        <div class="mb-1 style="text-indent: 0;"">
-            <label for="id_first_name" class="form-label">Имя</label>
-            {{ form.first_name|add_class:"form-control" }}
-            {% if form.first_name.errors %}
-                <div class="text-danger">{{ form.first_name.errors }}</div>
-            {% endif %}
-        </div>
-    
-        <div class="mb-1 style="text-indent: 0;"">
-            <label for="id_middle_name" class="form-label">Отчество</label>
-            {{ form.middle_name|add_class:"form-control" }}
-            {% if form.middle_name.errors %}
-                <div class="text-danger">{{ form.middle_name.errors }}</div>
-            {% endif %}
-        </div>
-    
-        <div class="mb-1 style="text-indent: 0;"">
-            <label for="id_department_id" class="form-label">ID отдела</label>
-            {{ form.department_id|add_class:"form-control" }}
-            {% if form.department_id.errors %}
-                <div class="text-danger">{{ form.department_id.errors }}</div>
-            {% endif %}
-        </div>
+            <div class="mb-1" style="text-indent: 0;">
+                <label for="id_last_name" class="form-label">Фамилия</label><br>
+                {{ form.last_name|add_class:"form-control" }}
+                {% if form.last_name.errors %}
+                    <div class="text-danger">{{ form.last_name.errors }}</div>
+                {% endif %}
+            </div>
 
-        <div class="mb-1 text-center">
-            <p>
-                Есть аккаунт? <a href="{% url "users:login" %}">Войти</a> 
-            </p> 
-        </div>
+            <div class="mb-1" style="text-indent: 0;">
+                <label for="id_first_name" class="form-label">Имя</label><br>
+                {{ form.first_name|add_class:"form-control" }}
+                {% if form.first_name.errors %}
+                    <div class="text-danger">{{ form.first_name.errors }}</div>
+                {% endif %}
+            </div>
 
-        <div class="errors">
-            {% if form.errors %}
-                <p>Пожалуйста, исправьте следующие ошибки:</p>
-                {{ form.errors }}
-            {% endif %}
-        </div>
-    
-        <div class="text-center" id="telegramLoginWidget">
-            <script async src="https://telegram.org/js/telegram-widget.js?7"
+            <div class="mb-1" style="text-indent: 0;">
+                <label for="id_middle_name" class="form-label">Отчество</label><br>
+                {{ form.middle_name|add_class:"form-control" }}
+                {% if form.middle_name.errors %}
+                    <div class="text-danger">{{ form.middle_name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-1" style="text-indent: 0;">
+                <label for="id_department_id" class="form-label">ID отдела</label><br>
+                {{ form.department_id|add_class:"form-control" }}
+                {% if form.department_id.errors %}
+                    <div class="text-danger">{{ form.department_id.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-1 text-center">
+                <p style="margin-top: 0; margin-bottom: 0; text-indent: 0;">
+                    Есть аккаунт? <a href="{% url "users:login" %}">Войти</a>
+                </p>
+            </div>
+
+            <div class="errors">
+                {% if form.errors %}
+                    <p>Пожалуйста, исправьте следующие ошибки:</p>
+                    {{ form.errors }}
+                {% endif %}
+            </div>
+
+            <div class="text-center" id="telegramLoginWidget" style="text-indent: 0;">
+                <script async src="https://telegram.org/js/telegram-widget.js?7"
                     data-telegram-login="{{ telegram_bot_username }}" data-size="large"
                     data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
-        </div>
-        <div id="authStatus" class="alert alert-success auth-status">
-            Вы успешно авторизовались через Telegram!
-        </div>
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary mt-3 hidden-button" id="signupButton">Завершить регистрацию</button>
-        </div>
-    </form>
-    
-</div>
+            </div>
+            <div id="authStatus" class="alert alert-success auth-status">
+                Вы успешно авторизовались через Telegram!
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary mt-3 hidden-button enter" id="signupButton">Завершить
+                    регистрацию</button>
+            </div>
+        </form>
+
+    </div>
 
 <script>
     function onTelegramAuth(user) {
