@@ -139,6 +139,12 @@ a:hover {
     font-size: 16px;
 }
 
+.enter:hover,
+.enter:focus,
+.enter:active {
+    width: 220px !important;
+}
+
 .form-label {
     margin-bottom: 0px !important;
 }
