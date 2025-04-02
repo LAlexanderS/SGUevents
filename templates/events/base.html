@@ -486,48 +486,48 @@
 
                                             {% else %}
                                                 <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
-                                                <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                                 </a>
                                             {% endif %}
                                         {% else %}
                                             {% if events|model_name == 'Events_online' %}
                                                 {% if events.id in favorites.online %}
                                                     <a href="#" class="remove-from-favorites" data-event-id="{{ favorites.online|get_item:events.id }}">
-                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
                                                     </a>
                                                 {% else %}
                                                     <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
-                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                                     </a>
                                                 {% endif %}
                                             {% elif events|model_name == 'Events_offline' %}
                                                 {% if events.id in favorites.offline %}
                                                     <a href="#" class="remove-from-favorites" data-event-id="{{ favorites.offline|get_item:events.id }}">
-                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
                                                     </a>
                                                 {% else %}
                                                     <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
-                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                                     </a>
                                                 {% endif %}
                                             {% elif events|model_name == 'Attractions' %}
                                                 {% if events.id in favorites.attractions %}
                                                     <a href="#" class="remove-from-favorites" data-event-id="{{ favorites.attractions|get_item:events.id }}">
-                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
                                                     </a>
                                                 {% else %}
                                                     <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
-                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                                     </a>
                                                 {% endif %}
                                             {% elif events|model_name == 'Events_for_visiting' %}
                                                 {% if events.id in favorites.for_visiting %}
                                                     <a href="#" class="remove-from-favorites" data-event-id="{{ favorites.for_visiting|get_item:events.id }}">
-                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
+                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
                                                     </a>
                                                 {% else %}
                                                     <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
-                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
+                                                    <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                                     </a>
                                                 {% endif %}
                                             {% endif %}
@@ -750,32 +750,34 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        {% spaceless %}
-                                            {% for review in reviews|get_item:events.unique_id %}
-                                                {% if review.event.unique_id == events.unique_id %}
-                                                    <div class="existent-comment">
-                                                        <div class="existent-review">
-                                                            <div class="user-info-existent-review">
-                                                                <div class="user-icon-existent-review">
-                                                                    <img src="{% static "icons/profile-image-default.png" %}" alt="">
+                                        <div class="reviews" data-event-id="{{ events.id }}">
+                                            {% spaceless %}
+                                                {% for review in reviews|get_item:events.unique_id %}
+                                                    {% if review.event.unique_id == events.unique_id %}
+                                                        <div class="existent-comment">
+                                                            <div class="existent-review">
+                                                                <div class="user-info-existent-review">
+                                                                    <div class="user-icon-existent-review">
+                                                                        <img src="{% static "icons/profile-image-default.png" %}" alt="">
+                                                                    </div>
+                                                                    <div class="username-existent-review">
+                                                                        <div class="user-lastname">{{ review.user.username }}</div>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="username-existent-review">
-                                                                    <div class="user-lastname">{{ review.user.username }}</div>
+                                                                <div class="review-block review-block-existent-review">
+                                                                    <div class="quote quote-existent-review">
+                                                                        <img src="{% static "icons/quotes.png" %}" alt="">
+                                                                    </div>
+                                                                    <div class="review-text review-text-existent-review">
+                                                                        {{ review.comment }}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="review-block review-block-existent-review">
-                                                                <div class="quote quote-existent-review">
-                                                                    <img src="{% static "icons/quotes.png" %}" alt="">
-                                                                </div>
-                                                                <div class="review-text review-text-existent-review">
-                                                                    {{ review.comment }}
-                                                                </div>
-                                                            </div>
-                                                        </div>                                                        
-                                                    </div>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endspaceless %}
+                                                            </div>                                                        
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endspaceless %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

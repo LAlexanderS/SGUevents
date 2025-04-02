@@ -95,20 +95,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Функция добавления нового отзыва на страницу в правильный блок
     function addReviewToPage(eventId, review, formattedDate) {
-        const reviewList = document.querySelector(`.reviews[data-event-id="${eventId}"] ul`)
-        if (!reviewList) {
-            // Если списка отзывов еще нет, создаем его
-            const reviewsDiv = document.querySelector(`.reviews[data-event-id="${eventId}"]`)
-            const ul = document.createElement('ul')
-            reviewsDiv.appendChild(ul)
-        }
+        let reviewsDiv = document.querySelector(`.reviews[data-event-id="${eventId}"]`)
+        if (!reviewsDiv) return
 
-        const newReview = document.createElement('li')
+        const newReview = document.createElement('div')
+        newReview.classList.add('existent-comment')
         newReview.innerHTML = `
-            <h5>Отзыв:</h5>
-            <p><strong>${review.user.last_name} ${review.user.first_name}</strong> (${formattedDate}):</p>
-            <p>${review.comment}</p>
+            <div class="existent-review">
+                <div class="user-info-existent-review">
+                    <div class="user-icon-existent-review">
+                        <img src="/static/icons/profile-image-default.png" alt="">
+                    </div>
+                    <div class="username-existent-review">
+                        <div class="user-lastname">${review.user.username}</div>
+                    </div>
+                </div>
+                <div class="review-block review-block-existent-review">
+                    <div class="quote quote-existent-review">
+                        <img src="/static/icons/quotes.png" alt="">
+                    </div>
+                    <div class="review-text review-text-existent-review">
+                        ${review.comment}
+                    </div>
+                </div>
+            </div>
         `
-        reviewList.appendChild(newReview)
+
+        reviewsDiv.appendChild(newReview)
     }
+
+
 })
