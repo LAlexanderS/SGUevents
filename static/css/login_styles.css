@@ -99,9 +99,8 @@ a:hover {
     margin-bottom: 0;
 }
 
-form label {
-    display: block;
-    margin-bottom: 0px;
+.form-label {
+    margin-bottom: 0px !important;
 }
 
 @media (max-width: 480px) {
