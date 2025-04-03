@@ -63,11 +63,31 @@ def events_add(request, event_slug):
     return JsonResponse({'error': 'Event not found or user not authenticated'}, status=400)
 
 @login_required
-def events_remove(request, event_id):
+def events_remove(request, event_slug):
     if request.method == 'POST':
-        favorite = get_object_or_404(Favorite, id=event_id, user=request.user)
-        favorite.delete()
-        return JsonResponse({'removed': True})
+        favorite = None
+        try:
+            event = Events_online.objects.get(slug=event_slug)
+            favorite = Favorite.objects.get(user=request.user, online=event)
+        except Events_online.DoesNotExist:
+            try:
+                event = Events_offline.objects.get(slug=event_slug)
+                favorite = Favorite.objects.get(user=request.user, offline=event)
+            except Events_offline.DoesNotExist:
+                try:
+                    event = Attractions.objects.get(slug=event_slug)
+                    favorite = Favorite.objects.get(user=request.user, attractions=event)
+                except Attractions.DoesNotExist:
+                    try:
+                        event = Events_for_visiting.objects.get(slug=event_slug)
+                        favorite = Favorite.objects.get(user=request.user, for_visiting=event)
+                    except Events_for_visiting.DoesNotExist:
+                        return JsonResponse({'error': 'Event not found'}, status=404)
+
+        if favorite:
+            favorite.delete()
+            return JsonResponse({'removed': True})
+
     return JsonResponse({'removed': False, 'error': 'Invalid request method'}, status=400)
 
 @login_required
@@ -120,10 +140,14 @@ def favorites(request):
     for subdict in registered_dict.values():
         registered_flat.update(subdict)
 
+    liked_slugs = [event.slug for event in events]
+
+
     context = {
         'events': events,
         'reviews': reviews,
         'favorites': favorites,
+        'liked': liked_slugs,
         'registered': registered_flat,
         'now': now().date(),
         'name_page': 'Избранные',

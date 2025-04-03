@@ -121,7 +121,7 @@ def attractions(request):
 
     # Получаем избранные мероприятия пользователя
     favorites = Favorite.objects.filter(user=request.user, attractions__in=current_page)
-    favorites_dict = {favorite.attractions.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.attractions.slug: favorite.id for favorite in favorites}
 
     # Получение отзывов
     reviews = {}
@@ -172,7 +172,7 @@ def attractions_card(request, event_slug=False, event_id=False):
     events = Attractions.objects.all()
     
     favorites = Favorite.objects.filter(user=request.user, attractions__in=events)
-    favorites_dict = {favorite.attractions.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.attractions.slug: favorite.id for favorite in favorites}
     
     reviews = {}
 
@@ -288,7 +288,7 @@ def events_for_visiting(request):
         current_page = paginator.page(paginator.num_pages)
 
     favorites = Favorite.objects.filter(user=request.user, for_visiting__in=current_page)
-    favorites_dict = {favorite.for_visiting.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.for_visiting.slug: favorite.id for favorite in favorites}
 
     registered = Registered.objects.filter(user=request.user, for_visiting__in=current_page)
     registered_dict = {reg.for_visiting.id: reg.id for reg in registered}
@@ -329,10 +329,10 @@ def for_visiting_card(request, event_slug=False, event_id=False):
     events = Events_for_visiting.objects.all()
 
     favorites = Favorite.objects.filter(user=request.user, for_visiting__in=events)
-    favorites_dict = {favorite.for_visiting.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.for_visiting.slug: favorite.id for favorite in favorites}
 
     registered = Registered.objects.filter(user=request.user, for_visiting__in=events)
-    registered_dict = {reg.for_visiting.id: reg.id for reg in registered}
+    registered_dict = {reg.for_visiting.slug: reg.id for reg in registered}
 
     reviews = {}
     for event_rew in events:

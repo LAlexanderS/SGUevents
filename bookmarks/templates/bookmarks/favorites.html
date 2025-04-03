@@ -14,7 +14,7 @@
                         {% with favorite.online|default:favorite.offline|default:favorite.attractions|default:favorite.for_visiting as item %}
                             {% if item %}
                                 <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo">
-                                    <a href="{% url 'bookmarks:events_remove' favorite.id %}" class="remove-from-favorites" data-event-id="{{ favorite.id }}" data-event-slug="{{ item.slug }}">
+                                    <a href="{% url 'bookmarks:events_remove' item.slug %}" class="remove-from-favorites" data-event-slug="{{ item.slug }}">
                                         <!-- Белое (пустое) сердце -->
                                         <img class="heart-icon {% if item.slug in liked %}hidden{% endif %}"
                                         src="{% static 'icons/heart.svg' %}"

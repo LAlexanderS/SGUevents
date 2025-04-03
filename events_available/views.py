@@ -162,7 +162,8 @@ def online(request):
         current_page = paginator.page(paginator.num_pages)
 
     favorites = Favorite.objects.filter(user=request.user, online__in=current_page)
-    favorites_dict = {favorite.online.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.online.slug: favorite.id for favorite in favorites}
+
 
     registered = Registered.objects.filter(user=request.user, online__in=current_page)
     registered_dict = {reg.online.id: reg.id for reg in registered}
@@ -208,7 +209,8 @@ def online_card(request, event_slug=False, event_id=False):
     events = Events_online.objects.all()
     
     favorites = Favorite.objects.filter(user=request.user, online__in=events)
-    favorites_dict = {favorite.online.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.online.slug: favorite.id for favorite in favorites}
+
 
     registered = Registered.objects.filter(user=request.user, online__in=events)
     registered_dict = {reg.online.id: reg.id for reg in registered}
@@ -367,7 +369,7 @@ def offline(request):
         current_page = paginator.page(paginator.num_pages)
 
     favorites = Favorite.objects.filter(user=request.user, offline__in=current_page)
-    favorites_dict = {favorite.offline.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.offline.slug: favorite.id for favorite in favorites}
 
     registered = Registered.objects.filter(user=request.user, offline__in=current_page)
     registered_dict = {reg.offline.id: reg.id for reg in registered}
@@ -423,7 +425,7 @@ def offline_card(request, event_slug=False, event_id=False):
         reviews[event_rew.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
     favorites = Favorite.objects.filter(user=request.user, offline__in=events)
-    favorites_dict = {favorite.offline.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.offline.slug: favorite.id for favorite in favorites}
     
     registered = Registered.objects.filter(user=request.user, offline__in=events)
     registered_dict = {reg.offline.id: reg.id for reg in registered}

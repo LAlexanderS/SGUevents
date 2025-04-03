@@ -15,26 +15,15 @@
                     {% with register.online|default:register.offline|default:register.attractions|default:register.for_visiting as item %}
                         {% if item %}
                             <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo"> 
-                                {% if item.id in item_favorites %}
-                                    <a href="#"
-                                    class="{% if item.slug in liked %}remove-from-favorites{% else %}add-to-cart{% endif %}"
-                                    data-event-id="{% if item.id in item_favorites %}{{ item_favorites|get_item:item.id }}{% endif %}"
-                                    data-event-slug="{{ item.slug }}">
-                                
-                                        <!-- Белое (пустое) сердце -->
-                                        <img class="heart-icon {% if item.slug in liked %}hidden{% endif %}"
-                                            src="{% static 'icons/heart.svg' %}" alt="Белое сердце" width="32" height="32">
+                                <a href="#" class="{% if item.slug in liked %}remove-from-favorites{% else %}add-to-cart{% endif %}"
+                                data-event-slug="{{ item.slug }}">
                                     
-                                        <!-- Красное сердце -->
-                                        <img class="heart-red-icon {% if not item.slug in liked %}hidden{% endif %}"
-                                            src="{% static 'icons/heart_red.png' %}" alt="Красное сердце" width="32" height="32">
-                                    </a>
+                                    <img class="heart-icon {% if item.slug in liked %}hidden{% endif %}"
+                                        src="{% static 'icons/heart.svg' %}" alt="Белое сердце" width="32" height="32">
 
-                                {% else %}
-                                        <a href="#" class="add-to-cart" data-event-slug="{{ item.slug }}">
-                                        <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-                                        </a>
-                                {% endif %}
+                                    <img class="heart-red-icon {% if item.slug not in liked %}hidden{% endif %}"
+                                        src="{% static 'icons/heart_red.png' %}" alt="Красное сердце" width="32" height="32">
+                                </a>
 
                                 {% if item.image %}
                                     <img src="{{ item.image.url }}" alt="" class="preview-photo">

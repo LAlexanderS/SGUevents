@@ -204,6 +204,17 @@ def index(request):
         'for_visiting': {item[0]: item[1] for item in favorites_for_visiting},
     }
 
+    liked_slugs = [
+    favorite.online.slug for favorite in Favorite.objects.filter(user=request.user, online__in=current_online)
+] + [
+    favorite.offline.slug for favorite in Favorite.objects.filter(user=request.user, offline__in=current_offline)
+] + [
+    favorite.attractions.slug for favorite in Favorite.objects.filter(user=request.user, attractions__in=current_attractions)
+] + [
+    favorite.for_visiting.slug for favorite in Favorite.objects.filter(user=request.user, for_visiting__in=current_for_visiting)
+]
+
+
     registered_online = Registered.objects.filter(user=request.user, online__in=current_online).values_list('online_id', 'id')
     registered_offline = Registered.objects.filter(user=request.user, offline__in=current_offline).values_list('offline_id', 'id')
     registered_attractions = Registered.objects.filter(user=request.user, attractions__in=current_attractions).values_list('attractions_id', 'id')
@@ -225,6 +236,7 @@ def index(request):
     'name_page': 'Главная',
     'event_card_views': current_page,
     'favorites': favorites_dict,
+    'liked': liked_slugs,
     'reviews': reviews,
     'registered': registered_dict,
     'tags': list(set(tag for event in events_all if event.tags for tag in event.tags.split(','))),
