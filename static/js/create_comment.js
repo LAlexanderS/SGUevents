@@ -40,23 +40,27 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
+
                 if (data.success) {
                     showNotification(`Отзыв добавлен: ${data.formatted_date}`)
                     document.getElementById('commentForm').reset()
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('commentModal'))
-                    modal.hide()
 
-                    // Вызов функции для добавления нового отзыва в правильный блок
+                    const modalElement = document.getElementById('commentModal')
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement)
+
+                    if (modalInstance) {
+                        modalInstance.hide()
+                    } else {
+                    }
+
                     addReviewToPage(eventId, data.review, data.formatted_date)
-
                 } else {
                     showNotification(data.message, true)
                 }
             })
-            .catch(error => console.error('Error:', error))
+            .catch(error => console.error('[ERROR] Ошибка при отправке:', error))
     })
 
-    // Функция получения CSRF-токена
     function getCookie(name) {
         let cookieValue = null
         if (document.cookie && document.cookie !== '') {
@@ -72,9 +76,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return cookieValue
     }
 
-    // Функция показа уведомления
     function showNotification(message, isError = false) {
         const notification = document.getElementById('reviewNotification')
+        if (!notification) {
+            console.warn('[DEBUG] Блок #reviewNotification не найден.')
+            return
+        }
+
         notification.querySelector('p').textContent = message
         notification.style.display = 'block'
         notification.style.backgroundColor = isError ? '#f44336' : '#4caf50'
@@ -93,10 +101,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 2000)
     }
 
-    // Функция добавления нового отзыва на страницу в правильный блок
     function addReviewToPage(eventId, review, formattedDate) {
         let reviewsDiv = document.querySelector(`.reviews[data-event-id="${eventId}"]`)
-        if (!reviewsDiv) return
+        if (!reviewsDiv) {
+            console.warn('[DEBUG] Контейнер отзывов не найден для eventId:', eventId)
+            return
+        }
 
         const newReview = document.createElement('div')
         newReview.classList.add('existent-comment')
@@ -120,9 +130,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
         `
-
         reviewsDiv.appendChild(newReview)
     }
-
-
 })
