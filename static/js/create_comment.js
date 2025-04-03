@@ -137,7 +137,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
         `
-        reviewsDiv.appendChild(newReview)
+        reviewsDiv.prepend(newReview)
+
     }
 
     // Добавление отзыва в карточке мероприятия
@@ -177,6 +178,6 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `
 
-        itemsDiv.appendChild(item)
+        itemsDiv.prepend(item)
     }
 })
