@@ -1,16 +1,15 @@
 document.addEventListener('DOMContentLoaded', function () {
     initializeRegistrationButtons()
-})
 
-
-document.addEventListener('DOMContentLoaded', function () {
     // Обработка кнопки "Оставить отзыв"
     document.querySelectorAll('.btn-comment').forEach(function (button) {
         button.addEventListener('click', function () {
             const eventId = this.getAttribute('data-event-id')
             const modelType = this.getAttribute('data-model-type')
+
             document.getElementById('eventId').value = eventId
             document.getElementById('modelType').value = modelType
+
             const modal = new bootstrap.Modal(document.getElementById('commentModal'))
             modal.show()
         })
@@ -40,27 +39,24 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
+                console.log('[DEBUG] Ответ от сервера:', data)
 
                 if (data.success) {
                     showNotification(`Отзыв добавлен: ${data.formatted_date}`)
                     document.getElementById('commentForm').reset()
 
-                    const modalElement = document.getElementById('commentModal')
-                    const modalInstance = bootstrap.Modal.getInstance(modalElement)
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('commentModal'))
+                    if (modal) modal.hide()
 
-                    if (modalInstance) {
-                        modalInstance.hide()
-                    } else {
-                    }
-
-                    addReviewToPage(eventId, data.review, data.formatted_date)
+                    addReviewToAppropriateBlock(eventId, data.review, data.formatted_date)
                 } else {
                     showNotification(data.message, true)
                 }
             })
-            .catch(error => console.error('[ERROR] Ошибка при отправке:', error))
+            .catch(error => console.error('[ERROR] Отправка отзыва:', error))
     })
 
+    // Получение CSRF-токена
     function getCookie(name) {
         let cookieValue = null
         if (document.cookie && document.cookie !== '') {
@@ -76,12 +72,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return cookieValue
     }
 
+    // Уведомление
     function showNotification(message, isError = false) {
         const notification = document.getElementById('reviewNotification')
-        if (!notification) {
-            console.warn('[DEBUG] Блок #reviewNotification не найден.')
-            return
-        }
+        if (!notification) return
 
         notification.querySelector('p').textContent = message
         notification.style.display = 'block'
@@ -90,17 +84,30 @@ document.addEventListener('DOMContentLoaded', function () {
             notification.classList.add('fade-in')
         }, 10)
 
-        setTimeout(function () {
+        setTimeout(() => {
             notification.classList.remove('fade-in')
             notification.classList.add('fade-out')
-
-            setTimeout(function () {
+            setTimeout(() => {
                 notification.style.display = 'none'
                 notification.classList.remove('fade-out')
             }, 500)
         }, 2000)
     }
 
+    // Универсальная обёртка
+    function addReviewToAppropriateBlock(eventId, review, formattedDate) {
+        const reviewsBlock = document.querySelector(`.reviews[data-event-id="${eventId}"]`)
+        if (reviewsBlock) {
+            addReviewToPage(eventId, review, formattedDate)
+        }
+
+        const cardBlock = document.querySelector('.items')
+        if (cardBlock) {
+            addReviewToCardPage(eventId, review, formattedDate)
+        }
+    }
+
+    // Добавление отзыва на главной
     function addReviewToPage(eventId, review, formattedDate) {
         let reviewsDiv = document.querySelector(`.reviews[data-event-id="${eventId}"]`)
         if (!reviewsDiv) {
@@ -131,5 +138,45 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `
         reviewsDiv.appendChild(newReview)
+    }
+
+    // Добавление отзыва в карточке мероприятия
+    function addReviewToCardPage(eventId, review, formattedDate) {
+        const itemsDiv = document.querySelector('.items')
+        if (!itemsDiv) {
+            console.warn('[DEBUG] Блок .items не найден для карточки мероприятия')
+            return
+        }
+
+        const itemCount = itemsDiv.querySelectorAll('.item').length + 1
+
+        const item = document.createElement('div')
+        item.classList.add('item', `item${itemCount}`)
+
+        item.innerHTML = `
+            <div class="review">
+                <div class="col-lg-4 user-info">
+                    <div class="user-icon">
+                        <img src="/static/icons/profile-image-default.png" alt="">
+                    </div>
+                    <div class="username">${review.user.last_name} ${review.user.first_name}</div>
+                    <div class="full-stars-com">
+                        <div class="rating-group-com">
+                            <input name="fst" value="0" type="radio" disabled checked />
+                            <label for="fst-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="..."/></svg></label>
+                            <input name="fst" id="fst-1" value="1" type="radio" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 review-block">
+                    <div class="col-lg-1 quote"><img src="/static/icons/quotes.png" alt=""></div>
+                    <div class="col-lg-11 review-text" style="overflow-wrap: break-word; white-space: normal;">
+                        ${review.comment}
+                    </div>
+                </div>
+            </div>
+        `
+
+        itemsDiv.appendChild(item)
     }
 })
