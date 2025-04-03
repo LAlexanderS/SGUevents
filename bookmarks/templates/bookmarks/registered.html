@@ -159,8 +159,8 @@
                                     <div class="button-substrate">
 
                                         {% if item.date >= now or request.user in item.member.all %}
-                                            {% if item.id in registered %}
-                                                <a href="#" class="btn btn-remove_app" data-event-id="{{ registered|get_item:item.id }}">
+                                            {% if item.id in registered_ids %}
+                                                <a href="#" class="btn btn-remove_app" data-event-id="{{ registered_map|get_item:item.id }}">
                                                     Отмена регистрации
                                                 </a>
                                             {% else %}

@@ -235,19 +235,30 @@ def registered(request):
     attractions_ids = []
     for_visiting_ids = []
 
+    registered_ids = set()
+    registered_event_map = {}
+
     for reg in registered:
         if reg.online:
             events.append(reg.online)
             online_ids.append(reg.online.id)
+            registered_ids.add(reg.online.id)
+            registered_event_map[reg.online.id] = reg.id
         elif reg.offline:
             events.append(reg.offline)
             offline_ids.append(reg.offline.id)
+            registered_ids.add(reg.offline.id)
+            registered_event_map[reg.offline.id] = reg.id
         elif reg.attractions:
             events.append(reg.attractions)
             attractions_ids.append(reg.attractions.id)
+            registered_ids.add(reg.attractions.id)
+            registered_event_map[reg.attractions.id] = reg.id
         elif reg.for_visiting:
             events.append(reg.for_visiting)
             for_visiting_ids.append(reg.for_visiting.id)
+            registered_ids.add(reg.for_visiting.id)
+            registered_event_map[reg.for_visiting.id] = reg.id
 
     for event in events:
         content_type = ContentType.objects.get_for_model(event)
@@ -282,6 +293,8 @@ def registered(request):
 
     context = {
         'registered': registered,
+        'registered_ids': registered_ids,
+        'registered_map': registered_event_map,
         'reviews': reviews,
         'name_page': 'Зарегистрированные',
         'liked': liked_slugs,

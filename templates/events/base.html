@@ -684,7 +684,7 @@
                                                 </p>
                                                 <p class="preview-time">
                                                     {% if events.time_start != events.time_end %}
-                                                        <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> 
+                                                        <split class="card-time">{{events.id}} + {{ events.time_start }} - {{ events.time_end }}</split> 
                                                     {% else %}
                                                         <split class="card-time">{{ events.time_start }}</split> 
                                                     {% endif %}
