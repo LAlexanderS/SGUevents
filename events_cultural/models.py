@@ -11,6 +11,8 @@ from django.contrib.postgres.indexes import GinIndex
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+from django.utils.text import slugify
+
 
 class Attractions(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
@@ -63,6 +65,9 @@ class Attractions(models.Model):
 
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
+
+        if not self.slug.startswith('att-'):
+            self.slug = f'att-{slugify(self.slug)}'
 
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
@@ -125,6 +130,9 @@ class Events_for_visiting(models.Model):
 
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
+
+        if not self.slug.startswith('vis-'):
+            self.slug = f'vis-{slugify(self.slug)}'
 
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
