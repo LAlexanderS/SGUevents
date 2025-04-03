@@ -116,11 +116,15 @@ def favorites(request):
             if reg_event:
                 registered_dict['for_visiting'][event.id] = reg_event.id
 
+    registered_flat = {}
+    for subdict in registered_dict.values():
+        registered_flat.update(subdict)
+
     context = {
         'events': events,
         'reviews': reviews,
         'favorites': favorites,
-        'registered': registered_dict,
+        'registered': registered_flat,
         'now': now().date(),
         'name_page': 'Избранные',
     }
@@ -293,8 +297,8 @@ def registered(request):
 
     context = {
         'registered': registered,
-        'registered_ids': registered_ids,
-        'registered_map': registered_event_map,
+        'registered_ids': registered_ids, #для кнопки регистрация/отмена
+        'registered_map': registered_event_map, #для data-event-id в регистрации
         'reviews': reviews,
         'name_page': 'Зарегистрированные',
         'liked': liked_slugs,
