@@ -78,6 +78,17 @@ class Attractions(models.Model):
 
         super(Attractions, self).save(*args, **kwargs)
 
+class AttractionsGallery(models.Model):
+    event = models.ForeignKey('Attractions', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')
+    image = models.ImageField(upload_to='attractions_gallery/', verbose_name='Фотография')
+
+    class Meta:
+        verbose_name = 'Фотография мероприятия'
+        verbose_name_plural = 'Галерея мероприятия'
+
+    def __str__(self):
+        return f'Фото для {self.event.name}'
+
 class Events_for_visiting(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, unique=False, blank=False, null=False, verbose_name='Название')
@@ -142,6 +153,18 @@ class Events_for_visiting(models.Model):
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         super(Events_for_visiting, self).save(*args, **kwargs)
+
+
+class Events_for_visitingGallery(models.Model):
+    event = models.ForeignKey('Events_for_visiting', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')
+    image = models.ImageField(upload_to='Events_for_visiting_gallery/', verbose_name='Фотография')
+
+    class Meta:
+        verbose_name = 'Фотография мероприятия'
+        verbose_name_plural = 'Галерея мероприятия'
+
+    def __str__(self):
+        return f'Фото для {self.event.name}'
 
 # @receiver(m2m_changed, sender=Events_for_visiting.member.through)
 # def update_place_free(sender, instance, action, **kwargs):

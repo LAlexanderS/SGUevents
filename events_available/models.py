@@ -178,3 +178,14 @@ class Events_offline(models.Model):
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         super(Events_offline, self).save(*args, **kwargs)
+
+class EventOfflineGallery(models.Model):
+    event = models.ForeignKey('Events_offline', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')
+    image = models.ImageField(upload_to='event_offline_gallery/', verbose_name='Фотография')
+
+    class Meta:
+        verbose_name = 'Фотография мероприятия'
+        verbose_name_plural = 'Галерея мероприятия'
+
+    def __str__(self):
+        return f'Фото для {self.event.name}'

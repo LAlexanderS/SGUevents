@@ -20,4 +20,5 @@ setup_and_run_windows.py
 fixtures/users_test.json
 load_fixtures.py
 .gitingnore
+media/*
 

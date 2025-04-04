@@ -168,7 +168,8 @@
                             <div class="row mb-3 mob-row">
                                 <div class="col-lg-6 about-event" style="text-indent: 0;">
                                     <h2 class="what-awaits-header"> Что вас ждет</h2>
-                                    <div class="text-container">
+                                    <div class="text-container" data-description="{{ event.description|escapejs }}">
+                                        
                                         <!-- Текст будет добавлен динамически -->
                                     </div>
                                     <div class="button-container">
@@ -670,6 +671,8 @@
             </div>
     
         </main>
+
+        <script src="{% static 'js/textSanitizer.js' %}"></script>
         
         <script src="{% static "js/events_registration.js" %}"></script>
 
