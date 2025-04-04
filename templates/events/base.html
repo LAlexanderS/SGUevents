@@ -469,36 +469,56 @@
                             <div class="card">
                                 <div class="row event">
                                     
-                                    <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo">
+                                    <div class="col-lg-5 col-md-5 col-sm-5 event-preview-photo">   
+                                        
+
                                         {% if name_page != "Главная" %}
                                             {% if events.slug in favorites %}
-                                            <a href="#"
-                                            class="{% if events.slug in liked %}remove-from-favorites{% else %}add-to-cart{% endif %}"
-                                            data-event-id="{% if events.slug in favorites %}{{ favorites|get_item:events.slug }}{% endif %}"
-                                            data-event-slug="{{ events.slug }}">
-                                         
-                                                <img class="heart-icon {% if events.slug in liked %}hidden{% endif %}"
-                                                    src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
-                                            
-                                                <img class="heart-red-icon {% if not events.slug in liked %}hidden{% endif %}"
-                                                    src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
-                                            </a>
-
+                                                <a href="#"
+                                                class="{% if events.slug in liked %}remove-from-favorites{% else %}add-to-cart{% endif %}"
+                                                data-event-slug="{{ events.slug }}">
+                                        
+                                                    <img class="heart-icon {% if events.slug in liked %}hidden{% endif %}"
+                                                        src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
+                                        
+                                                    <img class="heart-red-icon {% if events.slug not in liked %}hidden{% endif %}"
+                                                        src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
+                                                </a>
                                             {% else %}
                                                 <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
-                                                <img class="mx-1 heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
+                                                    <img class="heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
                                                 </a>
                                             {% endif %}
                                         {% else %}
-                                            <a href="#" class="{% if events.slug in liked %}remove-from-favorites{% else %}add-to-cart{% endif %}" 
-                                            data-event-slug="{{ events.slug }}">
-                                                <img class="heart-icon {% if events.slug in liked %}hidden{% endif %}"
-                                                    src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
-                                            
-                                                <img class="heart-red-icon {% if events.slug not in liked %}hidden{% endif %}"
-                                                    src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
-                                            </a>                             
+                                            {% with model_name=events|model_name %}
+                                                {% if model_name == 'Events_online' and events.slug in liked %}
+                                                    <a href="#" class="remove-from-favorites" data-event-slug="{{ events.slug }}">
+                                                        <img class="heart-icon hidden" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
+                                                        <img class="heart-red-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
+                                                    </a>
+                                                {% elif model_name == 'Events_offline' and events.slug in liked %}
+                                                    <a href="#" class="remove-from-favorites" data-event-slug="{{ events.slug }}">
+                                                        <img class="heart-icon hidden" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
+                                                        <img class="heart-red-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
+                                                    </a>
+                                                {% elif model_name == 'Attractions' and events.slug in liked %}
+                                                    <a href="#" class="remove-from-favorites" data-event-slug="{{ events.slug }}">
+                                                        <img class="heart-icon hidden" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
+                                                        <img class="heart-red-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
+                                                    </a>
+                                                {% elif model_name == 'Events_for_visiting' and events.slug in liked %}
+                                                    <a href="#" class="remove-from-favorites" data-event-slug="{{ events.slug }}">
+                                                        <img class="heart-icon hidden" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
+                                                        <img class="heart-red-icon" src="{% static 'icons/heart_red.png' %}" alt="" width="32" height="32">
+                                                    </a>
+                                                {% else %}
+                                                    <a href="#" class="add-to-cart" data-event-slug="{{ events.slug }}">
+                                                        <img class="heart-icon" src="{% static 'icons/heart.svg' %}" alt="" width="32" height="32">
+                                                    </a>
+                                                {% endif %}
+                                            {% endwith %}
                                         {% endif %}
+                                    
                                         
                                         {% if events.image %}
                                             <img src="{{ events.image.url }}" alt="" class="preview-photo">

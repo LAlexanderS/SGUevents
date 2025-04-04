@@ -192,28 +192,31 @@ def index(request):
     current_attractions = [event for event in current_page if isinstance(event, Attractions)]
     current_for_visiting = [event for event in current_page if isinstance(event, Events_for_visiting)]
 
-    favorites_online = Favorite.objects.filter(user=request.user, online__in=current_online).values_list('online_id', 'id')
-    favorites_offline = Favorite.objects.filter(user=request.user, offline__in=current_offline).values_list('offline_id', 'id')
-    favorites_attractions = Favorite.objects.filter(user=request.user, attractions__in=current_attractions).values_list('attractions_id', 'id')
-    favorites_for_visiting = Favorite.objects.filter(user=request.user, for_visiting__in=current_for_visiting).values_list('for_visiting_id', 'id')
-
+    
+    # Избранное
     favorites_dict = {
-        'online': {item[0]: item[1] for item in favorites_online},
-        'offline': {item[0]: item[1] for item in favorites_offline},
-        'attractions': {item[0]: item[1] for item in favorites_attractions},
-        'for_visiting': {item[0]: item[1] for item in favorites_for_visiting},
+        'online': {item[0]: item[1] for item in Favorite.objects.filter(user=request.user, online__in=current_online).values_list('online_id', 'id')},
+        'offline': {item[0]: item[1] for item in Favorite.objects.filter(user=request.user, offline__in=current_offline).values_list('offline_id', 'id')},
+        'attractions': {item[0]: item[1] for item in Favorite.objects.filter(user=request.user, attractions__in=current_attractions).values_list('attractions_id', 'id')},
+        'for_visiting': {item[0]: item[1] for item in Favorite.objects.filter(user=request.user, for_visiting__in=current_for_visiting).values_list('for_visiting_id', 'id')},
     }
 
-    liked_slugs = [
-    favorite.online.slug for favorite in Favorite.objects.filter(user=request.user, online__in=current_online)
-] + [
-    favorite.offline.slug for favorite in Favorite.objects.filter(user=request.user, offline__in=current_offline)
-] + [
-    favorite.attractions.slug for favorite in Favorite.objects.filter(user=request.user, attractions__in=current_attractions)
-] + [
-    favorite.for_visiting.slug for favorite in Favorite.objects.filter(user=request.user, for_visiting__in=current_for_visiting)
-]
+    # liked — список slug'ов
+    liked_slugs = []
+    model_map = {
+        'online': current_online,
+        'offline': current_offline,
+        'attractions': current_attractions,
+        'for_visiting': current_for_visiting,
+    }
 
+    for model_name, current_list in model_map.items():
+        for fav in Favorite.objects.filter(user=request.user, **{f"{model_name}__in": current_list}).select_related(model_name):
+            related = getattr(fav, model_name)
+            if related and related.slug:
+                liked_slugs.append(related.slug)
+
+    print("liked_slugs", liked_slugs)
 
     registered_online = Registered.objects.filter(user=request.user, online__in=current_online).values_list('online_id', 'id')
     registered_offline = Registered.objects.filter(user=request.user, offline__in=current_offline).values_list('offline_id', 'id')

@@ -139,18 +139,6 @@ def online(request):
         time_end_formatted = datetime.strptime(time_to_end, '%H:%M').time()  # Преобразование строки в объект времени
         events_available = events_available.filter(time_end__lte=time_end_formatted)
 
-    # Применение сортировки по времени
-    # if sort_time == 'time_start':
-    #     events_available = events_available.order_by('time_start')
-    # elif sort_time == '-time_start':
-    #     events_available = events_available.order_by('-time_start')
-
-    # Применение сортировки по дате
-    # if sort_date == '-date':
-    #     events_available = events_available.order_by('-date')
-    # elif sort_date == 'date':
-    #     events_available = events_available.order_by('date')
-
     paginator = Paginator(events_available, 5)
     try:
         current_page = paginator.page(int(page))
@@ -174,6 +162,8 @@ def online(request):
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
     liked_slugs = [favorite.online.slug for favorite in favorites]
+
+    print('LIKED SLUGS:', liked_slugs)
 
 
     context = {
