@@ -89,15 +89,15 @@ document.addEventListener('click', function (event) {
 
         // УДАЛИТЬ ИЗ ИЗБРАННОГО
     } else if (button.classList.contains('remove-from-favorites')) {
-        if (!eventId || !eventSlug) return
+        if (!eventSlug) return
 
-        fetch(`/bookmarks/events_remove/${eventId}/`, {
+        fetch(`/bookmarks/events_remove/${eventSlug}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': window.csrftoken
             },
-            body: JSON.stringify({ id: eventId })
+            body: JSON.stringify({ slug: eventSlug })
         })
             .then(response => response.json())
             .then(data => {
@@ -115,4 +115,5 @@ document.addEventListener('click', function (event) {
             })
             .catch(error => console.error('Ошибка удаления из избранного:', error))
     }
+
 })

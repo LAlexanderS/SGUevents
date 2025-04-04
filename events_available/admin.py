@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.contrib.auth import get_user_model
 
-from events_available.models import Events_offline, Events_online, EventOnlineGallery
+from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery
 
 User = get_user_model()
 
@@ -64,10 +64,19 @@ class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
         if not change and request.user.is_authenticated:
             form.instance.events_admin.add(request.user)
 
+
+class EventOfflineGalleryInline(admin.TabularInline):
+    model = EventOfflineGallery
+    extra = 1
+    verbose_name = "Фотография"
+    verbose_name_plural = "Галерея"
+
+
 @admin.register(Events_offline)
 class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')  
+    inlines = [EventOfflineGalleryInline]
 
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:

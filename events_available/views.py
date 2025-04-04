@@ -139,18 +139,6 @@ def online(request):
         time_end_formatted = datetime.strptime(time_to_end, '%H:%M').time()  # Преобразование строки в объект времени
         events_available = events_available.filter(time_end__lte=time_end_formatted)
 
-    # Применение сортировки по времени
-    # if sort_time == 'time_start':
-    #     events_available = events_available.order_by('time_start')
-    # elif sort_time == '-time_start':
-    #     events_available = events_available.order_by('-time_start')
-
-    # Применение сортировки по дате
-    # if sort_date == '-date':
-    #     events_available = events_available.order_by('-date')
-    # elif sort_date == 'date':
-    #     events_available = events_available.order_by('date')
-
     paginator = Paginator(events_available, 5)
     try:
         current_page = paginator.page(int(page))
@@ -162,7 +150,8 @@ def online(request):
         current_page = paginator.page(paginator.num_pages)
 
     favorites = Favorite.objects.filter(user=request.user, online__in=current_page)
-    favorites_dict = {favorite.online.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.online.slug: favorite.id for favorite in favorites}
+
 
     registered = Registered.objects.filter(user=request.user, online__in=current_page)
     registered_dict = {reg.online.id: reg.id for reg in registered}
@@ -173,6 +162,8 @@ def online(request):
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
     liked_slugs = [favorite.online.slug for favorite in favorites]
+
+    print('LIKED SLUGS:', liked_slugs)
 
 
     context = {
@@ -208,7 +199,8 @@ def online_card(request, event_slug=False, event_id=False):
     events = Events_online.objects.all()
     
     favorites = Favorite.objects.filter(user=request.user, online__in=events)
-    favorites_dict = {favorite.online.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.online.slug: favorite.id for favorite in favorites}
+
 
     registered = Registered.objects.filter(user=request.user, online__in=events)
     registered_dict = {reg.online.id: reg.id for reg in registered}
@@ -367,7 +359,7 @@ def offline(request):
         current_page = paginator.page(paginator.num_pages)
 
     favorites = Favorite.objects.filter(user=request.user, offline__in=current_page)
-    favorites_dict = {favorite.offline.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.offline.slug: favorite.id for favorite in favorites}
 
     registered = Registered.objects.filter(user=request.user, offline__in=current_page)
     registered_dict = {reg.offline.id: reg.id for reg in registered}
@@ -423,7 +415,7 @@ def offline_card(request, event_slug=False, event_id=False):
         reviews[event_rew.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
     favorites = Favorite.objects.filter(user=request.user, offline__in=events)
-    favorites_dict = {favorite.offline.id: favorite.id for favorite in favorites}
+    favorites_dict = {favorite.offline.slug: favorite.id for favorite in favorites}
     
     registered = Registered.objects.filter(user=request.user, offline__in=events)
     registered_dict = {reg.offline.id: reg.id for reg in registered}
@@ -481,6 +473,7 @@ def submit_review(request, event_id):
             'formatted_date': review.formatted_date(),
             'review': {
                 'user': {
+                    'username': request.user.username,
                     'first_name': request.user.first_name,
                     'last_name': request.user.last_name
                 },

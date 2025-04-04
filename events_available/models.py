@@ -9,6 +9,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
 from django.core.exceptions import ValidationError
+from django.utils.text import slugify
 
 class MediaFile(models.Model):
     message_id = models.CharField(max_length=100, verbose_name='ID сообщения')
@@ -84,6 +85,9 @@ class Events_online(models.Model):
     # Сохраняем временную зону и дату для событий
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
+
+        if not self.slug.startswith('onl-'):
+            self.slug = f'onl-{slugify(self.slug)}'
 
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
@@ -163,6 +167,8 @@ class Events_offline(models.Model):
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
         
+        if not self.slug.startswith('off-'):
+            self.slug = f'off-{slugify(self.slug)}'
 
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
@@ -172,3 +178,14 @@ class Events_offline(models.Model):
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         super(Events_offline, self).save(*args, **kwargs)
+
+class EventOfflineGallery(models.Model):
+    event = models.ForeignKey('Events_offline', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')
+    image = models.ImageField(upload_to='event_offline_gallery/', verbose_name='Фотография')
+
+    class Meta:
+        verbose_name = 'Фотография мероприятия'
+        verbose_name_plural = 'Галерея мероприятия'
+
+    def __str__(self):
+        return f'Фото для {self.event.name}'

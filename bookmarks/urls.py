@@ -6,7 +6,7 @@ app_name = 'bookmarks'
 
 urlpatterns = [
     path('events_add/<slug:event_slug>/', views.events_add, name='events_add'),
-    path('events_remove/<int:event_id>/', views.events_remove, name='events_remove'),
+    path('events_remove/<slug:event_slug>/', views.events_remove, name='events_remove'),
     path('favorites/', views.favorites, name='favorites'),
 
     path('favorites/', views.favorites, name='favorites'),

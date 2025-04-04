@@ -93,19 +93,17 @@ document.addEventListener('click', function (event) {
 
         // УДАЛИТЬ ИЗ ИЗБРАННОГО
     } else if (button.classList.contains('card-remove-from-favorites')) {
-        const eventId = button.getAttribute('data-event-id')
         const eventSlug = button.getAttribute('data-event-slug')
-        if (!eventId || !heartIcon) return
+        if (!eventSlug || !heartIcon) return
 
-        console.log(`Удаляем из избранного событие с id: ${eventId}`)
+        console.log(`Удаляем из избранного событие с slug: ${eventSlug}`)
 
-        fetch(`/bookmarks/events_remove/${eventId}/`, {
+        fetch(`/bookmarks/events_remove/${eventSlug}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': window.csrftoken
-            },
-            body: JSON.stringify({ 'id': eventId })
+            }
         })
             .then(response => response.json())
             .then(data => {
@@ -128,4 +126,5 @@ document.addEventListener('click', function (event) {
             })
             .catch(error => console.error('Ошибка удаления из избранного:', error))
     }
+
 })

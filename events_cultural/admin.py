@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from events_cultural.models import Attractions, Events_for_visiting
+from events_cultural.models import Attractions, Events_for_visiting, AttractionsGallery, Events_for_visitingGallery
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -32,11 +32,20 @@ class RestrictedAdminMixin:
             is_admin = obj.events_admin.filter(pk=request.user.pk).exists()
             return is_admin
         return super().has_delete_permission(request, obj)
+    
+
+class AttractionsGalleryInline(admin.TabularInline):
+    model = AttractionsGallery
+    extra = 1
+    verbose_name = "Фотография"
+    verbose_name_plural = "Галерея"
 
 @admin.register(Attractions)
 class AttractionsAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret','events_admin','member')
+    inlines = [AttractionsGalleryInline]
+
 
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:
@@ -53,10 +62,19 @@ class AttractionsAdmin(RestrictedAdminMixin, admin.ModelAdmin):
         if not change and request.user.is_authenticated:
             form.instance.events_admin.add(request.user)
 
+
+class Events_for_visitingGalleryInline(admin.TabularInline):
+    model = Events_for_visitingGallery
+    extra = 1
+    verbose_name = "Фотография"
+    verbose_name_plural = "Галерея"
+
 @admin.register(Events_for_visiting)
 class Events_for_visitingAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret','events_admin', 'member')
+    inlines = [Events_for_visitingGalleryInline]
+
 
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:
