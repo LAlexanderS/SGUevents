@@ -187,7 +187,7 @@
                                         {% elif register.for_visiting %}
                                             {% url 'events_cultural:events_for_visiting_card' item.slug %}
                                         {% endif %}" class="show-more">
-                                        <h4 class="event-title-preview">{{ item.name|truncatechars:82 }}</h4>
+                                        <h4 class="event-title-preview">{{ item.name|truncatechars:65 }}</h4>
                                     </a> 
 
                                     <div class="row">
@@ -288,7 +288,8 @@
                                                                             {{ review.comment }}
                                                                         </div>
                                                                     </div>
-                                                                </div>                                                        
+                                                                </div>     
+                                                                <hr class="review-divider">                                                   
                                                             </div>
                                                         {% endif %}
                                                     {% endfor %}

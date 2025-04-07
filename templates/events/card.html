@@ -404,7 +404,7 @@
                                         {% for review in reviews|get_item:event.unique_id %}
                                             <div class="item item{{forloop.counter}}">
                                                 <div class="review">
-                                                    <div class="col-lg-4 user-info">
+                                                    <div class="user-info">
                                                         <div class="user-icon">
                                                             <img src="{% static "icons/profile-image-default.png" %}" alt="">
                                                         </div>
@@ -461,11 +461,8 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-8 review-block">
-                                                        <div class="col-lg-1 quote"><img src="{% static "icons/quotes.png" %}"
-                                                                alt="">
-                                                        </div>
-                                                        <div class="col-lg-11 review-text"
+                                                    <div class="review-block">
+                                                        <div class="review-text"
                                                             style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
                                                             {{ review.comment }}</div>
                                                     </div>

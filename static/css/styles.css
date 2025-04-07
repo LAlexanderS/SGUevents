@@ -1278,13 +1278,13 @@ td {
 
 .review-block {
     display: flex;
+    max-height: 200px;
+    overflow-y: hidden;
 }
-
 
 .review-text,
 .hashtags {
-    /* border: 1px solid #ccc; */
-    padding: 10px;
+    /* padding: 10px;
     padding-top: 0%;
     border-radius: 4px;
     font-family: 'Onest';
@@ -1293,7 +1293,35 @@ td {
     line-height: 130%;
     letter-spacing: 0%;
     color: rgb(39, 66, 106);
+    overflow-y: auto;
+    max-height: 100%; */
+    flex-grow: 1;
+    overflow-y: auto;
+    /* скролл появляется здесь */
+    max-height: 200px;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: 'Onest';
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 130%;
+    color: rgb(39, 66, 106);
+    max-height: 150px;
+
 }
+
+.item {
+    display: inline-block;
+    width: 300px;
+    /* фикс ширина карточки */
+    vertical-align: top;
+    word-wrap: break-word;
+}
+
 
 .quote {
     text-indent: 0;
@@ -1318,17 +1346,9 @@ td {
     margin: auto;
 }
 
-.username-existent-review {
-    text-indent: 10px;
-}
-
 .quote-existent-review {
     width: 25px;
     height: auto;
-}
-
-.review-text-existent-review {
-    font-size: 18px;
 }
 
 .rating-container {
@@ -3641,6 +3661,7 @@ td {
         padding-top: 0;
         font-size: 14px;
         width: fit-content;
+        text-indent: 10px;
     }
 
     .quote-existent-review {
@@ -3653,8 +3674,19 @@ td {
     }
 
     .review-block.review-block-existent-review {
-        width: 60%;
-        padding-inline: 0;
+        /* width: 60%;
+        padding-inline: 0; */
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 0;
+        /* ключевое: позволяет растягиваться на всё оставшееся */
+        word-wrap: break-word;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .quote-existent-review {
+        display: none;
     }
 
     .page-header {
@@ -4099,7 +4131,6 @@ td {
         width: 25%;
     }
 
-
     .user-icon img {
         height: 30px;
         width: 30px;
@@ -4338,7 +4369,7 @@ td {
         box-shadow: none;
     }
 
-    /* либо оставить так, либо заменить свойство hover на focus */
+
     .selection-icon:active {
         height: 44px;
         width: 44px;
@@ -4382,9 +4413,7 @@ td {
     gap: 15px;
     width: 100%;
     flex-wrap: nowrap;
-    /* Запрещаем перенос элементов */
     align-items: stretch;
-    /* Все элементы одинаковой высоты */
 }
 
 .user-info-existent-review {
@@ -4396,7 +4425,13 @@ td {
     max-width: 120px;
     overflow: hidden;
     flex-shrink: 0;
-    /* Запрещаем уменьшение размера */
+}
+
+@media (max-width: 480px) {
+    .user-info-existent-review {
+        min-width: 80px !important;
+        max-width: 80px !important;
+    }
 }
 
 .username-existent-review {
@@ -4413,31 +4448,51 @@ td {
 
 .review-block-existent-review {
     flex-grow: 1;
-    max-width: calc(100% - 150px);
-    /* Ограничиваем размер отзыва */
+    flex-shrink: 1;
+    flex-basis: 0;
     word-wrap: break-word;
     overflow-wrap: break-word;
     display: flex;
     flex-direction: column;
+    border: 1px dashed rgb(39, 66, 106);
+    padding: 10px;
+    border-radius: 8px;
+    min-width: 0;
 }
 
+
 .review-text-existent-review {
-    display: block;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
     text-align: left;
-    font-size: 16px;
-    max-width: 100%;
-    overflow: hidden;
+    align-self: flex-start;
+    justify-self: flex-start;
+    margin-top: 0;
+    margin-left: 0;
+    padding: 0;
+    overflow: visible;
 }
+
+.review-divider {
+    height: 2px;
+    background-color: rgb(255, 255, 255);
+    border: none;
+    margin: 16px -1rem;
+    width: calc(100% + 2rem);
+}
+
+
 
 .review-quote {
     align-self: flex-start;
-    /* Размещаем кавычки сверху */
     font-size: 20px;
 }
 
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22' /%3E%3C/svg%3E");
+}
+
+
+.user-lastname {
+    width: 100%;
+    text-align: center;
+    text-indent: 0px;
 }

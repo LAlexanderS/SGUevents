@@ -188,7 +188,7 @@
                                         {% elif favorite.for_visiting %}
                                             {% url 'events_cultural:events_for_visiting_card' item.slug %}
                                         {% endif %}" class="show-more">
-                                        <h4 class="event-title-preview">{{ item.name|truncatechars:82 }}</h4>
+                                        <h4 class="event-title-preview">{{ item.name|truncatechars:65 }}</h4>
                                     </a> 
 
                                     <div class="row">
@@ -281,15 +281,16 @@
                                                                             </div>
                                                                         </div>
                                                                         <div class="review-block review-block-existent-review">
-                                                                            <div class="quote quote-existent-review">
+                                                                            {% comment %} <div class="quote quote-existent-review">
                                                                                 <img src="{% static "icons/quotes.png" %}" alt="">
-                                                                            </div>
+                                                                            </div> {% endcomment %}
                                                                             <div class="review-text review-text-existent-review">
                                                                                 {{ review.comment }}
                                                                             </div>
                                                                         </div>
-                                                                    </div>                                                        
+                                                                    </div>                                                      
                                                                 </div>
+                                                                <hr class="review-divider"> 
                                                             {% endif %}
                                                         {% endfor %}
                                                     {% endspaceless %}
