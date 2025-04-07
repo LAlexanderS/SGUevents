@@ -653,7 +653,7 @@
                                                 {% elif events.category  == 'Доступные к посещению' %}
                                                     {% url "events_cultural:events_for_visiting_card" events.slug %}
                                                 {% endif %}" class="show-more">
-                                            <h4 class="event-title-preview">{{ events.name|truncatechars:82 }}</h4>
+                                            <h4 class="event-title-preview">{{ events.name|truncatechars:65 }}</h4>
                                         </a>
 
                                         <div class="row">
@@ -708,7 +708,7 @@
                                         <div class="preview-event-id">
                                             <div class="event-reviews-link">
                                                 <a href="#" class="reviews-link" type="button" data-bs-toggle="modal"
-                                                    data-bs-target="#modal-{{ events.unique_id }}">Посмотреть отзывы </a>
+                                                    data-bs-target="#modal-{{ events.unique_id }}">Посмотреть отзывы</a>
                                             </div>
                                             <label for="event-id" class="event-id"></label>
                                             <div class="event-tags">
@@ -752,14 +752,15 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="review-block review-block-existent-review">
-                                                                    <div class="quote quote-existent-review">
+                                                                    {% comment %} <div class="quote quote-existent-review">
                                                                         <img src="{% static "icons/quotes.png" %}" alt="">
-                                                                    </div>
+                                                                    </div> {% endcomment %}
                                                                     <div class="review-text review-text-existent-review">
                                                                         {{ review.comment }}
                                                                     </div>
                                                                 </div>
-                                                            </div>                                                        
+                                                            </div>   
+                                                            <hr class="review-divider">                                                     
                                                         </div>
                                                     {% endif %}
                                                 {% endfor %}

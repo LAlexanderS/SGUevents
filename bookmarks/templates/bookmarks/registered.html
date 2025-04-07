@@ -187,7 +187,7 @@
                                         {% elif register.for_visiting %}
                                             {% url 'events_cultural:events_for_visiting_card' item.slug %}
                                         {% endif %}" class="show-more">
-                                        <h4 class="event-title-preview">{{ item.name|truncatechars:82 }}</h4>
+                                        <h4 class="event-title-preview">{{ item.name|truncatechars:65 }}</h4>
                                     </a> 
 
                                     <div class="row">
@@ -253,6 +253,51 @@
                                             {% endif %}
                                         </div>
                                     </div>
+                            </div>
+
+
+                            <div class="modal fade" id="modal-{{ item.unique_id }}" tabindex="-1" aria-labelledby="modalLabel-{{ item.unique_id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="modalLabel-{{ item.unique_id }}">Отзывы</h1>
+                                            <button type="button" class="button-close" data-bs-dismiss="modal" aria-label="Close">
+                                                <img src="{% static "icons/close-button.png" %}" alt="">
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="reviews" data-event-id="{{ item.id }}">
+                                                {% spaceless %}
+                                                    {% for review in reviews|get_item:item.unique_id %}
+                                                        {% if review.event.unique_id == item.unique_id %}
+                                                            <div class="existent-comment">
+                                                                <div class="existent-review">
+                                                                    <div class="user-info-existent-review">
+                                                                        <div class="user-icon-existent-review">
+                                                                            <img src="{% static "icons/profile-image-default.png" %}" alt="">
+                                                                        </div>
+                                                                        <div class="username-existent-review">
+                                                                            <div class="user-lastname">{{ review.user.username }}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="review-block review-block-existent-review">
+                                                                        <div class="quote quote-existent-review">
+                                                                            <img src="{% static "icons/quotes.png" %}" alt="">
+                                                                        </div>
+                                                                        <div class="review-text review-text-existent-review">
+                                                                            {{ review.comment }}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>     
+                                                                <hr class="review-divider">                                                   
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endspaceless %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                 
                         {% endif %}

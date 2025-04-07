@@ -128,9 +128,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </div>
                 <div class="review-block review-block-existent-review">
-                    <div class="quote quote-existent-review">
-                        <img src="/static/icons/quotes.png" alt="">
-                    </div>
                     <div class="review-text review-text-existent-review">
                         ${review.comment}
                     </div>
@@ -170,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 </div>
                 <div class="col-lg-8 review-block">
-                    <div class="col-lg-1 quote"><img src="/static/icons/quotes.png" alt=""></div>
                     <div class="col-lg-11 review-text" style="overflow-wrap: break-word; white-space: normal;">
                         ${review.comment}
                     </div>
