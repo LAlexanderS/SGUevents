@@ -1284,20 +1284,8 @@ td {
 
 .review-text,
 .hashtags {
-    /* padding: 10px;
-    padding-top: 0%;
-    border-radius: 4px;
-    font-family: 'Onest';
-    font-size: 20px;
-    font-weight: 400;
-    line-height: 130%;
-    letter-spacing: 0%;
-    color: rgb(39, 66, 106);
-    overflow-y: auto;
-    max-height: 100%; */
     flex-grow: 1;
     overflow-y: auto;
-    /* скролл появляется здесь */
     max-height: 200px;
     min-width: 0;
     overflow-wrap: break-word;
@@ -1317,7 +1305,6 @@ td {
 .item {
     display: inline-block;
     width: 300px;
-    /* фикс ширина карточки */
     vertical-align: top;
     word-wrap: break-word;
 }
