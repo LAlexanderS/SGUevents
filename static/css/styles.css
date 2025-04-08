@@ -3377,7 +3377,8 @@ td {
     }
 
     .col-lg-2,
-    .dropdown {
+    .dropdown,
+    .calendar {
         text-indent: 17px;
     }
 
