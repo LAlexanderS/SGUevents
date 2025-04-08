@@ -3,41 +3,37 @@
 {% block title %} <title>Кабинет администратора</title> {% endblock %}
 {% block form_events %}
 {% comment %} <link rel="stylesheet" href="{% static "general/css/admin.css" %}">      {% endcomment %}
-<div class="row justify-content-center px-3 gap-2" >
+<div class="row px-3">
     <div class="col-lg-1 d-none d-lg-block feed-left-column"></div>
-
-    <div class="col-md-5 mb-2 admin-button">
-        <a href="/admin/events_available/events_online/add/" class="btn btn-secondary w-100"
-            role="button" target="_blank">
+  
+    <div class="col-lg-10 col-12">
+      <div class="row gx-3 gy-2 justify-content-between">
+        <div class="col-md-6 admin-button">
+          <a href="/admin/events_available/events_online/add/" class="btn btn-secondary w-100" target="_blank">
             Добавить онлайн мероприятие
-        </a>
-    </div>
-
-    <div class="col-md-5 mb-2 admin-button">
-        <a href="/admin/events_available/events_offline/add/" class="btn btn-secondary w-100"
-            role="button" target="_blank">
+          </a>
+        </div>
+        <div class="col-md-6 admin-button">
+          <a href="/admin/events_available/events_offline/add/" class="btn btn-secondary w-100" target="_blank">
             Добавить оффлайн мероприятие
-        </a>
-    </div>
-
-    <div class="col-lg-1 d-none d-lg-block"></div>
-
-    <div class="col-lg-1 d-none d-lg-block feed-left-column"></div>
-
-    <div class="col-md-5 mb-2 admin-button">
-        <a href="/admin/events_cultural/attractions/add/" class="btn btn-secondary w-100"
-            role="button" target="_blank">
+          </a>
+        </div>
+        <div class="col-md-6 admin-button">
+          <a href="/admin/events_cultural/attractions/add/" class="btn btn-secondary w-100" target="_blank">
             Добавить достопримечательность
-        </a>
-    </div>
-
-    <div class="col-md-5 mb-2 admin-button">
-        <a href="/admin/events_cultural/events_for_visiting/add/" class="btn btn-secondary w-100"
-            role="button" target="_blank">
+          </a>
+        </div>
+        <div class="col-md-6 admin-button">
+          <a href="/admin/events_cultural/events_for_visiting/add/" class="btn btn-secondary w-100" target="_blank">
             Добавить доступное к посещению
-        </a>
+          </a>
+        </div>
+      </div>
     </div>
-</div>
+  
+    <div class="col-lg-1 d-none d-lg-block"></div>
+  </div>
+  
 
 
 <div class="row">
