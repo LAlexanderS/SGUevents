@@ -235,6 +235,18 @@ def index(request):
         content_type = ContentType.objects.get_for_model(event)
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
+    tags = set()
+
+    for event in events_all:
+        if event.tags:
+            split_tags = event.tags.split('#')
+            for tag in split_tags:
+                cleaned = tag.strip()
+                if cleaned:
+                    tags.add('#' + cleaned)
+
+    tags = list(tags)
+
     context = {
     'name_page': 'Главная',
     'event_card_views': current_page,
@@ -242,7 +254,7 @@ def index(request):
     'liked': liked_slugs,
     'reviews': reviews,
     'registered': registered_dict,
-    'tags': list(set(tag for event in events_all if event.tags for tag in event.tags.split(','))),
+    'tags': tags,
     'f_tags': f_tags, 
     'speakers': speakers,
     'f_speakers': f_speakers,  
