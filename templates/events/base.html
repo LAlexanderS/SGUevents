@@ -183,7 +183,7 @@
                                     Название
                                 </button>
                                 <form action="" method="get" class="dropdown-menu dropdown-filter w-100"
-                                    data-bs-theme="dark" id="name-form">
+                                    data-bs-theme="dark" id="name-form" data-bs-auto-close="outside">
                                     <div class="form-check">
                                         <input class="form-control me-3" type="search" id="event-name-search"
                                             name="name_search" placeholder="Введите название">
@@ -894,6 +894,9 @@
 
     </main>
     
+    
+    <script src="{% static "js/autocomplete.js" %}"></script>
+
     <script src="{% static "js/card_popup_script.js" %}"></script>
 
     <script src="{% static "js/events_registration.js" %}"></script>
