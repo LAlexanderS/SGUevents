@@ -123,6 +123,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector(`input[name="order_by"][value="${savedSortBy}"]`).checked = true
     filterSortValueSpan.textContent = displayValue
     filterSortMessageDiv.classList.remove('hidden')
+
+    document.getElementById('sort-section').style.display = 'block'
   }
 
   const elements = document.querySelectorAll('[data-event-slug]')

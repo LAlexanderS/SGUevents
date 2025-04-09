@@ -161,7 +161,10 @@ input,
 
 #filter-tags-message {
     display: none;
-    /* по умолчанию скрыт */
+}
+
+#sort-section {
+    display: none;
 }
 
 #sort-section {

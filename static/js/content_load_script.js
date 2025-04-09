@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById('delete-date-filter'),
       document.getElementById('delete-time-filter'),
       document.getElementById('delete-speakers-filter'),
-      document.getElementById('delete-tags-filter')
+      document.getElementById('delete-tags-filter'),
+      document.getElementById('delete-sort-filter')
     ]
 
     clearButtons.forEach(btn => {
