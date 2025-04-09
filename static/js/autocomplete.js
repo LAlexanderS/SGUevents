@@ -3,17 +3,36 @@ document.addEventListener('DOMContentLoaded', function () {
     const resultsContainer = document.getElementById('autocomplete-results')
     const form = input.closest('form')
 
-    // Обработка ввода
     input.addEventListener('input', function () {
         const query = input.value.trim()
-        const isOnline = window.location.href.includes('online')
 
+        // ===== 🧠 Определяем контекст категории из URL =====
+        const url = window.location.href
+        let fetchURL = ''
+        let queryParams = ''
+
+        if (url.includes('/online') || url.includes('/offline')) {
+            // Доступные мероприятия (events_available)
+            const isOnline = url.includes('/online')
+            fetchURL = '/events_available/autocomplete/event-name/'
+            queryParams = `term=${encodeURIComponent(query)}&is_online=${isOnline}`
+        } else if (url.includes('/attractions') || url.includes('/events_for_visiting')) {
+            // Культурные мероприятия (events_cultural)
+            const isAttractions = url.includes('/attractions')
+            fetchURL = '/events_cultural/autocomplete/event-name/'
+            queryParams = `term=${encodeURIComponent(query)}&is_attractions=${isAttractions}`
+        } else {
+            // Непонятный тип страницы — выходим
+            return
+        }
+
+        // ===== 🚀 Запрос на автокомплит =====
         if (query.length < 2) {
             resultsContainer.innerHTML = ''
             return
         }
 
-        fetch(`/events_available/autocomplete/event-name/?term=${encodeURIComponent(query)}&is_online=${isOnline}`)
+        fetch(`${fetchURL}?${queryParams}`)
             .then(response => response.json())
             .then(data => {
                 resultsContainer.innerHTML = ''
@@ -28,11 +47,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     item.classList.add('autocomplete-item')
                     item.textContent = name
 
-                    // Используем mousedown и setTimeout, чтобы не конфликтовать с закрытием dropdown
                     item.addEventListener('mousedown', function () {
                         input.value = name
                         resultsContainer.innerHTML = ''
 
+                        // Вызов setNameFilter из filters_selected_script.js
                         if (typeof setNameFilter === 'function') {
                             setNameFilter()
                         }
@@ -50,14 +69,13 @@ document.addEventListener('DOMContentLoaded', function () {
             })
     })
 
-    // Закрытие подсказок при клике вне input
+    // Закрытие подсказок при клике вне input/результатов
     document.addEventListener('click', function (e) {
         if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
             resultsContainer.innerHTML = ''
         }
     })
 
-    // Не закрываем dropdown при клике по результатам
     resultsContainer.addEventListener('mousedown', function (e) {
         e.stopPropagation()
     })
