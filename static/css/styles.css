@@ -1285,7 +1285,7 @@ td {
 .review-text,
 .hashtags {
     /* border: 1px solid #ccc; */
-    padding: 10px;
+    /* padding: 10px;
     padding-top: 0%;
     border-radius: 4px;
     font-family: 'Onest';
@@ -1293,7 +1293,31 @@ td {
     font-weight: 400;
     line-height: 130%;
     letter-spacing: 0%;
+    color: rgb(39, 66, 106); */
+    flex-grow: 1;
+    overflow-y: auto;
+    /* скролл появляется здесь */
+    max-height: 200px;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: 'Onest';
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 130%;
     color: rgb(39, 66, 106);
+    max-height: 150px;
+}
+
+.item {
+    display: inline-block;
+    width: 300px;
+    /* фикс ширина карточки */
+    vertical-align: top;
+    word-wrap: break-word;
 }
 
 .quote {
@@ -3689,12 +3713,19 @@ td {
     }
 
     .review-block.review-block-existent-review {
-        width: 60%;
-        padding-inline: 0;
+        /* width: 60%;
+        padding-inline: 0; */
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 0;
+        /* ключевое: позволяет растягиваться на всё оставшееся */
+        word-wrap: break-word;
+        display: flex;
+        flex-direction: column;
     }
 
-    .page-header {
-        font-size: 22px;
+    .quote-existent-review {
+        display: none;
     }
 
     .arrow-nav-left,
