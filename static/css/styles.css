@@ -159,6 +159,11 @@ input,
     margin-top: 10px;
 }
 
+#filter-tags-message {
+    display: none;
+    /* по умолчанию скрыт */
+}
+
 #sort-section {
     width: fit-content;
     min-height: fit-content;

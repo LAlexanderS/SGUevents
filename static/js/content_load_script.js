@@ -103,18 +103,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Фильтр по тегам
   const storedTags = localStorage.getItem('selectedTags')
+
   if (storedTags) {
     const tags = JSON.parse(storedTags)
-    tags.forEach(tag => {
-      const checkboxes = document.querySelectorAll('input[name="f_tags[]"]') // Выбираем все чекбоксы тегов
-      checkboxes.forEach(checkbox => {
-        if (checkbox.value === tag) { // Сравниваем значения
-          checkbox.checked = true
-        }
+
+    if (Array.isArray(tags) && tags.length > 0) {
+      const checkboxes = document.querySelectorAll('input[name="f_tags[]"]')
+
+      tags.forEach(tag => {
+        checkboxes.forEach(checkbox => {
+          if (checkbox.value === tag) {
+            checkbox.checked = true
+          }
+        })
       })
-    })
+
+      // Только если есть выбранные теги — отображаем и вызываем
+      displaySelectedTags()
+    } else {
+      // Если пустой массив — прячем сообщение
+      const filterTagsMessageDiv = document.getElementById('filter-tags-message')
+      filterTagsMessageDiv.classList.add('hidden')
+    }
+  } else {
+    document.getElementById('filter-tags-message').classList.add('hidden')
   }
-  displaySelectedTags()
+
+
 
   // Отображение сортировки
   const savedSortBy = localStorage.getItem('filterSortBy')

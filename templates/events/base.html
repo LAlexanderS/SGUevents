@@ -893,37 +893,6 @@
         
 
     </main>
-    <script>
-        let currentCategory = ''
-
-        if (url.includes('/online')) {
-          currentCategory = 'online'
-        } else if (url.includes('/offline')) {
-          currentCategory = 'offline'
-        } else if (url.includes('/attractions')) {
-          currentCategory = 'attractions'
-        } else if (url.includes('/events_for_visiting')) {
-          currentCategory = 'for_visiting'
-        }
-
-        const previousCategory = localStorage.getItem('activeCategory')
-
-        if (previousCategory && previousCategory !== currentCategory) {
-          localStorage.removeItem('filterName')
-          localStorage.removeItem('filterStartDate')
-          localStorage.removeItem('filterEndDate')
-          localStorage.removeItem('filterStartTime')
-          localStorage.removeItem('filterEndTime')
-          localStorage.removeItem('selectedSpeakers')
-          localStorage.removeItem('selectedTags')
-          localStorage.removeItem('filterSortBy')
-          localStorage.removeItem('rools-visible')
-        }
-        
-        localStorage.setItem('activeCategory', currentCategory)
-        
-    </script>
-        
     
     <script src="{% static "js/autocomplete.js" %}"></script>
 

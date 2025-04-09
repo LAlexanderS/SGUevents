@@ -205,9 +205,18 @@ function displaySelectedTags() {
   })
 
   filterTagsValueSpan.textContent = selectedTags.join(', ')
-  filterTagsMessageDiv.classList.toggle('hidden', selectedTags.length === 0)
+
+  if (selectedTags.length > 0) {
+    filterTagsMessageDiv.classList.remove('hidden')
+    filterTagsMessageDiv.style.display = 'block'
+  } else {
+    filterTagsMessageDiv.classList.add('hidden')
+    filterTagsMessageDiv.style.display = 'none'
+  }
+
   localStorage.setItem('selectedTags', JSON.stringify(selectedTags))
 }
+
 
 document.getElementById('apply-tags-button').addEventListener('click', displaySelectedTags)
 
