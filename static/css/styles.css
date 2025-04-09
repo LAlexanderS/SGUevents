@@ -720,6 +720,7 @@ button {
     font-weight: 400;
     line-height: 130%;
     letter-spacing: 0%;
+    max-width: 400px;
 }
 
 .event-reviews-link {
@@ -734,6 +735,7 @@ button {
     font-weight: 400;
     line-height: 130%;
     letter-spacing: 0%;
+    text-indent: 20px;
 }
 
 .reviews-link {
