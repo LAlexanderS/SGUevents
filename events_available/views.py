@@ -162,16 +162,25 @@ def online(request):
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
     liked_slugs = [favorite.online.slug for favorite in favorites]
+    
+    tags = set()
 
-    print('LIKED SLUGS:', liked_slugs)
+    for event in all_info:
+        if event.tags:
+            split_tags = event.tags.split('#')
+            for tag in split_tags:
+                cleaned = tag.strip()
+                if cleaned:
+                    tags.add('#' + cleaned)
 
+    tags = list(tags)
 
     context = {
         'name_page': 'Онлайн',
         'event_card_views': current_page,
         'speakers': speakers,
         'events_admin': events_admin,
-        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
+        'tags': tags,
         'favorites': favorites_dict,
         'registered': registered_dict,
         'reviews': reviews,
@@ -376,6 +385,17 @@ def offline(request):
 
     liked_slugs = [favorite.offline.slug for favorite in favorites]
 
+    tags = set()
+
+    for event in all_info:
+        if event.tags:
+            split_tags = event.tags.split('#')
+            for tag in split_tags:
+                cleaned = tag.strip()
+                if cleaned:
+                    tags.add('#' + cleaned)
+
+    tags = list(tags)
    
 
     context = {
@@ -383,7 +403,7 @@ def offline(request):
         'event_card_views': current_page,
         'speakers': speakers,
         'events_admin': events_admin,
-        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
+        'tags': tags,
         'favorites': favorites_dict,
         'registered': registered_dict,
         'reviews': reviews,
