@@ -2620,6 +2620,40 @@ td {
     }
 
     .main-image-mobile {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .main-image-mobile .image-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .main-image-mobile .image-wrapper img {
+        max-width: 100%;
+        display: block;
+        border-radius: 30px;
+    }
+
+    .main-image-mobile .add-to-cart-big {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 6px;
+    }
+
+    .main-image-mobile .add-to-cart-big img {
+        height: 20px;
+        width: 20px;
+    }
+
+    /* .main-image-mobile .hidden {
+        display: none !important;
+    } */
+
+    /* .main-image-mobile {
         margin-top: 20px;
         display: block;
     }
@@ -2628,7 +2662,7 @@ td {
         border-radius: 30px;
         width: 500px;
         height: 334px;
-    }
+    } */
 
     .blocks {
         margin-top: 20px;
