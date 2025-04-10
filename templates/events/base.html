@@ -436,6 +436,18 @@
                     <div class="col-lg-1"></div>
                     <div class="col-lg-1 feed-left-column"></div>
                     <div class="col-lg-10">
+                        <div id="filter-place-message" class="filter-message hidden">
+                            Фильтр по адресу: <span id="filter-place-value"></span>
+                            <button class="delete-filter delete-place-filter" type="submit"
+                                style="border: none; background: none; box-shadow: none;" id="delete-place-filter">
+                                <img src="static/general/icons/cancel-close.svg"
+                                    style="height: 20px; width: 20px; margin-top: 0;">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-1 feed-left-column"></div>
+                    <div class="col-lg-10">
                         <div id="filter-speakers-message" class="filter-message hidden">
                             Выбранные спикеры: <span id="filter-speakers-value"></span>
                             <button class="delete-filter delete-speakers-filter" type="submit"
@@ -685,6 +697,10 @@
                                                 {% for speaker in events.speakers.all %}
                                                     {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
                                                 {% endfor %}
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-5 event-preview-adress">
+                                                <label for="adress" class="preview-speaker">Адрес:</label>
+                                                {% if events.town %}г.{{ events.town }}{% endif %} {% if events.street %}ул.{{ events.street }}{% endif %} {% if events.house %} д.{{ events.house }}{% endif %}{% if events.cabinet %} кабинет {{ events.cabinet }}{% endif %}
                                             </div>
                                         </div>
                                         <div class="event-preview-description">

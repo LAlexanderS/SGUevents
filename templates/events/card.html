@@ -220,15 +220,24 @@
                                         <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
                                     </div>
                                 </div>
+
                                 <div class="info-block connection">
-                                    <div class="title">Подключение</div>
-                                    <div class="info-content">
-                                        {% if event.link %}
-                                            <label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
-                                        {% endif %}
-                                        <label><a href="" class="connection-link open-modal"
-                                                id="openModal">QR-код</a></label>
-                                    </div>
+                                    {% if event.category == "Оффлайн" %}
+                                        <div class="title">Место проведения</div>
+                                        <div class="info-content">
+                                            <label>{% if event.town %}г.{{ event.town }}{% endif %} {% if event.street %}ул.{{ event.street }}{% endif %} {% if event.house %} д.{{ event.house }}{% endif %}{% if event.cabinet %} кабинет {{ event.cabinet }}{% endif %}</label>
+                                        </div>
+                                    {% else %}
+                                        <div class="title">Подключение</div>
+                                        <div class="info-content">
+                                            {% if event.link %}
+                                                <label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
+                                            {% endif %}
+                                            <label><a href="" class="connection-link open-modal"
+                                                    id="openModal">QR-код</a></label>
+                                        </div>
+                                    {% endif %}
+                                    
                                 </div>
                             </div>
                             <div class="row mobile-blocks" style="width: 100%; padding-left: 22px;">
