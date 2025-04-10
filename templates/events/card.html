@@ -14,6 +14,7 @@
         <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
         <link rel="stylesheet" href="{% static "css/styles.css" %}">
         <link rel="stylesheet" href="{% static "css/card.css" %}">
+        <link rel="stylesheet" href="{% static "css/notification.css" %}">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
@@ -703,6 +704,11 @@
         <script src="{% static "js/card_like.js" %}"></script>
         
     
+
+        <!-- Notification ДОБАВЛЕНИЕ В ИЗБРАННЫЕ И УДАЛЕНИЕ ИЗ ИЗБРАННЫХ -->
+        <div id="favoriteNotification" class="notification-toast" style="display: none;">
+            <p></p>
+        </div>
     
     </body>
 

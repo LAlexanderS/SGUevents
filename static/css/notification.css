@@ -17,6 +17,10 @@
     text-align: center;
 }
 
+.notification-toast p {
+    text-indent: 0px;
+}
+
 .notification-toast.fade-in {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
