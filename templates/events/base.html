@@ -336,53 +336,8 @@
                     </div>
                 </div>
                  
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                      const isOffline = window.location.href.includes('/offline');
+                
                     
-                      if (isOffline) {
-                        const row = document.querySelector('#rools .row.filter-events-row');
-                    
-                        // Удаляем .feed-left-column
-                        const leftColumn = row.querySelector('.feed-left-column');
-                        if (leftColumn) {
-                          leftColumn.remove();
-                        }
-                    
-                        // Создаём новый фильтр "Место проведения"
-                        const placeCol = document.createElement('div');
-                        placeCol.classList.add('col-lg-2');
-                        placeCol.innerHTML = `
-                          <div class="dropdown dropdown-button">
-                            <button class="btn btn-secondary dropdown-toggle w-100" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                Адрес
-                            </button>
-                            <form action="" method="get" class="dropdown-menu dropdown-filter w-100"
-                                data-bs-theme="dark" id="place-form">
-                              <div class="form-check">
-                                  <input class="form-control me-3" type="search" id="event-place-search"
-                                      name="place_search" placeholder="Введите адрес">
-                              </div>
-                              <div class="text-center">
-                                  <button class="btn btn-outline-success" type="submit" id="apply-place-button"
-                                      style="margin-top: 10px;">Применить</button>
-                              </div>
-                            </form>
-                          </div>
-                        `;
-                    
-                        // Вставляем его после "Время"
-                        const cols = row.querySelectorAll('.col-lg-2');
-                        for (let i = 0; i < cols.length; i++) {
-                          if (cols[i].innerText.includes('Время')) {
-                            cols[i].after(placeCol);
-                            break;
-                          }
-                        }
-                      }
-                    });
-                    </script>
 
                 <div id="sort-section" class="col-lg-10 dropdown-menu" style="width: fit-content;">
                     <form action="" method="get" id="sort-form">
@@ -941,6 +896,8 @@
         
 
     </main>
+
+    <script src="{% static "js/filter_area_offline_place.js" %}"></script>
     
     <script src="{% static "js/autocomplete.js" %}"></script>
 

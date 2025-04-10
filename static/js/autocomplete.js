@@ -1,3 +1,4 @@
+// Фильтр по названию
 document.addEventListener('DOMContentLoaded', function () {
     const input = document.getElementById('event-name-search')
     const resultsContainer = document.getElementById('autocomplete-results')
@@ -6,27 +7,26 @@ document.addEventListener('DOMContentLoaded', function () {
     input.addEventListener('input', function () {
         const query = input.value.trim()
 
-        // ===== 🧠 Определяем контекст категории из URL =====
+        //  контекст категории из URL 
         const url = window.location.href
         let fetchURL = ''
         let queryParams = ''
 
         if (url.includes('/online') || url.includes('/offline')) {
-            // Доступные мероприятия (events_available)
+            // events_available
             const isOnline = url.includes('/online')
             fetchURL = '/events_available/autocomplete/event-name/'
             queryParams = `term=${encodeURIComponent(query)}&is_online=${isOnline}`
         } else if (url.includes('/attractions') || url.includes('/events_for_visiting')) {
-            // Культурные мероприятия (events_cultural)
+            // events_cultural
             const isAttractions = url.includes('/attractions')
             fetchURL = '/events_cultural/autocomplete/event-name/'
             queryParams = `term=${encodeURIComponent(query)}&is_attractions=${isAttractions}`
         } else {
-            // Непонятный тип страницы — выходим
             return
         }
 
-        // ===== 🚀 Запрос на автокомплит =====
+        // Запрос на автокомплит
         if (query.length < 2) {
             resultsContainer.innerHTML = ''
             return
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
     })
 
-    // Закрытие подсказок при клике вне input/результатов
+    // Закрытие при клике вне input/результатов
     document.addEventListener('click', function (e) {
         if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
             resultsContainer.innerHTML = ''
@@ -79,4 +79,57 @@ document.addEventListener('DOMContentLoaded', function () {
     resultsContainer.addEventListener('mousedown', function (e) {
         e.stopPropagation()
     })
+})
+
+
+// Фильтр по месту проведения (адресу)
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('place-search')
+    const resultsContainer = document.getElementById('place-autocomplete-results')
+    const form = document.getElementById('place-form')
+
+    if (input) {
+        input.addEventListener('input', function () {
+            const query = input.value.trim()
+
+            if (query.length < 2) {
+                resultsContainer.innerHTML = ''
+                return
+            }
+
+            fetch(`/events_available/autocomplete/places/?term=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsContainer.innerHTML = ''
+
+                    if (data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="autocomplete-item">Ничего не найдено</div>'
+                        return
+                    }
+
+                    data.forEach(place => {
+                        const item = document.createElement('div')
+                        item.classList.add('autocomplete-item')
+                        item.textContent = place
+                        item.addEventListener('mousedown', function (e) {
+                            e.preventDefault()
+                            input.value = place
+                            resultsContainer.innerHTML = ''
+                            form.submit()
+                        })
+                        resultsContainer.appendChild(item)
+                    })
+                })
+                .catch(error => {
+                    console.error('Ошибка при автокомплите мест:', error)
+                })
+        })
+
+        // Очистка автокомплита при клике вне
+        document.addEventListener('click', function (e) {
+            if (!input.contains(e.target)) {
+                resultsContainer.innerHTML = ''
+            }
+        })
+    }
 })

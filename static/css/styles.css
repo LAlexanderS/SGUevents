@@ -4544,8 +4544,8 @@ td {
     background-color: #f1f1f1;
 }
 
-@media(min-width: 992px) {
+/* @media(min-width: 992px) {
     .filter-events-row {
         padding-left: 25px;
     }
-}
+} */
