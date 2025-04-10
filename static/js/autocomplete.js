@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Фильтр по месту проведения (адресу)
 document.addEventListener('DOMContentLoaded', function () {
-    const input = document.getElementById('place-search')
+    const input = document.getElementById('event-place-search')
     const resultsContainer = document.getElementById('place-autocomplete-results')
     const form = document.getElementById('place-form')
 
@@ -97,7 +97,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 return
             }
 
-            fetch(`/events_available/autocomplete/places/?term=${encodeURIComponent(query)}`)
+            fetch(`/events_available/autocomplete/places/?term=${encodeURIComponent(query)}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+
                 .then(response => response.json())
                 .then(data => {
                     resultsContainer.innerHTML = ''
@@ -115,7 +120,15 @@ document.addEventListener('DOMContentLoaded', function () {
                             e.preventDefault()
                             input.value = place
                             resultsContainer.innerHTML = ''
-                            form.submit()
+                            localStorage.setItem('filterPlace', place)
+
+                            if (typeof setPlaceFilter === 'function') {
+                                setPlaceFilter()
+                            }
+
+                            setTimeout(() => {
+                                form.submit()
+                            }, 100)
                         })
                         resultsContainer.appendChild(item)
                     })
@@ -133,3 +146,4 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     }
 })
+

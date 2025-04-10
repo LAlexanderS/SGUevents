@@ -45,6 +45,21 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     filterNameMessageDiv.style.display = 'none'
   }
+
+  // Фильтр по месту проведения
+  const savedPlaceValue = localStorage.getItem('filterPlace')
+  const filterPlaceValueSpan = document.getElementById('filter-place-value')
+  const filterPlaceMessageDiv = document.getElementById('filter-place-message')
+  const inputPlaceField = document.getElementById('event-place-search')
+
+  if (savedPlaceValue) {
+    inputPlaceField.value = savedPlaceValue
+    filterPlaceValueSpan.textContent = savedPlaceValue
+    filterPlaceMessageDiv.classList.remove('hidden')
+  } else {
+    filterPlaceMessageDiv.classList.add('hidden')
+  }
+
   // Фильтр по дате
   const savedStartValue = localStorage.getItem('filterStartDate')
   const savedEndValue = localStorage.getItem('filterEndDate')

@@ -39,10 +39,9 @@ document.addEventListener('DOMContentLoaded', function () {
         <form action="" method="get" class="dropdown-menu dropdown-filter w-100"
             data-bs-theme="dark" id="place-form">
             <div class="form-check">
-                <input class="form-control me-3" type="search" id="event-place-search"
-                    name="place_search" placeholder="Введите адрес">
+                <input class="form-control me-3" type="search" id="event-place-search" name="f_place" placeholder="Введите адрес">
             </div>
-            <div id="autocomplete-results" class="autocomplete-results"></div>
+            <div id="place-autocomplete-results" class="autocomplete-results"></div>
             <div class="text-center">
                 <button class="btn btn-outline-success" type="submit" id="apply-place-button"
                     style="margin-top: 10px;">Применить</button>
