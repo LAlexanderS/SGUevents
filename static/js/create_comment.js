@@ -140,6 +140,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Добавление отзыва в карточке мероприятия
     function addReviewToCardPage(eventId, review, formattedDate) {
+        document.querySelector('.comment-title')?.style.setProperty('display', 'block')
+        document.querySelector('.half-stars')?.style.setProperty('display', 'block')
+        document.querySelector('.prev-reviews')?.style.setProperty('display', 'block')
+        document.querySelector('.next-reviews')?.style.setProperty('display', 'block')
+
         const itemsDiv = document.querySelector('.items')
         if (!itemsDiv) {
             console.warn('[DEBUG] Блок .items не найден для карточки мероприятия')
