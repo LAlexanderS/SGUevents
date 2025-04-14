@@ -762,17 +762,22 @@
                                     <div class="modal-body">
                                         <div class="reviews" data-event-id="{{ events.id }}">
                                             {% spaceless %}
-                                                {% for review in reviews|get_item:events.unique_id %}
+                                                {% for review in reviews|get_item:events.unique_id|dictsortreversed:"date_submitted" %}
                                                     {% if review.event.unique_id == events.unique_id %}
                                                         <div class="existent-comment">
                                                             <div class="existent-review">
                                                                 <div class="user-info-existent-review">
-                                                                    <div class="user-icon-existent-review">
+                                                                    
+                                                                    <div class="user-icon-existent-review"> 
                                                                         <img src="{% static "icons/profile-image-default.png" %}" alt="">
                                                                     </div>
+                                                                    
                                                                     <div class="username-existent-review">
                                                                         <div class="user-lastname">{{ review.user.username }}</div>
                                                                     </div>
+                                                                    <div class="review-date-submitted">
+                                                                        {{ review.formatted_date }}
+                                                                    </div> 
                                                                 </div>
                                                                 <div class="review-block review-block-existent-review">
                                                                     {% comment %} <div class="quote quote-existent-review">

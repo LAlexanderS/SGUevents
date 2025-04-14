@@ -104,7 +104,7 @@ class Review(models.Model):
 
     def formatted_date(self):
         local_timezone = pytz_timezone('Asia/Novosibirsk')
-        return self.date_submitted.astimezone(local_timezone).strftime("%d.%m.%y %H:%M")
+        return self.date_submitted.astimezone(local_timezone).strftime("%d.%m.%Y %H:%M")
 
 
 

@@ -1353,9 +1353,13 @@ td {
     margin: auto;
 }
 
-.username-existent-review {
-    text-indent: 10px;
+.review-date-submitted {
+    font-size: 12px;
 }
+
+/* .username-existent-review {
+    text-indent: 10px;
+} */
 
 .quote-existent-review {
     width: 25px;
