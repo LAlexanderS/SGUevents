@@ -1357,6 +1357,10 @@ td {
     font-size: 12px;
 }
 
+.review-date-submitted-mobile {
+    font-size: 8px;
+}
+
 /* .username-existent-review {
     text-indent: 10px;
 } */

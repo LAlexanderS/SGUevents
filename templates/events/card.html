@@ -313,8 +313,8 @@
                                 </div>
                             {% endif %}
                             {% comment %} {% if reviews|get_item:event.unique_id|length > 0 %} {% endcomment %}
-                                <h2 class="comment-title" style="display: none;">что о нас говорят</h2>
-                                <div class="half-stars" style="display: none;">
+                                <h2 class="comment-title" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">что о нас говорят</h2>
+                                <div class="half-stars" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">
                                     <div class="rating-group">
                                         <!-- по умолчанию 0 -->
                                         <input disabled checked name="hsr" value="0" type="radio">
@@ -482,20 +482,21 @@
                                             </div>
                                         {% endfor %}
                                     </div>
-                                    <div class="prev-reviews" style="display: none;" title="Previous"><img src="{% static "icons/arrow-left.png" %}"
+                                    <div class="prev-reviews" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}" title="Previous"><img src="{% static "icons/arrow-left.png" %}"
                                             alt=""></div>
-                                    <div class="next-reviews" title="Next"><img src="{% static "icons/arrow-right.png" %}"
+                                    <div class="next-reviews" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}" title="Next"><img src="{% static "icons/arrow-right.png" %}"
                                             alt=""></div>
                                 </div>
                             
 
-                                <div class="comments-mobile">
-                                    {% for review in reviews|get_item:event.unique_id %}
+                                <div class="comments-mobile" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">
+                                    {% for review in reviews|get_item:event.unique_id|dictsortreversed:"date_submitted" %}
                                         <div class="review-container-mobile">
                                             <div class="user-info-mobile">
                                                 <div class="user-icon-mobile"><img
                                                         src="{% static "icons/profile-image-default.png" %} " alt=""></div>
                                                 <div class="username-mobile">{{ review.user.last_name }} {{ review.user.first_name }}</div>
+                                                <div class="review-date-submitted-mobile">{{ review.formatted_date }}</div> 
                                                 <div class="full-stars-com">
                                                     <div class="rating-group-com">
                                                         <!-- по умолчанию 0 -->
