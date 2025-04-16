@@ -352,7 +352,7 @@ def for_visiting_card(request, event_slug=False, event_id=False):
     favorites_dict = {favorite.for_visiting.slug: favorite.id for favorite in favorites}
 
     registered = Registered.objects.filter(user=request.user, for_visiting__in=events)
-    registered_dict = {reg.for_visiting.slug: reg.id for reg in registered}
+    registered_dict = {reg.for_visiting.id: reg.id for reg in registered}
 
     reviews = {}
     for event_rew in events:

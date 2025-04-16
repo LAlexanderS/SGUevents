@@ -207,11 +207,22 @@
                             <div class="col-lg-1 right-column" style="padding: 0;"></div>
                             <div class="blocks">
                                 <div class="info-block speaker">
-                                    <div class="title">Спикер</div>
+                                    <div class="title">
+                                        {% if event.category != "Доступные к посещению" %} 
+                                            Спикер
+                                        {% else %}
+                                            Свободные места
+                                        {% endif %}
+                                    </div>
                                     <div class="info-content">
-                                        {% for speaker in event.speakers.all %}
-                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                        {% endfor %}
+                                        {% if event.category != "Доступные к посещению" %} 
+                                            {% for speaker in event.speakers.all %}
+                                                {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <span id="free-places-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}                                  
+                                        {% endif %}
+                                        
                                     </div>
                                 </div>
                                 <div class="info-block date-time">
@@ -252,7 +263,13 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <div class="info-title">Спикер</div>
+                                                <div class="info-title">
+                                                    {% if event.category != "Доступные к посещению" %} 
+                                                        Спикер
+                                                    {% else %}
+                                                        Свободных мест
+                                                    {% endif %}
+                                                </div>
                                             </td>
                                             <td style="padding-inline: 0;">
                                                 <div class="info-title">Дата и время</div>
@@ -264,9 +281,13 @@
                                         <tr>
                                             <td class="info-cell">
                                                 <label for="speaker">
-                                                    {% for speaker in event.speakers.all %}
-                                                        {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
+                                                    {% if event.category != "Доступные к посещению" %} 
+                                                        {% for speaker in event.speakers.all %}
+                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <span id="free-places-mobile-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}   
+                                                    {% endif %}
                                                 </label>
                                             </td>
                                             <td class="info-cell"><label for="date">{{ event.date }}</label> <br>
