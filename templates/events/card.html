@@ -14,6 +14,7 @@
         <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
         <link rel="stylesheet" href="{% static "css/styles.css" %}">
         <link rel="stylesheet" href="{% static "css/card.css" %}">
+        <link rel="stylesheet" href="{% static "css/notification.css" %}">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
@@ -57,7 +58,7 @@
                                 </ul>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white" aria-current="page" href={% url "events_calendar:index" %}>Календарь мероприятий</a>
+                                <a class="nav-link text-white calendar" aria-current="page" href={% url "events_calendar:index" %}>Календарь мероприятий</a>
                             </li>
     
                             <li class="nav-item dropdown">
@@ -144,24 +145,25 @@
                         {% endif %}
                     </div>
                     <h1>{{ event.name }}</h1>
+
                     <div class="main-image-mobile" style="text-align: center; text-indent: 0;">
+                        <div class="image-wrapper">
+                            {% if event.image %}
+                                <img src="{{ event.image.url }}" alt="">
+                            {% else %}
+                                <img src="{% static "general/images/img.png" %}" alt="">
+                            {% endif %}
+                    
+                            <a href="#" class="add-to-cart-big to-cart-big-2 {% if event.slug in favorites %}card-remove-from-favorites{% else %}card-add-to-favorites{% endif %}" data-event-slug="{{ event.slug }}">
 
-                        <a href="#" class="add-to-cart-big to-cart-big-2" data-event-slug=""
-                            style="box-shadow: none; border: none; ">
-                            <img class="heart-icon" src="{% static "icons/heart_blue.svg" %}" alt=""
-                                style="height: 20px; box-shadow: none; border-radius: 0;">
-                            <img class="heart-red-icon-card hidden" src="{% static "icons/heart_red.svg" %}" alt=""
-                                tyle="height: 20px; box-shadow: none; border-radius: 0;">
-                        </a> 
+                                <img class="heart-icon {% if event.slug in favorites %}hidden{% endif %}" src="{% static "icons/heart_blue.svg" %}" alt="">
 
-						{% if event.image %}
-                            <img src="{{ event.image.url }}" alt="">
-                        {% else %}
-                            <img src="{% static "general/images/img.png" %}" alt="">
-
-                        {% endif %}
-
+                                <img class="heart-red-icon-card {% if event.slug not in favorites %}hidden{% endif %}" src="{% static "icons/heart_red.svg" %}" alt="">
+                            </a>
+                        </div>
                     </div>
+
+                    
                     <div class="row mt-3" style="margin-bottom: 0; height: 100%; margin-top: 0;">
                         <div class="col-lg-1"></div>
                         <div class="col-lg-10" style="padding-inline: 0;">
@@ -205,11 +207,22 @@
                             <div class="col-lg-1 right-column" style="padding: 0;"></div>
                             <div class="blocks">
                                 <div class="info-block speaker">
-                                    <div class="title">Спикер</div>
+                                    <div class="title">
+                                        {% if event.category != "Доступные к посещению" %} 
+                                            Спикер
+                                        {% else %}
+                                            Свободные места
+                                        {% endif %}
+                                    </div>
                                     <div class="info-content">
-                                        {% for speaker in event.speakers.all %}
-                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                        {% endfor %}
+                                        {% if event.category != "Доступные к посещению" %} 
+                                            {% for speaker in event.speakers.all %}
+                                                {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <span id="free-places-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}                                  
+                                        {% endif %}
+                                        
                                     </div>
                                 </div>
                                 <div class="info-block date-time">
@@ -219,15 +232,24 @@
                                         <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
                                     </div>
                                 </div>
+
                                 <div class="info-block connection">
-                                    <div class="title">Подключение</div>
-                                    <div class="info-content">
-                                        {% if event.link %}
-                                            <label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
-                                        {% endif %}
-                                        <label><a href="" class="connection-link open-modal"
-                                                id="openModal">QR-код</a></label>
-                                    </div>
+                                    {% if event.category == "Оффлайн" %}
+                                        <div class="title">Место проведения</div>
+                                        <div class="info-content">
+                                            <label>{% if event.town %}г.{{ event.town }}{% endif %} {% if event.street %}ул.{{ event.street }}{% endif %} {% if event.house %} д.{{ event.house }}{% endif %}{% if event.cabinet %} кабинет {{ event.cabinet }}{% endif %}</label>
+                                        </div>
+                                    {% else %}
+                                        <div class="title">Подключение</div>
+                                        <div class="info-content">
+                                            {% if event.link %}
+                                                <label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
+                                            {% endif %}
+                                            <label><a href="" class="connection-link open-modal"
+                                                    id="openModal">QR-код</a></label>
+                                        </div>
+                                    {% endif %}
+                                    
                                 </div>
                             </div>
                             <div class="row mobile-blocks" style="width: 100%; padding-left: 22px;">
@@ -241,7 +263,13 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <div class="info-title">Спикер</div>
+                                                <div class="info-title">
+                                                    {% if event.category != "Доступные к посещению" %} 
+                                                        Спикер
+                                                    {% else %}
+                                                        Свободных мест
+                                                    {% endif %}
+                                                </div>
                                             </td>
                                             <td style="padding-inline: 0;">
                                                 <div class="info-title">Дата и время</div>
@@ -253,9 +281,13 @@
                                         <tr>
                                             <td class="info-cell">
                                                 <label for="speaker">
-                                                    {% for speaker in event.speakers.all %}
-                                                        {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
+                                                    {% if event.category != "Доступные к посещению" %} 
+                                                        {% for speaker in event.speakers.all %}
+                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <span id="free-places-mobile-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}   
+                                                    {% endif %}
                                                 </label>
                                             </td>
                                             <td class="info-cell"><label for="date">{{ event.date }}</label> <br>
@@ -274,7 +306,7 @@
                             <div class="event-hashtags">
                                 <div class="hashtags"
                                     style="text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 500; text-indent: 0;">
-                                    <span>#САДД</span>
+                                    <span>{{event.tags}}</span>
                                 </div>
                             </div>
                         
@@ -301,9 +333,9 @@
                                     <span class="dot"></span>
                                 </div>
                             {% endif %}
-                            {% if reviews|get_item:event.unique_id|length > 0 %}
-                                <h2 class="comment-title">что о нас говорят</h2>
-                                <div class="half-stars">
+                            {% comment %} {% if reviews|get_item:event.unique_id|length > 0 %} {% endcomment %}
+                                <h2 class="comment-title" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">что о нас говорят</h2>
+                                <div class="half-stars" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">
                                     <div class="rating-group">
                                         <!-- по умолчанию 0 -->
                                         <input disabled checked name="hsr" value="0" type="radio">
@@ -401,7 +433,7 @@
                                 </div>
                                 <div class="review-container review-container-large" style="text-indent: 0;">
                                     <div class="items">
-                                        {% for review in reviews|get_item:event.unique_id %}
+                                        {% for review in reviews|get_item:event.unique_id|dictsortreversed:"date_submitted" %}
                                             <div class="item item{{forloop.counter}}">
                                                 <div class="review">
                                                     <div class="user-info">
@@ -409,6 +441,7 @@
                                                             <img src="{% static "icons/profile-image-default.png" %}" alt="">
                                                         </div>
                                                         <div class="username">{{ review.user.last_name }} {{ review.user.first_name }}</div>
+                                                        <div class="review-date-submitted">{{ review.formatted_date }}</div> 
                                                         <div class="full-stars-com">
                                                             <div class="rating-group-com">
                                                                 <!-- по умолчанию 0 -->
@@ -470,20 +503,21 @@
                                             </div>
                                         {% endfor %}
                                     </div>
-                                    <div class="prev-reviews" title="Previous"><img src="{% static "icons/arrow-left.png" %}"
+                                    <div class="prev-reviews" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}" title="Previous"><img src="{% static "icons/arrow-left.png" %}"
                                             alt=""></div>
-                                    <div class="next-reviews" title="Next"><img src="{% static "icons/arrow-right.png" %}"
+                                    <div class="next-reviews" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}" title="Next"><img src="{% static "icons/arrow-right.png" %}"
                                             alt=""></div>
                                 </div>
                             
 
-                                <div class="comments-mobile">
-                                    {% for review in reviews|get_item:event.unique_id %}
+                                <div class="comments-mobile" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">
+                                    {% for review in reviews|get_item:event.unique_id|dictsortreversed:"date_submitted" %}
                                         <div class="review-container-mobile">
                                             <div class="user-info-mobile">
                                                 <div class="user-icon-mobile"><img
                                                         src="{% static "icons/profile-image-default.png" %} " alt=""></div>
                                                 <div class="username-mobile">{{ review.user.last_name }} {{ review.user.first_name }}</div>
+                                                <div class="review-date-submitted-mobile">{{ review.formatted_date }}</div> 
                                                 <div class="full-stars-com">
                                                     <div class="rating-group-com">
                                                         <!-- по умолчанию 0 -->
@@ -542,7 +576,7 @@
                                         </div>
                                     {% endfor %}
                                 </div>
-                            {% endif %}
+                            {% comment %} {% endif %} {% endcomment %}
 
                             {% if event.documents %}
                                 <div style="text-align: center; text-indent: 0;" class="docs">
@@ -551,13 +585,15 @@
                                         download>Документы</a>
                                 </div>
                             {% endif %}
-    
-                            <div style="text-align: center; text-indent: 0;" class="docs">
-                                <img src="{% static "icons/tg-link.png" %}" alt="" style="max-height: 30px; width: auto;"
-                                    class="paperclip"><a class="telegram-link" href="" target="_blank" download>Чат в
-                                    telegram</a>
-                            </div>
-    
+                            
+                            {% if event.users_chat_id %}
+                                <div style="text-align: center; text-indent: 0;" class="docs">
+                                    <img src="{% static "icons/tg-link.png" %}" alt="" style="max-height: 30px; width: auto;"
+                                        class="paperclip"><a class="telegram-link" href="{{ event.users_chat_id }}" target="_blank">Чат в
+                                        telegram</a>
+                                </div>
+                            {% endif %}
+                         
                             <div class="row mob-row">
                                 <div class="col-lg-3 buttons-3"></div>
                                 <div class="col-lg-6 main-buttons">
@@ -693,7 +729,21 @@
         <script src="{% static "js/card_like.js" %}"></script>
         
     
+
+        <!-- Notification ДОБАВЛЕНИЕ В ИЗБРАННЫЕ И УДАЛЕНИЕ ИЗ ИЗБРАННЫХ -->
+        <div id="favoriteNotification" class="notification-toast" style="display: none;">
+            <p></p>
+        </div>
+
+        <!-- Notification for Registration -->
+        <div id="registrationNotification" class="notification-toast" style="display: none;">
+            <p></p>
+        </div>
     
+        <!-- Notification for Review-->
+        <div id="reviewNotification" class="notification-toast" style="display: none;">
+            <p></p>
+        </div>
     </body>
 
 </html>

@@ -67,6 +67,11 @@ function handleRegister(event) {
                     freePlacesElement.textContent = data.place_free
                 }
 
+                const freePlacesElementMobile = document.getElementById(`free-places-mobile-${data.event_slug}`)
+                if (freePlacesElement) {
+                    freePlacesElementMobile.textContent = data.place_free
+                }
+
                 showRegistrationNotification("Зарегистрировано")
             } else {
                 console.error('Ошибка при регистрации:', data.error)
@@ -113,6 +118,11 @@ function handleUnregister(event) {
                 const freePlacesElement = document.getElementById(`free-places-${data.event_slug}`)
                 if (freePlacesElement) {
                     freePlacesElement.textContent = data.place_free
+                }
+
+                const freePlacesElementMobile = document.getElementById(`free-places-mobile-${data.event_slug}`)
+                if (freePlacesElement) {
+                    freePlacesElementMobile.textContent = data.place_free
                 }
 
                 showRegistrationNotification("Регистрация отменена")

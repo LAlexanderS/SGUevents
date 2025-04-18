@@ -1,0 +1,42 @@
+.notification-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #198754;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.3s ease;
+    font-weight: 500;
+    max-width: 300px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.notification-toast p {
+    text-indent: 0px;
+}
+
+.notification-toast.fade-in {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.notification-toast.fade-out {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+}
+
+@media (max-width: 480px) {
+    .notification-toast {
+        max-width: 90%;
+        white-space: normal;
+        word-break: break-word;
+        font-size: 14px;
+        padding: 12px;
+    }
+}

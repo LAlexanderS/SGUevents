@@ -85,7 +85,7 @@ header {
 }
 
 div {
-    text-indent: 20px;
+    /* text-indent: 20px; */
     line-height: 2;
     text-align: justify;
 
@@ -157,6 +157,14 @@ input,
     padding-inline: 20px;
     text-indent: 0;
     margin-top: 10px;
+}
+
+#filter-tags-message {
+    display: none;
+}
+
+#sort-section {
+    display: none;
 }
 
 #sort-section {
@@ -644,6 +652,7 @@ button {
 }
 
 .event-preview-photo {
+    text-indent: 20px;
     position: relative;
     /* Родительский элемент для позиционирования */
     border-radius: 25px;
@@ -719,6 +728,7 @@ button {
     font-weight: 400;
     line-height: 130%;
     letter-spacing: 0%;
+    max-width: 400px;
 }
 
 .event-reviews-link {
@@ -733,6 +743,7 @@ button {
     font-weight: 400;
     line-height: 130%;
     letter-spacing: 0%;
+    text-indent: 20px;
 }
 
 .reviews-link {
@@ -1278,14 +1289,24 @@ td {
 
 .review-block {
     display: flex;
-    max-height: 200px;
-    overflow-y: hidden;
 }
+
 
 .review-text,
 .hashtags {
+    /* border: 1px solid #ccc; */
+    /* padding: 10px;
+    padding-top: 0%;
+    border-radius: 4px;
+    font-family: 'Onest';
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 130%;
+    letter-spacing: 0%;
+    color: rgb(39, 66, 106); */
     flex-grow: 1;
     overflow-y: auto;
+    /* скролл появляется здесь */
     max-height: 200px;
     min-width: 0;
     overflow-wrap: break-word;
@@ -1299,16 +1320,15 @@ td {
     line-height: 130%;
     color: rgb(39, 66, 106);
     max-height: 150px;
-
 }
 
 .item {
     display: inline-block;
     width: 300px;
+    /* фикс ширина карточки */
     vertical-align: top;
     word-wrap: break-word;
 }
-
 
 .quote {
     text-indent: 0;
@@ -1333,9 +1353,25 @@ td {
     margin: auto;
 }
 
+.review-date-submitted {
+    font-size: 12px;
+}
+
+.review-date-submitted-mobile {
+    font-size: 8px;
+}
+
+/* .username-existent-review {
+    text-indent: 10px;
+} */
+
 .quote-existent-review {
     width: 25px;
     height: auto;
+}
+
+.review-text-existent-review {
+    font-size: 18px;
 }
 
 .rating-container {
@@ -2626,6 +2662,40 @@ td {
     }
 
     .main-image-mobile {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .main-image-mobile .image-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .main-image-mobile .image-wrapper img {
+        max-width: 100%;
+        display: block;
+        border-radius: 30px;
+    }
+
+    .main-image-mobile .add-to-cart-big {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 6px;
+    }
+
+    .main-image-mobile .add-to-cart-big img {
+        height: 20px;
+        width: 20px;
+    }
+
+    /* .main-image-mobile .hidden {
+        display: none !important;
+    } */
+
+    /* .main-image-mobile {
         margin-top: 20px;
         display: block;
     }
@@ -2634,7 +2704,7 @@ td {
         border-radius: 30px;
         width: 500px;
         height: 334px;
-    }
+    } */
 
     .blocks {
         margin-top: 20px;
@@ -3383,7 +3453,8 @@ td {
     }
 
     .col-lg-2,
-    .dropdown {
+    .dropdown,
+    .calendar {
         text-indent: 17px;
     }
 
@@ -3648,7 +3719,6 @@ td {
         padding-top: 0;
         font-size: 14px;
         width: fit-content;
-        text-indent: 10px;
     }
 
     .quote-existent-review {
@@ -3674,10 +3744,6 @@ td {
 
     .quote-existent-review {
         display: none;
-    }
-
-    .page-header {
-        font-size: 22px;
     }
 
     .arrow-nav-left,
@@ -4118,6 +4184,7 @@ td {
         width: 25%;
     }
 
+
     .user-icon img {
         height: 30px;
         width: 30px;
@@ -4356,7 +4423,7 @@ td {
         box-shadow: none;
     }
 
-
+    /* либо оставить так, либо заменить свойство hover на focus */
     .selection-icon:active {
         height: 44px;
         width: 44px;
@@ -4400,7 +4467,9 @@ td {
     gap: 15px;
     width: 100%;
     flex-wrap: nowrap;
+    /* Запрещаем перенос элементов */
     align-items: stretch;
+    /* Все элементы одинаковой высоты */
 }
 
 .user-info-existent-review {
@@ -4412,13 +4481,7 @@ td {
     max-width: 120px;
     overflow: hidden;
     flex-shrink: 0;
-}
-
-@media (max-width: 480px) {
-    .user-info-existent-review {
-        min-width: 80px !important;
-        max-width: 80px !important;
-    }
+    /* Запрещаем уменьшение размера */
 }
 
 .username-existent-review {
@@ -4435,41 +4498,28 @@ td {
 
 .review-block-existent-review {
     flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: 0;
+    max-width: calc(100% - 150px);
+    /* Ограничиваем размер отзыва */
     word-wrap: break-word;
     overflow-wrap: break-word;
     display: flex;
     flex-direction: column;
-    border: 1px dashed rgb(39, 66, 106);
-    padding: 10px;
-    border-radius: 8px;
-    min-width: 0;
 }
-
 
 .review-text-existent-review {
+    display: block;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
     text-align: left;
-    align-self: flex-start;
-    justify-self: flex-start;
-    margin-top: 0;
-    margin-left: 0;
-    padding: 0;
-    overflow: visible;
+    font-size: 16px;
+    max-width: 100%;
+    overflow: hidden;
 }
-
-.review-divider {
-    height: 2px;
-    background-color: rgb(255, 255, 255);
-    border: none;
-    margin: 16px -1rem;
-    width: calc(100% + 2rem);
-}
-
-
 
 .review-quote {
     align-self: flex-start;
+    /* Размещаем кавычки сверху */
     font-size: 20px;
 }
 
@@ -4477,9 +4527,33 @@ td {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22' /%3E%3C/svg%3E");
 }
 
-
-.user-lastname {
+.autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1051;
     width: 100%;
-    text-align: center;
-    text-indent: 0px;
+    max-height: 200px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    overflow-y: auto;
+    color: black;
+    font-size: 14px;
 }
+
+.autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.autocomplete-item:hover {
+    background-color: #f1f1f1;
+}
+
+/* @media(min-width: 992px) {
+    .filter-events-row {
+        padding-left: 25px;
+    }
+} */

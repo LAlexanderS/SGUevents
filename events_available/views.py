@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from bookmarks.models import Review
 from users.models import Department, User
 from django.db.models import Q
-from django.db.models import CharField, Value
+from django.db.models import CharField, Value, F
 from django.db.models.functions import Concat
 from django.utils.timezone import now
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -162,16 +162,25 @@ def online(request):
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
     liked_slugs = [favorite.online.slug for favorite in favorites]
+    
+    tags = set()
 
-    print('LIKED SLUGS:', liked_slugs)
+    for event in all_info:
+        if event.tags:
+            split_tags = event.tags.split('#')
+            for tag in split_tags:
+                cleaned = tag.strip()
+                if cleaned:
+                    tags.add('#' + cleaned)
 
+    tags = list(tags)
 
     context = {
         'name_page': 'Онлайн',
         'event_card_views': current_page,
         'speakers': speakers,
         'events_admin': events_admin,
-        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
+        'tags': tags,
         'favorites': favorites_dict,
         'registered': registered_dict,
         'reviews': reviews,
@@ -228,7 +237,11 @@ def offline(request):
     f_date = request.GET.getlist('f_date', None)
     f_speakers = request.GET.getlist('f_speakers', None)
     f_tags = request.GET.getlist('f_tags', None)
-    f_place = request.GET.get('f_place', None)
+    f_place = (
+    request.GET.get('f_place') or
+    request.GET.get('place_search') or
+    request.GET.get('term')
+    )
     order_by = request.GET.get('order_by', None)
     query = request.GET.get('q', None)
     query_name = request.GET.get('qn', None)
@@ -345,7 +358,13 @@ def offline(request):
 
     if f_place:
         events_available = events_available.annotate(
-            full_place=Concat('town', Value(' '), 'street', Value(' '), 'house', Value(' '), 'cabinet', output_field=CharField())
+            full_place=Concat(
+                F('town'), Value(' '),
+                F('street'), Value(' '),
+                F('house'), Value(' '),
+                F('cabinet'),
+                output_field=CharField()
+            )
         ).filter(full_place__icontains=f_place)
 
     paginator = Paginator(events_available, 5)
@@ -376,6 +395,17 @@ def offline(request):
 
     liked_slugs = [favorite.offline.slug for favorite in favorites]
 
+    tags = set()
+
+    for event in all_info:
+        if event.tags:
+            split_tags = event.tags.split('#')
+            for tag in split_tags:
+                cleaned = tag.strip()
+                if cleaned:
+                    tags.add('#' + cleaned)
+
+    tags = list(tags)
    
 
     context = {
@@ -383,7 +413,7 @@ def offline(request):
         'event_card_views': current_page,
         'speakers': speakers,
         'events_admin': events_admin,
-        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
+        'tags': tags,
         'favorites': favorites_dict,
         'registered': registered_dict,
         'reviews': reviews,
@@ -431,15 +461,26 @@ def offline_card(request, event_slug=False, event_id=False):
     return render(request, 'events_available/card.html', context=context)
 
 def autocomplete_places(request):
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        query = request.GET.get('term', '')
-        places = Events_offline.objects.filter(
-            Q(town__icontains=query) | Q(street__icontains=query) | Q(house__icontains=query) | Q(cabinet__icontains=query)
-        ).values_list('town', flat=True).distinct()
-        places_list = list(places)
-        return JsonResponse(places_list, safe=False)
-    else:
-        return JsonResponse({"error": "Invalid request"}, status=400)    
+    query = request.GET.get('term', '')
+    if not query:
+        return JsonResponse([], safe=False)
+
+    places = Events_offline.objects.annotate(
+        full_address=Concat(
+            F('town'), Value(' '),
+            F('street'), Value(' '),
+            F('house'), Value(' '),
+            F('cabinet'),
+            output_field=CharField()
+        )
+    ).filter(
+        Q(town__icontains=query) |
+        Q(street__icontains=query) |
+        Q(house__icontains=query) |
+        Q(cabinet__icontains=query)
+    ).values_list('full_address', flat=True).distinct()[:10]
+
+    return JsonResponse(list(places), safe=False) 
 
 @login_required
 @csrf_exempt

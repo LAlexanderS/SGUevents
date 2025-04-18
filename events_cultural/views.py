@@ -129,15 +129,24 @@ def attractions(request):
         content_type = ContentType.objects.get_for_model(event)
         reviews[event.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
-    # Список тегов
-    tags = list(set(tag for event in all_info if event.tags for tag in event.tags.split(',')))
-
     results = Attractions.objects.annotate(
     full_address=Concat('town', Value(' '), 'street', Value(' '), 'house', output_field=CharField())
     ).values_list('full_address', flat=True)
     results = sorted(set(results))
 
     liked_slugs = [favorite.attractions.slug for favorite in favorites]
+
+    tags = set()
+
+    for event in all_info:
+        if event.tags:
+            split_tags = event.tags.split('#')
+            for tag in split_tags:
+                cleaned = tag.strip()
+                if cleaned:
+                    tags.add('#' + cleaned)
+
+    tags = list(tags)
 
 
     context = {
@@ -300,6 +309,17 @@ def events_for_visiting(request):
 
     liked_slugs = [favorite.for_visiting.slug for favorite in favorites]
 
+    tags = set()
+
+    for event in all_info:
+        if event.tags:
+            split_tags = event.tags.split('#')
+            for tag in split_tags:
+                cleaned = tag.strip()
+                if cleaned:
+                    tags.add('#' + cleaned)
+
+    tags = list(tags)
 
     context = {
         'name_page': 'Доступные к посещению',
@@ -308,7 +328,7 @@ def events_for_visiting(request):
         'registered': registered_dict,
         'reviews': reviews,
         'events_admin': events_admin,
-        'tags': list(set(tag for event in all_info if event.tags for tag in event.tags.split(','))),
+        'tags': tags,
         'time_to_start': time_to_start,
         'time_to_end': time_to_end,
         "date_start": date_start,
@@ -332,7 +352,7 @@ def for_visiting_card(request, event_slug=False, event_id=False):
     favorites_dict = {favorite.for_visiting.slug: favorite.id for favorite in favorites}
 
     registered = Registered.objects.filter(user=request.user, for_visiting__in=events)
-    registered_dict = {reg.for_visiting.slug: reg.id for reg in registered}
+    registered_dict = {reg.for_visiting.id: reg.id for reg in registered}
 
     reviews = {}
     for event_rew in events:

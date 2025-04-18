@@ -205,9 +205,18 @@ function displaySelectedTags() {
   })
 
   filterTagsValueSpan.textContent = selectedTags.join(', ')
-  filterTagsMessageDiv.classList.toggle('hidden', selectedTags.length === 0)
+
+  if (selectedTags.length > 0) {
+    filterTagsMessageDiv.classList.remove('hidden')
+    filterTagsMessageDiv.style.display = 'block'
+  } else {
+    filterTagsMessageDiv.classList.add('hidden')
+    filterTagsMessageDiv.style.display = 'none'
+  }
+
   localStorage.setItem('selectedTags', JSON.stringify(selectedTags))
 }
+
 
 document.getElementById('apply-tags-button').addEventListener('click', displaySelectedTags)
 
@@ -223,7 +232,40 @@ function clearTagsFilter() {
   document.getElementById('tags-form').submit()
 }
 
-document.getElementById('delete-tags-filter').addEventListener('click', clearTagsFilter);
+document.getElementById('delete-tags-filter').addEventListener('click', clearTagsFilter)
 
+
+function setPlaceFilter() {
+  const input = document.getElementById('event-place-search')
+  const value = input.value.trim()
+
+  const filterValueSpan = document.getElementById('filter-place-value')
+  const filterMessageDiv = document.getElementById('filter-place-message')
+
+  if (value) {
+    filterValueSpan.textContent = value
+    filterMessageDiv.classList.remove('hidden')
+    localStorage.setItem('filterPlace', value)
+  } else {
+    filterMessageDiv.classList.add('hidden')
+  }
+}
+
+document.getElementById('apply-place-button')?.addEventListener('click', setPlaceFilter)
+
+function clearPlaceFilter() {
+  const input = document.getElementById('event-place-search')
+  const filterValueSpan = document.getElementById('filter-place-value')
+  const filterMessageDiv = document.getElementById('filter-place-message')
+
+  input.value = ''
+  filterValueSpan.textContent = ''
+  filterMessageDiv.classList.add('hidden')
+
+  localStorage.removeItem('filterPlace')
+  document.getElementById('place-form').submit()
+}
+
+document.getElementById('delete-place-filter')?.addEventListener('click', clearPlaceFilter)
 
 

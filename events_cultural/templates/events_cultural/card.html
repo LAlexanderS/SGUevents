@@ -34,7 +34,7 @@
 <div class="row">
 	{% if event.category == "Доступные к посещению" %}
 		<div class="col-lg-6 main-button" style="text-align: center;">
-			{% if event.date >= now %}
+			{% if event.date >= now or request.user in event.member.all %}
 				{% if event.id in registered %}
 					<a href="#" class="btn btn-remove_app card-button" data-event-id="{{ registered|get_item:event.id }}">
 						Отмена регистрации
