@@ -10,41 +10,65 @@ from django.db.models.expressions import Func
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db.models import Q, F
 
+from django.contrib.postgres.search import (
+    SearchVector, SearchQuery, SearchRank, SearchHeadline, TrigramSimilarity
+)
+from django.db.models import Q, F, Value, CharField
+from django.db.models.functions import Greatest
+from django.db.models import Func
+
 def q_search_online(query):
-    # Поиск по ID, если запрос состоит только из цифр
     if query.isdigit() and len(query) <= 5:
         return Events_online.objects.filter(id=int(query))
 
-    # Создаем поиск с использованием конфигурации russian_conf
-    vector = SearchVector("name", config='russian_conf', weight='A') + SearchVector("description", config='russian_conf', weight='B')
-    query_search = SearchQuery(query, config='russian_conf')
+    query_ru = SearchQuery(query, config='russian_conf', search_type='websearch')
+    query_en = SearchQuery(query, config='english', search_type='websearch')
 
-    # Выполняем поиск по схожести и релевантности
+    vector_ru = SearchVector('name', weight='A', config='russian_conf') + \
+                SearchVector('description', weight='B', config='russian_conf')
+
+    vector_en = SearchVector('name', weight='A', config='english') + \
+                SearchVector('description', weight='B', config='english')
+
     result = Events_online.objects.annotate(
-        rank=SearchRank(vector, query_search)  # Оценка релевантности
+        rank_ru=SearchRank(vector_ru, query_ru),
+        rank_en=SearchRank(vector_en, query_en),
+        total_rank=Greatest(F('rank_ru'), F('rank_en'))
     ).filter(
-        rank__gt=0  # Отфильтровываем результаты с релевантностью больше 0
-    ).order_by('-rank')  # Сортировка по релевантности
+        Q(rank_ru__gt=0.0) | Q(rank_en__gt=0.0)
+    ).order_by('-total_rank')
 
-    # Добавляем подсветку найденных ключевых слов
+    if not result.exists():
+        result = Events_online.objects.annotate(
+            similarity=TrigramSimilarity('name', query)
+        ).filter(similarity__gt=0.3).order_by('-similarity')
+
+    if not result.exists():
+        result = Events_online.objects.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        ).order_by('-date_add')
+
     result = result.annotate(
         headline_name=SearchHeadline(
-            "name",
-            query_search,
-            config="russian_conf",  # Используем нашу конфигурацию
-            start_sel='<span style="background-color: yellow;">',
-            stop_sel="</span>",
+            F('name'),
+            query_ru,
+            config='russian_conf',
+            start_sel='<span style="background-color: #99AABC;">',
+            stop_sel='</span>',
+            max_fragments=0
         ),
         headline_description=SearchHeadline(
-            "description",
-            query_search,
-            config="russian_conf",  # Используем нашу конфигурацию
-            start_sel='<span style="background-color: yellow;">',
-            stop_sel="</span>",
+            F('description'),
+            query_ru,
+            config='russian_conf',
+            start_sel='<span style="background-color: #99AABC;">',
+            stop_sel='</span>',
+            max_fragments=0
         )
     )
 
     return result
+
 
 
     
@@ -60,36 +84,52 @@ def q_search_online(query):
 
 	
 def q_search_offline(query):
-    # Поиск по ID, если запрос состоит только из цифр
     if query.isdigit() and len(query) <= 5:
         return Events_offline.objects.filter(id=int(query))
 
-    # Создаем поиск с использованием конфигурации russian_conf
-    vector = SearchVector("name", config='russian_conf', weight='A') + SearchVector("description", config='russian_conf', weight='B')
-    query_search = SearchQuery(query, config='russian_conf')
+    query_ru = SearchQuery(query, config='russian_conf', search_type='websearch')
+    query_en = SearchQuery(query, config='english', search_type='websearch')
 
-    # Выполняем поиск по схожести и релевантности
+    vector_ru = SearchVector('name', weight='A', config='russian_conf') + \
+                SearchVector('description', weight='B', config='russian_conf')
+
+    vector_en = SearchVector('name', weight='A', config='english') + \
+                SearchVector('description', weight='B', config='english')
+
     result = Events_offline.objects.annotate(
-        rank=SearchRank(vector, query_search)  # Оценка релевантности
+        rank_ru=SearchRank(vector_ru, query_ru),
+        rank_en=SearchRank(vector_en, query_en),
+        total_rank=Greatest(F('rank_ru'), F('rank_en'))
     ).filter(
-        rank__gt=0  # Отфильтровываем результаты с релевантностью больше 0
-    ).order_by('-rank')  # Сортировка по релевантности
+        Q(rank_ru__gt=0.0) | Q(rank_en__gt=0.0)
+    ).order_by('-total_rank')
 
-    # Добавляем подсветку найденных ключевых слов
+    if not result.exists():
+        result = Events_offline.objects.annotate(
+            similarity=TrigramSimilarity('name', query)
+        ).filter(similarity__gt=0.3).order_by('-similarity')
+
+    if not result.exists():
+        result = Events_offline.objects.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        ).order_by('-date_add')
+
     result = result.annotate(
         headline_name=SearchHeadline(
-            "name",
-            query_search,
-            config="russian_conf",  # Используем нашу конфигурацию
-            start_sel='<span style="background-color: yellow;">',
-            stop_sel="</span>",
+            F('name'),
+            query_ru,
+            config='russian_conf',
+            start_sel='<span style="background-color: #99AABC;">',
+            stop_sel='</span>',
+            max_fragments=0
         ),
         headline_description=SearchHeadline(
-            "description",
-            query_search,
-            config="russian_conf",  # Используем нашу конфигурацию
-            start_sel='<span style="background-color: yellow;">',
-            stop_sel="</span>",
+            F('description'),
+            query_ru,
+            config='russian_conf',
+            start_sel='<span style="background-color: #99AABC;">',
+            stop_sel='</span>',
+            max_fragments=0
         )
     )
 
