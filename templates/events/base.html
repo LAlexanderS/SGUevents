@@ -681,20 +681,20 @@
 
                                         <div class="row">
                                             <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
-                                                <p class="preview-date">
+                                                <div class="preview-date">
                                                     {% if events.category  != 'Достопримечательности' %}
                                                     <h6 class="card-date"> 
                                                         {% if events.date != events.date_end %}
-                                                            <split class="card-day"><b>{{ events.date }} - {{ events.date_end }}</b></split> 
+                                                            <split class="card-day"><b>Дата: {{ events.formatted_date_range }}</b></split> 
                                                         {% else %}
                                                             <split class="card-day"><b>{{ events.date }}</b></split> 
                                                         {% endif %}
                                                     </h6> 
                                                 {% endif %}
-                                                </p>
+                                                </div>
                                                 <p class="preview-time">
                                                     {% if events.time_start != events.time_end %}
-                                                        <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> 
+                                                        <split class="card-time">Время: {{ events.time_start }} - {{ events.time_end }}</split> 
                                                     {% else %}
                                                         <split class="card-time">{{ events.time_start }}</split> 
                                                     {% endif %}

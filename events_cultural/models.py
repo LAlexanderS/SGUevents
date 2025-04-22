@@ -59,6 +59,14 @@ class Attractions(models.Model):
 
     def display_id(self):
         return f'{self.id:05}'
+    
+    def formatted_date_range(self):
+        if self.date_end and self.date != self.date_end:
+            start_str = self.date.strftime('%d.%m')
+            end_str = self.date_end.strftime('%d.%m')
+            return f'{start_str} - {end_str}'
+        else:
+            return self.date.strftime('%d.%m.%Y')
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -135,6 +143,14 @@ class Events_for_visiting(models.Model):
 
     def display_id(self):
         return f'{self.id:05}'
+    
+    def formatted_date_range(self):
+        if self.date_end and self.date != self.date_end:
+            start_str = self.date.strftime('%d.%m')
+            end_str = self.date_end.strftime('%d.%m')
+            return f'{start_str} - {end_str}'
+        else:
+            return self.date.strftime('%d.%m.%Y')
 
     def save(self, *args, **kwargs):
         self.clean()

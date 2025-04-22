@@ -84,6 +84,14 @@ class Events_online(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
 
+    def formatted_date_range(self):
+        if self.date_end and self.date != self.date_end:
+            start_str = self.date.strftime('%d.%m')
+            end_str = self.date_end.strftime('%d.%m')
+            return f'{start_str} - {end_str}'
+        else:
+            return self.date.strftime('%d.%m.%Y')
+
     # Сохраняем временную зону и дату для событий
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
@@ -163,9 +171,19 @@ class Events_offline(models.Model):
     def display_id(self):
         return f'{self.id:05}'
 
+    def formatted_date_range(self):
+        if self.date_end and self.date != self.date_end:
+            start_str = self.date.strftime('%d.%m')
+            end_str = self.date_end.strftime('%d.%m')
+            return f'{start_str} - {end_str}'
+        else:
+            return self.date.strftime('%d.%m.%Y')
+        
     def save(self, *args, **kwargs):
         self.clean()
 
+    
+        
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
         
@@ -178,6 +196,8 @@ class Events_offline(models.Model):
 
         combined_end_datetime = datetime.combine(self.date, self.time_end)
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
+
+        
 
         super(Events_offline, self).save(*args, **kwargs)
 
