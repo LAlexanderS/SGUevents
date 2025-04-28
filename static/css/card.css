@@ -205,7 +205,8 @@ h1 {
     display: none;
 }
 
-.docs-link, .telegram-link {
+.docs-link,
+.telegram-link {
     text-align: center;
     margin-top: 0;
     margin-bottom: 20px;
@@ -237,6 +238,14 @@ h1 {
     right: 0px;
     font-size: 24px;
     cursor: pointer;
+}
+
+
+.card-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
 }
 
 
@@ -522,7 +531,8 @@ h1 {
         display: block;
     }
 
-    .docs-link, .telegram-link {
+    .docs-link,
+    .telegram-link {
         text-align: center;
         margin-top: 0;
         margin-bottom: 20px;
@@ -538,8 +548,11 @@ h1 {
         color: rgb(39, 66, 106);
     }
 
-    .docs .paperclip{
+    .docs .paperclip {
         height: 20px;
     }
 
+    .card-button {
+        width: 120px;
+    }
 }

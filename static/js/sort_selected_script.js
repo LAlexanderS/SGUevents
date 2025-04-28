@@ -50,7 +50,7 @@ function setSortFilter() {
     localStorage.setItem('filterSortBy', selectedSortRadio.value)
     document.getElementById('sort-form').submit()
 }
-}
+
 
 function clearSortFilter() {
     // Получаем все радио-кнопки и элементы для отображения

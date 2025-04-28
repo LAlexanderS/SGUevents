@@ -227,11 +227,8 @@ button {
     position: absolute;
     background-color: rgba(217, 217, 217, 0.8);
     z-index: 1;
-    padding-top: 10px;
-    padding-right: 5px;
-    padding-bottom: 1px;
-    padding-left: 0;
-    text-align: left;
+    padding: 0;
+    text-align: center;
     border-bottom-left-radius: 25px;
     border-top-right-radius: 25px;
 
@@ -239,8 +236,8 @@ button {
 
 .btn {
     position: relative;
-    /* width: 181.22px; */
-    /* height: 46.6px; */
+    height: 40px;
+    padding: 0 20px;
     box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.25), -1px 1px 3px 0px rgba(0, 0, 0, 0.25);
     margin: 0;
     margin-right: 5px;
@@ -252,8 +249,12 @@ button {
     font-family: 'Onest';
     font-size: 18px;
     font-weight: 600;
-    line-height: 130%;
-    letter-spacing: 0%;
+    /* line-height: 40px; */
+    /* letter-spacing: 0%; */
+    /* max-height: 25px;
+     */
+    text-align: center;
+    vertical-align: middle;
 }
 
 .btn-primary {
