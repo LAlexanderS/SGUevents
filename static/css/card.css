@@ -245,8 +245,14 @@ h1 {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 150px;
+    min-width: 150px;
+    min-height: 60px;
 }
+
+.btn-support {
+    min-height: 60px !important;
+}
+
 
 
 @media (max-width: 1440px) {
@@ -553,6 +559,14 @@ h1 {
     }
 
     .card-button {
-        width: 120px;
+        max-width: 120px !important;
+        max-height: 20px;
+        min-width: 130px;
+        min-height: 35px;
+
+    }
+
+    .btn-support {
+        min-height: 40px !important;
     }
 }
