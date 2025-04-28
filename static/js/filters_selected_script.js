@@ -1,3 +1,17 @@
+let formId = 'dateDropdownOffline' // Дефолтное значение
+
+const path = window.location.pathname
+if (path.includes('/online')) {
+  formId = 'dateDropdownOnline'
+} else if (path.includes('/offline')) {
+  formId = 'dateDropdownOffline'
+} else if (path.includes('/attractions')) {
+  formId = 'dateDropdownAttractions'
+} else if (path.includes('/events_for_visiting')) {
+  formId = 'dateDropdownForVisiting'
+}
+
+
 function setNameFilter() {
   const filterValueSpan = document.getElementById('filter-name-value')
   const filterNameMessageDiv = document.getElementById('filter-name-message')

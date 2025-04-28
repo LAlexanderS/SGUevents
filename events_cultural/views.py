@@ -79,7 +79,7 @@ def attractions(request):
 
     # Фильтрация по дате
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
+        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
         events_cultural = events_cultural.filter(date__gte=date_start_formatted)
         filters_applied = True
 
@@ -89,9 +89,9 @@ def attractions(request):
         filters_applied = True
 
     # Фильтрация по времени
-    if time_to_start:
-        time_start_formatted = datetime.strptime(time_to_start, '%H:%M').time()
-        events_cultural = events_cultural.filter(time_start__gte=time_start_formatted)
+    if date_end:
+        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
+        events_available = events_cultural.filter(date__lte=date_end_formatted)
         filters_applied = True
 
     if time_to_end:
@@ -262,7 +262,7 @@ def events_for_visiting(request):
 
     # Фильтрация по дате
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
+        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
         events_cultural = events_cultural.filter(date__gte=date_start_formatted)
         filters_applied = True
 

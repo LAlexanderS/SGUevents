@@ -208,8 +208,7 @@
                                         data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
                                         Дата
                                     </button>
-                                    <form action="{% if request.GET.q %}{% url 'events_available:search_online' %}{% else %}{% url 'events_available:online' %}{% endif %}" method="get" class="dropdown-menu dropdown-filter" id="dateDropdown"
-                                        style="overflow-y: auto;">
+                                    <form action="{{ request.path }}" method="get" class="dropdown-menu dropdown-filter" id="dateDropdown" style="overflow-y: auto;">
                                         <div class="form-check ">
                                             Дата начала <br>
                                             <label class="form-check-label" for="flexCheckDefault">

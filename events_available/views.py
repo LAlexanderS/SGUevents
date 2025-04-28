@@ -336,13 +336,13 @@ def offline(request):
 
     if order_by and order_by != "default":
         events_available = events_available.order_by(order_by)
-  
+        
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
+        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
         events_available = events_available.filter(date__gte=date_start_formatted)
 
     if date_end:
-        date_end_formatted = datetime.strptime(date_end, '%d/%m/%Y').date()
+        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
         events_available = events_available.filter(date__lte=date_end_formatted)
 
         # Фильтрация по времени начала
