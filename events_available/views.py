@@ -59,7 +59,7 @@ def online(request):
 
     if name_search:
         # Фильтр только по названию
-        events_available = Events_online.objects.filter(name__icontains=name_search).order_by('-date_add')
+        events_available = Events_online.objects.filter(name__icontains=name_search)
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
@@ -67,7 +67,7 @@ def online(request):
         filters_applied = True
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
-        events_available = Events_online.objects.order_by('-date_add')
+        events_available = Events_online.objects.all()
 
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -117,7 +117,8 @@ def online(request):
 
     if order_by and order_by != "default":
         events_available = events_available.order_by(order_by)
-
+    else:
+        events_available = events_available.order_by('-date_add')
 
     
     if date_start:
@@ -277,7 +278,7 @@ def offline(request):
 
     if name_search:
         # Фильтр только по названию
-        events_available = Events_offline.objects.filter(name__icontains=name_search).order_by('-date_add')
+        events_available = Events_offline.objects.filter(name__icontains=name_search)
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
@@ -285,7 +286,7 @@ def offline(request):
         filters_applied = True
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
-        events_available = Events_offline.objects.order_by('-date_add')
+        events_available = Events_offline.objects.all()
 
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -335,8 +336,8 @@ def offline(request):
         events_available = events_available.filter(tags_query)
 
     if order_by and order_by != "default":
-        events_available = events_available.order_by(order_by)
-        
+        events_available = events_available.order_by('-date_add')
+
     if date_start:
         date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
         events_available = events_available.filter(date__gte=date_start_formatted)
