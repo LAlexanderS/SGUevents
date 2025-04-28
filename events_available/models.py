@@ -36,7 +36,7 @@ class Events_online(models.Model):
     date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата начала')
     date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время начала')
-    time_end = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время окончания')
+    time_end = models.TimeField(unique=False, blank=True, null=True, verbose_name='Время окончания')
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
     speakers = models.ManyToManyField(User, blank=True, related_name='speaker_online', verbose_name='Спикеры')
     member =  models.ManyToManyField(User, blank=True, related_name='member_online', verbose_name='Участники')
@@ -80,10 +80,7 @@ class Events_online(models.Model):
 
     def display_id(self):
         return f'{self.id:05}'
-
-    def save(self, *args, **kwargs):
-        self.clean()
-
+    
     def formatted_date_range(self):
         if self.date_end and self.date != self.date_end:
             start_str = self.date.strftime('%d.%m')
@@ -91,6 +88,9 @@ class Events_online(models.Model):
             return f'{start_str} - {end_str}'
         else:
             return self.date.strftime('%d.%m.%Y')
+
+    def save(self, *args, **kwargs):
+        self.clean()
 
     # Сохраняем временную зону и дату для событий
         local_timezone = pytz_timezone('Asia/Novosibirsk')
@@ -127,7 +127,7 @@ class Events_offline(models.Model):
     date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата начала')
     date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время начала')
-    time_end = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время окончания')
+    time_end = models.TimeField(unique=False, blank=True, null=True, verbose_name='Время окончания')
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
     speakers = models.ManyToManyField(User, blank=True, related_name='speaker_offline', verbose_name='Спикеры')
     member =  models.ManyToManyField(User, blank=True, related_name='member_offline', verbose_name='Участники')
@@ -175,6 +175,14 @@ class Events_offline(models.Model):
         if self.date_end and self.date != self.date_end:
             start_str = self.date.strftime('%d.%m')
             end_str = self.date_end.strftime('%d.%m')
+            return f'{start_str} - {end_str}'
+        else:
+            return self.date.strftime('%d.%m.%Y')
+    
+    def formatted_date_2(self):
+        if self.date_end and self.date != self.date_end:
+            start_str = self.date.strftime('%d.%m.%Y')
+            end_str = self.date_end.strftime('%d.%m.%Y')
             return f'{start_str} - {end_str}'
         else:
             return self.date.strftime('%d.%m.%Y')

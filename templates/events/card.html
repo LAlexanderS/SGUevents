@@ -186,12 +186,7 @@
                                 </div>
 
                                 <div class="col-lg-6">
-                                    <a href="#" class="add-to-cart-big to-cart-big-1 {% if event.slug in favorites %}card-remove-from-favorites{% else %}card-add-to-favorites{% endif %}" data-event-slug="{{ event.slug }}">
-                                        <img class="mx-1 heart-icon {% if event.slug in favorites %}hidden{% endif %}"
-                                             src="{% static 'icons/heart_blue.svg' %}" width="32" height="32" alt="">
-                                        <img class="mx-1 heart-red-icon-card {% if event.slug not in favorites %}hidden{% endif %}"
-                                             src="{% static 'icons/heart_red.png' %}" width="32" height="32" alt="">
-                                    </a>
+
                                     
                                  
     
@@ -201,6 +196,14 @@
                                         {% else %} 
                                             <img src="{% static "images/no_photo.png" %}" alt="" class="preview-photo">
                                         {% endif %}
+
+                                        <a href="#" class="add-to-cart-big to-cart-big-1 {% if event.slug in favorites %}card-remove-from-favorites{% else %}card-add-to-favorites{% endif %}" data-event-slug="{{ event.slug }}">
+                                            <img class="mx-1 heart-icon {% if event.slug in favorites %}hidden{% endif %}"
+                                                 src="{% static 'icons/heart_blue.svg' %}" width="32" height="32" alt="">
+                                            <img class="mx-1 heart-red-icon-card {% if event.slug not in favorites %}hidden{% endif %}"
+                                                 src="{% static 'icons/heart_red.png' %}" width="32" height="32" alt="">
+                                        </a>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -226,9 +229,14 @@
                                     </div>
                                 </div>
                                 <div class="info-block date-time">
-                                    <div class="title">Дата проведения</div>
+                                    <div class="title">Дата и время</div>
                                     <div class="info-content">
-                                        <label for="date">{{ event.date }}</label> <br>
+                                        <label for="date">
+                                            {% if event.date_end and event.date_end == event.date %}
+                                                000 {{ event.formatted_date_2 }}
+                                            {% else %}
+                                                111 {{ event.date }}
+                                            {% endif %}</label> <br>
                                         <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
                                     </div>
                                 </div>
