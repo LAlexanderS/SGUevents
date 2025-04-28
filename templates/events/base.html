@@ -208,8 +208,7 @@
                                         data-bs-toggle="dropdown" aria-expanded="false" id="dateFilterButton">
                                         Дата
                                     </button>
-                                    <form action="{% if request.GET.q %}{% url 'events_available:search_online' %}{% else %}{% url 'events_available:online' %}{% endif %}" method="get" class="dropdown-menu dropdown-filter" id="dateDropdown"
-                                        style="overflow-y: auto;">
+                                    <form action="{{ request.path }}" method="get" class="dropdown-menu dropdown-filter" id="dateDropdown" style="overflow-y: auto;">
                                         <div class="form-check ">
                                             Дата начала <br>
                                             <label class="form-check-label" for="flexCheckDefault">
@@ -345,8 +344,8 @@
                     <div id="sort-section" class="col-lg-10 dropdown-menu" style="width: fit-content;">
                         <form action="" method="get" id="sort-form">
                             <div class="form-check  mx-3">
-                                <input class="form-check-input" type="radio" name="order_by" id="sort-time-default"
-                                    value="default" checked="">
+                                <input class="form-check-input" type="radio" name="order_by" id="sort-time-default" value="default">
+
                                 <label class="form-check-label" for="sort-time-default">По умолчанию</label>
                             </div>
 
@@ -681,20 +680,20 @@
 
                                         <div class="row">
                                             <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
-                                                <p class="preview-date">
+                                                <div class="preview-date">
                                                     {% if events.category  != 'Достопримечательности' %}
                                                     <h6 class="card-date"> 
                                                         {% if events.date != events.date_end %}
-                                                            <split class="card-day"><b>{{ events.date }} - {{ events.date_end }}</b></split> 
+                                                            <split class="card-day"><b>Дата: {{ events.formatted_date_range }}</b></split> 
                                                         {% else %}
                                                             <split class="card-day"><b>{{ events.date }}</b></split> 
                                                         {% endif %}
                                                     </h6> 
                                                 {% endif %}
-                                                </p>
+                                                </div>
                                                 <p class="preview-time">
                                                     {% if events.time_start != events.time_end %}
-                                                        <split class="card-time">{{ events.time_start }} - {{ events.time_end }}</split> 
+                                                        <split class="card-time">Время: {{ events.time_start }} - {{ events.time_end }}</split> 
                                                     {% else %}
                                                         <split class="card-time">{{ events.time_start }}</split> 
                                                     {% endif %}

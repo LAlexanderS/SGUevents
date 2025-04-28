@@ -50,7 +50,7 @@ def attractions(request):
 
     # Фильтрация по названию
     if name_search:
-        events_cultural = Attractions.objects.filter(name__icontains=name_search).order_by('-date_add')
+        events_cultural = Attractions.objects.filter(name__icontains=name_search)
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
@@ -58,7 +58,7 @@ def attractions(request):
         filters_applied = True
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
-        events_cultural = Attractions.objects.order_by('-date_add')
+        events_cultural = Attractions.objects.all()
 
     # Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -79,7 +79,7 @@ def attractions(request):
 
     # Фильтрация по дате
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
+        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
         events_cultural = events_cultural.filter(date__gte=date_start_formatted)
         filters_applied = True
 
@@ -89,9 +89,9 @@ def attractions(request):
         filters_applied = True
 
     # Фильтрация по времени
-    if time_to_start:
-        time_start_formatted = datetime.strptime(time_to_start, '%H:%M').time()
-        events_cultural = events_cultural.filter(time_start__gte=time_start_formatted)
+    if date_end:
+        date_end_formatted = datetime.strptime(date_end, '%Y-%m-%d').date()
+        events_available = events_cultural.filter(date__lte=date_end_formatted)
         filters_applied = True
 
     if time_to_end:
@@ -102,6 +102,9 @@ def attractions(request):
     # Сортировка
     if order_by and order_by != "default":
         events_cultural = events_cultural.order_by(order_by)
+    else:
+        events_cultural = events_cultural.order_by('-date_add')
+
 
     if f_place:
         events_cultural = events_cultural.annotate(
@@ -230,7 +233,7 @@ def events_for_visiting(request):
 
     # Фильтрация по названию
     if name_search:
-        events_cultural = Events_for_visiting.objects.filter(name__icontains=name_search).order_by('-date_add')
+        events_cultural = Events_for_visiting.objects.filter(name__icontains=name_search)
         filters_applied = True
     elif query:
         # Полный поиск по названию и описанию через навигационную панель
@@ -238,7 +241,7 @@ def events_for_visiting(request):
         filters_applied = True
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
-        events_cultural = Events_for_visiting.objects.order_by('-date_add')
+        events_cultural = Events_for_visiting.objects.all()
     
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -262,7 +265,7 @@ def events_for_visiting(request):
 
     # Фильтрация по дате
     if date_start:
-        date_start_formatted = datetime.strptime(date_start, '%d/%m/%Y').date()
+        date_start_formatted = datetime.strptime(date_start, '%Y-%m-%d').date()
         events_cultural = events_cultural.filter(date__gte=date_start_formatted)
         filters_applied = True
 
@@ -285,6 +288,8 @@ def events_for_visiting(request):
     # Сортировка
     if order_by and order_by != "default":
         events_cultural = events_cultural.order_by(order_by)
+    else:
+        events_cultural = events_cultural.order_by('-date_add')
         
     paginator = Paginator(events_cultural, 5)
     try:

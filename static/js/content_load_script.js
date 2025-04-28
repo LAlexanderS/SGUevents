@@ -147,36 +147,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-  // Отображение сортировки
   const savedSortBy = localStorage.getItem('filterSortBy')
   const filterSortValueSpan = document.getElementById('filter-sort-value')
   const filterSortMessageDiv = document.getElementById('filter-sort-message')
 
   if (savedSortBy) {
-    let displayValue
-    switch (savedSortBy) {
-      case "default":
-        displayValue = "По умолчанию"
-        break
-      case "time_start":
-        displayValue = "Раньше"
-        break
-      case "-time_start":
-        displayValue = "Позже"
-        break
-      case "date":
-        displayValue = "Сначала старые"
-        break
-      case "-date":
-        displayValue = "Сначала новые"
-        break
-      default:
-        displayValue = "Неизвестная сортировка"
+    const sortInput = document.querySelector(`input[name="order_by"][value="${savedSortBy}"]`)
+    if (sortInput) {
+      sortInput.checked = true
+      let displayValue
+      switch (savedSortBy) {
+        case "default":
+          displayValue = "По умолчанию"
+          break
+        case "time_start":
+          displayValue = "Раньше"
+          break
+        case "-time_start":
+          displayValue = "Позже"
+          break
+        case "date":
+          displayValue = "Сначала старые"
+          break
+        case "-date":
+          displayValue = "Сначала новые"
+          break
+        default:
+          displayValue = "Неизвестная сортировка"
+      }
+      filterSortValueSpan.textContent = displayValue
+      if (savedSortBy !== 'default') {
+        filterSortMessageDiv.classList.remove('hidden')
+      } else {
+        filterSortMessageDiv.classList.add('hidden')
+      }
     }
-    document.querySelector(`input[name="order_by"][value="${savedSortBy}"]`).checked = true
-    filterSortValueSpan.textContent = displayValue
-    filterSortMessageDiv.classList.remove('hidden')
   }
+
 
   const elements = document.querySelectorAll('[data-event-slug]')
 

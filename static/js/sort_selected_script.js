@@ -5,13 +5,29 @@ function setSortFilter() {
 
     // Получаем выбранный радио-элемент сортировки
     const selectedSortRadio = document.querySelector('input[name="order_by"]:checked')
+
+    if (!selectedSortRadio) {
+        // Если вообще ничего не выбрано, просто скрываем фильтр
+        filterValueSpan.textContent = ''
+        filterSortMessageDiv.classList.add('hidden')
+        localStorage.removeItem('filterSortBy')
+        return
+    }
+
     let displayValue
 
-    // Определяем текст для отображения в зависимости от выбранной сортировки
     switch (selectedSortRadio.value) {
         case "default":
-            displayValue = "По умолчанию"
-            break
+            // Если выбрано "default", чистим сортировку
+            filterValueSpan.textContent = ''
+            filterSortMessageDiv.classList.add('hidden')
+            localStorage.removeItem('filterSortBy')
+            // Очищаем скрытые input'ы в форме (если есть)
+            const hiddenInputs = document.querySelectorAll('#sort-form input[type="hidden"]')
+            hiddenInputs.forEach(input => input.value = '')
+            // Отправляем форму без сортировки
+            document.getElementById('sort-form').submit()
+            return
         case "time_start":
             displayValue = "Раньше"
             break
@@ -28,19 +44,12 @@ function setSortFilter() {
             displayValue = "Неизвестная сортировка"
     }
 
-    // Устанавливаем текст в элемент для отображения
     filterValueSpan.textContent = displayValue
+    filterSortMessageDiv.classList.remove('hidden')
 
-    // Показываем или скрываем сообщение в зависимости от выбранной сортировки
-    if (selectedSortRadio.value !== "default") {
-        filterSortMessageDiv.classList.remove('hidden')
-    } else {
-        filterSortMessageDiv.classList.add('hidden')
-    }
-
-    // Сохраняем выбранную сортировку в localStorage и отправляем форму
     localStorage.setItem('filterSortBy', selectedSortRadio.value)
     document.getElementById('sort-form').submit()
+}
 }
 
 function clearSortFilter() {

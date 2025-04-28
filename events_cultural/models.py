@@ -21,7 +21,7 @@ class Attractions(models.Model):
     date = models.DateField(max_length=10, blank=False, verbose_name='Дата')
     date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(blank=False, null=False, verbose_name='Время начала')
-    time_end = models.TimeField(blank=False, null=False, verbose_name='Время окончания')
+    time_end = models.TimeField(blank=True, null=True, verbose_name='Время окончания')
     description = models.TextField(blank=False, null=False, verbose_name='Описание')
     link = models.URLField(blank=False, verbose_name='Ссылка на достопримечательность')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
@@ -59,6 +59,14 @@ class Attractions(models.Model):
 
     def display_id(self):
         return f'{self.id:05}'
+    
+    def formatted_date_range(self):
+        if self.date_end and self.date != self.date_end:
+            start_str = self.date.strftime('%d.%m')
+            end_str = self.date_end.strftime('%d.%m')
+            return f'{start_str} - {end_str}'
+        else:
+            return self.date.strftime('%d.%m.%Y')
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -96,7 +104,7 @@ class Events_for_visiting(models.Model):
     date = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата начала')
     date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
     time_start = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время начала')
-    time_end = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время окончания')
+    time_end = models.TimeField(unique=False, blank=True, null=True, verbose_name='Время окончания')
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
     member =  models.ManyToManyField(User, blank=True, related_name='member_visiting', verbose_name='Участники')
     town = models.CharField(max_length=200, unique=False, blank=False, null=False, verbose_name='Город')
@@ -135,6 +143,14 @@ class Events_for_visiting(models.Model):
 
     def display_id(self):
         return f'{self.id:05}'
+    
+    def formatted_date_range(self):
+        if self.date_end and self.date != self.date_end:
+            start_str = self.date.strftime('%d.%m')
+            end_str = self.date_end.strftime('%d.%m')
+            return f'{start_str} - {end_str}'
+        else:
+            return self.date.strftime('%d.%m.%Y')
 
     def save(self, *args, **kwargs):
         self.clean()

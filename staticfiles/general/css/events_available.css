@@ -57,6 +57,7 @@
 /* Дата */
 .col-md-8 .card-date {
 	font-size: 0.85rem;
+	margin: 0px !important;
 }
 
 /* Время */
