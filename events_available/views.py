@@ -15,6 +15,7 @@ from django.db.models import CharField, Value, F
 from django.db.models.functions import Concat
 from django.utils.timezone import now
 from django.core.paginator import EmptyPage, PageNotAnInteger
+from django.db.models import Avg
 
 
 
@@ -176,6 +177,16 @@ def online(request):
 
     tags = list(tags)
 
+    reviews_avg = {}
+    for event in events_available:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+
     context = {
         'name_page': 'Онлайн',
         'event_card_views': current_page,
@@ -192,7 +203,7 @@ def online(request):
         'filters_applied': filters_applied,
         'now': now().date(),
         'liked': liked_slugs,
-
+        'reviews_avg': reviews_avg,
     }
 
     return render(request, 'events_available/online_events.html', context=context)
@@ -408,6 +419,15 @@ def offline(request):
 
     tags = list(tags)
    
+    reviews_avg = {}
+    for event in events_available:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
 
     context = {
         'name_page': 'Оффлайн',
@@ -426,6 +446,7 @@ def offline(request):
         'filters_applied': filters_applied,
         'now': now().date(),
         'liked': liked_slugs,
+        'reviews_avg': reviews_avg,
     }
 
     return render(request, 'events_available/offline_events.html', context=context)
@@ -488,6 +509,7 @@ def autocomplete_places(request):
 def submit_review(request, event_id):
     if request.method == 'POST':
         comment = request.POST.get('comment', '')
+        rating = request.POST.get('rating')
         model_type = request.POST.get('model_type', '')
 
         if not comment:
@@ -501,12 +523,39 @@ def submit_review(request, event_id):
             return JsonResponse({'success': False, 'message': 'Некорректный тип мероприятия'}, status=400)
 
         content_type = ContentType.objects.get_for_model(event)
+
         review = Review.objects.create(
-            user=request.user,
-            content_type=content_type,
-            object_id=event.id,
-            comment=comment
-        )
+                user=request.user,
+                content_type=content_type,
+                object_id=event.id,
+                comment=comment,
+                rating=int(rating) if rating else None
+            )
+
+        # # Проверяем, существует ли уже отзыв от этого пользователя
+        # existing_review = Review.objects.filter(
+        #     user=request.user,
+        #     content_type=content_type,
+        #     object_id=event.id
+        # ).first()
+
+        # if existing_review:
+        #     # Обновляем существующий отзыв
+        #     if comment:
+        #         existing_review.comment = comment
+        #     if rating:
+        #         existing_review.rating = int(rating)
+        #     existing_review.save()
+        #     review = existing_review
+        # else:
+        #     # Создаем новый отзыв
+        #     review = Review.objects.create(
+        #         user=request.user,
+        #         content_type=content_type,
+        #         object_id=event.id,
+        #         comment=comment,
+        #         rating=int(rating) if rating else None
+        #     )
         
         # Возвращаем данные о новом отзыве
         return JsonResponse({
@@ -519,7 +568,8 @@ def submit_review(request, event_id):
                     'first_name': request.user.first_name,
                     'last_name': request.user.last_name
                 },
-                'comment': comment
+                'comment': comment,
+                'rating': review.rating
             }
         })
     return JsonResponse({'success': False, 'message': 'Некорректный запрос'}, status=400)

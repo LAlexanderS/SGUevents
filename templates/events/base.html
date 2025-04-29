@@ -546,6 +546,8 @@
                                         
                                         <div class="rating-overlay">
                                             <div class="half-stars">
+                                                <div class="ranting-count">{{ reviews_avg|get_item:events.id|default:"0.0" }} </div> 
+
                                                 <div class="rating-group">
                                                     <!-- по умолчанию 0 -->
                                                     <input disabled checked name="hsr" value="0" type="radio">
@@ -640,7 +642,6 @@
                                                     </label>
                                                     <input disabled name="hsr" id="hsr1-50" value="5" type="radio">
                                                 </div>
-                                                <div class="total-raiting">0</div>
                                             </div>
                                         </div>
                                         <div class="type-substrate">
@@ -861,57 +862,55 @@
                             <!-- Контейнер для оценки и звезд -->
                             <div style="text-indent: 0;">
                                 <div class="rating-container">
-                                    <label for="commentText" class="form-label"
-                                        style="text-indent: 0; margin-right: 10px;">Оценка:</label>
+                                    <label class="form-label" style="margin-right: 10px;">Оценка:</label>
                                     <div class="full-stars">
                                         <div class="rating-group">
-                                            <!-- По умолчанию 0 -->
-                                            <input name="fst" value="0" type="radio" disabled checked />
+                                            <input name="rating" value="0" type="radio" checked />
 
                                             <!-- Рейтинг 1 -->
-                                            <label for="fst-1">
+                                            <label for="rating-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                                                     <path
                                                         d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
                                                 </svg>
                                             </label>
-                                            <input name="fst" id="fst-1" value="1" type="radio" />
+                                            <input name="rating" id="rating-1" value="1" type="radio" />
 
                                             <!-- Рейтинг 2 -->
-                                            <label for="fst-2">
+                                            <label for="rating-2">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                                                     <path
                                                         d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
                                                 </svg>
                                             </label>
-                                            <input name="fst" id="fst-2" value="2" type="radio" />
+                                            <input name="rating" id="rating-2" value="2" type="radio" />
 
                                             <!-- Рейтинг 3 -->
-                                            <label for="fst-3">
+                                            <label for="rating-3">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                                                     <path
                                                         d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
                                                 </svg>
                                             </label>
-                                            <input name="fst" id="fst-3" value="3" type="radio" />
+                                            <input name="rating" id="rating-3" value="3" type="radio" />
 
                                             <!-- Рейтинг 4 -->
-                                            <label for="fst-4">
+                                            <label for="rating-4">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                                                     <path
                                                         d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
                                                 </svg>
                                             </label>
-                                            <input name="fst" id="fst-4" value="4" type="radio" />
+                                            <input name="rating" id="rating-4" value="4" type="radio" />
 
                                             <!-- Рейтинг 5 -->
-                                            <label for="fst-5">
+                                            <label for="rating-5">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                                                     <path
                                                         d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
                                                 </svg>
                                             </label>
-                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                            <input name="rating" id="rating-5" value="5" type="radio" />
                                         </div>
                                     </div>
                                 </div>
@@ -961,6 +960,47 @@
     <script src="{% static "js/sort_selected_script.js" %}"></script>
 
     <script src="{% static "js/content_load_script.js" %}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const stars = document.querySelectorAll('input[name="rating"]');
+            const ratingInput = document.getElementById('ratingInput');
+        
+            stars.forEach(star => {
+                star.addEventListener('change', function () {
+                    ratingInput.value = this.value;
+                });
+            });
+        });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              document.querySelectorAll('.rating-overlay').forEach(function (overlay) {
+                const rating = parseFloat(overlay.dataset.rating) || 0
+                const radios = overlay.querySelectorAll('input[type="radio"]')
+                const display = overlay.querySelector('.total-raiting')
+          
+                // Активируем ближайшее значение по рейтингу
+                let closest = null
+                let closestDiff = Infinity
+          
+                radios.forEach(radio => {
+                  const val = parseFloat(radio.value)
+                  const diff = Math.abs(val - rating)
+                  if (diff < closestDiff) {
+                    closestDiff = diff
+                    closest = radio
+                  }
+                })
+          
+                if (closest) closest.checked = true
+                if (display) display.textContent = rating.toFixed(1)
+              })
+            })
+          </script>
+          
+        
 
 
     <script type="text/javascript">

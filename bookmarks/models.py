@@ -87,6 +87,13 @@ class Review(models.Model):
     object_id = models.PositiveIntegerField()
     event = GenericForeignKey('content_type', 'object_id')
     comment = models.TextField(verbose_name='Комментарий')
+    rating = models.PositiveIntegerField(verbose_name='Оценка', choices=[
+        (1, '1 звезда'),
+        (2, '2 звезды'),
+        (3, '3 звезды'),
+        (4, '4 звезды'),
+        (5, '5 звезд')
+    ], null=True, blank=True) 
     date_submitted = models.DateTimeField(auto_now_add=True, verbose_name='Дата отправки')
 
     def save(self, *args, **kwargs):

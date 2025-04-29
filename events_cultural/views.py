@@ -16,6 +16,8 @@ from django.db.models import Q, CharField, Value
 from django.db.models.functions import Concat
 from django.utils.timezone import now
 from django.core.paginator import EmptyPage, PageNotAnInteger
+from django.db.models import Avg
+
 
 
 @login_required
@@ -151,6 +153,17 @@ def attractions(request):
 
     tags = list(tags)
 
+    reviews_avg = {}
+    
+    for event in events_cultural:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+
 
     context = {
         'name_page': 'Достопримечательности',
@@ -167,6 +180,7 @@ def attractions(request):
         "results":results,
         'now': now().date(),
         'liked': liked_slugs,
+        'reviews_avg': reviews_avg,
 
     }
 
@@ -326,6 +340,17 @@ def events_for_visiting(request):
 
     tags = list(tags)
 
+    reviews_avg = {}
+
+    for event in events_cultural:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+
     context = {
         'name_page': 'Доступные к посещению',
         'event_card_views': current_page,
@@ -341,6 +366,8 @@ def events_for_visiting(request):
         'filters_applied': filters_applied,
         'now': now().date(),
         'liked': liked_slugs,
+        'reviews_avg': reviews_avg,
+
     }
     return render(request, 'events_cultural/events_for_visiting.html', context)
 
@@ -389,6 +416,7 @@ def autocomplete_places(request):
 def submit_review(request, event_id):
     if request.method == 'POST':
         comment = request.POST.get('comment', '')
+        rating = request.POST.get('rating')
         model_type = request.POST.get('model_type', '')
 
         if not comment:
@@ -402,11 +430,14 @@ def submit_review(request, event_id):
             return JsonResponse({'success': False, 'message': 'Некорректный тип мероприятия'}, status=400)
 
         content_type = ContentType.objects.get_for_model(event)
+        
         review = Review.objects.create(
             user=request.user,
             content_type=content_type,
             object_id=event.id,
-            comment=comment
+            comment=comment,
+            rating=int(rating) if rating else None
+            
         )
         
         # Возвращаем данные о новом отзыве
@@ -420,7 +451,8 @@ def submit_review(request, event_id):
                     'first_name': request.user.first_name,
                     'last_name': request.user.last_name
                 },
-                'comment': comment
+                'comment': comment,
+                'rating': review.rating
             }
         })
     return JsonResponse({'success': False, 'message': 'Некорректный запрос'}, status=400)
