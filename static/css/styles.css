@@ -540,6 +540,31 @@ button {
     text-align: center;
 }
 
+.rating-group label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+/* .rating-group label svg path {
+    fill: #BFE2FF;
+} */
+
+/* .full-stars label svg path {
+    fill: #BFE2FF;
+} */
+
+/* .full-stars input[type="radio"]:checked+label svg path,
+.full-stars input[type="radio"]:hover+label svg path,
+.full-stars input[type="radio"]:focus+label svg path {
+    fill: rgb(39, 66, 106);
+} */
+
+/* .full-stars input[type="radio"]:hover~label svg path {
+    fill: #BFE2FF;
+} */
+
+
+
+
 
 .add-to-cart,
 .remove-from-favorites {
