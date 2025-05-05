@@ -546,7 +546,8 @@
                                         
                                         <div class="rating-overlay">
                                             <div class="half-stars">
-                                                <div class="ranting-count">{{ reviews_avg|get_item:events.id|default:"0.0" }} </div> 
+                                                <div class="ranting-count">{{ reviews_avg|get_item:events.id|floatformat:1|default:"0.0" }}</div>
+
 
                                                 <div class="rating-group">
                                                     <!-- по умолчанию 0 -->
@@ -974,38 +975,48 @@
         });
         </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.rating-overlay').forEach(overlay => {
+          const ratingText = overlay.querySelector('.ranting-count');
+          if (!ratingText) return;
+      
+          const rawText = ratingText.innerText.trim().replace(',', '.');
+          const raw = parseFloat(rawText) || 0;
+          const rounded = Math.round(raw * 2) / 2;
+      
+          console.log('———');
+          console.log('⭐ Raw rating:', raw);
+          console.log('🔁 Rounded to nearest 0.5:', rounded);
+      
+          const inputs = overlay.querySelectorAll('.rating-group input[type="radio"]');
+          const labels = overlay.querySelectorAll('.rating-group label');
+      
+          // Очистка
+          labels.forEach(label => label.classList.remove('filled'));
+      
+          // Заполнение
+          inputs.forEach(input => {
+            const val = parseFloat(input.value);
+            const label = overlay.querySelector(`label[for="${input.id}"]`);
+            if (val <= rounded) {
+              console.log(`✅ Filling: ${val}`);
+              if (label) label.classList.add('filled');
+            } else {
+              console.log(`❌ Skipped: ${val}`);
+            }
+          });
+        });
+      });
+      
+</script>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-              document.querySelectorAll('.rating-overlay').forEach(overlay => {
-                const ratingText = overlay.querySelector('.ranting-count');
-                if (!ratingText) return;
             
-                let rating = parseFloat(ratingText.textContent.trim()) || 0;
             
-                // Округление до ближайшего 0.5
-                rating = Math.round(rating * 2) / 2;
             
-                const inputs = overlay.querySelectorAll('.rating-group input[type="radio"]');
             
-                // Очистить все заливки
-                overlay.querySelectorAll('.rating-group label').forEach(label => {
-                  label.classList.remove('filled');
-                });
             
-                // Залить подходящие
-                inputs.forEach(input => {
-                  const inputVal = parseFloat(input.value);
-                  if (inputVal <= rating) {
-                    const label = overlay.querySelector(`label[for="${input.id}"]`);
-                    if (label) {
-                      label.classList.add('filled');
-                    }
-                  }
-                });
-              });
-            });
-            </script>
+            
             
             
             
