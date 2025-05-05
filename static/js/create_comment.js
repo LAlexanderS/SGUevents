@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function () {
         })
     })
 
+
+
     // Обработка отправки формы отзыва
     document.getElementById('commentForm').addEventListener('submit', function (event) {
         event.preventDefault()
@@ -49,6 +51,32 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (modal) modal.hide()
 
                     addReviewToAppropriateBlock(eventId, data.review, data.formatted_date)
+
+                    // 1. Обновляем средний рейтинг
+                    const ratingText = document.querySelector(`.rating-overlay[data-event-id="${eventId}"] .ranting-count`)
+                    if (ratingText) {
+                        ratingText.innerText = parseFloat(data.new_avg).toFixed(1).replace('.', ',') // заменить на точку, если нужно
+                    }
+
+                    // 2. Перерисовываем закраску звёзд
+                    const overlay = document.querySelector(`.rating-overlay[data-event-id="${eventId}"]`)
+                    if (overlay) {
+                        const rawText = overlay.querySelector('.ranting-count')?.innerText?.trim().replace(',', '.') || '0.0'
+                        const raw = parseFloat(rawText)
+                        const rounded = Math.round(raw * 2) / 2
+
+                        const inputs = overlay.querySelectorAll('.rating-group input[type="radio"]')
+                        const labels = overlay.querySelectorAll('.rating-group label')
+                        labels.forEach(label => label.classList.remove('filled'))
+                        inputs.forEach(input => {
+                            const val = parseFloat(input.value)
+                            const label = overlay.querySelector(`label[for="${input.id}"]`)
+                            if (val <= rounded && label) {
+                                label.classList.add('filled')
+                            }
+                        })
+                    }
+
                 } else {
                     showNotification(data.message, true)
                 }

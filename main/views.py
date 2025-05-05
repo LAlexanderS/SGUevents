@@ -17,6 +17,8 @@ from django.utils.timezone import now
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from main.utils import q_search_all
 from users.models import User
+from django.db.models import Avg
+
 
 @login_required
 def index(request):
@@ -247,6 +249,16 @@ def index(request):
 
     tags = list(tags)
 
+    reviews_avg = {}
+    for event in events_all:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+
     context = {
     'name_page': 'Главная',
     'event_card_views': current_page,
@@ -264,6 +276,7 @@ def index(request):
     "date_start": date_start,
     "date_end": date_end,
     'now': now().date(),
+    'reviews_avg': reviews_avg,
 
 }
 

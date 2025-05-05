@@ -544,7 +544,7 @@
                                             <img src="{% static "images/no_photo.png" %}" alt="" class="preview-photo">
                                         {% endif %}
                                         
-                                        <div class="rating-overlay">
+                                        <div class="rating-overlay" data-event-id="{{ events.id }}">
                                             <div class="half-stars">
                                                 <div class="ranting-count">{{ reviews_avg|get_item:events.id|floatformat:1|default:"0.0" }}</div>
 
@@ -985,10 +985,6 @@
           const raw = parseFloat(rawText) || 0;
           const rounded = Math.round(raw * 2) / 2;
       
-          console.log('———');
-          console.log('⭐ Raw rating:', raw);
-          console.log('🔁 Rounded to nearest 0.5:', rounded);
-      
           const inputs = overlay.querySelectorAll('.rating-group input[type="radio"]');
           const labels = overlay.querySelectorAll('.rating-group label');
       
@@ -1000,10 +996,8 @@
             const val = parseFloat(input.value);
             const label = overlay.querySelector(`label[for="${input.id}"]`);
             if (val <= rounded) {
-              console.log(`✅ Filling: ${val}`);
               if (label) label.classList.add('filled');
             } else {
-              console.log(`❌ Skipped: ${val}`);
             }
           });
         });

@@ -531,6 +531,14 @@ def submit_review(request, event_id):
                 comment=comment,
                 rating=int(rating) if rating else None
             )
+        
+        # Считаем новое среднее значение
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        avg_rating = round(avg_rating, 1) if avg_rating else 0
 
         # # Проверяем, существует ли уже отзыв от этого пользователя
         # existing_review = Review.objects.filter(
@@ -562,6 +570,7 @@ def submit_review(request, event_id):
             'success': True,
             'message': 'Отзыв добавлен',
             'formatted_date': review.formatted_date(),
+            'new_avg': avg_rating,
             'review': {
                 'user': {
                     'username': request.user.username,
