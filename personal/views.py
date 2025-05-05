@@ -9,7 +9,9 @@ from events_cultural.models import Attractions, Events_for_visiting
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.core.paginator import EmptyPage, PageNotAnInteger
-
+from django.contrib.contenttypes.models import ContentType
+from bookmarks.models import Review
+from django.db.models import Avg
 
 
 # @login_required
@@ -70,6 +72,16 @@ def personal(request):
         # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
         current_page = paginator.page(paginator.num_pages)
 
+    reviews_avg = {}
+    for event in events:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+
     context = {
         'event_card_views': current_page,
         'online_events': online_events,
@@ -79,6 +91,7 @@ def personal(request):
         'is_attraction_group': is_attraction_group,
         'is_for_visiting_group': is_for_visiting_group,
         'name_page': "Кабинет администратора",
+        'reviews_avg': reviews_avg,
     }
     
     return render(request, 'personal/personal.html', context)

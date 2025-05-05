@@ -42,7 +42,7 @@ class Attractions(models.Model):
     member =  models.ManyToManyField(User, blank=True, related_name='member_attractions', verbose_name='Участники')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     average_rating_cached = models.FloatField(default=0.0, verbose_name='Средний рейтинг', editable=False)
-
+    support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
 
     class Meta:
         db_table = 'attractions'
@@ -127,6 +127,7 @@ class Events_for_visiting(models.Model):
     tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     average_rating_cached = models.FloatField(default=0.0, verbose_name='Средний рейтинг', editable=False)
+    support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
 
 
     class Meta:

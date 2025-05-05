@@ -120,6 +120,7 @@ h3 {
 
 .page-header {
     font-size: 48px;
+    padding: 10px;
 }
 
 .dropdown-menu {
@@ -2582,7 +2583,12 @@ td {
         width: 50%;
     }
 
+    .name-for-events {
+        margin-top: 0px !important;
+    }
+
     .page-header {
+        margin-top: 0px !important;
         font-size: 42px;
     }
 

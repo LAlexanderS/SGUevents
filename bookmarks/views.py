@@ -15,6 +15,8 @@ from users.telegram_utils import send_notification_with_toggle
 from bookmarks.models import Registered
 from django.utils.timezone import now
 import logging
+from django.db.models import Avg
+
 
 logger = logging.getLogger(__name__)
 
@@ -142,6 +144,17 @@ def favorites(request):
 
     liked_slugs = [event.slug for event in events]
 
+    reviews_avg = {}
+    for event in events:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+
+    print(f'Reviews: {reviews_avg}')
 
     context = {
         'events': events,
@@ -151,6 +164,7 @@ def favorites(request):
         'registered': registered_flat,
         'now': now().date(),
         'name_page': 'Избранные',
+        'reviews_avg': reviews_avg,
     }
     return render(request, 'bookmarks/favorites.html', context)
 
@@ -318,6 +332,20 @@ def registered(request):
 ] + [
     favorite.for_visiting.slug for favorite in favorites_for_visiting if favorite.for_visiting
 ]
+    
+
+    reviews_avg = {}
+    for event in events:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+
+    print(f'Reviews: {reviews_avg}')
+
 
     context = {
         'registered': registered,
@@ -327,7 +355,7 @@ def registered(request):
         'name_page': 'Зарегистрированные',
         'liked': liked_slugs,
         'favorites': favorites_dict,
-
+        'reviews_avg': reviews_avg,
     }
     return render(request, 'bookmarks/registered.html', context)
 

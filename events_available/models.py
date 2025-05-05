@@ -43,7 +43,6 @@ class Events_online(models.Model):
     tags = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='Теги')
     platform = models.CharField(max_length=50, unique=False, blank=False, null=False, verbose_name='Платформа')
     link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка для подключения')
-    users_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата пользователей')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/online', blank=True, null=True, verbose_name='Изображение')
     events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_online', verbose_name="Администратор")
@@ -56,6 +55,12 @@ class Events_online(models.Model):
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     average_rating_cached = models.FloatField(default=0.0, verbose_name='Средний рейтинг', editable=False)
+    save_media_to_disk = models.BooleanField(default=False, verbose_name='Сохранять медиафайлы на Яндекс Диск')
+    yandex_disk_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на Яндекс Диск')
+    users_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата пользователей')
+    support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
+
+
     
     # admin_groups = models.ManyToManyField(Group, blank=True, related_name='event_admin_groups', verbose_name="Администраторы (группы)")
 
@@ -138,10 +143,6 @@ class Events_offline(models.Model):
     house = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Дом')
     cabinet = models.CharField(max_length=50, unique=False, blank=True, null=True, verbose_name='Кабинет')
     link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка к мероприятию')
-    yandex_disk_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на Яндекс Диск')
-    users_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата пользователей')
-    save_media_to_disk = models.BooleanField(default=False, verbose_name='Сохранять медиафайлы на Яндекс Диск')
-    support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
     events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_offline', verbose_name="Администратор")
@@ -154,6 +155,11 @@ class Events_offline(models.Model):
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
     average_rating_cached = models.FloatField(default=0.0, verbose_name='Средний рейтинг', editable=False)
+    save_media_to_disk = models.BooleanField(default=False, verbose_name='Сохранять медиафайлы на Яндекс Диск')
+    yandex_disk_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на Яндекс Диск')
+    users_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата пользователей')
+    support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
+
 
     class Meta:
         db_table = 'Events_offline'
