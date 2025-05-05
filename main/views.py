@@ -250,7 +250,7 @@ def index(request):
     tags = list(tags)
 
     reviews_avg = {}
-    for event in events_all:
+    for event in current_page:
         content_type = ContentType.objects.get_for_model(event)
         avg_rating = Review.objects.filter(
             content_type=content_type,
@@ -258,6 +258,8 @@ def index(request):
             rating__isnull=False
         ).aggregate(Avg('rating'))['rating__avg']
         reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+
+    print(f'Rating: {reviews_avg}')
 
     context = {
     'name_page': 'Главная',

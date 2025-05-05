@@ -55,6 +55,7 @@ class Events_online(models.Model):
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
+    average_rating_cached = models.FloatField(default=0.0, verbose_name='Средний рейтинг', editable=False)
     
     # admin_groups = models.ManyToManyField(Group, blank=True, related_name='event_admin_groups', verbose_name="Администраторы (группы)")
 
@@ -152,6 +153,7 @@ class Events_offline(models.Model):
     end_datetime = models.DateTimeField(editable=False, null=True, blank=True, verbose_name='Дата и время окончания')
     secret = models.ManyToManyField(Department, blank=True, verbose_name='Ключ для мероприятия')
     date_add = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
+    average_rating_cached = models.FloatField(default=0.0, verbose_name='Средний рейтинг', editable=False)
 
     class Meta:
         db_table = 'Events_offline'

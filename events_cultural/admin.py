@@ -45,6 +45,8 @@ class AttractionsAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret','events_admin','member')
     inlines = [AttractionsGalleryInline]
+    list_display = ('name', 'date', 'average_rating_cached')
+    readonly_fields = ('average_rating_cached',)
 
 
     def get_exclude(self, request, obj = None):
@@ -74,6 +76,8 @@ class Events_for_visitingAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret','events_admin', 'member')
     inlines = [Events_for_visitingGalleryInline]
+    list_display = ('name', 'date', 'average_rating_cached')
+    readonly_fields = ('average_rating_cached',)
 
 
     def get_exclude(self, request, obj = None):

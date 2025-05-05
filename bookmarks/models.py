@@ -12,6 +12,8 @@ import logging
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Avg
+
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +102,13 @@ class Review(models.Model):
         local_timezone = pytz_timezone('Asia/Novosibirsk')
         self.date_submitted = timezone.now().astimezone(local_timezone)
         super(Review, self).save(*args, **kwargs)
+
+            # Обновить рейтинг после сохранения
+        content_type = ContentType.objects.get_for_model(self.event)
+        model_class = content_type.model_class()
+        if hasattr(self.event, 'reviews'):
+            avg = Review.objects.filter(content_type=content_type, object_id=self.object_id, rating__isnull=False).aggregate(Avg('rating'))['rating__avg'] or 0
+            model_class.objects.filter(pk=self.object_id).update(average_rating_cached=round(avg, 1))
 
     class Meta:
         db_table = 'reviews'

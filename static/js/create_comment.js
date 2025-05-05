@@ -54,28 +54,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // 1. Обновляем средний рейтинг
                     const ratingText = document.querySelector(`.rating-overlay[data-event-id="${eventId}"] .ranting-count`)
-                    if (ratingText) {
-                        ratingText.innerText = parseFloat(data.new_avg).toFixed(1).replace('.', ',') // заменить на точку, если нужно
+                    if (ratingText && data.new_avg) {
+                        ratingText.innerText = parseFloat(data.new_avg).toFixed(1).replace('.', ',')
                     }
 
-                    // 2. Перерисовываем закраску звёзд
-                    const overlay = document.querySelector(`.rating-overlay[data-event-id="${eventId}"]`)
-                    if (overlay) {
-                        const rawText = overlay.querySelector('.ranting-count')?.innerText?.trim().replace(',', '.') || '0.0'
-                        const raw = parseFloat(rawText)
-                        const rounded = Math.round(raw * 2) / 2
-
-                        const inputs = overlay.querySelectorAll('.rating-group input[type="radio"]')
-                        const labels = overlay.querySelectorAll('.rating-group label')
-                        labels.forEach(label => label.classList.remove('filled'))
-                        inputs.forEach(input => {
-                            const val = parseFloat(input.value)
-                            const label = overlay.querySelector(`label[for="${input.id}"]`)
-                            if (val <= rounded && label) {
-                                label.classList.add('filled')
-                            }
-                        })
-                    }
+                    // 2. Перекрашиваем звёзды
+                    updateStarsForEvent(eventId)
 
                 } else {
                     showNotification(data.message, true)
@@ -365,3 +349,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 })
+
+
+function updateStarsForEvent(eventId) {
+    const overlay = document.querySelector(`.rating-overlay[data-event-id="${eventId}"]`)
+    if (!overlay) return
+
+    const ratingText = overlay.querySelector('.ranting-count')
+    if (!ratingText) return
+
+    const rawText = ratingText.innerText.trim().replace(',', '.')
+    const raw = parseFloat(rawText) || 0
+    const rounded = Math.round(raw * 2) / 2
+
+    const inputs = overlay.querySelectorAll('.rating-group input[type="radio"]')
+    const labels = overlay.querySelectorAll('.rating-group label')
+
+    labels.forEach(label => label.classList.remove('filled'))
+
+    inputs.forEach(input => {
+        const val = parseFloat(input.value)
+        const label = overlay.querySelector(`label[for="${input.id}"]`)
+        if (val <= rounded && label) {
+            label.classList.add('filled')
+        }
+    })
+}

@@ -48,6 +48,8 @@ class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')
     inlines = [EventOnlineGalleryInline]
+    list_display = ('name', 'date', 'average_rating_cached')
+    readonly_fields = ('average_rating_cached',)
 
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:
@@ -77,6 +79,8 @@ class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')  
     inlines = [EventOfflineGalleryInline]
+    list_display = ('name', 'date', 'average_rating_cached')
+    readonly_fields = ('average_rating_cached',)
 
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:

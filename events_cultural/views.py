@@ -439,12 +439,21 @@ def submit_review(request, event_id):
             rating=int(rating) if rating else None
             
         )
+
+        # Считаем новое среднее значение
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        avg_rating = round(avg_rating, 1) if avg_rating else 0
         
         # Возвращаем данные о новом отзыве
         return JsonResponse({
             'success': True,
             'message': 'Отзыв добавлен',
             'formatted_date': review.formatted_date(),
+            'new_avg': avg_rating,
             'review': {
                 'user': {
                     'username': request.user.username,
@@ -452,7 +461,7 @@ def submit_review(request, event_id):
                     'last_name': request.user.last_name
                 },
                 'comment': comment,
-                'rating': review.rating
+                'rating': review.rating,
             }
         })
     return JsonResponse({'success': False, 'message': 'Некорректный запрос'}, status=400)
