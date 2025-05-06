@@ -4,13 +4,13 @@ from django.dispatch import receiver
 from events_available.models import Events_offline, Events_online
 from events_cultural.models import Events_for_visiting, Attractions
     
-class AllEvents(models.Model):
-    event_atr = models.ForeignKey(to=Attractions, on_delete=models.CASCADE, verbose_name="Достопр", db_column='event_atr_id')
+# class AllEvents(models.Model):
+#     event_atr = models.ForeignKey(to=Attractions, on_delete=models.CASCADE, verbose_name="Достопр", db_column='event_atr_id')
 
-    class Meta:
-        db_table = 'AllEvents'
-        verbose_name = 'Достопримечательности'
-        verbose_name_plural = 'Достопримечательности'
+#     class Meta:
+#         db_table = 'AllEvents'
+#         verbose_name = 'Достопримечательности'
+#         verbose_name_plural = 'Достопримечательности'
 
     # def __str__(self):
     #     return self.name
