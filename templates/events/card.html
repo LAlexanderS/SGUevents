@@ -305,9 +305,9 @@
                                     <div class="info-content">
                                         <label for="date">
                                             {% if event.date_end and event.date_end == event.date %}
-                                                000 {{ event.formatted_date_2 }}
+                                                {{ event.formatted_date_2 }}
                                             {% else %}
-                                                111 {{ event.date }}
+                                                {{ event.date }}
                                             {% endif %}</label> <br>
                                         <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
                                     </div>
@@ -383,12 +383,15 @@
                                 </div>
                                 <div class="col-lg-1"></div>
                             </div>
-                            <div class="event-hashtags">
-                                <div class="hashtags"
-                                    style="text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 500; text-indent: 0;">
-                                    <span>{{event.tags}}</span>
+                            {% if event.tags %}
+                                <div class="event-hashtags">
+                                    <div class="hashtags"
+                                        style="text-align: center; margin-top: 0; margin-bottom: 20px; font-weight: 500; text-indent: 0;">
+                                        <span>{{event.tags}}</span>
+                                    </div>
                                 </div>
-                            </div>
+                            {% endif %}
+
                         
                             {% if event.gallery and event.gallery.all %}
                                 <h2 class="gallery">фотогалерея </h2>
