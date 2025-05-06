@@ -120,7 +120,7 @@ h3 {
 
 .page-header {
     font-size: 48px;
-    padding: 10px;
+    padding: 2px;
 }
 
 .dropdown-menu {
@@ -2024,9 +2024,9 @@ td {
 }
 
 @media (max-width: 1385px) {
-    .nav-item {
+    /* .nav-item {
         font-size: 14px;
-    }
+    } */
 
     .hidden {
         display: none;
@@ -2138,9 +2138,9 @@ td {
 }
 
 @media (max-width: 1285px) {
-    .nav-item {
+    /* .nav-item {
         font-size: 13px;
-    }
+    } */
 
     .hidden {
         display: none;
@@ -2148,9 +2148,9 @@ td {
 }
 
 @media (max-width: 1232px) {
-    .nav-item {
+    /* .nav-item {
         font-size: 11px;
-    }
+    } */
 
     .hidden {
         display: none;
@@ -2333,7 +2333,7 @@ td {
 
 @media (max-width: 1138px) {
     .nav-item {
-        font-size: 11px;
+        /* font-size: 11px; */
         padding-inline: 1px;
         margin-left: 2px;
         margin-right: 2px;
@@ -2600,6 +2600,13 @@ td {
 
     .page-header {
         margin-top: 0px !important;
+        font-size: 22px;
+        padding: 2px;
+    }
+
+    .page-header-online,
+    .page-header-offline,
+    .page-header-favorites {
         font-size: 42px;
     }
 
@@ -2774,6 +2781,8 @@ td {
     .card-time {
         font-size: 14px;
     }
+
+
 }
 
 

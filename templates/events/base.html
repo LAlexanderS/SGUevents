@@ -112,7 +112,7 @@
         <div class="col-lg-1 left-column"></div>
         <div class="col-lg-10 feed">
             <section>
-                <div class="row mt-3 mb-3 name-for-events">
+                <div class="row mt-3 mb-2 name-for-events">
                     <nav class="arrow-nav-left" aria-label="Arrow navigation"
                         style="position: fixed; width: fit-content;">
                         <ul class="pagination" style="margin-top: 10px;">
@@ -129,7 +129,7 @@
                     </nav>
                     <div class="col-lg-1"></div>
                     <div class="col-lg-7 main-header">
-                        <h2 style="color: white;" class="page-header"> {{ name_page }} </h2>
+                        <h2 style="color: white;" class="page-header {% if name_page == 'Онлайн' %}page-header-online {% elif name_page == 'Оффлайн' %} page-header-offline {% elif name_page == 'Избранные' %}page-header-favorites {% elif name_page == 'Зарегистрированные' %}page-header-registered{% endif %}"> {{ name_page }} </h2>
                     </div>
                     
                     {% if name_page != "Зарегистрированные" and name_page != "Избранные" %}
