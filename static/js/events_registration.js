@@ -101,7 +101,7 @@ function handleUnregister(event) {
                 // Создаём кнопку "Регистрация"
                 const sentAppButton = document.createElement('a')
                 sentAppButton.href = "#"
-                sentAppButton.classList.add('btn', 'btn-sent_app')
+                sentAppButton.classList.add('btn', 'btn-sent_app', 'card-button')
                 sentAppButton.setAttribute('data-event-slug', data.event_slug)
                 sentAppButton.innerText = 'Регистрация'
 
