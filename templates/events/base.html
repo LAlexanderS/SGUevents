@@ -747,17 +747,19 @@
                                             </p>
                                         </div>
                                         <div class="preview-event-id">
-                                            <div class="event-reviews-link">
-                                                <a href="#" class="reviews-link" type="button" data-bs-toggle="modal"
-                                                    data-bs-target="#modal-{{ events.unique_id }}">Посмотреть отзывы</a>
-                                            </div>
-                                            <label for="event-id" class="event-id"></label>
-                                            <div class="event-tags">
-                                                {% if events.tags %} 
-                                                    {{ events.tags }}
-                                                {% endif %}
+                                            <div class="event-content-row">
+                                                <div class="event-reviews-link">
+                                                    <a href="#" class="reviews-link" type="button" data-bs-toggle="modal"
+                                                        data-bs-target="#modal-{{ events.unique_id }}">Посмотреть отзывы</a>
+                                                </div>
+                                                <div class="event-tags">
+                                                    {% if events.tags %} 
+                                                        {{ events.tags }}
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                         </div>
+                                        
                                     </div>
 
                                     

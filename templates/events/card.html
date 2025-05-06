@@ -20,6 +20,78 @@
         <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
         <script src="{% static "lib/js/hammer.js" %}"></script>
 
+
+        <style>
+            .popup-form {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #fff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                width: 400px;
+                max-width: 90%;
+            }
+        
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+        
+            .popup-form h2 {
+                text-align: center;
+                margin: 0;
+                padding: 10px;
+                position: relative;
+            }
+        
+            .popup-form .close-btn {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                color: #000;
+            }
+        
+            .popup-form textarea {
+                width: 100%;
+                margin-top: 10px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                resize: none;
+            }
+        
+            .popup-form form button[type="button"] {
+                display: block;
+                margin: 20px auto 0;
+                padding: 10px 20px;
+                border: none;
+                background: #007bff;
+                color: #fff;
+                border-radius: 5px;
+                cursor: pointer;
+                text-align: center;
+            }
+        
+            .popup-form form button[type="button"]:hover {
+                background: #0056b3;
+            }
+        </style>
+
 		<title>Мероприятие</title>
 	</head>
 
@@ -736,7 +808,84 @@
 
         <script src="{% static "js/card_like.js" %}"></script>
         
+
+        <script>
+            // Открытие
+            document.querySelectorAll('.btn-support').forEach(button => {
+                button.addEventListener('click', function () {
+                    const eventId = this.getAttribute('data-event-id');
+                    const modelType = this.getAttribute('data-model-type');
+            
+                    const form = document.getElementById('feedbackForm');
+                    form.setAttribute('data-event-id', eventId);
+                    form.setAttribute('data-model-type', modelType);
+            
+                    document.getElementById('popup-form').style.display = 'block';
+                    document.getElementById('overlay').style.display = 'block';
+                });
+            });
+            
+        
+            // Закрытие
+            function closeForm() {
+                document.getElementById('popup-form').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+            }
+        
+            // Отправка сообщения
+            function sendFeedback() {
+                const message = document.getElementById('message').value;
+                if (!message.trim()) {
+                    alert('Пожалуйста, введите сообщение');
+                    return;
+                }
+        
+                const form = document.getElementById('feedbackForm');
+                const eventId = form.getAttribute('data-event-id');
+                const modelType = form.getAttribute('data-model-type');
+        
+                fetch('/users/event_support_request/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        event_id: eventId,
+                        model_type: modelType,
+                        question: message
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Сообщение успешно отправлено');
+                        closeForm();
+                    } else {
+                        alert(data.error || 'Произошла ошибка при отправке сообщения');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при отправке сообщения');
+                });
+            }
+        </script>
     
+
+        <div id="overlay" class="overlay" onclick="closeForm()"></div>
+
+        <div id="popup-form" class="popup-form">
+            <h2>Связь с администратором
+                <button class="close-btn" onclick="closeForm()">×</button>
+            </h2>
+            <form id="feedbackForm">
+                <textarea id="message" placeholder="Ваш вопрос..." rows="5"></textarea>
+                <button type="button" onclick="sendFeedback()">Отправить</button>
+            </form>
+        </div>
+
+
 
         <!-- Notification ДОБАВЛЕНИЕ В ИЗБРАННЫЕ И УДАЛЕНИЕ ИЗ ИЗБРАННЫХ -->
         <div id="favoriteNotification" class="notification-toast" style="display: none;">

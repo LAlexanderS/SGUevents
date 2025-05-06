@@ -45,7 +45,7 @@
 					</a>
 				{% endif %}
 			{% else %}
-				<span class="btn btn-secondary">Регистрация закрыта</span>
+				<span class="btn btn-secondary card-button">Регистрация закрыта</span>
 			{% endif %}
 		</div>
 		
@@ -54,11 +54,14 @@
 		</div>
 
 		{% if event.support_chat_id %}
-			<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
-				class="btn btn-secondary"
-				style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
-					src="{% static "icons/admin.png" %}" alt=""
-					style="max-height: 30px; width: auto;" onclick="openForm()" data-event-id="{{ event.id }}" data-model-type="for_visiting">Связь с администратором</button>
+			<div class="col-lg-12 admin-connect mt-3" style="text-align: center;">
+				<button class="btn btn-secondary btn-support"
+						data-event-id="{{ event.id }}"
+						data-model-type="for_visiting"
+						style="height: fit-content; padding: 5px; padding-inline: 10px;">
+					<img src="{% static "icons/admin.png" %}" alt="" style="max-height: 30px; width: auto;">
+					Связь с администратором
+				</button>
 			</div>
 		{% endif %}
 		
@@ -68,12 +71,16 @@
 		</div>
 
 		{% if event.support_chat_id %}
-			<div class="col-lg-12 admin-connect mt-3" style="text-align: center;"><button
-				class="btn btn-secondary btn-support"
-				style="height: fit-content; padding: 5px; padding-inline: 10px;"><img
-					src="{% static "icons/admin.png" %}" alt=""
-					style="max-height: 30px; width: auto;" onclick="openForm()" data-event-id="{{ event.id }}" data-model-type="attractions">Связь с администратором</button>
+			<div class="col-lg-12 admin-connect mt-3" style="text-align: center;">
+				<button class="btn btn-secondary btn-support"
+						data-event-id="{{ event.id }}"
+						data-model-type="attractions"
+						style="height: fit-content; padding: 5px; padding-inline: 10px;">
+					<img src="{% static "icons/admin.png" %}" alt="" style="max-height: 30px; width: auto;">
+					Связь с администратором
+				</button>
 			</div>
+
 		{% endif %}
 	{% endif %}
 
