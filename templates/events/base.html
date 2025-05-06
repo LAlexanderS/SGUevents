@@ -684,24 +684,23 @@
                                             <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
                                                 <div class="preview-date">
                                                     {% if events.category  != 'Достопримечательности' %}
-                                                    <h6 class="card-date"> 
-                                                        {% if events.date != events.date_end %}
-                                                            <split class="card-day"><b>Дата: {{ events.formatted_date_range }}</b></split> 
-                                                        {% else %}
-                                                            <split class="card-day"><b>{{ events.date }}</b></split> 
-                                                        {% endif %}
-                                                    </h6> 
-                                                {% endif %}
-                                                </div>
-                                                <p class="preview-time">
-                                                    {% if events.time_start != events.time_end %}
-                                                        <split class="card-time">Время: {{ events.time_start }} - {{ events.time_end }}</split> 
-                                                    {% else %}
-                                                        <split class="card-time">{{ events.time_start }}</split> 
+                                                        <div class="date-time-row">
+                                                            <span class="card-date">Дата: {{ events.formatted_date_range }}</span>
+                                                            <span class="card-time">
+                                                                {% if events.time_start != events.time_end %}
+                                                                    Время: {{ events.time_start }} – {{ events.time_end }}
+                                                                {% else %}
+                                                                    Время: {{ events.time_start }}
+                                                                {% endif %}
+                                                            </span>
+                                                        </div>
+                                                        
+                                                    
                                                     {% endif %}
-                                                </p>
+                                                </div>
                                             </div>
-                                            <div class="col-lg-6 col-md-5 col-sm-5 event-preview-speaker">
+
+                                            <div class="event-preview-speaker">
                                                 {% if events.category != "Доступные к посещению" %}
                                                 <label for="speaker" class="preview-speaker">Спикеры:</label>
                                                     {% for speaker in events.speakers.all %}
@@ -718,10 +717,13 @@
                                                 {% endif %}
                                                 
                                             </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-5 event-preview-adress">
-                                                <label for="adress" class="preview-speaker">Адрес:</label>
-                                                {% if events.town %}г.{{ events.town }}{% endif %} {% if events.street %}ул.{{ events.street }}{% endif %} {% if events.house %} д.{{ events.house }}{% endif %}{% if events.cabinet %} кабинет {{ events.cabinet }}{% endif %}
-                                            </div>
+
+                                            {% if events.town or events.street %}
+                                                <div class="col-lg-12 col-md-12 col-sm-5 event-preview-adress">
+                                                    <label for="adress" class="preview-speaker">Адрес:</label>
+                                                    {% if events.town %}г.{{ events.town }}{% endif %} {% if events.street %}ул.{{ events.street }}{% endif %} {% if events.house %} д.{{ events.house }}{% endif %}{% if events.cabinet %} кабинет {{ events.cabinet }}{% endif %}
+                                                </div>
+                                            {% endif %}
                                         </div>
                                         <div class="event-preview-description">
                                             <label for="" class="preview-about">О мероприятии:</label>

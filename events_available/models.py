@@ -91,7 +91,7 @@ class Events_online(models.Model):
         if self.date_end and self.date != self.date_end:
             start_str = self.date.strftime('%d.%m')
             end_str = self.date_end.strftime('%d.%m')
-            return f'{start_str} - {end_str}'
+            return f'{start_str}-{end_str}'
         else:
             return self.date.strftime('%d.%m.%Y')
 

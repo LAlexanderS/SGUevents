@@ -630,6 +630,12 @@ button {
     margin: 0;
 }
 
+.date-time {
+    white-space: nowrap;
+}
+
+
+
 .preview-time {
     margin: 0;
 }
@@ -642,8 +648,8 @@ button {
     font-weight: 600;
     line-height: 120%;
     letter-spacing: 0%;
-    text-align: right;
-    padding-left: 5%;
+    /* text-align: right; */
+    /* padding-left: 5%; */
     /* padding-right: 40px; */
 
 }
@@ -1645,6 +1651,11 @@ td {
     margin-top: 20px;
 }
 
+.card-date,
+.card-time {
+    font-size: 20px;
+    white-space: nowrap;
+}
 
 @media (max-width: 1705px) {
     .page-header {
@@ -2621,7 +2632,7 @@ td {
         text-indent: 0;
         padding-right: 0;
         margin-right: 0;
-        width: 50%;
+        /* width: 50%; */
     }
 
     .hidden {
@@ -2758,6 +2769,11 @@ td {
     .preview-event-id {
         margin-top: 20px;
     }
+
+    .card-date,
+    .card-time {
+        font-size: 14px;
+    }
 }
 
 
@@ -2796,7 +2812,7 @@ td {
         text-indent: 0;
         padding-right: 10px;
         margin-right: 0;
-        width: 50%;
+        /* width: 50%; */
     }
 
     .card {
@@ -2886,7 +2902,7 @@ td {
         text-indent: 0;
         padding-right: 25px;
         margin-right: 0;
-        width: 50%;
+        /* width: 50%; */
     }
 
     .preview-description {
@@ -3220,7 +3236,7 @@ td {
     .event-preview-time,
     .event-preview-speaker,
     .event-preview-adress {
-        font-size: 12px;
+        font-size: 16px;
     }
 
     .preview-event-id {
@@ -3302,10 +3318,10 @@ td {
         margin: 0;
     }
 
-    .event-preview-speaker {
+    /* .event-preview-speaker {
         padding-left: 0%;
         width: 50%;
-    }
+    } */
 
     .preview-about {
         margin-top: 0;
@@ -4599,6 +4615,16 @@ td {
 .card-date {
     margin-bottom: 0px;
 }
+
+.date-time-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+
 
 /* @media(min-width: 992px) {
     .filter-events-row {
