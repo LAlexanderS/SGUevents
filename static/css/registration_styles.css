@@ -15,7 +15,7 @@ iframe {
     padding: 30px;
     border-radius: 25px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 90%;
+    width: 90% !important;
     max-width: 420px !important;
     background-color: rgba(217, 217, 217, 0.8);
     box-shadow: -1px 1px 4px 0px rgba(0, 0, 0, 0.25), 1px 1px 4px 0px rgba(0, 0, 0, 0.25);
@@ -91,7 +91,7 @@ a:hover {
 
 /* Новый класс для скрытия кнопки */
 .hidden-button {
-    display: none;
+    display: none !important;
 }
 
 /* Стиль для серой кнопки Telegram */
