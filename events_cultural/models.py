@@ -93,8 +93,8 @@ class AttractionsGallery(models.Model):
     image = models.ImageField(upload_to='attractions_gallery/', verbose_name='Фотография')
 
     class Meta:
-        verbose_name = 'Фотография мероприятия'
-        verbose_name_plural = 'Галерея мероприятия'
+        verbose_name = 'Фотографии достопримечательностей'
+        verbose_name_plural = 'Галерея достопримечательностей'
 
     def __str__(self):
         return f'Фото для {self.event.name}'
@@ -181,8 +181,8 @@ class Events_for_visitingGallery(models.Model):
     image = models.ImageField(upload_to='Events_for_visiting_gallery/', verbose_name='Фотография')
 
     class Meta:
-        verbose_name = 'Фотография мероприятия'
-        verbose_name_plural = 'Галерея мероприятия'
+        verbose_name = 'Фотографии доступных к посещению'
+        verbose_name_plural = 'Галерея доступных к посещению'
 
     def __str__(self):
         return f'Фото для {self.event.name}'

@@ -120,8 +120,8 @@ class EventOnlineGallery(models.Model):
     image = models.ImageField(upload_to='event_online_gallery/', verbose_name='Фотография')
 
     class Meta:
-        verbose_name = 'Фотография мероприятия'
-        verbose_name_plural = 'Галерея мероприятия'
+        verbose_name = 'Фотографии онлайн мероприятий'
+        verbose_name_plural = 'Галерея онлайн мероприятия'
 
     def __str__(self):
         return f'Фото для {self.event.name}'
@@ -222,8 +222,8 @@ class EventOfflineGallery(models.Model):
     image = models.ImageField(upload_to='event_offline_gallery/', verbose_name='Фотография')
 
     class Meta:
-        verbose_name = 'Фотография мероприятия'
-        verbose_name_plural = 'Галерея мероприятия'
+        verbose_name = 'Фотографии оффлайн мероприятий'
+        verbose_name_plural = 'Галерея оффлайн мероприятия'
 
     def __str__(self):
         return f'Фото для {self.event.name}'
