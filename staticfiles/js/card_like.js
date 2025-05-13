@@ -41,24 +41,26 @@ function showNotification(message) {
     }, 1000)
 }
 
+// Обработка кликов на кнопки избранного
 document.addEventListener('click', function (event) {
     const button = event.target.closest('.card-add-to-favorites, .card-remove-from-favorites')
     if (!button) return
 
     event.preventDefault()
 
-    console.log('Клик по кнопке избранного:', button) // Логируем, на какую кнопку нажали
+    console.log('Клик по кнопке избранного:', button)
 
     const heartRedIconURL = '/static/icons/heart_red.png'
-    const heartIconURL = '/static/icons/heart.svg'
-    const icon = button.querySelector('.heart-icon')
+    const heartIconURL = '/static/icons/heart_blue.svg'
+    const heartIcon = button.querySelector('.heart-icon')
+    const heartRedIcon = button.querySelector('.heart-red-icon-card')
 
     // ДОБАВИТЬ В ИЗБРАННОЕ
     if (button.classList.contains('card-add-to-favorites')) {
         const eventSlug = button.getAttribute('data-event-slug')
-        if (!eventSlug || !icon) return
+        if (!eventSlug || !heartIcon) return
 
-        console.log(`Добавляем в избранное событие с slug: ${eventSlug}`) // Логируем slug события
+        console.log(`Добавляем в избранное событие с slug: ${eventSlug}`)
 
         fetch(`/bookmarks/events_add/${eventSlug}/`, {
             method: 'POST',
@@ -70,14 +72,19 @@ document.addEventListener('click', function (event) {
         })
             .then(response => response.json())
             .then(data => {
-                console.log('Ответ от сервера на добавление в избранное:', data) // Логируем ответ от сервера
+                console.log('Ответ от сервера на добавление в избранное:', data)
                 if (data.added) {
-                    icon.src = heartRedIconURL
+                    if (heartIcon) heartIcon.src = heartRedIconURL
                     button.classList.remove('card-add-to-favorites')
                     button.classList.add('card-remove-from-favorites')
                     button.setAttribute('data-event-id', data.event_id)
                     localStorage.setItem(`event-${eventSlug}`, 'liked')
                     showNotification("Добавлено в избранное")
+
+                    if (heartIcon && heartRedIcon) {
+                        heartIcon.classList.add('hidden')
+                        heartRedIcon.classList.remove('hidden')
+                    }
                 } else {
                     console.log('Ошибка: не удалось добавить в избранное', data.error)
                 }
@@ -86,34 +93,38 @@ document.addEventListener('click', function (event) {
 
         // УДАЛИТЬ ИЗ ИЗБРАННОГО
     } else if (button.classList.contains('card-remove-from-favorites')) {
-        const eventId = button.getAttribute('data-event-id')
         const eventSlug = button.getAttribute('data-event-slug')
-        if (!eventId || !icon) return
+        if (!eventSlug || !heartIcon) return
 
-        console.log(`Удаляем из избранного событие с id: ${eventId}`) // Логируем id события
+        console.log(`Удаляем из избранного событие с slug: ${eventSlug}`)
 
-        fetch(`/bookmarks/events_remove/${eventId}/`, {
+        fetch(`/bookmarks/events_remove/${eventSlug}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': window.csrftoken
-            },
-            body: JSON.stringify({ 'id': eventId })
+            }
         })
             .then(response => response.json())
             .then(data => {
-                console.log('Ответ от сервера на удаление из избранного:', data) // Логируем ответ от сервера
+                console.log('Ответ от сервера на удаление из избранного:', data)
                 if (data.removed) {
-                    icon.src = heartIconURL
+                    if (heartIcon) heartIcon.src = heartIconURL
                     button.classList.remove('card-remove-from-favorites')
                     button.classList.add('card-add-to-favorites')
                     button.removeAttribute('data-event-id')
                     localStorage.removeItem(`event-${eventSlug}`)
                     showNotification("Удалено из избранного")
+
+                    if (heartIcon && heartRedIcon) {
+                        heartIcon.classList.remove('hidden')
+                        heartRedIcon.classList.add('hidden')
+                    }
                 } else {
                     console.log('Ошибка: не удалось удалить из избранного', data.error)
                 }
             })
             .catch(error => console.error('Ошибка удаления из избранного:', error))
     }
+
 })

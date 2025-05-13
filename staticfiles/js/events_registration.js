@@ -67,6 +67,11 @@ function handleRegister(event) {
                     freePlacesElement.textContent = data.place_free
                 }
 
+                const freePlacesElementMobile = document.getElementById(`free-places-mobile-${data.event_slug}`)
+                if (freePlacesElement) {
+                    freePlacesElementMobile.textContent = data.place_free
+                }
+
                 showRegistrationNotification("Зарегистрировано")
             } else {
                 console.error('Ошибка при регистрации:', data.error)
@@ -96,7 +101,7 @@ function handleUnregister(event) {
                 // Создаём кнопку "Регистрация"
                 const sentAppButton = document.createElement('a')
                 sentAppButton.href = "#"
-                sentAppButton.classList.add('btn', 'btn-sent_app')
+                sentAppButton.classList.add('btn', 'btn-sent_app', 'card-button')
                 sentAppButton.setAttribute('data-event-slug', data.event_slug)
                 sentAppButton.innerText = 'Регистрация'
 
@@ -113,6 +118,11 @@ function handleUnregister(event) {
                 const freePlacesElement = document.getElementById(`free-places-${data.event_slug}`)
                 if (freePlacesElement) {
                     freePlacesElement.textContent = data.place_free
+                }
+
+                const freePlacesElementMobile = document.getElementById(`free-places-mobile-${data.event_slug}`)
+                if (freePlacesElement) {
+                    freePlacesElementMobile.textContent = data.place_free
                 }
 
                 showRegistrationNotification("Регистрация отменена")

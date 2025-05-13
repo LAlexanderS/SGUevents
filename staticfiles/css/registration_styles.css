@@ -7,10 +7,6 @@ body {
     margin: 0;
 }
 
-h2 {
-    text-align: center;
-}
-
 iframe {
     border-radius: 10px;
 }
@@ -19,12 +15,13 @@ iframe {
     padding: 30px;
     border-radius: 25px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 320px;
+    width: 90% !important;
+    max-width: 420px !important;
     background-color: rgba(217, 217, 217, 0.8);
     box-shadow: -1px 1px 4px 0px rgba(0, 0, 0, 0.25), 1px 1px 4px 0px rgba(0, 0, 0, 0.25);
     color: rgb(39, 66, 106);
     text-indent: 0;
+    font-size: 16px;
 }
 
 .btn-primary {
@@ -54,6 +51,7 @@ a:hover {
     padding-inline: 10px;
     background-color: #e0f3ff80;
     border-radius: 10px;
+    text-indent: 0 !important;
 }
 
 .alert-success {
@@ -93,7 +91,7 @@ a:hover {
 
 /* Новый класс для скрытия кнопки */
 .hidden-button {
-    display: none;
+    display: none !important;
 }
 
 /* Стиль для серой кнопки Telegram */
@@ -118,8 +116,37 @@ a:hover {
 #id_department_id {
     width: 100%;
     font-weight: 400;
-    min-height: 24px;
-    max-height: 30px;
+    min-height: 40px;
+    font-size: 16px;
+    padding: 6px 12px;
+    margin-top: 2px;
+    border-radius: 15px;
+}
+
+.enter {
+    background-color: #0088BB;
+    border: none;
+    color: #d9d9d9;
+    margin-top: 10px;
+    width: 100%;
+    min-height: 40px;
+    border-radius: 25px !important;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 220px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.enter:hover,
+.enter:focus,
+.enter:active {
+    width: 220px !important;
+}
+
+.form-label {
+    margin-bottom: 0px !important;
 }
 
 @media (max-width: 480px) {

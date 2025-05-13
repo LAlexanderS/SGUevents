@@ -1,3 +1,17 @@
+let formId = 'dateDropdownOffline' // Дефолтное значение
+
+const path = window.location.pathname
+if (path.includes('/online')) {
+  formId = 'dateDropdownOnline'
+} else if (path.includes('/offline')) {
+  formId = 'dateDropdownOffline'
+} else if (path.includes('/attractions')) {
+  formId = 'dateDropdownAttractions'
+} else if (path.includes('/events_for_visiting')) {
+  formId = 'dateDropdownForVisiting'
+}
+
+
 function setNameFilter() {
   const filterValueSpan = document.getElementById('filter-name-value')
   const filterNameMessageDiv = document.getElementById('filter-name-message')
@@ -27,6 +41,10 @@ function clearNameFilter() {
   filterMessageDiv.style.display = 'none' // Скрываем сообщение
   // Удаляем значение из localStorage
   localStorage.removeItem('filterName')
+  // Очищаем скрытые поля в форме
+  const hiddenInputs = document.querySelectorAll('#name-form input[type="hidden"]')
+  hiddenInputs.forEach(input => input.value = '')
+
   // Отправляем форму
   document.getElementById('name-form').submit()
 }
@@ -92,6 +110,9 @@ function clearDateFilter() {
   // Удаляем значения из localStorage
   localStorage.removeItem('filterStartDate')
   localStorage.removeItem('filterEndDate')
+  // Очищаем скрытые поля в форме
+  const hiddenInputs = document.querySelectorAll('#dateDropdown input[type="hidden"]')
+  hiddenInputs.forEach(input => input.value = '')
   // Отправляем форму
   document.getElementById('dateDropdown').submit()
 }
@@ -198,9 +219,18 @@ function displaySelectedTags() {
   })
 
   filterTagsValueSpan.textContent = selectedTags.join(', ')
-  filterTagsMessageDiv.classList.toggle('hidden', selectedTags.length === 0)
+
+  if (selectedTags.length > 0) {
+    filterTagsMessageDiv.classList.remove('hidden')
+    filterTagsMessageDiv.style.display = 'block'
+  } else {
+    filterTagsMessageDiv.classList.add('hidden')
+    filterTagsMessageDiv.style.display = 'none'
+  }
+
   localStorage.setItem('selectedTags', JSON.stringify(selectedTags))
 }
+
 
 document.getElementById('apply-tags-button').addEventListener('click', displaySelectedTags)
 
@@ -216,7 +246,40 @@ function clearTagsFilter() {
   document.getElementById('tags-form').submit()
 }
 
-document.getElementById('delete-tags-filter').addEventListener('click', clearTagsFilter);
+document.getElementById('delete-tags-filter').addEventListener('click', clearTagsFilter)
 
+
+function setPlaceFilter() {
+  const input = document.getElementById('event-place-search')
+  const value = input.value.trim()
+
+  const filterValueSpan = document.getElementById('filter-place-value')
+  const filterMessageDiv = document.getElementById('filter-place-message')
+
+  if (value) {
+    filterValueSpan.textContent = value
+    filterMessageDiv.classList.remove('hidden')
+    localStorage.setItem('filterPlace', value)
+  } else {
+    filterMessageDiv.classList.add('hidden')
+  }
+}
+
+document.getElementById('apply-place-button')?.addEventListener('click', setPlaceFilter)
+
+function clearPlaceFilter() {
+  const input = document.getElementById('event-place-search')
+  const filterValueSpan = document.getElementById('filter-place-value')
+  const filterMessageDiv = document.getElementById('filter-place-message')
+
+  input.value = ''
+  filterValueSpan.textContent = ''
+  filterMessageDiv.classList.add('hidden')
+
+  localStorage.removeItem('filterPlace')
+  document.getElementById('place-form').submit()
+}
+
+document.getElementById('delete-place-filter')?.addEventListener('click', clearPlaceFilter)
 
 

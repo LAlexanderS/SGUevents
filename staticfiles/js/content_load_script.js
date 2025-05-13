@@ -1,4 +1,37 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // --- Сброс фильтров при смене категории через имитацию нажатий
+  const url = window.location.href
+  let currentCategory = ''
+
+  if (url.includes('/online')) {
+    currentCategory = 'online'
+  } else if (url.includes('/offline')) {
+    currentCategory = 'offline'
+  } else if (url.includes('/attractions')) {
+    currentCategory = 'attractions'
+  } else if (url.includes('/events_for_visiting')) {
+    currentCategory = 'for_visiting'
+  }
+
+  const previousCategory = localStorage.getItem('activeCategory')
+
+  if (previousCategory && previousCategory !== currentCategory) {
+    // Имитируем клики по всем кнопкам удаления фильтров
+    const clearButtons = [
+      document.getElementById('delete-name-filter'),
+      document.getElementById('delete-date-filter'),
+      document.getElementById('delete-time-filter'),
+      document.getElementById('delete-speakers-filter'),
+      document.getElementById('delete-tags-filter'),
+      document.getElementById('delete-sort-filter')
+    ]
+
+    clearButtons.forEach(btn => {
+      if (btn) btn.click()
+    })
+  }
+
+  localStorage.setItem('activeCategory', currentCategory)
   // Фильтр по названию
   const savedNameValue = localStorage.getItem('filterName')
   const filterNameValueSpan = document.getElementById('filter-name-value')
@@ -12,6 +45,21 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     filterNameMessageDiv.style.display = 'none'
   }
+
+  // Фильтр по месту проведения
+  const savedPlaceValue = localStorage.getItem('filterPlace')
+  const filterPlaceValueSpan = document.getElementById('filter-place-value')
+  const filterPlaceMessageDiv = document.getElementById('filter-place-message')
+  const inputPlaceField = document.getElementById('event-place-search')
+
+  if (savedPlaceValue) {
+    inputPlaceField.value = savedPlaceValue
+    filterPlaceValueSpan.textContent = savedPlaceValue
+    filterPlaceMessageDiv.classList.remove('hidden')
+  } else {
+    filterPlaceMessageDiv.classList.add('hidden')
+  }
+
   // Фильтр по дате
   const savedStartValue = localStorage.getItem('filterStartDate')
   const savedEndValue = localStorage.getItem('filterEndDate')
@@ -71,61 +119,71 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Фильтр по тегам
   const storedTags = localStorage.getItem('selectedTags')
+
   if (storedTags) {
     const tags = JSON.parse(storedTags)
-    tags.forEach(tag => {
-      const checkboxes = document.querySelectorAll('input[name="f_tags[]"]') // Выбираем все чекбоксы тегов
-      checkboxes.forEach(checkbox => {
-        if (checkbox.value === tag) { // Сравниваем значения
-          checkbox.checked = true
-        }
-      })
-    })
-  }
-  if (storedTags) {
-    const tags = JSON.parse(storedTags)
+
     if (Array.isArray(tags) && tags.length > 0) {
+      const checkboxes = document.querySelectorAll('input[name="f_tags[]"]')
+
+      tags.forEach(tag => {
+        checkboxes.forEach(checkbox => {
+          if (checkbox.value === tag) {
+            checkbox.checked = true
+          }
+        })
+      })
+
+      // Только если есть выбранные теги — отображаем и вызываем
       displaySelectedTags()
     } else {
-      // на всякий случай скрываем, если пусто
+      // Если пустой массив — прячем сообщение
       const filterTagsMessageDiv = document.getElementById('filter-tags-message')
       filterTagsMessageDiv.classList.add('hidden')
     }
+  } else {
+    document.getElementById('filter-tags-message').classList.add('hidden')
   }
 
 
-  // Отображение сортировки
+
   const savedSortBy = localStorage.getItem('filterSortBy')
   const filterSortValueSpan = document.getElementById('filter-sort-value')
   const filterSortMessageDiv = document.getElementById('filter-sort-message')
 
   if (savedSortBy) {
-    let displayValue
-    switch (savedSortBy) {
-      case "default":
-        displayValue = "По умолчанию"
-        break
-      case "time_start":
-        displayValue = "Раньше"
-        break
-      case "-time_start":
-        displayValue = "Позже"
-        break
-      case "date":
-        displayValue = "Сначала старые"
-        break
-      case "-date":
-        displayValue = "Сначала новые"
-        break
-      default:
-        displayValue = "Неизвестная сортировка"
+    const sortInput = document.querySelector(`input[name="order_by"][value="${savedSortBy}"]`)
+    if (sortInput) {
+      sortInput.checked = true
+      let displayValue
+      switch (savedSortBy) {
+        case "default":
+          displayValue = "По умолчанию"
+          break
+        case "time_start":
+          displayValue = "Раньше"
+          break
+        case "-time_start":
+          displayValue = "Позже"
+          break
+        case "date":
+          displayValue = "Сначала старые"
+          break
+        case "-date":
+          displayValue = "Сначала новые"
+          break
+        default:
+          displayValue = "Неизвестная сортировка"
+      }
+      filterSortValueSpan.textContent = displayValue
+      if (savedSortBy !== 'default') {
+        filterSortMessageDiv.classList.remove('hidden')
+      } else {
+        filterSortMessageDiv.classList.add('hidden')
+      }
     }
-    document.querySelector(`input[name="order_by"][value="${savedSortBy}"]`).checked = true
-    filterSortValueSpan.textContent = displayValue
-    filterSortMessageDiv.classList.remove('hidden')
-
-    document.getElementById('sort-section').style.display = 'block'
   }
+
 
   const elements = document.querySelectorAll('[data-event-slug]')
 
