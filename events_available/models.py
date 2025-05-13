@@ -58,6 +58,7 @@ class Events_online(models.Model):
     save_media_to_disk = models.BooleanField(default=False, verbose_name='Сохранять медиафайлы на Яндекс Диск')
     yandex_disk_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на Яндекс Диск')
     users_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата пользователей')
+    users_chat_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на чат пользователей')
     support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
 
 
@@ -158,6 +159,7 @@ class Events_offline(models.Model):
     save_media_to_disk = models.BooleanField(default=False, verbose_name='Сохранять медиафайлы на Яндекс Диск')
     yandex_disk_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на Яндекс Диск')
     users_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата пользователей')
+    users_chat_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на чат пользователей')
     support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
 
 

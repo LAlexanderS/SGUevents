@@ -182,7 +182,7 @@
                 <section class="event-page-section" style="width: 100%;">
                     <a href="javascript:void(0);" onclick="goBack()" class="to-main">
                         <img src="{% static "icons/back_home.png" %}" alt="" class="large-to-main-arrow">
-                        <img src="{% static "icons/arrow-left.png" %}" alt="" class="small-to-main-arrow">
+                        <img src="{% static "icons/arrow-left.png" %}" alt="<--" class="small-to-main-arrow">
                     </a>
                     <script>
                         function goBack() {
@@ -245,12 +245,12 @@
                                     </div>
                                     <div class="button-container">
                                         <button class="prev-btn"><img src="{% static "icons/arrow-left.png" %}"
-                                                alt=""></button>
+                                                alt="<--"></button>
                                         <div style="display: flex; vertical-align: middle;">
                                             <div class="indicators"></div>
                                         </div>
                                         <button class="next-btn"><img src="{% static "icons/arrow-right.png" %}"
-                                                alt=""></button>
+                                                alt="-->"></button>
                                     </div>
                                 </div>
 
@@ -419,9 +419,9 @@
                                         </div>
                                     {% endfor %}
 
-                                    <div class="prev" title="Previous"><img src="{% static "icons/arrow-left.png" %}" alt="">
+                                    <div class="prev" title="Previous"><img src="{% static "icons/arrow-left.png" %}" alt="<--">
                                     </div>
-                                    <div class="next" title="Next"><img src="{% static "icons/arrow-right.png" %}" alt="">
+                                    <div class="next" title="Next"><img src="{% static "icons/arrow-right.png" %}" alt="-->">
                                     </div>
                                 </div>
                             
@@ -603,9 +603,9 @@
                                         {% endfor %}
                                     </div>
                                     <div class="prev-reviews" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}" title="Previous"><img src="{% static "icons/arrow-left.png" %}"
-                                            alt=""></div>
+                                            alt="<--"></div>
                                     <div class="next-reviews" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}" title="Next"><img src="{% static "icons/arrow-right.png" %}"
-                                            alt=""></div>
+                                            alt="-->"></div>
                                 </div>
                             
 
@@ -685,10 +685,10 @@
                                 </div>
                             {% endif %}
                             
-                            {% if event.users_chat_id %}
+                            {% if event.users_chat_link %}
                                 <div style="text-align: center; text-indent: 0;" class="docs">
                                     <img src="{% static "icons/tg-link.png" %}" alt="" style="max-height: 30px; width: auto;"
-                                        class="paperclip"><a class="telegram-link" href="{{ event.users_chat_id }}" target="_blank">Чат в
+                                        class="paperclip"><a class="telegram-link" href="{{ event.users_chat_link }}" target="_blank">Чат в
                                         telegram</a>
                                 </div>
                             {% endif %}

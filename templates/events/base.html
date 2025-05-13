@@ -114,7 +114,7 @@
                                 <a class="page-link-arrow" href="{% if event_card_views.has_previous %}?{% change_params page=event_card_views.previous_page_number %}{% else %}#{% endif %}">
                                     <div class="arrow">
                                         {% if event_card_views.has_previous %}
-                                            <img src="{% static "icons/arrow-left.png" %}" class="arrow" alt="Предыдущая">     
+                                            <img src="{% static "icons/arrow-left.png" %}" class="arrow" alt="<--">     
                                         {% endif %}
                                     </div>
                                 </a>
@@ -138,12 +138,12 @@
 
                             <!-- Кнопка для открытия фильтров -->
                             <button id="filter-toggle" class="btn btn-primary">
-                                <img src="{% static "icons/filters.png" %}" alt="Фильтры" class="selection-icon">
+                                <img src="{% static "icons/filters.png" %}" alt="" class="selection-icon">
                             </button>
 
                             <!-- Кнопка для сортировки -->
                             <button id="sort-toggle" class="btn btn-primary">
-                                <img src="{% static "icons/sort.png" %}"  alt="Сортировка" class="selection-icon">
+                                <img src="{% static "icons/sort.png" %}"  alt="" class="selection-icon">
                             </button>
                         </div>
                     {% endif %}
@@ -157,7 +157,7 @@
                                     <div class="arrow">
                                         {% if event_card_views.has_next %}
                                             <img src="{% static "icons/arrow-right.png" %}" class="arrow"
-                                            alt="Следующая">
+                                            alt="-->">
                                             {% else %}
                                         {% endif %}
 
