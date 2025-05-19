@@ -59,27 +59,46 @@ BOT_COMMANDS = [
 
 async def setup_bot_commands():
     """
-    Установка команд бота только для групповых чатов с техподдержкой
+    Установка команд бота только для чатов пользователей мероприятий с настроенной техподдержкой
     """
     from events_available.models import Events_offline
     
     try:
         # Получаем все мероприятия с настроенной техподдержкой
-        events = await sync_to_async(list)(Events_offline.objects.filter(support_chat_id__isnull=False))
+        events = await sync_to_async(list)(Events_offline.objects.filter(
+            support_chat_id__isnull=False,
+            users_chat_id__isnull=False
+        ))
         
-        # Для каждого мероприятия устанавливаем команды
+        # Для каждого мероприятия устанавливаем команды только в чате пользователей
         for event in events:
-            if event.users_chat_id:
-                try:
-                    await bot.set_my_commands(
-                        commands=BOT_COMMANDS,
-                        scope=types.BotCommandScopeChat(chat_id=int(event.users_chat_id))
-                    )
-                    logger.info(f"Команды установлены для чата {event.users_chat_id}")
-                except Exception as e:
-                    logger.error(f"Ошибка при установке команд для чата {event.users_chat_id}: {e}")
+            try:
+                # Устанавливаем команды в чате пользователей
+                await bot.set_my_commands(
+                    commands=BOT_COMMANDS,
+                    scope=types.BotCommandScopeChat(chat_id=int(event.users_chat_id))
+                )
+                
+                # Удаляем команды из чата поддержки
+                await bot.delete_my_commands(
+                    scope=types.BotCommandScopeChat(chat_id=int(event.support_chat_id))
+                )
+                
+            except Exception as e:
+                logger.error(f"❌ Ошибка при установке команд для чата {event.users_chat_id}: {e}")
+                
+        # Удаляем команды из всех остальных чатов
+        try:
+            # Получаем все чаты, где бот установил команды
+            bot_commands = await bot.get_my_commands()
+            if bot_commands:
+                # Удаляем команды глобально
+                await bot.delete_my_commands()
+        except Exception as e:
+            logger.error(f"❌ Ошибка при удалении команд из остальных чатов: {e}")
+            
     except Exception as e:
-        logger.error(f"Ошибка при установке команд бота: {e}")
+        logger.error(f"❌ Ошибка при установке команд бота: {e}")
 
 # Настройки вебхука
 WEBHOOK_HOST = os.getenv('WEBHOOK_HOST', '').rstrip('/')
@@ -281,23 +300,30 @@ async def my_events(message: types.Message):
 async def help_request(message: types.Message, state: FSMContext):
     # Проверяем, что это групповой чат
     if message.chat.type == 'private':
-        await message.answer("❗️ Команда /help работает только в групповых чатах.")
-        return
+        return  # Просто игнорируем команду в личных чатах
         
     user = await get_user_profile(message.from_user.id)
     if not user:
         await message.answer("Вы не зарегистрированы на портале.")
         return
 
-    # Получаем мероприятие по chat_id
+    # Проверяем, является ли чат чатом поддержки для любого мероприятия
     from events_available.models import Events_offline
     try:
+        # Проверяем, является ли текущий чат чатом поддержки
+        is_support_chat = await sync_to_async(lambda: Events_offline.objects.filter(support_chat_id=str(message.chat.id)).exists())()
+        if is_support_chat:
+            # Игнорируем команду в чате поддержки
+            return
+            
+        # Ищем мероприятие, где текущий чат - это чат пользователей
         event = await sync_to_async(Events_offline.objects.get)(users_chat_id=str(message.chat.id))
         if not event.support_chat_id:
-            await message.answer("❌ Для данного мероприятия не настроен чат поддержки.")
+            # Игнорируем команду, если нет чата поддержки
             return
+            
     except Events_offline.DoesNotExist:
-        await message.answer("❌ Этот чат не привязан к мероприятию.")
+        # Игнорируем команду, если чат не привязан к мероприятию
         return
 
     # Получаем текст после команды /help
@@ -319,7 +345,7 @@ async def help_request(message: types.Message, state: FSMContext):
             user_link = f'<a href="tg://user?id={user.telegram_id}">{user.first_name} {user.last_name}</a>'
             support_message = f"Новый вопрос по мероприятию \"{event.name}\" от {vip_emoji}{user_link}:\n\n<pre>{question}</pre>"
 
-            # Отправляем сообщение в чат поддержки мероприятия через requests
+            # Отправляем сообщение в чат поддержки мероприятия
             url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
             payload = {
                 'chat_id': str(event.support_chat_id),
