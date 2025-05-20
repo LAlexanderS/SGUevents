@@ -761,7 +761,12 @@ button {
     font-weight: 400;
     line-height: 130%;
     letter-spacing: 0%;
-    max-width: 400px;
+    max-width: 40%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+
 }
 
 .event-reviews-link {
@@ -1656,6 +1661,8 @@ td {
     font-size: 20px;
     white-space: nowrap;
 }
+
+
 
 @media (max-width: 1705px) {
     .page-header {
