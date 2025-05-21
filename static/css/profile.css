@@ -1,0 +1,121 @@
+.index-link {
+    font-family: 'Days One', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    text-decoration: none;
+    color: aliceblue;
+    font-size: 20pt;
+}
+
+.change-photo {
+    width: auto;
+    background: rgb(39, 66, 106);
+    white-space: nowrap;
+}
+
+.change-photo :hover {
+    background: none !important;
+}
+
+/* .user-right-profile {
+    text-align: center;
+} */
+
+.admin-request {
+    text-indent: 0;
+    color: white;
+    font-family: 'Onest';
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: 0%;
+    margin-top: 10px;
+    text-align: center;
+    text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.send-request {
+    width: auto;
+    margin-top: 20px;
+    border-radius: 25px;
+    border: none;
+    box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.25), -1px 1px 3px 0px rgba(0, 0, 0, 0.25);
+    background: rgb(39, 66, 106);
+    color: rgb(255, 255, 255);
+    font-family: 'Onest';
+    font-size: 18px;
+    letter-spacing: 0%;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.send-request :hover {
+    background: none !important;
+}
+
+
+.movement-header {
+    text-indent: 0;
+    color: white;
+    font-family: 'Onest';
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: 0%;
+    margin-top: 10px;
+    text-align: center;
+    text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+
+.user-movement {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.user-movement-info {
+    display: flex;
+    color: rgb(39, 66, 106);
+    font-family: 'Onest';
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0%;
+    justify-content: space-between;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.user-movement-info span:first-of-type {
+    font-weight: 600;
+    width: 40%;
+}
+
+.user-movement-info span:last-of-type {
+    max-width: 60%;
+    text-align: right;
+}
+
+
+@media(max-width: 1566px) {
+    .send-request {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 1115px) {
+    .send-request {
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 1088px) {
+    .send-request {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-request {
+        font-size: 18px;
+    }
+}
