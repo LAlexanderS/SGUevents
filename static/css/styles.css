@@ -303,7 +303,7 @@ button {
     box-shadow: 0px 0px 10px 6px rgba(65, 84, 170, 0.5);
 }
 
-.btn-remove_app {
+.message-icon .btn-remove_app {
     background: rgba(109, 106, 129, 0.5);
 }
 
@@ -824,10 +824,6 @@ button {
     line-height: 160%;
     letter-spacing: 0%;
     text-align: left;
-}
-
-.button-column {
-    text-indent: 0;
 }
 
 .change-password {
@@ -2013,22 +2009,6 @@ td {
         font-size: 44px;
     }
 
-    .fields {
-        width: 30%;
-    }
-
-    .info {
-        width: 30%;
-    }
-
-    .button-column {
-        width: 60%;
-    }
-
-    .side-indent {
-        width: 20%;
-    }
-
     .profile-fields {
         font-size: 16px;
     }
@@ -2985,23 +2965,6 @@ td {
         font-size: 30px;
     }
 
-    .fields {
-        width: 35%;
-    }
-
-    .info {
-        width: 35%;
-    }
-
-    .button-column {
-        width: 65%;
-        padding: 0;
-    }
-
-    .side-indent {
-        width: 15%;
-    }
-
     .btn-primary {
         background: none;
         width: auto;
@@ -3330,24 +3293,6 @@ td {
         font-size: 26px;
     }
 
-    .fields {
-        width: 46%;
-        margin: 0;
-        padding: 0;
-    }
-
-    .info {
-        width: 46%;
-        margin: 0;
-        padding: 0;
-    }
-
-    .button-column {
-        margin-left: 20px;
-        width: 90%;
-        padding: 0;
-    }
-
     .rights-column {
         margin-left: 20px;
         width: 90%;
@@ -3362,15 +3307,9 @@ td {
         letter-spacing: 0%;
     }
 
-    .side-indent {
-        width: 1%;
-    }
-
-
-
     .request-reason {
         min-height: 30px;
-        margin-top: 10px;
+        margin-top: 0px;
         width: 100%;
         border-radius: 25px;
         border: none;
@@ -4441,7 +4380,6 @@ td {
         box-shadow: none;
     }
 
-    /* либо оставить так, либо заменить свойство hover на focus */
     .selection-icon:active {
         height: 44px;
         width: 44px;

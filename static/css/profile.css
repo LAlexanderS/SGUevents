@@ -7,6 +7,11 @@
     font-size: 20pt;
 }
 
+.user-photo {
+    align-content: center;
+    text-align: center;
+}
+
 .change-photo {
     width: auto;
     background: rgb(39, 66, 106);
@@ -18,7 +23,7 @@
 }
 
 /* .user-right-profile {
-    text-align: center;
+    justify-content: center;
 } */
 
 .admin-request {
@@ -44,7 +49,7 @@
     font-family: 'Onest';
     font-size: 18px;
     letter-spacing: 0%;
-    text-align: left;
+    text-align: center;
     white-space: nowrap;
 }
 
@@ -95,6 +100,13 @@
     text-align: right;
 }
 
+.rights-table td:nth-child(2) {
+    text-align: right;
+}
+
+.send_message {
+    list-style-type: none;
+}
 
 @media(max-width: 1566px) {
     .send-request {
@@ -115,7 +127,31 @@
 }
 
 @media (max-width: 480px) {
+    .user-photo img {
+        width: 80px;
+    }
+
     .admin-request {
         font-size: 18px;
+    }
+
+    .send-request {
+        display: block;
+        margin: 10px auto 0 auto;
+    }
+
+    .user-movement-info {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 160%;
+        letter-spacing: 0%;
+        justify-content: space-between;
+        width: 100%;
+        margin: 0px;
+    }
+
+    .movement-header {
+        font-size: 18px;
+        margin-top: 0px;
     }
 }

@@ -103,68 +103,70 @@
     </header>
     <main class="row">
         <div class="col-lg-1 left-column"></div>
-        <div class="col-lg-10 feed">
+        <div class="col-lg-10 col-md-12 col-sm-12 feed">
             <section>
-                <div class="row mt-3" style="margin-bottom: 0;">
+                <div class="row mt-lg-3" style="margin-bottom: 0;">
                     <div class="col-lg-1"></div>
-                    <div class="col-lg-10">
+                    <div class="col-lg-10 col-md-12 col-sm-12">
                         <h2 style="color: white;" class="account-title">Профиль пользователя</h2>
                         <div class="profile-info" style="text-align: center;">
                             <div class="row mt-3">
-                                <div class="col-lg-1 side-indent"></div>
-                                <div class="col-lg-3" style="align-content: center; text-align: center;">
+                                <div class="col-lg-1 d-none d-lg-block"></div>
+                                <div class="col-4 col-lg-3 user-photo">
                                     <img src="{% static "icons/profile_photo.png" %}" alt="">
                                 </div>
-                                <div class="col-lg-3 fields">
+                                <div class="col-4 col-lg-3">
                                     <div class="profile-fields">
-                                        <label for="" style="text-indent: 0;">Имя пользователя:</label><br>
+                                        <label for="" style="text-indent: 0;">Профиль:</label><br>
                                         <label for="">Отдел:</label><br>
                                         <label for="">Email:</label><br>
                                         <label for="">Telegram ID:</label><br>
-                                        <label for="">Метод входа:</label><br>
+                                        {% comment %} <label for="">Метод входа:</label><br> {% endcomment %}
                                         <label for="">Статус:</label><br>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 info">
+                                <div class="col-4 col-lg-3 info">
                                     <div class="account-information">
                                         <label for="username" style="text-indent: 0;">{{ user.username }}</label><br>
                                         <label for="department">{{ department_name }}</label><br>
                                         <label for="email">{{ user.email }}</label><br>
                                         <label for="tg">{{ user.telegram_id }}</label><br>
-                                        <label for="entrance_method">{{ login_method }}</label><br>
+                                        {% comment %} <label for="entrance_method">{{ login_method }}</label><br> {% endcomment %}
                                         <label for="status"></label><br>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row mt-3">
-                                <div class="col-lg-1 side-indent"></div>
+                            <div class="row mt-lg-3">
+                                <div class="col-lg-1 d-none d-lg-block"></div>
 
-                                <div class="col-lg-3 side-indent mt-2" style="text-align: center; align-content: center;">
+                                <div class="col-4 col-lg-3 mt-2" style="text-align: center; align-content: center;">
                                     <button class="btn change-photo" onclick="requestPhotoChange()">Изменить фото</button>
 
                                 </div>
-                                <div class="col-lg-6 button-column mt-2" style="text-align: center; align-content: center;">
+                                <div class="col col-lg-6 button-column mt-2" style="text-align: center; align-content: center;">
                                     <button class="btn change-password" onclick="requestPasswordChange()">Сменить пароль</button>
                                     {% comment %}  {% endcomment %}
                                 </div>
-                                <div class="col-lg-2 side-indent"></div>                                
+                                <div class="col-lg-2 d-none d-lg-block"></div>                                
                             </div>
                         </div>
 
                         <div class="user-rights">
-                            <div class="row mt-3 mb-3">
-                                <div class="col-lg-4 user-right-profile">
+                            <div class="row mt-lg-3 mb-3">
+                                <div class="col-12 col-lg-4 user-right-profile">
                                     <div class="row">
-                                        <div class="col-lg-12">
+                                        <div class="col-12">
                                             <div class="admin-request">Запрос админских прав</div>
                                             <input class="request-reason form-control" type="text" id="reason" placeholder="Обоснование запроса">
                                             <button class="btn send-request" onclick="requestAdminRights()">Отправить запрос</button>
                                         </div>
                                     </div>
 
-                                    <div class="row mt-5">
-                                        <div class="col-lg-12">
+                                    <div class="row mt-2 mt-lg-3">
+                                        <div class="col-1 d-lg-none"></div>
+
+                                        <div class="col-10 col-lg-12 center">
                                             <table class="rights-table">
                                                 <tr>
                                                     <td><label for="role" class="role">Роль</label></td>
@@ -193,9 +195,12 @@
                                             </table>                                            
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="col-lg-8">
+
+                                </div>
+                                
+
+                                <div class="col-12 col-lg-8">
                                     <div class="movement-header">Перемещения</div>
                                             
                                     <div class="user-movement">
@@ -227,18 +232,8 @@
 
                                 </div>
 
-                                <div class="col-lg-3 side-indent"></div>
-                                <div class="col-lg-6 rights-column">
 
-                                </div>
-
-
-                                {% if user.is_superuser or user.is_staff %}
-                                    <li class="nav-item">
-                                        <a class="nav-link" aria-current="page" href={% url "bookmarks:send_message_to_participants" %}>Выслать уведомления участникам</a>
-                                    </li>
-                                {% endif %}
-                                <div class="col-lg-3 side-indent"></div>
+                                <div class="col-lg-3"></div>
                             </div>
                         </div>
                     </div>

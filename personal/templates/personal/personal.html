@@ -1,6 +1,13 @@
 {% extends 'events/base.html' %}
 {% load static %}
 {% block title %} <title>Кабинет администратора</title> {% endblock %}
+
+{% block message %}
+  <button class="btn btn-primary" onclick="document.location='{% url "bookmarks:send_message_to_participants" %}'">
+    <img src="{% static "icons/message.png" %}" alt="" class="selection-icon">
+  </button>
+{% endblock message %}
+
 {% block form_events %}
 {% comment %} <link rel="stylesheet" href="{% static "general/css/admin.css" %}">      {% endcomment %}
 <div class="row px-3 mt-2">

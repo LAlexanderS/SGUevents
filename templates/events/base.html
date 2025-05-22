@@ -136,6 +136,11 @@
 
                             </div>
 
+                            <!-- Кнопка для отправки сообщений участникам -->
+                            {% if name_page == "Кабинет администратора" %}
+                                {% block message %}{% endblock message %}
+                            {% endif %}
+
                             <!-- Кнопка для открытия фильтров -->
                             <button id="filter-toggle" class="btn btn-primary">
                                 <img src="{% static "icons/filters.png" %}" alt="" class="selection-icon">
@@ -145,6 +150,8 @@
                             <button id="sort-toggle" class="btn btn-primary">
                                 <img src="{% static "icons/sort.png" %}"  alt="" class="selection-icon">
                             </button>
+
+
                         </div>
                     {% endif %}
 
