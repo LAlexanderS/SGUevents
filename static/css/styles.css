@@ -8,7 +8,7 @@
     src: url('Kadwa-Regular.ttf') format('truetype');
 }
 
-.col-lg-2,
+/* .col-lg-2, */
 .dropdown {
     padding-left: 0;
 }
@@ -1632,6 +1632,8 @@ td {
     font-size: 20px;
     white-space: nowrap;
 }
+
+
 
 
 
@@ -4534,6 +4536,11 @@ td {
 }
 
 
+@media(min-width: 528px) {
+    .filter-events-row {
+        margin-left: 0px;
+    }
+}
 
 /* @media(min-width: 992px) {
     .filter-events-row {
