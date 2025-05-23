@@ -158,8 +158,10 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="admin-request">Запрос админских прав</div>
-                                            <input class="request-reason form-control" type="text" id="reason" placeholder="Обоснование запроса">
-                                            <button class="btn send-request" onclick="requestAdminRights()">Отправить запрос</button>
+                                            <div class="input-with-button">
+                                                <input class="request-reason form-control" type="text" id="reason" placeholder="Обоснование запроса">
+                                                <button class="send-request" onclick="requestAdminRights()"><img src="{% static "/icons/send-message.png" %}" alt=""> </button>
+                                            </div>
                                         </div>
                                     </div>
 

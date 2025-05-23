@@ -30,7 +30,7 @@
     text-indent: 0;
     color: white;
     font-family: 'Onest';
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 600;
     letter-spacing: 0%;
     margin-top: 10px;
@@ -38,31 +38,14 @@
     text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-.send-request {
-    width: auto;
-    margin-top: 20px;
-    border-radius: 25px;
-    border: none;
-    box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.25), -1px 1px 3px 0px rgba(0, 0, 0, 0.25);
-    background: rgb(39, 66, 106);
-    color: rgb(255, 255, 255);
-    font-family: 'Onest';
-    font-size: 18px;
-    letter-spacing: 0%;
-    text-align: center;
-    white-space: nowrap;
-}
 
-.send-request :hover {
-    background: none !important;
-}
 
 
 .movement-header {
     text-indent: 0;
     color: white;
     font-family: 'Onest';
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 600;
     letter-spacing: 0%;
     margin-top: 10px;
@@ -108,17 +91,102 @@
     list-style-type: none;
 }
 
+.change-password {
+    width: 100%;
+    margin-right: 0;
+    border-radius: 25px;
+    box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25), -2px 2px 4px 0px rgba(0, 0, 0, 0.25);
+    background: rgb(39, 66, 106);
+    border: none;
+    color: rgb(255, 255, 255);
+    font-family: 'Onest';
+    /* font-size: 18px; */
+    font-weight: 600;
+    letter-spacing: 0%;
+    text-align: center;
+}
+
+.profile-fields {
+    text-indent: 0;
+    top: 201px;
+    color: rgb(39, 66, 106);
+    font-family: Onest;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 160%;
+    letter-spacing: 0%;
+}
+
+.account-information {
+    text-indent: 0;
+    color: rgb(39, 66, 106);
+    font-family: 'Onest';
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: 0%;
+    text-align: right;
+}
+
+.input-with-button {
+    position: relative;
+    width: 100%;
+}
+
+.input-with-button input {
+    width: 100%;
+    padding-right: 60px;
+    height: 40px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+.send-request {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    /* background-color: rgb(39, 66, 106); */
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: none;
+}
+
+
+
+.send-request :hover {
+    background: none !important;
+}
+
 @media(max-width: 1566px) {
     .send-request {
         font-size: 16px;
     }
-}
 
-@media (max-width: 1115px) {
-    .send-request {
-        margin-top: 10px;
+    .user-movement {
+        font-size: 26px;
+    }
+
+    .admin-request {
+        font-size: 26px;
     }
 }
+
+
+/* @media (max-width: 1115px) {
+    .send-request {
+        margin-top: 10px;
+    } 
+}*/
 
 @media (max-width: 1088px) {
     .send-request {
@@ -135,10 +203,10 @@
         font-size: 18px;
     }
 
-    .send-request {
+    /* .send-request {
         display: block;
         margin: 10px auto 0 auto;
-    }
+    } */
 
     .user-movement-info {
         font-size: 14px;
@@ -153,5 +221,23 @@
     .movement-header {
         font-size: 18px;
         margin-top: 0px;
+    }
+
+    .account-information,
+    .role-info .group-info {
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+    .role,
+    .groups,
+    .profile-fields {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .send-request {
+        width: 38px;
+        height: 38px;
     }
 }

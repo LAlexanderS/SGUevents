@@ -805,43 +805,11 @@ button {
     text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-.profile-fields {
-    text-indent: 0;
-    top: 201px;
-    color: rgb(39, 66, 106);
-    font-family: Onest;
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 160%;
-    letter-spacing: 0%;
-}
 
-.account-information {
-    text-indent: 0;
-    color: rgb(39, 66, 106);
-    font-family: 'Onest';
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 160%;
-    letter-spacing: 0%;
-    text-align: left;
-}
 
-.change-password {
-    width: 100%;
-    margin-right: 0;
-    border-radius: 25px;
-    box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25), -2px 2px 4px 0px rgba(0, 0, 0, 0.25);
-    background: rgb(39, 66, 106);
-    border: none;
-    color: rgb(255, 255, 255);
-    font-family: 'Onest';
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 0%;
-    text-align: center;
 
-}
+
+
 
 
 
@@ -1642,14 +1610,6 @@ td {
         font-size: 40px;
     }
 
-    .profile-fields {
-        font-size: 20px;
-    }
-
-    .account-information {
-        font-size: 20px;
-    }
-
     .account-title {
         font-size: 42px;
     }
@@ -1818,27 +1778,9 @@ td {
 
 @media (max-width: 1467px) {
 
-    .profile-fields {
-        font-size: 18px;
-    }
-
-    .account-information,
-    .role,
-    .role-info,
-    .groups,
-    .group-info {
-        font-size: 18px;
-    }
-
     .account-title {
         font-size: 36px;
     }
-
-    .change-password {
-        font-size: 16px;
-    }
-
-
 
     .btn-primary {
         background: none;
@@ -2012,24 +1954,8 @@ td {
         font-size: 36px;
     }
 
-    .profile-fields {
-        font-size: 16px;
-    }
-
-    .account-information,
-    .role,
-    .role-info,
-    .groups,
-    .group-info {
-        font-size: 16px;
-    }
-
     .account-title {
         font-size: 34px;
-    }
-
-    .change-password {
-        margin-top: 5px;
     }
 
     .btn-primary {
@@ -2128,25 +2054,8 @@ td {
         width: 80%;
     }
 
-    .profile-fields {
-        font-size: 14px;
-    }
-
-    .account-information,
-    .role,
-    .role-info,
-    .groups,
-    .group-info {
-        font-size: 14px;
-    }
-
     .account-title {
         font-size: 32px;
-    }
-
-    .change-password {
-        margin-top: 5px;
-        font-size: 14px;
     }
 
     .btn-primary {
@@ -2351,16 +2260,6 @@ td {
         margin: 0;
     }
 
-    .change-password {
-        height: 30px;
-        width: 100%;
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: 0%;
-    }
-
-
-
     .button-substrate {
         padding-top: 7px;
     }
@@ -2408,16 +2307,6 @@ td {
         box-shadow: none;
         margin-left: 5px;
     }
-
-    .change-password {
-        height: 30px;
-        width: 100%;
-        font-size: 14px;
-        font-weight: 600;
-        letter-spacing: 0%;
-    }
-
-
 
     .card {
         padding-left: 5px;
@@ -3320,14 +3209,6 @@ td {
         padding: 0;
     }
 
-    .change-password {
-        height: 30px;
-        width: 100%;
-        font-size: 14px;
-        font-weight: 600;
-        letter-spacing: 0%;
-    }
-
     .request-reason {
         min-height: 30px;
         margin-top: 0px;
@@ -3397,17 +3278,6 @@ td {
         height: 54px;
         width: 54px;
         box-shadow: 0px 0px 10px 6px #d9d9d9;
-    }
-
-    .change-password {
-        width: 100%;
-    }
-
-    .change-password:hover {
-        box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25), -2px 2px 4px 0px rgba(0, 0, 0, 0.25);
-        background: rgb(39, 66, 106);
-        border: none;
-        color: rgb(255, 255, 255);
     }
 
     .dropdown-filter {
@@ -3828,10 +3698,6 @@ td {
 
     }
 
-    .change-password {
-        width: 100%;
-    }
-
     .filter-message {
         font-size: 14px;
     }
@@ -4059,10 +3925,6 @@ td {
         padding: 0;
         border: none;
         box-shadow: none;
-    }
-
-    .change-password {
-        width: 100%;
     }
 
     .hidden {
