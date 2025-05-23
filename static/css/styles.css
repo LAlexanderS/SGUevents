@@ -121,6 +121,7 @@ h3 {
 .page-header {
     font-size: 48px;
     padding: 2px;
+    margin-left: 10px;
 }
 
 .dropdown-menu {
@@ -1636,7 +1637,7 @@ td {
 
 @media (max-width: 1705px) {
     .page-header {
-        font-size: 46px;
+        font-size: 40px;
     }
 
     .profile-fields {
@@ -2006,7 +2007,7 @@ td {
 
 @media (max-width: 1341px) {
     .page-header {
-        font-size: 44px;
+        font-size: 36px;
     }
 
     .profile-fields {
@@ -2273,6 +2274,9 @@ td {
         width: 34px;
     }
 
+    .arrow-nav-right {
+        right: 15%;
+    }
 }
 
 @media (max-width: 1155px) {
@@ -2488,10 +2492,10 @@ td {
         font-size: 14px;
     }
 
-    .arrow-nav-right {
+    /* .arrow-nav-right {
         right: 14%;
 
-    }
+    } */
 
     .event-reviews-link {
         margin-top: 20px;
@@ -2718,6 +2722,10 @@ td {
         font-size: 14px;
     }
 
+    .selection {
+        padding-right: 100px;
+    }
+
 
 }
 
@@ -2806,6 +2814,10 @@ td {
 
     .preview-event-id {
         margin-top: 20px;
+    }
+
+    .arrow-nav-right {
+        right: 5%;
     }
 
 }
@@ -2930,18 +2942,19 @@ td {
         margin: 0;
     }
 
-    .main-header {
+    /* .main-header {
         padding-left: 70px;
-    }
+    } */
 
-    .selection {
-        padding-right: 100px;
-    }
+
 
     .preview-event-id {
         margin-top: 20px;
     }
 
+    .arrow-nav-right {
+        right: 5%;
+    }
 }
 
 @media (max-width: 850px) {
@@ -3107,6 +3120,12 @@ td {
         width: 410px;
         height: 250px;
         border-radius: 25px;
+    }
+
+    .selection-icon {
+        margin: 0;
+        height: 34px;
+        width: 34px;
     }
 
 }
@@ -3363,12 +3382,6 @@ td {
     .selection {
         width: fit-content;
         padding-top: 0;
-    }
-
-    .selection-icon {
-        margin: 0;
-        height: 34px;
-        width: 34px;
     }
 
     .selection-icon:hover {
