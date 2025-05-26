@@ -13,7 +13,7 @@
 }
 
 .change-photo {
-    width: auto;
+    width: 100%;
     background: rgb(39, 66, 106);
     white-space: nowrap;
 }
@@ -83,6 +83,7 @@
     text-align: right;
 }
 
+
 .rights-table td:nth-child(2) {
     text-align: right;
 }
@@ -126,6 +127,8 @@
     line-height: 160%;
     letter-spacing: 0%;
     text-align: right;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .input-with-button {
@@ -161,10 +164,12 @@
     box-shadow: none;
 }
 
-
-
 .send-request :hover {
     background: none !important;
+}
+
+.group-info {
+    text-align: right;
 }
 
 @media(max-width: 1566px) {
@@ -224,7 +229,8 @@
     }
 
     .account-information,
-    .role-info .group-info {
+    .role-info,
+    .group-info {
         font-size: 14px;
         font-weight: 400;
     }
@@ -239,5 +245,13 @@
     .send-request {
         width: 38px;
         height: 38px;
+    }
+
+    .rights-table {
+        margin-top: 20px;
+    }
+
+    .movement {
+        margin-top: 20px;
     }
 }

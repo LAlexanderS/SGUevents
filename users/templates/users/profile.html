@@ -115,24 +115,20 @@
                                 <div class="col-4 col-lg-3 user-photo">
                                     <img src="{% static "icons/profile_photo.png" %}" alt="">
                                 </div>
-                                <div class="col-4 col-lg-3">
+                                <div class="col-3 col-lg-2">
                                     <div class="profile-fields">
                                         <label for="" style="text-indent: 0;">Профиль:</label><br>
                                         <label for="">Отдел:</label><br>
                                         <label for="">Email:</label><br>
-                                        <label for="">Telegram ID:</label><br>
-                                        {% comment %} <label for="">Метод входа:</label><br> {% endcomment %}
-                                        <label for="">Статус:</label><br>
+                                        <label for="">Tg ID:</label><br>
                                     </div>
                                 </div>
-                                <div class="col-4 col-lg-3 info">
+                                <div class="col-5 col-lg-5 info">
                                     <div class="account-information">
                                         <label for="username" style="text-indent: 0;">{{ user.username }}</label><br>
                                         <label for="department">{{ department_name }}</label><br>
-                                        <label for="email">{{ user.email }}</label><br>
+                                        {% if user.email %}<label for="email" title={{ user.email }}>{{ user.email }}</label><br>{% endif %} 
                                         <label for="tg">{{ user.telegram_id }}</label><br>
-                                        {% comment %} <label for="entrance_method">{{ login_method }}</label><br> {% endcomment %}
-                                        <label for="status"></label><br>
                                     </div>
                                 </div>
                             </div>
@@ -141,10 +137,10 @@
                                 <div class="col-lg-1 d-none d-lg-block"></div>
 
                                 <div class="col-4 col-lg-3 mt-2" style="text-align: center; align-content: center;">
-                                    <button class="btn change-photo" onclick="requestPhotoChange()">Изменить фото</button>
+                                    <button class="btn change-photo" onclick="requestPhotoChange()">Фото</button>
 
                                 </div>
-                                <div class="col col-lg-6 button-column mt-2" style="text-align: center; align-content: center;">
+                                <div class="col col-lg-7 button-column mt-2" style="text-align: center; align-content: center;">
                                     <button class="btn change-password" onclick="requestPasswordChange()">Сменить пароль</button>
                                     {% comment %}  {% endcomment %}
                                 </div>
@@ -202,7 +198,7 @@
                                 </div>
                                 
 
-                                <div class="col-12 col-lg-8">
+                                <div class="col-12 col-lg-8 movement">
                                     <div class="movement-header">Перемещения</div>
                                             
                                     <div class="user-movement">
