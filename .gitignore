@@ -22,4 +22,6 @@ load_fixtures.py
 .gitingnore
 media/*
 staticfiles/*
-
+Structure.xlsx
+~$Structure.xlsx
+.~lock.Structure.xlsx#
