@@ -1,3 +1,5 @@
+#Скрипт для автоматического запуска проекта 
+
 import subprocess
 import os
 import sys
@@ -39,7 +41,7 @@ def recreate_postgres_db():
         """), [os.getenv("LOCAL_DB_NAME")])
 
         # Проверяем, что все процессы завершены
-        time.sleep(2)  # Даем немного времени для завершения процессов
+        time.sleep(2)
         cursor.execute("""
             SELECT count(*) FROM pg_stat_activity WHERE datname = %s;
         """, [os.getenv("LOCAL_DB_NAME")])
@@ -92,10 +94,7 @@ def create_extensions():
         print(f"Ошибка при создании расширений и конфигураций: {e}")
         sys.exit(1)
 
-# Перезапуск базы данных
 recreate_postgres_db()
-
-# Установка расширений
 create_extensions()
 
 # Выполнение остальных команд
@@ -106,5 +105,4 @@ run_command('python3 load_fixtures.py')
 run_command('python3 create_superuser.py')
 
 
-# Запуск сервера
 subprocess.run('python3 manage.py runserver', shell=True)

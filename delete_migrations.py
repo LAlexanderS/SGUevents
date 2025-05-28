@@ -1,3 +1,5 @@
+#Скрипт для удаления старых миграций. Автоматически испольузется в run_django_linux.py 
+
 import os
 import shutil
 
