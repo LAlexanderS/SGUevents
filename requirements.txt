@@ -29,6 +29,7 @@ django-timezone-field==7.0
 django-unfold==0.36.0
 djangorestframework==3.15.2
 docopt==0.6.2
+et_xmlfile==2.0.0
 freezegun==1.5.1
 frozenlist==1.4.1
 gunicorn==20.1.0
@@ -36,6 +37,9 @@ idna==3.7
 kombu==5.4.0
 magic-filter==1.0.12
 multidict==6.0.5
+numpy==2.2.6
+openpyxl==3.1.5
+pandas==2.2.3
 pillow==10.3.0
 prompt_toolkit==3.0.47
 psycopg2-binary==2.9.9
@@ -48,6 +52,7 @@ python-dotenv==1.0.1
 pytz==2024.1
 redis==5.0.8
 requests==2.31.0
+setuptools==80.4.0
 six==1.16.0
 sqlparse==0.4.4
 transliterate==1.10.2
@@ -57,5 +62,5 @@ tzlocal==5.2
 urllib3==2.2.1
 vine==5.1.0
 wcwidth==0.2.13
-yarl==1.9.4
 yadisk==3.2.0
+yarl==1.9.4
