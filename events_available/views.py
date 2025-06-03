@@ -347,6 +347,8 @@ def offline(request):
         events_available = events_available.filter(tags_query)
 
     if order_by and order_by != "default":
+        events_available = events_available.order_by(order_by)
+    else:
         events_available = events_available.order_by('-date_add')
 
     if date_start:
