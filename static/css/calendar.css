@@ -10,44 +10,22 @@
   }
 
   .fc-event {
-      /* background-color: #27426A !important; */
-      /* background-color: #6b7c93 !important; */
-      /* background-color: #4c5c77 !important; */
-      /* background-color: #91a3b0 !important; */
-      /* background-color: #4a5568 !important; */
-      /* background: rgba(74, 85, 104, 0.6); */
       background: rgba(60, 78, 113, 0.5) !important;
       border-radius: 10px !important;
       padding: 4px;
       border-radius: 8px;
-      /* color: white; */
       font-size: 14px;
       line-height: 1.3;
       color: #1a1a1a !important;
-
   }
 
   .event-favorite {
-      /* background-color: #e564a4 !important; */
-      /* background-color: #d9bfa9 !important; */
-      /* background-color: #d4c4b3 !important; */
-      /* background-color: #e2b6a8 !important; */
-      /* background-color: #f5e0d8 !important; */
-      border-radius: 10px !important;
-
       background: rgba(226, 182, 168, 0.5) !important;
       color: #1a1a1a;
-
-
-
   }
 
   .fc-today {
-      /* background-color: rgb(108, 126, 154) !important; */
-      /* background-color: #5a5752 !important; */
       background: rgba(217, 217, 217, 0.35) !important;
-      outline: 0.5px solid #ffffff !important;
-      /* background: transparent !important; */
   }
 
   .fc-center h2 {
@@ -57,6 +35,8 @@
   }
 
   .fc-day-number {
+      font-size: 1.5em;
+      padding: 1px;
       color: white;
   }
 
