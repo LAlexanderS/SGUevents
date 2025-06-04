@@ -31,7 +31,13 @@
   .fc-center h2 {
       color: white;
       font-weight: bold;
-      font-size: 26px;
+      font-size: 32px;
+  }
+
+  @media(max-width: 991px) {
+      .fc-center h2 {
+          font-size: 26px;
+      }
   }
 
   .fc-day-number {
