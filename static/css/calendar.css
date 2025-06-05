@@ -19,6 +19,12 @@
       color: #1a1a1a !important;
   }
 
+  @media(max-width: 991px) {
+      .fc-event {
+          font-size: .6em !important;
+      }
+  }
+
   .event-favorite {
       background: rgba(226, 182, 168, 0.5) !important;
       color: #1a1a1a;
@@ -44,6 +50,12 @@
       font-size: 1.5em;
       padding: 1px;
       color: white;
+  }
+
+  @media(max-width: 991px) {
+      .fc-day-number {
+          font-size: 1em;
+      }
   }
 
   .fc-day-header span {
