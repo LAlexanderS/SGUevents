@@ -10,6 +10,7 @@ from django.utils import timezone
 from pytz import timezone as pytz_timezone
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
+from django.conf import settings
 
 class MediaFile(models.Model):
     message_id = models.CharField(max_length=100, verbose_name='ID сообщения')
@@ -229,3 +230,72 @@ class EventOfflineGallery(models.Model):
 
     def __str__(self):
         return f'Фото для {self.event.name}'
+
+class EventLogistics(models.Model):
+    """
+    Модель для хранения логистической информации по участию
+    пользователя в офлайн-мероприятии.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь"
+    )
+    event = models.ForeignKey(
+        Events_offline,
+        on_delete=models.CASCADE,
+        verbose_name="Офлайн-мероприятие"
+    )
+
+    # Информация о прилете
+    arrival_datetime = models.DateTimeField(
+        verbose_name="Дата и время прилета",
+        null=True, blank=True
+    )
+    arrival_flight_number = models.CharField(
+        max_length=20,
+        verbose_name="Рейс прилета",
+        blank=True
+    )
+    arrival_airport = models.CharField(
+        max_length=100,
+        verbose_name="Аэропорт прилета",
+        blank=True
+    )
+
+    # Информация об улете
+    departure_datetime = models.DateTimeField(
+        verbose_name="Дата и время улета",
+        null=True, blank=True
+    )
+    departure_flight_number = models.CharField(
+        max_length=20,
+        verbose_name="Рейс улета",
+        blank=True
+    )
+    departure_airport = models.CharField(
+        max_length=100,
+        verbose_name="Аэропорт улета",
+        blank=True
+    )
+
+    # Дополнительная информация
+    transfer_needed = models.BooleanField(
+        default=False,
+        verbose_name="Нужен трансфер"
+    )
+    hotel_details = models.TextField(
+        verbose_name="Гостиница проживания",
+        blank=True,
+        help_text="Название, адрес, номер брони и т.д."
+    )
+
+    class Meta:
+        verbose_name = "Логистика по мероприятию"
+        verbose_name_plural = "Логистика по мероприятиям"
+        # Гарантируем, что для одной пары пользователь-мероприятие есть только одна запись
+        unique_together = ('user', 'event')
+        ordering = ['event__start_datetime', 'user__last_name']
+
+    def __str__(self):
+        return f"Логистика для {self.user} на {self.event.name}"

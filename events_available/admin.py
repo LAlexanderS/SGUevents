@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.contrib.auth import get_user_model
 
-from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery
+from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery, MediaFile, EventLogistics
 
 User = get_user_model()
 
@@ -81,6 +81,7 @@ class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     inlines = [EventOfflineGalleryInline]
     list_display = ('name', 'date', 'average_rating_cached')
     readonly_fields = ('average_rating_cached',)
+    search_fields = ('name', 'description', 'town')
 
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:
@@ -96,3 +97,17 @@ class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
         super().save_related(request, form, formsets, change)
         if not change and request.user.is_authenticated:
             form.instance.events_admin.add(request.user)
+
+admin.site.register(MediaFile)
+
+@admin.register(EventLogistics)
+class EventLogisticsAdmin(admin.ModelAdmin):
+    list_display = ('user', 'event', 'arrival_datetime', 'departure_datetime', 'transfer_needed')
+    list_filter = ('event', 'transfer_needed')
+    search_fields = (
+        'user__username', 'user__first_name', 'user__last_name',
+        'event__name',
+        'arrival_flight_number', 'departure_flight_number',
+        'hotel_details'
+    )
+    autocomplete_fields = ['user', 'event']
