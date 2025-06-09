@@ -374,3 +374,72 @@ def event_support_request(request):
             return JsonResponse({'success': False, 'error': 'Произошла ошибка при обработке запроса'})
 
     return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+
+@csrf_exempt
+@login_required
+def upload_photo(request):
+    """
+    Загрузка фото профиля пользователя
+    """
+    if request.method == 'POST':
+        try:
+            if 'photo' not in request.FILES:
+                return JsonResponse({'success': False, 'error': 'Фото не выбрано'})
+            
+            photo = request.FILES['photo']
+            
+            # Проверяем тип файла
+            if not photo.content_type.startswith('image/'):
+                return JsonResponse({'success': False, 'error': 'Файл должен быть изображением'})
+            
+            # Проверяем размер файла (не более 5MB)
+            if photo.size > 5 * 1024 * 1024:
+                return JsonResponse({'success': False, 'error': 'Размер файла не должен превышать 5MB'})
+            
+            # Удаляем старое фото если есть
+            if request.user.profile_photo:
+                old_photo_path = request.user.profile_photo.path
+                if os.path.exists(old_photo_path):
+                    os.remove(old_photo_path)
+            
+            # Сохраняем новое фото
+            request.user.profile_photo = photo
+            request.user.save()
+            
+            logger.info(f"Пользователь {request.user.username} загрузил новое фото профиля")
+            return JsonResponse({'success': True, 'message': 'Фото успешно загружено'})
+            
+        except Exception as e:
+            logger.error(f"Ошибка при загрузке фото: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Произошла ошибка при загрузке фото'})
+    
+    return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+
+@csrf_exempt
+@login_required
+def delete_photo(request):
+    """
+    Удаление фото профиля пользователя
+    """
+    if request.method == 'POST':
+        try:
+            if not request.user.profile_photo:
+                return JsonResponse({'success': False, 'error': 'У вас нет загруженного фото'})
+            
+            # Удаляем файл с диска
+            photo_path = request.user.profile_photo.path
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
+            
+            # Очищаем поле в базе данных
+            request.user.profile_photo = None
+            request.user.save()
+            
+            logger.info(f"Пользователь {request.user.username} удалил фото профиля")
+            return JsonResponse({'success': True, 'message': 'Фото успешно удалено'})
+            
+        except Exception as e:
+            logger.error(f"Ошибка при удалении фото: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Произошла ошибка при удалении фото'})
+    
+    return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
