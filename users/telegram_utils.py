@@ -1,8 +1,8 @@
 import uuid
-
 import requests
 import json
 import os
+from django.core.files.base import ContentFile
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -525,3 +525,59 @@ def send_message_to_event_support_chat(text, support_chat_id, bot_token=None):
     except Exception as e:
         logger.error(f"Error sending message to event support chat: {str(e)}")
         return False
+
+def download_telegram_avatar(telegram_id):
+    """
+    Загрузка аватара пользователя из Telegram
+    """
+    try:
+        # Получаем информацию о пользователе из Telegram API
+        get_user_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/getUserProfilePhotos"
+        params = {
+            'user_id': telegram_id,
+            'limit': 1
+        }
+        
+        response = requests.get(get_user_url, params=params)
+        if not response.ok:
+            logger.warning(f"Не удалось получить фото профиля для пользователя {telegram_id}: {response.text}")
+            return None
+            
+        data = response.json()
+        if not data.get('result') or not data['result'].get('photos'):
+            logger.info(f"У пользователя {telegram_id} нет фото профиля")
+            return None
+            
+        # Берем самое большое фото из первого набора
+        photos = data['result']['photos'][0]
+        largest_photo = max(photos, key=lambda x: x['width'])
+        file_id = largest_photo['file_id']
+        
+        # Получаем путь к файлу
+        get_file_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/getFile"
+        file_response = requests.get(get_file_url, params={'file_id': file_id})
+        
+        if not file_response.ok:
+            logger.warning(f"Не удалось получить файл {file_id}: {file_response.text}")
+            return None
+            
+        file_path = file_response.json()['result']['file_path']
+        
+        # Скачиваем файл
+        download_url = f"https://api.telegram.org/file/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/{file_path}"
+        image_response = requests.get(download_url)
+        
+        if not image_response.ok:
+            logger.warning(f"Не удалось скачать изображение: {image_response.text}")
+            return None
+            
+        # Создаем объект ContentFile для Django
+        filename = f"telegram_avatar_{telegram_id}.jpg"
+        content_file = ContentFile(image_response.content, name=filename)
+        
+        logger.info(f"Успешно загружен аватар для пользователя {telegram_id}")
+        return content_file
+        
+    except Exception as e:
+        logger.error(f"Ошибка при загрузке аватара из Telegram для пользователя {telegram_id}: {str(e)}")
+        return None

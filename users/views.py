@@ -64,7 +64,18 @@ def register(request):
             }
             new_user = User.objects.create_user(**user_kwargs)
 
+            # Загружаем аватар из Telegram если указан telegram_id
             if new_user.telegram_id:
+                try:
+                    from .telegram_utils import download_telegram_avatar
+                    avatar_file = download_telegram_avatar(new_user.telegram_id)
+                    if avatar_file:
+                        # Используем save метод поля для корректного сохранения
+                        new_user.profile_photo.save(avatar_file.name, avatar_file, save=True)
+                        logger.info(f"Аватар из Telegram загружен для пользователя {new_user.username}")
+                except Exception as e:
+                    logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
+                
                 send_registration_details_sync(new_user.telegram_id, new_user.username, generated_password)
 
             return redirect('users:login')
@@ -140,6 +151,17 @@ def telegram_auth(request, token):
             
             user = User.objects.create_user(**user_kwargs)
             logger.info(f"Создан новый пользователь: {user.username}")
+            
+            # Загружаем аватар из Telegram
+            try:
+                from .telegram_utils import download_telegram_avatar
+                avatar_file = download_telegram_avatar(auth_token.telegram_id)
+                if avatar_file:
+                    # Используем save метод поля для корректного сохранения
+                    user.profile_photo.save(avatar_file.name, avatar_file, save=True)
+                    logger.info(f"Аватар из Telegram загружен для пользователя {user.username}")
+            except Exception as e:
+                logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
             
             # Отправляем данные для входа в Telegram
             try:
@@ -302,6 +324,18 @@ def telegram_login_callback(request):
                 return JsonResponse({'success': False, 'error': 'Пользователь не найден'})
             
             logger.info(f"Пользователь найден: {user.username}")
+            
+            # Проверяем и загружаем аватар если его нет
+            if not user.profile_photo:
+                try:
+                    from .telegram_utils import download_telegram_avatar
+                    avatar_file = download_telegram_avatar(telegram_id)
+                    if avatar_file:
+                        # Используем save метод поля для корректного сохранения
+                        user.profile_photo.save(avatar_file.name, avatar_file, save=True)
+                        logger.info(f"Аватар из Telegram загружен для пользователя {user.username}")
+                except Exception as e:
+                    logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
             
             # Используем authenticate для проверки пользователя
             authenticated_user = authenticate(request, telegram_id=telegram_id)
