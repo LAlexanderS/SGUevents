@@ -1,10 +1,12 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
 from .telegram_utils import send_message_to_user, send_custom_notification_with_toggle
 from events_available.models import Events_online, Events_offline
 from events_cultural.models import Attractions, Events_for_visiting
 from bookmarks.models import Registered
-from .models import SupportRequest, AdminRightRequest
+from .models import SupportRequest, AdminRightRequest, User
 import logging
 from users.middleware import CurrentUserMiddleware
 import threading
@@ -177,3 +179,50 @@ def notify_user_on_admin_right_request_update(sender, instance, created, **kwarg
             else:
                 logger.warning(
                     f"У пользователя {user.username} отсутствует Telegram ID. Невозможно отправить уведомление.")
+
+@receiver(post_save, sender=User)
+def assign_staff_view_permissions(sender, instance, created, **kwargs):
+    """Автоматически выдаём права на просмотр модели User когда пользователь становится staff"""
+    logger.info(f'Сигнал post_save для пользователя {instance.username}: is_staff={instance.is_staff}, is_superuser={instance.is_superuser}, created={created}')
+    
+    if instance.is_staff and not instance.is_superuser:
+        try:
+            # Создаем или получаем группу Staff
+            staff_group, group_created = Group.objects.get_or_create(name='Staff')
+            if group_created:
+                logger.info('Создана группа Staff')
+            
+            # Добавляем пользователя в группу Staff
+            if not instance.groups.filter(name='Staff').exists():
+                instance.groups.add(staff_group)
+                logger.info(f'Пользователь {instance.username} добавлен в группу Staff')
+            
+            content_type = ContentType.objects.get_for_model(User)
+            
+            # Выдаем право на просмотр пользователей
+            view_permission, perm_created = Permission.objects.get_or_create(
+                codename='view_user',
+                name='Can view user',
+                content_type=content_type,
+            )
+            logger.info(f'Permission view_user: существует={not perm_created}, id={view_permission.id}')
+            
+            # Добавляем право в группу
+            if not staff_group.permissions.filter(id=view_permission.id).exists():
+                staff_group.permissions.add(view_permission)
+                logger.info(f'Право view_user добавлено в группу Staff')
+            
+            # Также добавляем право напрямую пользователю (на всякий случай)
+            has_permission = instance.user_permissions.filter(id=view_permission.id).exists()
+            logger.info(f'Пользователь {instance.username} уже имеет право view_user: {has_permission}')
+            
+            if not has_permission:
+                instance.user_permissions.add(view_permission)
+                logger.info(f'✅ Выдано право view_user пользователю {instance.username}')
+            else:
+                logger.info(f'ℹ️ Пользователь {instance.username} уже имеет право view_user')
+                
+        except Exception as e:
+            logger.error(f'❌ Ошибка при выдаче прав пользователю {instance.username}: {e}')
+    else:
+        logger.info(f'Пользователь {instance.username} не подходит под условия (is_staff={instance.is_staff}, is_superuser={instance.is_superuser})')
