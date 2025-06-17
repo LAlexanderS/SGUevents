@@ -3,12 +3,43 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 from .models import User, Department, AdminRightRequest, SupportRequest
 
+# Переопределяем права доступа к модулю users для staff
+original_has_module_permission = admin.site.has_permission
+
+def custom_has_permission(request):
+    """Разрешаем staff доступ к админке"""
+    return request.user.is_active and (request.user.is_staff or request.user.is_superuser)
+
+admin.site.has_permission = custom_has_permission
+
+class StaffReadOnlyMixin:
+    """Миксин для предоставления staff только прав на просмотр"""
+    
+    def has_view_permission(self, request, obj=None):
+        """Staff могут просматривать"""
+        return request.user.is_staff or request.user.is_superuser
+    
+    def has_module_permission(self, request):
+        """Staff видят модуль в админке"""
+        return request.user.is_staff or request.user.is_superuser
+    
+    def has_add_permission(self, request):
+        """Только суперюзеры могут добавлять"""
+        return request.user.is_superuser
+    
+    def has_change_permission(self, request, obj=None):
+        """Только суперюзеры могут изменять"""
+        return request.user.is_superuser
+    
+    def has_delete_permission(self, request, obj=None):
+        """Только суперюзеры могут удалять"""
+        return request.user.is_superuser
 
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('department_id', 'department_name')
     search_fields = ('department_id', 'department_name')
 
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(StaffReadOnlyMixin, BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'middle_name', 'email', 'department')}),
@@ -29,6 +60,17 @@ class UserAdmin(BaseUserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'middle_name', 'department', 'telegram_id', 'is_staff')
     search_fields = ('username', 'first_name', 'last_name', 'middle_name', 'email', 'department__department_id', 'telegram_id')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups', 'department')
+
+    def get_model_perms(self, request):
+        """
+        Переопределяем проверку прав для отображения модели в админке.
+        Staff пользователи должны видеть модель User.
+        """
+        perms = super().get_model_perms(request)
+        if request.user.is_staff:
+            # Принудительно добавляем права для staff
+            perms['view'] = True
+        return perms
 
 class AdminRightRequestAdmin(admin.ModelAdmin):
     list_display = ('user', 'reason', 'status', 'response')

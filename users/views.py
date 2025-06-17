@@ -64,7 +64,18 @@ def register(request):
             }
             new_user = User.objects.create_user(**user_kwargs)
 
+            # Загружаем аватар из Telegram если указан telegram_id
             if new_user.telegram_id:
+                try:
+                    from .telegram_utils import download_telegram_avatar
+                    avatar_file = download_telegram_avatar(new_user.telegram_id)
+                    if avatar_file:
+                        # Используем save метод поля для корректного сохранения
+                        new_user.profile_photo.save(avatar_file.name, avatar_file, save=True)
+                        logger.info(f"Аватар из Telegram загружен для пользователя {new_user.username}")
+                except Exception as e:
+                    logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
+                
                 send_registration_details_sync(new_user.telegram_id, new_user.username, generated_password)
 
             return redirect('users:login')
@@ -140,6 +151,17 @@ def telegram_auth(request, token):
             
             user = User.objects.create_user(**user_kwargs)
             logger.info(f"Создан новый пользователь: {user.username}")
+            
+            # Загружаем аватар из Telegram
+            try:
+                from .telegram_utils import download_telegram_avatar
+                avatar_file = download_telegram_avatar(auth_token.telegram_id)
+                if avatar_file:
+                    # Используем save метод поля для корректного сохранения
+                    user.profile_photo.save(avatar_file.name, avatar_file, save=True)
+                    logger.info(f"Аватар из Telegram загружен для пользователя {user.username}")
+            except Exception as e:
+                logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
             
             # Отправляем данные для входа в Telegram
             try:
@@ -303,6 +325,18 @@ def telegram_login_callback(request):
             
             logger.info(f"Пользователь найден: {user.username}")
             
+            # Проверяем и загружаем аватар если его нет
+            if not user.profile_photo:
+                try:
+                    from .telegram_utils import download_telegram_avatar
+                    avatar_file = download_telegram_avatar(telegram_id)
+                    if avatar_file:
+                        # Используем save метод поля для корректного сохранения
+                        user.profile_photo.save(avatar_file.name, avatar_file, save=True)
+                        logger.info(f"Аватар из Telegram загружен для пользователя {user.username}")
+                except Exception as e:
+                    logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
+            
             # Используем authenticate для проверки пользователя
             authenticated_user = authenticate(request, telegram_id=telegram_id)
             if authenticated_user is None:
@@ -373,4 +407,73 @@ def event_support_request(request):
             logger.error(f"Ошибка при обработке запроса в поддержку: {str(e)}")
             return JsonResponse({'success': False, 'error': 'Произошла ошибка при обработке запроса'})
 
+    return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+
+@csrf_exempt
+@login_required
+def upload_photo(request):
+    """
+    Загрузка фото профиля пользователя
+    """
+    if request.method == 'POST':
+        try:
+            if 'photo' not in request.FILES:
+                return JsonResponse({'success': False, 'error': 'Фото не выбрано'})
+            
+            photo = request.FILES['photo']
+            
+            # Проверяем тип файла
+            if not photo.content_type.startswith('image/'):
+                return JsonResponse({'success': False, 'error': 'Файл должен быть изображением'})
+            
+            # Проверяем размер файла (не более 5MB)
+            if photo.size > 5 * 1024 * 1024:
+                return JsonResponse({'success': False, 'error': 'Размер файла не должен превышать 5MB'})
+            
+            # Удаляем старое фото если есть
+            if request.user.profile_photo:
+                old_photo_path = request.user.profile_photo.path
+                if os.path.exists(old_photo_path):
+                    os.remove(old_photo_path)
+            
+            # Сохраняем новое фото
+            request.user.profile_photo = photo
+            request.user.save()
+            
+            logger.info(f"Пользователь {request.user.username} загрузил новое фото профиля")
+            return JsonResponse({'success': True, 'message': 'Фото успешно загружено'})
+            
+        except Exception as e:
+            logger.error(f"Ошибка при загрузке фото: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Произошла ошибка при загрузке фото'})
+    
+    return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+
+@csrf_exempt
+@login_required
+def delete_photo(request):
+    """
+    Удаление фото профиля пользователя
+    """
+    if request.method == 'POST':
+        try:
+            if not request.user.profile_photo:
+                return JsonResponse({'success': False, 'error': 'У вас нет загруженного фото'})
+            
+            # Удаляем файл с диска
+            photo_path = request.user.profile_photo.path
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
+            
+            # Очищаем поле в базе данных
+            request.user.profile_photo = None
+            request.user.save()
+            
+            logger.info(f"Пользователь {request.user.username} удалил фото профиля")
+            return JsonResponse({'success': True, 'message': 'Фото успешно удалено'})
+            
+        except Exception as e:
+            logger.error(f"Ошибка при удалении фото: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Произошла ошибка при удалении фото'})
+    
     return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})

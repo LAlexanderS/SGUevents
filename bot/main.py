@@ -127,33 +127,55 @@ async def get_user_profile(telegram_id):
 async def get_user_events(user):
     from django.utils.timezone import localtime
     from bookmarks.models import Registered
+    from events_available.models import EventLogistics
+    
     events = await sync_to_async(list)(Registered.objects.filter(user=user))
     event_details = []
     
     for event in events:
         event_name = None
         start_datetime = None
+        event_obj = None
+        event_type = None
         
         # Используем лямбды для корректной работы с async/await
         if await sync_to_async(lambda e: bool(e.online))(event):
             event_name = await sync_to_async(lambda e: e.online.name)(event)
             start_datetime = await sync_to_async(lambda e: e.online.start_datetime)(event)
+            event_obj = await sync_to_async(lambda e: e.online)(event)
+            event_type = 'online'
         elif await sync_to_async(lambda e: bool(e.offline))(event):
             event_name = await sync_to_async(lambda e: e.offline.name)(event)
             start_datetime = await sync_to_async(lambda e: e.offline.start_datetime)(event)
+            event_obj = await sync_to_async(lambda e: e.offline)(event)
+            event_type = 'offline'
         elif await sync_to_async(lambda e: bool(e.attractions))(event):
             event_name = await sync_to_async(lambda e: e.attractions.name)(event)
             start_datetime = await sync_to_async(lambda e: e.attractions.start_datetime)(event)
+            event_obj = await sync_to_async(lambda e: e.attractions)(event)
+            event_type = 'attractions'
         elif await sync_to_async(lambda e: bool(e.for_visiting))(event):
             event_name = await sync_to_async(lambda e: e.for_visiting.name)(event)
             start_datetime = await sync_to_async(lambda e: e.for_visiting.start_datetime)(event)
+            event_obj = await sync_to_async(lambda e: e.for_visiting)(event)
+            event_type = 'for_visiting'
         
-        if event_name:
-            if start_datetime:
-                start_datetime_local = localtime(start_datetime)
-                event_details.append(f"{event_name}\n\U0001F5D3 {start_datetime_local.strftime('%d.%m.%Y %H:%M')}")
-            else:
-                event_details.append(event_name)
+        if event_name and event_obj:
+            # Проверяем, есть ли логистика для этого пользователя и офлайн мероприятия
+            has_logistics = False
+            if event_type == 'offline':
+                has_logistics = await sync_to_async(
+                    lambda: EventLogistics.objects.filter(user=user, event=event_obj).exists()
+                )()
+            
+            event_info = {
+                'name': event_name,
+                'start_datetime': start_datetime,
+                'event_id': event_obj.id if event_obj else None,
+                'event_type': event_type,
+                'has_logistics': has_logistics
+            }
+            event_details.append(event_info)
 
     return event_details
 
@@ -279,6 +301,7 @@ def get_department_name(user):
 
 @router.message(F.text == "📓 Мои мероприятия")
 async def my_events(message: types.Message):
+    from django.utils.timezone import localtime
     # Проверяем, что это личный чат
     if message.chat.type != 'private':
         return
@@ -287,10 +310,36 @@ async def my_events(message: types.Message):
     if user:
         event_details = await get_user_events(user)
         if event_details:
-            response_text = "Ваши мероприятия:\n\n"
-            for i, event_detail in enumerate(event_details, 1):
-                response_text += f"{i}. {event_detail}\n\n"
-            await message.answer(response_text)
+            await message.answer("📓 Ваши мероприятия:")
+            
+            for event_info in event_details:
+                # Формируем текст мероприятия
+                event_text = f"🎯 <b>{event_info['name']}</b>\n"
+                if event_info['start_datetime']:
+                    start_datetime_local = localtime(event_info['start_datetime'])
+                    event_text += f"🕐 {start_datetime_local.strftime('%d.%m.%Y %H:%M')}"
+                
+                # Создаем inline кнопки
+                buttons = []
+                
+                # Если есть логистика, добавляем кнопку
+                if event_info['has_logistics']:
+                    buttons.append([
+                        InlineKeyboardButton(
+                            text="✈️ Логистика", 
+                            callback_data=f"logistics_{event_info['event_id']}"
+                        )
+                    ])
+                
+                # Создаем клавиатуру
+                keyboard = InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None
+                
+                # Отправляем сообщение
+                await message.answer(
+                    event_text, 
+                    reply_markup=keyboard,
+                    parse_mode='HTML'
+                )
         else:
             await message.answer("Вы не зарегистрированы на какие-либо мероприятия.")
     else:
@@ -874,6 +923,82 @@ async def help_request_button(message: types.Message, state: FSMContext):
         await state.set_state(SupportRequestForm.waiting_for_question)
     else:
         await message.answer("Вы не зарегистрированы на портале.")
+
+@router.callback_query(F.data.startswith("logistics_"))
+async def show_logistics_info(callback_query: types.CallbackQuery):
+    """Показывает информацию о логистике для мероприятия"""
+    try:
+        from events_available.models import EventLogistics
+        from django.utils.timezone import localtime
+        
+        # Извлекаем ID мероприятия из callback_data
+        event_id = callback_query.data.split("_")[1]
+        
+        # Получаем пользователя
+        user = await get_user_profile(callback_query.from_user.id)
+        if not user:
+            await callback_query.answer("Вы не зарегистрированы на портале.")
+            return
+        
+        # Получаем информацию о логистике
+        logistics = await sync_to_async(EventLogistics.objects.get)(
+            user=user, 
+            event_id=event_id
+        )
+        
+        # Формируем красивый текст с информацией о логистике
+        logistics_text = "✈️ <b>Информация о логистике</b>\n\n"
+        
+        # Информация о прилете
+        if logistics.arrival_datetime:
+            arrival_local = localtime(logistics.arrival_datetime)
+            logistics_text += f"🛬 <b>Прилет:</b>\n"
+            logistics_text += f"📅 {arrival_local.strftime('%d.%m.%Y %H:%M')}\n"
+            
+            if logistics.arrival_flight_number:
+                logistics_text += f"✈️ Рейс: {logistics.arrival_flight_number}\n"
+            if logistics.arrival_airport:
+                logistics_text += f"🏢 Аэропорт: {logistics.arrival_airport}\n"
+            logistics_text += "\n"
+        
+        # Информация об улете
+        if logistics.departure_datetime:
+            departure_local = localtime(logistics.departure_datetime)
+            logistics_text += f"🛫 <b>Улет:</b>\n"
+            logistics_text += f"📅 {departure_local.strftime('%d.%m.%Y %H:%M')}\n"
+            
+            if logistics.departure_flight_number:
+                logistics_text += f"✈️ Рейс: {logistics.departure_flight_number}\n"
+            if logistics.departure_airport:
+                logistics_text += f"🏢 Аэропорт: {logistics.departure_airport}\n"
+            logistics_text += "\n"
+        
+        # Информация о трансфере
+        if logistics.transfer_needed:
+            logistics_text += f"🚗 <b>Трансфер:</b> Требуется\n\n"
+        else:
+            logistics_text += f"🚗 <b>Трансфер:</b> Не требуется\n\n"
+        
+        # Информация о гостинице
+        if logistics.hotel_details:
+            logistics_text += f"🏨 <b>Гостиница:</b>\n{logistics.hotel_details}\n\n"
+        
+        # Если нет никакой информации
+        if not any([logistics.arrival_datetime, logistics.departure_datetime, logistics.hotel_details]):
+            logistics_text += "ℹ️ Подробная информация о логистике пока не заполнена."
+        
+        # Отправляем информацию
+        await callback_query.message.answer(
+            logistics_text,
+            parse_mode='HTML'
+        )
+        await callback_query.answer()
+        
+    except EventLogistics.DoesNotExist:
+        await callback_query.answer("Логистическая информация не найдена.")
+    except Exception as e:
+        logger.error(f"Ошибка при показе логистики: {e}")
+        await callback_query.answer("Произошла ошибка при загрузке информации.")
 
 if __name__ == "__main__":
     setup_django_environment()

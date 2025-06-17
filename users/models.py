@@ -94,6 +94,7 @@ class User(AbstractUser):
     telegram_id = models.CharField(max_length=100, unique=True, null=True, blank=True, verbose_name='Telegram ID')
     email = models.EmailField('email address', blank=True, null=True)
     vip = models.BooleanField(default=False, verbose_name='VIP')
+    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True, verbose_name='Фото профиля')
 
     objects = CustomUserManager()
 

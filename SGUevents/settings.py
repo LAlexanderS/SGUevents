@@ -67,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'users.middleware.CurrentUserMiddleware',
+    'users.middleware.NoCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'SGUevents.urls'
@@ -216,6 +217,34 @@ INTERNAL_IPS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Отключаем все виды кэширования для разработки
+if DEBUG:
+    # Отключаем кэш
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
+    
+    # Отключаем кэширование шаблонов
+    for template_engine in TEMPLATES:
+        template_engine['OPTIONS']['debug'] = True
+        
+    # Отключаем кэширование статических файлов
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    
+    # Отключаем кэширование сессий
+    SESSION_CACHE_ALIAS = 'default'
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+    
+    # Отключаем кэширование админки
+    ADMIN_MEDIA_PREFIX = '/static/admin/'
+    
+    # Принудительно перезагружаем модули
+    import sys
+    if 'users.admin' in sys.modules:
+        del sys.modules['users.admin']
 
 # Настройки Celery
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
