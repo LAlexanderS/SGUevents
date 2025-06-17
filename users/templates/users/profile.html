@@ -211,37 +211,47 @@
                                 </div>
                                 
 
-                                {% comment %} <div class="col-12 col-lg-8 movement">
+                                <div class="col-12 col-lg-8 movement">
                                     <div class="movement-header">Перемещения</div>
                                             
                                     <div class="user-movement">
-                                        <div class="user-movement-info">
-                                            <span>Дата/время/рейс <br>отлёта - прилёта</span>
-                                            <span>11.09.2025 9:00 316593<br>15.09.2025 18:00 616952</span> 
-                                        </div>   
-                                        <div class="user-movement-info">
-                                            <span>Место отлёта</span>
-                                            <span>Домодедово</span> 
-                                        </div>  
-                                        <div class="user-movement-info">
-                                            <span>Место прилёта</span>
-                                            <span>Толмачёво</span> 
-                                        </div>  
-                                        <div class="user-movement-info">
-                                            <span>Проживание</span>
-                                            <span>1-й Ботинский пр-д, 6</span> 
-                                        </div>  
-                                        <div class="user-movement-info">
-                                            <span>Встречающий</span>
-                                            <span>Иванов Иван Иванович</span> 
-                                        </div>  
-                                        <div class="user-movement-info">
-                                            <span>Мероприятие</span>
-                                            <span>Совещание ДДКП</span> 
-                                        </div>  
+                                        {% for logist in logistics %}
+                                            <div class="user-movement-info">
+                                                <span>Дата/время/рейс <br>отлёта - прилёта</span>
+                                                <span>{{ logist.departure_datetime }}<br>{{ logist.arrival_datetime }}</span> 
+                                            </div>   
+                                            <div class="user-movement-info">
+                                                <span>Место отлёта</span>
+                                                <span>{{ logist.departure_airport }}</span> 
+                                            </div>  
+                                            <div class="user-movement-info">
+                                                <span>Место прилёта</span>
+                                                <span>{{ logist.arrival_airport }}</span> 
+                                            </div>  
+                                            <div class="user-movement-info">
+                                                <span>Проживание</span>
+                                                <span>{{ logist.hotel_details }}</span> 
+                                            </div>  
+                                            <div class="user-movement-info">
+                                                <span>Встречающий</span>
+                                                <span>{{ logist.departure_datetime }}</span> 
+                                            </div>  
+                                            <div class="user-movement-info">
+                                                <span>Трансфер</span>
+                                                <span>
+                                                    {% if logist.transfer_needed %}
+                                                        Нужен
+                                                    {% else %}
+                                                        Не нужен
+                                                    {% endif %}</span> 
+                                            </div>
+                                            <div class="user-movement-info">
+                                                <span>Мероприятие</span>
+                                                <span><a href="/events_available/offline/{{logist.event.slug}}">{{ logist.event }}</a></span> 
+                                            </div>  
+                                        {% endfor %}
                                     </div>
-
-                                </div> {% endcomment %}
+                                </div>
 
 
                                 <div class="col-lg-3"></div>

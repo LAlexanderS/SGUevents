@@ -23,6 +23,7 @@ from .forms import RegistrationForm
 from .models import Department, AdminRightRequest, TelegramAuthToken
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
 from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
+from events_available.models import EventLogistics
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -264,7 +265,14 @@ def profile(request):
     user = request.user
     login_method = request.session.get('login_method', 'Неизвестный способ входа')
     department_name = user.department.department_name if user.department else 'Не указан'
-    return render(request, 'users/profile.html', {'user': user, 'login_method': login_method, 'department_name': department_name})
+    logistics = EventLogistics.objects.filter(user=user)
+    print(logistics)
+    return render(request, 'users/profile.html', {'user': user, 'login_method': login_method, 'department_name': department_name, 'logistics': logistics,})
+    # login_method = request.session.get('login_method', 'Неизвестный способ входа')
+    # department_name = request.user.department.department_name if request.user.department else 'Не указан'
+    # logistics = EventLogistics.objects.filter(user=request.user)
+    # print(logistics)
+    # return render(request, 'users/profile.html', {'user': request.user, 'login_method': login_method, 'department_name': department_name, 'logistics': logistics,})
 
 @login_required
 def logout(request):
