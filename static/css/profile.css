@@ -127,6 +127,12 @@
     text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
+.no-movement {
+    text-align: center;
+    font-size: 24px;
+    color: rgb(39, 66, 106);
+
+}
 
 .user-movement {
     display: flex;
@@ -251,7 +257,8 @@
         font-size: 16px;
     }
 
-    .user-movement {
+    .user-movement,
+    .no-movement {
         font-size: 26px;
     }
 
@@ -295,6 +302,10 @@
         justify-content: space-between;
         width: 100%;
         margin: 0px;
+    }
+
+    .no-movement {
+        font-size: 14px;
     }
 
     .movement-header {
