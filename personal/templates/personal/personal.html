@@ -43,6 +43,13 @@
             </a>
           </div>
         {% endif %}
+        {% if user.is_staff or user.is_superuser %}
+          <div class="col-md-6 admin-button">
+            <a href="/admin/events_available/eventlogistics/" class="btn btn-secondary w-100" target="_blank">
+              Информация по логистике
+            </a>
+          </div>
+        {% endif %}
       </div>
     </div>
   
