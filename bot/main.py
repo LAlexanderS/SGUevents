@@ -978,6 +978,10 @@ async def show_logistics_info(callback_query: types.CallbackQuery):
             logistics_text += f"🚗 <b>Трансфер:</b> Требуется\n\n"
         else:
             logistics_text += f"🚗 <b>Трансфер:</b> Не требуется\n\n"
+
+        # Информация о встречающем
+        if logistics.meeting_person:
+            logistics_text += f"🚗 <b>Встречающий:</b>\n{logistics.meeting_person}\n\n"
         
         # Информация о гостинице
         if logistics.hotel_details:

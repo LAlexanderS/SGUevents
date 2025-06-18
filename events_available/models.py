@@ -289,6 +289,11 @@ class EventLogistics(models.Model):
         blank=True,
         help_text="Название, адрес, номер брони и т.д."
     )
+    meeting_person = models.TextField(
+        verbose_name="Встречающий",
+        blank=True,
+        help_text="ФИО встречающего"
+    )
 
     class Meta:
         verbose_name = "Логистика по мероприятию"

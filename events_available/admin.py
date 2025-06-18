@@ -129,7 +129,7 @@ admin.site.register(MediaFile)
 
 @admin.register(EventLogistics)
 class EventLogisticsAdmin(EventLogisticsRestrictedMixin, admin.ModelAdmin):
-    list_display = ('user', 'event', 'arrival_datetime', 'departure_datetime', 'transfer_needed')
+    list_display = ('user', 'event', 'arrival_datetime', 'departure_datetime', 'transfer_needed', 'meeting_person')
     list_filter = ('event', 'transfer_needed')
     search_fields = (
         'user__username', 'user__first_name', 'user__last_name',

@@ -148,14 +148,14 @@
                                         </button>
                                         {% if user.profile_photo %}
                                             <button class="btn photo-delete-btn" onclick="deletePhoto()">
-                                                <i class="delete-icon">🗑️</i> Удалить
+                                                <i class="delete-icon">🗑️</i> Удалить фото
                                             </button>
                                         {% endif %}
                                     </div>
                                 </div>
                                 <div class="col-12 col-lg-6 button-column mt-2" style="text-align: center; align-content: center;">
-                                    <button class="btn change-password" onclick="requestPasswordChange()">Сменить пароль</button>
-                                    {% comment %}  {% endcomment %}
+                                    <button class="btn change-password" onclick="requestPasswordChange()">
+                                        <i class="password-icon">🔒</i> Сменить пароль</button>
                                 </div>
                                 <div class="col-lg-1 d-none d-lg-block"></div>                                
                             </div>
@@ -210,48 +210,63 @@
 
                                 </div>
                                 
-
-                                <div class="col-12 col-lg-8 movement">
-                                    <div class="movement-header">Перемещения</div>
-                                            
-                                    <div class="user-movement">
-                                        {% for logist in logistics %}
-                                            <div class="user-movement-info">
-                                                <span>Дата/время/рейс <br>отлёта - прилёта</span>
-                                                <span>{{ logist.departure_datetime }}<br>{{ logist.arrival_datetime }}</span> 
-                                            </div>   
-                                            <div class="user-movement-info">
-                                                <span>Место отлёта</span>
-                                                <span>{{ logist.departure_airport }}</span> 
-                                            </div>  
-                                            <div class="user-movement-info">
-                                                <span>Место прилёта</span>
-                                                <span>{{ logist.arrival_airport }}</span> 
-                                            </div>  
-                                            <div class="user-movement-info">
-                                                <span>Проживание</span>
-                                                <span>{{ logist.hotel_details }}</span> 
-                                            </div>  
-                                            <div class="user-movement-info">
-                                                <span>Встречающий</span>
-                                                <span>{{ logist.departure_datetime }}</span> 
-                                            </div>  
-                                            <div class="user-movement-info">
-                                                <span>Трансфер</span>
-                                                <span>
-                                                    {% if logist.transfer_needed %}
-                                                        Нужен
-                                                    {% else %}
-                                                        Не нужен
-                                                    {% endif %}</span> 
-                                            </div>
-                                            <div class="user-movement-info">
-                                                <span>Мероприятие</span>
-                                                <span><a href="/events_available/offline/{{logist.event.slug}}">{{ logist.event }}</a></span> 
-                                            </div>  
-                                        {% endfor %}
+                                {% if logistics %}
+                                    <div class="col-12 col-lg-8 movement">
+                                        <div class="movement-header">Перемещения</div>
+                                                
+                                        <div class="user-movement">
+                                            {% for logist in logistics %}
+                                                {% if logist.departure_datetime %}
+                                                    <div class="user-movement-info">
+                                                        <span>Дата/время/рейс <br>отлёта - прилёта</span>
+                                                        <span>{{ logist.departure_datetime }}<br>{{ logist.arrival_datetime }}</span> 
+                                                    </div>   
+                                                {% endif %}
+                                                {% if logist.departure_airport %}
+                                                    <div class="user-movement-info">
+                                                        <span>Место отлёта</span>
+                                                        <span>{{ logist.departure_airport }}</span> 
+                                                    </div>  
+                                                {% endif %}
+                                                {% if logist.arrival_airport %}
+                                                    <div class="user-movement-info">
+                                                        <span>Место прилёта</span>
+                                                        <span>{{ logist.arrival_airport }}</span> 
+                                                    </div>  
+                                                {% endif %}
+                                                {% if logist.hotel_details %}
+                                                    <div class="user-movement-info">
+                                                        <span>Проживание</span>
+                                                        <span>{{ logist.hotel_details }}</span> 
+                                                    </div>  
+                                                {% endif %}
+                                                {% if logist.meeting_person %}
+                                                    <div class="user-movement-info">
+                                                        <span>Встречающий</span>
+                                                        <span>{{ logist.meeting_person }}</span> 
+                                                    </div>  
+                                                {% endif %}
+                                                {% if logist.transfer_needed %}
+                                                    <div class="user-movement-info">
+                                                        <span>Трансфер</span>
+                                                        <span>
+                                                            {% if logist.transfer_needed %}
+                                                                Нужен
+                                                            {% else %}
+                                                                Не нужен
+                                                            {% endif %}</span> 
+                                                    </div>
+                                                {% endif %}
+                                                {% if logist.logist.event %}
+                                                    <div class="user-movement-info">
+                                                        <span>Мероприятие</span>
+                                                        <span><a href="/events_available/offline/{{logist.event.slug}}">{{ logist.event }}</a></span> 
+                                                    </div>  
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
 
 
                                 <div class="col-lg-3"></div>
