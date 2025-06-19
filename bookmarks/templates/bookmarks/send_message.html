@@ -16,7 +16,16 @@
     <script src="{% static 'lib/js/popper.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 
+    <style>
+        .text-lines label {
+            font-size: 18px;
+        }
 
+        .send-message:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+    </style>
 </head>
 <body style="background-image: url({% static "images/background.jpg" %});">
     <header>
@@ -120,7 +129,7 @@
             {% csrf_token %}
             
             <div class="form-group mb-3">
-                {{ form.event_type.label_tag }}
+                <span class="text-lines">{{ form.event_type.label_tag }}</span> 
                 <select name="event_type" id="id_event_type" class="form-control">
                     {% for value, text in form.event_type.field.choices %}
                         <option value="{{ value }}">{{ text }}</option>
@@ -129,7 +138,7 @@
             </div>
 
             <div class="form-group mb-3">
-                {{ form.event.label_tag }}
+                <span class="text-lines">{{ form.event.label_tag }}</span>
                 <select name="event" id="id_event" class="form-control">
                     <option value="">---------</option>
                     {% for event in form.event.field.queryset %}
@@ -139,7 +148,7 @@
             </div>
 
             <div class="form-group mb-3">
-                {{ form.message.label_tag }}
+                <span class="text-lines">{{ form.message.label_tag }}</span>
                 <textarea name="message" id="id_message" class="form-control" rows="4"></textarea>
             </div>
 
@@ -151,11 +160,11 @@
             </div>
 
             <div class="form-group mb-3" id="userSelectGroup" style="display: none;">
-                {{ form.selected_users.label_tag }}
+                <span class="text-lines"></span>{{ form.selected_users.label_tag }}
                 {{ form.selected_users }}
             </div>
 
-            <button type="submit" class="btn">Отправить сообщение</button>
+            <button type="submit" class="btn send-message">Отправить сообщение</button>
         </form>
     </div>
 

@@ -451,7 +451,9 @@ def send_message_to_participants(request):
             return redirect('bookmarks:send_message_to_participants')
         else:
             logger.error(f"Ошибки формы: {form.errors}")
-            messages.error(request, f"Ошибка в форме: {form.errors}")
+            #messages.error(request, f"Ошибка в форме: {form.errors}")
+            messages.error(request, f"Ошибка при отправке")
+
     else:
         form = SendMessageForm(user=request.user)
 
