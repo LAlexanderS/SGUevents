@@ -265,8 +265,7 @@ def profile(request):
     user = request.user
     login_method = request.session.get('login_method', 'Неизвестный способ входа')
     department_name = user.department.department_name if user.department else 'Не указан'
-    logistics = EventLogistics.objects.filter(user=user)
-    print(logistics)
+    logistics = EventLogistics.objects.filter(user=user).order_by('departure_datetime')
     return render(request, 'users/profile.html', {'user': user, 'login_method': login_method, 'department_name': department_name, 'logistics': logistics,})
     # login_method = request.session.get('login_method', 'Неизвестный способ входа')
     # department_name = request.user.department.department_name if request.user.department else 'Не указан'
