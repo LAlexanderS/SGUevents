@@ -403,7 +403,7 @@ def send_message_to_participants(request):
                 return redirect('bookmarks:send_message_to_participants')
 
             # Проверяем права доступа к мероприятию
-            if not request.user.is_superuser and event.author != request.user:
+            if not request.user.is_superuser and request.user not in event.events_admin.all():
                 messages.error(request, "У вас нет прав для отправки сообщений участникам этого мероприятия.")
                 return redirect('bookmarks:send_message_to_participants')
 
@@ -482,7 +482,7 @@ def get_event_participants(request):
         event = model.objects.get(id=event_id)
         
         # Проверяем права доступа
-        if not request.user.is_superuser and event.author != request.user:
+        if not request.user.is_superuser and request.user not in event.events_admin.all():
             return JsonResponse({'error': 'Access denied'}, status=403)
             
         registered_users = Registered.objects.filter(**{event_type: event}).select_related('user')

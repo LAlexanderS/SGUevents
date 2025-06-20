@@ -176,6 +176,22 @@
         const eventTypeSelect = document.getElementById('id_event_type');
         const selectedUsersSelect = document.getElementById('id_selected_users');
 
+        // Функция для загрузки мероприятий по типу
+        function loadEventsByType(eventType) {
+            fetch(`/bookmarks/get-event-choices/?event_type=${eventType}`)
+                .then(response => response.json())
+                .then(data => {
+                    eventSelect.innerHTML = '<option value="">---------</option>';
+                    data.forEach(event => {
+                        const option = new Option(event.name, event.id);
+                        eventSelect.add(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки мероприятий:', error);
+                });
+        }
+
         // Функция для обновления списка пользователей
         function updateUsersList() {
             if (eventSelect.value) {
@@ -204,6 +220,7 @@
         eventTypeSelect.addEventListener('change', function() {
             eventSelect.value = '';
             selectedUsersSelect.innerHTML = '';
+            loadEventsByType(eventTypeSelect.value);
         });
 
         // Инициализация при загрузке страницы
@@ -211,6 +228,10 @@
             userSelectGroup.style.display = 'block';
             selectedUsersSelect.style.display = 'block';
         }
+        
+        // Загружаем мероприятия для типа по умолчанию
+        const defaultEventType = eventTypeSelect.value || 'online';
+        loadEventsByType(defaultEventType);
     });
     </script>
     </section>
