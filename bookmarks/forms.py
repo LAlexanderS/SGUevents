@@ -27,7 +27,7 @@ class SendMessageForm(forms.Form):
 
     def __init__(self, *args, user=None, **kwargs):
         event_type = kwargs.pop('event_type', None)
-                super(SendMessageForm, self).__init__(*args, **kwargs)
+        super(SendMessageForm, self).__init__(*args, **kwargs)
         self.user = user
 
         # Если тип мероприятия не указан, определяем лучший по умолчанию для пользователя
