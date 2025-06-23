@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
+from datetime import timedelta 
 
 from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery, MediaFile, EventLogistics
 
@@ -18,6 +20,7 @@ class RestrictedAdminMixin:
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs  # все для суперпольз
+            
         # меропр где польз админ
         return qs.filter(events_admin=request.user)
 
@@ -46,8 +49,13 @@ class EventLogisticsRestrictedMixin:
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs  # суперпользователь видит все
-        # фильтруем по событиям, где пользователь является администратором
-        return qs.filter(event__events_admin=request.user)
+        # фильтруем по событиям, где пользователь является администратором и актуальные записи + 7 дней 
+        seven_days = now() - timedelta(days=7)
+
+        return qs.filter(
+            event__events_admin=request.user,
+            departure_datetime__gt=seven_days
+            )
 
     def has_change_permission(self, request, obj=None):
         if obj is not None and not request.user.is_superuser:
@@ -126,6 +134,7 @@ class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
             form.instance.events_admin.add(request.user)
 
 admin.site.register(MediaFile)
+
 
 @admin.register(EventLogistics)
 class EventLogisticsAdmin(EventLogisticsRestrictedMixin, admin.ModelAdmin):
