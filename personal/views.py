@@ -59,6 +59,8 @@ def personal(request):
     is_offline_group = current_user.groups.filter(name="Оффлайн мероприятия").exists()
     is_attraction_group = current_user.groups.filter(name="Достопримечательности").exists()
     is_for_visiting_group = current_user.groups.filter(name="Доступные к посещению").exists()
+    is_logistics = current_user.groups.filter(name="Логистика").exists()
+
     
     events = list(chain(online_events, offline_events, attractions, for_visiting))
 
@@ -90,6 +92,7 @@ def personal(request):
         'is_offline_group': is_offline_group,
         'is_attraction_group': is_attraction_group,
         'is_for_visiting_group': is_for_visiting_group,
+        'is_logistics': is_logistics,
         'name_page': "Кабинет администратора",
         'reviews_avg': reviews_avg,
     }
