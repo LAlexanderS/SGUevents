@@ -153,6 +153,10 @@
     margin: 0 auto;
 }
 
+.user-movement-event {
+    border-bottom: 1px solid;
+}
+
 .user-movement-info span:first-of-type {
     font-weight: 600;
     width: 40%;

@@ -18,6 +18,9 @@ from django.conf import settings
 from transliterate import translit
 from asgiref.sync import async_to_sync
 from bot.main import handle_webhook
+from django.utils.timezone import now
+from datetime import datetime
+
 
 from .forms import RegistrationForm
 from .models import Department, AdminRightRequest, TelegramAuthToken
@@ -265,7 +268,9 @@ def profile(request):
     user = request.user
     login_method = request.session.get('login_method', 'Неизвестный способ входа')
     department_name = user.department.department_name if user.department else 'Не указан'
-    logistics = EventLogistics.objects.filter(user=user).order_by('departure_datetime')
+    today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = timezone.make_aware(today)
+    logistics = EventLogistics.objects.filter(user=user, departure_datetime__gte=today).order_by('departure_datetime')
     return render(request, 'users/profile.html', {'user': user, 'login_method': login_method, 'department_name': department_name, 'logistics': logistics,})
     # login_method = request.session.get('login_method', 'Неизвестный способ входа')
     # department_name = request.user.department.department_name if request.user.department else 'Не указан'
