@@ -12,6 +12,9 @@ from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from django.conf import settings
 
+import logging
+logger = logging.getLogger(__name__)
+
 class MediaFile(models.Model):
     message_id = models.CharField(max_length=100, verbose_name='ID сообщения')
     chat_id = models.CharField(max_length=100, verbose_name='ID чата')
@@ -77,11 +80,16 @@ class Events_online(models.Model):
         ]
 
     def clean(self):
-        if self.date > self.date_end:
-            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
-        elif self.date == self.date_end:
-            if self.time_start > self.time_end:
-                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        try:
+            if self.date > self.date_end:
+                raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
+            elif self.date == self.date_end:
+                if self.time_start > self.time_end:
+                    raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        except Exception as e:
+            logger.error(f"Ошибка при проверке дат онлайн мероприятия: {e}")
+
+            
             
     def __str__(self):
         return self.name
@@ -170,12 +178,15 @@ class Events_offline(models.Model):
         verbose_name_plural = 'Оффлайн мероприятия'
 
     def clean(self):
-        if self.date > self.date_end:
-            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
-        elif self.date == self.date_end:
-            if self.time_start > self.time_end:
-                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
-            
+        if self.date and self.date_end:
+            if self.date > self.date_end:
+                raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
+            elif self.date == self.date_end:
+                if self.time_start > self.time_end:
+                    raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        else:
+            raise ValidationError({'date': 'Проверьте корректность заполнения данных', 'date': ''})
+         
     def __str__(self):
         return self.name
 
@@ -301,6 +312,19 @@ class EventLogistics(models.Model):
         # Гарантируем, что для одной пары пользователь-мероприятие есть только одна запись
         unique_together = ('user', 'event')
         ordering = ['event__start_datetime', 'user__last_name']
+
+    def clean1(self):
+        try:
+            if self.arrival_datetime > self.departure_datetime:
+                raise ValidationError({'departure_datetime': 'Дата улёта должна быть позже даты прилета'})
+        except Exception as e:
+            logger.error(f"Ошибка при проверке дат прилёта\улёта мероприятия: {e}")
+
+    def save(self, *args, **kwargs):
+        self.clean1()
+
+        super(EventLogistics, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return f"Логистика для {self.user} на {self.event.name}"
