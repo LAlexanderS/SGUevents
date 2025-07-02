@@ -80,16 +80,14 @@ class Events_online(models.Model):
         ]
 
     def clean(self):
-        try:
+        if self.date and self.date_end:
             if self.date > self.date_end:
                 raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
             elif self.date == self.date_end:
                 if self.time_start > self.time_end:
                     raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
-        except Exception as e:
-            logger.error(f"Ошибка при проверке дат онлайн мероприятия: {e}")
-
-            
+        else:
+            raise ValidationError({'date': 'Проверьте корректность заполнения данных'})            
             
     def __str__(self):
         return self.name
@@ -185,7 +183,7 @@ class Events_offline(models.Model):
                 if self.time_start > self.time_end:
                     raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
         else:
-            raise ValidationError({'date': 'Проверьте корректность заполнения данных', 'date': ''})
+            raise ValidationError({'date': 'Проверьте корректность заполнения данных'})
          
     def __str__(self):
         return self.name
@@ -313,15 +311,16 @@ class EventLogistics(models.Model):
         unique_together = ('user', 'event')
         ordering = ['event__start_datetime', 'user__last_name']
 
-    def clean1(self):
-        try:
-            if self.arrival_datetime > self.departure_datetime:
-                raise ValidationError({'departure_datetime': 'Дата улёта должна быть позже даты прилета'})
-        except Exception as e:
-            logger.error(f"Ошибка при проверке дат прилёта\улёта мероприятия: {e}")
+    def clean(self):
+        if self.arrival_datetime and self.departure_datetime:
+            if self.arrival_datetime >= self.departure_datetime:
+                raise ValidationError({'departure_datetime': 'Дата улёта должна быть позже даты прилёта'})
+        else:
+            raise ValidationError({'departure_datetime': 'Проверьте корректность заполнения данных'})
+    
 
     def save(self, *args, **kwargs):
-        self.clean1()
+        self.clean()
 
         super(EventLogistics, self).save(*args, **kwargs)
 

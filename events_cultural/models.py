@@ -50,11 +50,14 @@ class Attractions(models.Model):
         verbose_name_plural = 'Достопримечательности'
 
     def clean(self):
-        if self.date > self.date_end:
-            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
-        elif self.date == self.date_end:
-            if self.time_start > self.time_end:
-                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        if self.date and self.date_end:
+            if self.date > self.date_end:
+                raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
+            elif self.date == self.date_end:
+                if self.time_start > self.time_end:
+                    raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        else:
+            raise ValidationError({'date': 'Проверьте корректность заполнения данных', 'date': ''})
                 
     def __str__(self):
         return self.name
@@ -136,11 +139,14 @@ class Events_for_visiting(models.Model):
         verbose_name_plural = 'Доступные к посещению'
     
     def clean(self):
-        if self.date > self.date_end:
-            raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
-        elif self.date == self.date_end:
-            if self.time_start > self.time_end:
-                raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        if self.date and self.date_end:
+            if self.date > self.date_end:
+                raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
+            elif self.date == self.date_end:
+                if self.time_start > self.time_end:
+                    raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+        else:
+            raise ValidationError({'date': 'Проверьте корректность заполнения данных', 'date': ''})
         
 
     def __str__(self):
