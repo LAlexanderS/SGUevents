@@ -539,7 +539,7 @@
                                                         <div class="user-icon">
                                                             <img src="{% static "icons/profile-image-default.png" %}" alt="">
                                                         </div>
-                                                        <div class="username">{{ review.user.last_name }} {{ review.user.first_name }}</div>
+                                                        <div class="username">{{ review.user.last_name }} <br> {{ review.user.first_name }}</div>
                                                         <div class="review-date-submitted">{{ review.formatted_date }}</div> 
                                                         <div class="full-stars-com">
                                                             <div class="rating-group-com">
@@ -593,7 +593,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="review-block">
+                                                    <div class="review-block .review-block-existent-review-card">
                                                         <div class="review-text"
                                                             style="overflow-wrap: break-word; word-wrap: break-word;  min-width: 0; white-space: normal;">
                                                             {{ review.comment }}</div>

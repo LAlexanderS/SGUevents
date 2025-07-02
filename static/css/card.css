@@ -81,7 +81,7 @@ p {
     background-color: #fff;
     border-radius: 25px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 30px;
+    padding: 13px 20px;
     margin: 10px;
     width: 220px;
     height: 300px;
@@ -137,6 +137,12 @@ p {
     line-height: 130%;
     letter-spacing: 0%;
     text-align: center;
+    overflow: hidden;
+    /* max-width: 100%;
+    display: block;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal; */
 }
 
 .review-block {
@@ -146,6 +152,7 @@ p {
     align-items: center; */
     width: 100%;
     padding: 0%;
+    height: 47%;
 }
 
 .review-text {
