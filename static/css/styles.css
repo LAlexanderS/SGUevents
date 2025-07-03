@@ -84,12 +84,12 @@ header {
     box-sizing: content-box;
 }
 
-div {
-    /* text-indent: 20px; */
+/* div {
+    text-indent: 20px;
     line-height: 2;
     text-align: justify;
 
-}
+} */
 
 .btn-outline-success {
     background: rgba(109, 106, 129, 0.5);
@@ -345,7 +345,7 @@ button {
     font-family: 'Onest';
     font-size: 20px;
     font-weight: 400;
-    line-height: 130%;
+    /* line-height: 130%; */
     letter-spacing: 0%;
     border-radius: 25px;
     border: none;
@@ -1277,6 +1277,10 @@ td {
     text-align: center;
 
 
+}
+
+.user-lastname {
+    line-height: 1;
 }
 
 .review-block {
