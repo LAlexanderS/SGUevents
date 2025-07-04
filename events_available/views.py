@@ -474,12 +474,25 @@ def offline_card(request, event_slug=False, event_id=False):
     registered = Registered.objects.filter(user=request.user, offline__in=events)
     registered_dict = {reg.offline.id: reg.id for reg in registered}
 
+    reviews_avg = {}
+    for event in events:
+        content_type = ContentType.objects.get_for_model(event)
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=event.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
+    
+    print(f'111111111 {reviews_avg}')
+
     context = {
         'event': event,
         'reviews': reviews, 
         'registered': registered_dict,
         'favorites': favorites_dict,
         'now': now().date(),
+        'reviews_avg': reviews_avg,
     }
 
     return render(request, 'events_available/card.html', context=context)

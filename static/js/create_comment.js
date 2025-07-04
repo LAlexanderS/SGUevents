@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="user-icon">
                         <img src="/static/icons/profile-image-default.png" alt="">
                     </div>
-                    <div class="username">${review.user.last_name} ${review.user.first_name}</div>
+                    <div class="username">${review.user.last_name} <br> ${review.user.first_name}</div>
                     <div class="review-date-submitted">${getFormattedNow()}</div>
                                                         <div class="full-stars-com">
                                                             <div class="rating-group-com">
