@@ -22,9 +22,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4z
 
 # ALLOWED_HOSTS = ['*']
 
-
 DEBUG = False
-ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru']
+ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '127.0.0.1', 'localhost', 'sguevents.help']
+
+# Значение по умолчанию для разработки
+DJANGO_ENV = os.environ.get('DJANGO_ENV', 'development')
 
 # Application definition
 
@@ -93,9 +95,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'SGUevents.wsgi.application'
-
-# Значение по умолчанию для разработки
-DJANGO_ENV = os.environ.get('DJANGO_ENV', 'development')
 
 # Токены для разработки и продакшена
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -171,13 +170,22 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Security settings for HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
+# Дополнительные настройки безопасности для SSL
+SECURE_HSTS_SECONDS = 31536000  # 1 год
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 CSRF_TRUSTED_ORIGINS = [
     'https://sguevents.ru',
+    'https://www.sguevents.ru',
+    'https://sguevents.help',
+    'http://127.0.0.1:8000',  # Для прямого доступа при разработке
+    'http://localhost:8000',
 ]
 
 
@@ -251,8 +259,8 @@ if DEBUG:
         del sys.modules['users.admin']
 
 # Настройки Celery
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

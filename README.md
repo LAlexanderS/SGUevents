@@ -18,9 +18,11 @@
    - Интерпретатор находится здесь: `...ваш_путь_к_venv/venv/bin/python3`
 6. Установка всех пакетов. Находимся в директории SGUplatform (где лежит файл `requirements.txt`):
    - Выполнить команду: `pip3 install -r requirements.txt`
-7. Создаем `.env` в корне по образцу `.env.example`.
-8. Запуск проекта. Находимся в директории SGUplatform (где лежит файл `manage.py`):
-   - Выполнить команду: `python3 manage.py runserver & python3 manage.py startbot`
+7. Создаем `.env` в корне с необходимыми переменными окружения.
+8. Для локальной разработки собираем статику:
+   - Выполнить команду: `python3 manage.py collectstatic --noinput`
+9. Запуск проекта. Находимся в директории SGUplatform (где лежит файл `manage.py`):
+   - Выполнить команду: `python3 manage.py runserver --noreload & python3 manage.py startbot --noreload`
    - Или настроить автоматический запуск (PyCharm - через Edit Configurations с параметром `runserver`, VSCode - через добавление `launch.json`).
 
 ## Запуск на Windows:
@@ -42,9 +44,11 @@
 5. Переходим в папку проекта SGUevents.
 6. Установить пакеты с помощью команды:
    - Выполнить команду: `pip install -r requirements.txt`
-7. Создаем `.env` в корне по образцу `.env.example`.
-8. Запуск проекта. Находимся в директории SGUevents (где лежит файл `manage.py`):
-   - Выполнить команду: `python manage.py runserver & python manage.py startbot`
+7. Создаем `.env` в корне с необходимыми переменными окружения.
+8. Для локальной разработки собираем статику:
+   - Выполнить команду: `python manage.py collectstatic --noinput`
+9. Запуск проекта. Находимся в директории SGUevents (где лежит файл `manage.py`):
+   - Выполнить команду: `python manage.py runserver --noreload & python manage.py startbot --noreload`
    - Или настроить автоматический запуск (PyCharm - через Edit Configurations с параметром `runserver`, VSCode - через добавление `launch.json`).
 
 ## Запуск локально на Windows:
