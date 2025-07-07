@@ -474,17 +474,22 @@ def offline_card(request, event_slug=False, event_id=False):
     registered = Registered.objects.filter(user=request.user, offline__in=events)
     registered_dict = {reg.offline.id: reg.id for reg in registered}
 
+    rev = Review.objects.all()
+    for rr in rev:
+        print(f'idd {rr.id}')
     reviews_avg = {}
-    for event in events:
-        content_type = ContentType.objects.get_for_model(event)
+    for avg in events:
+        content_type = ContentType.objects.get_for_model(avg)
+        print(f'sssssssssssss {avg.id}')
+
+
+
         avg_rating = Review.objects.filter(
             content_type=content_type,
-            object_id=event.id,
+            object_id=avg.id,
             rating__isnull=False
         ).aggregate(Avg('rating'))['rating__avg']
-        reviews_avg[event.id] = round(avg_rating, 1) if avg_rating else 0
-    
-    print(f'111111111 {reviews_avg}')
+        reviews_avg[avg.id] = round(avg_rating, 1) if avg_rating else 0
 
     context = {
         'event': event,
@@ -554,6 +559,8 @@ def submit_review(request, event_id):
             rating__isnull=False
         ).aggregate(Avg('rating'))['rating__avg']
         avg_rating = round(avg_rating, 1) if avg_rating else 0
+
+        print(f'qqqqqqqqqqq {avg_rating}')
 
         # # Проверяем, существует ли уже отзыв от этого пользователя
         # existing_review = Review.objects.filter(

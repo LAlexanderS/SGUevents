@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // 1. Обновляем средний рейтинг
                     const ratingText = document.querySelector(`.rating-overlay[data-event-id="${eventId}"] .ranting-count`)
+                    console.log('OAOAOOAOAOOAOAOAOOAO', ratingText)
                     if (ratingText && data.new_avg) {
                         ratingText.innerText = parseFloat(data.new_avg).toFixed(1).replace('.', ',')
                     }
