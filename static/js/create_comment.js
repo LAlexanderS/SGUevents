@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             const eventId = this.getAttribute('data-event-id')
             const modelType = this.getAttribute('data-model-type')
+            console.log('data-event-id', eventId)
+            console.log('data-model-type', modelType)
+
+
 
             document.getElementById('eventId').value = eventId
             document.getElementById('modelType').value = modelType
