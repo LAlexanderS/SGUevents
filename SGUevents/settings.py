@@ -23,7 +23,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4z
 # ALLOWED_HOSTS = ['*']
 
 DEBUG = False
-ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '127.0.0.1', 'localhost', 'sguevents.help', 'sguevents']
+# ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '127.0.0.1', 'localhost', 'sguevents.help', 'sguevents']
+ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '95.47.161.83']
+
 
 # Значение по умолчанию для разработки
 DJANGO_ENV = os.environ.get('DJANGO_ENV', 'development')
