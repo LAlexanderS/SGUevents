@@ -436,7 +436,11 @@
                             <h2 class="comment-title" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">что о нас говорят</h2>
                             <div class="half-stars" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">
 
-                                <div class="rating-overlay-card" data-event-id="{{ event.id }}">
+                            
+
+                                {% comment %} <div class="rating-overlay-card" data-event-id="{{ event.id }}"> {% endcomment %}
+                                <div class="rating-overlay" data-event-id="{{ event.id }}">
+
                                     <div class="half-stars">
                                         <div class="ranting-count">{{ reviews_avg|get_item:event.id|floatformat:1|default:"0.0" }}</div>
                                     

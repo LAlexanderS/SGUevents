@@ -544,6 +544,7 @@ def submit_review(request, event_id):
 
         content_type = ContentType.objects.get_for_model(event)
 
+        print(f'Рейтинг в submit_review {rating}')
         review = Review.objects.create(
                 user=request.user,
                 content_type=content_type,

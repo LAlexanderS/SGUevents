@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.btn-comment').forEach(function (button) {
         button.addEventListener('click', function () {
             const eventId = this.getAttribute('data-event-id')
+
             const modelType = this.getAttribute('data-model-type')
             console.log('data-event-id', eventId)
             console.log('data-model-type', modelType)
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const csrftoken = getCookie('csrftoken')
         const eventId = document.getElementById('eventId').value
         const modelType = document.getElementById('modelType').value
+        console.log('ID log ', eventId)
 
         let url = ''
         if (modelType === 'offline' || modelType === 'online') {
@@ -35,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             url = `/events_cultural/submit_review/${eventId}/`
         }
+        console.log('URL log ', url)
 
         fetch(url, {
             method: 'POST',
@@ -59,6 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     // 1. Обновляем средний рейтинг
                     const ratingText = document.querySelector(`.rating-overlay[data-event-id="${eventId}"] .ranting-count`)
                     console.log('OAOAOOAOAOOAOAOAOOAO', ratingText)
+                    console.log('ZZZZZZZZZZZZZZZZZZZZ', data.new_avg)
+
                     if (ratingText && data.new_avg) {
                         ratingText.innerText = parseFloat(data.new_avg).toFixed(1).replace('.', ',')
                     }
