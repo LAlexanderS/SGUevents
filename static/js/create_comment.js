@@ -5,7 +5,12 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.btn-comment').forEach(function (button) {
         button.addEventListener('click', function () {
             const eventId = this.getAttribute('data-event-id')
+
             const modelType = this.getAttribute('data-model-type')
+            console.log('data-event-id', eventId)
+            console.log('data-model-type', modelType)
+
+
 
             document.getElementById('eventId').value = eventId
             document.getElementById('modelType').value = modelType
@@ -24,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const csrftoken = getCookie('csrftoken')
         const eventId = document.getElementById('eventId').value
         const modelType = document.getElementById('modelType').value
+        console.log('ID log ', eventId)
 
         let url = ''
         if (modelType === 'offline' || modelType === 'online') {
@@ -31,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             url = `/events_cultural/submit_review/${eventId}/`
         }
+        console.log('URL log ', url)
 
         fetch(url, {
             method: 'POST',
@@ -49,12 +56,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     const modal = bootstrap.Modal.getInstance(document.getElementById('commentModal'))
                     if (modal) modal.hide()
+                    // Удаляем backdrop Bootstrap
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove())
+                    // Убираем класс show и display у всех модалок
+                    document.querySelectorAll('.modal').forEach(el => {
+                        el.classList.remove('show')
+                        el.style.display = 'none'
+                    })
+                    // Убираем overlay, если есть
+                    const overlay = document.getElementById('overlay')
+                    if (overlay) overlay.style.display = 'none'
+                    // Убираем modal-open с body
+                    document.body.classList.remove('modal-open')
 
                     addReviewToAppropriateBlock(eventId, data.review, data.formatted_date)
 
                     // 1. Обновляем средний рейтинг
                     const ratingText = document.querySelector(`.rating-overlay[data-event-id="${eventId}"] .ranting-count`)
                     console.log('OAOAOOAOAOOAOAOAOOAO', ratingText)
+                    console.log('ZZZZZZZZZZZZZZZZZZZZ', data.new_avg)
+
                     if (ratingText && data.new_avg) {
                         ratingText.innerText = parseFloat(data.new_avg).toFixed(1).replace('.', ',')
                     }
@@ -132,22 +153,85 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const newReview = document.createElement('div')
         newReview.classList.add('existent-comment')
+
+        // путь к аватарке
+        const profilePhotoUrl = review.user.profile_photo
+            ? review.user.profile_photo
+            : '/static/icons/profile-image-default.png'  // путь к дефолтной иконке
+
         newReview.innerHTML = `
-            <div class="existent-review">
-                <div class="user-info-existent-review">
-                    <div class="user-icon-existent-review">
-                        <img src="/static/icons/profile-image-default.png" alt="">
-                    </div>
-                    <div class="username-existent-review">
-                        <div class="user-lastname">${review.user.username}</div>
-                    </div>
-                </div>
-                <div class="review-block review-block-existent-review">
-                    <div class="review-text review-text-existent-review">
-                        ${review.comment}
-                    </div>
-                </div>
-            </div>
+                                                            <div class="existent-review">
+                                                                <div class="user-info-existent-review">
+                                                                    <div class="user-icon-existent-review"> 
+                                                                        <img src="${profilePhotoUrl}" alt="">
+                                                                    </div>
+                                 
+                                                                    <div class="username-existent-review">
+                                                                        <div class="user-lastname">${review.user.username}</div>
+                                                                    </div>
+                                                                    <div class="full-stars-com">
+                                                                        <div class="rating-group-com">
+                                                                            <!-- по умолчанию 0 -->
+                                                                            <input name="fst" value="0" type="radio" disabled checked />
+                        
+                                                                            <!-- рейтинг 1 -->
+                                                                            <label for="fst-1">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                                                    <path
+                                                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                                                </svg>
+                                                                            </label>
+                                                                            <input name="fst" id="fst-1" value="1" type="radio" />
+                        
+                                                                            <!-- рейтинг 2 -->
+                                                                            <label for="fst-2">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                                                    <path
+                                                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                                                </svg>
+                                                                            </label>
+                                                                            <input name="fst" id="fst-2" value="2" type="radio" />
+                        
+                                                                            <!-- рейтинг 3 -->
+                                                                            <label for="fst-3">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                                                    <path
+                                                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                                                </svg>
+                                                                            </label>
+                                                                            <input name="fst" id="fst-3" value="3" type="radio" />
+                        
+                                                                            <!-- рейтинг 4 -->
+                                                                            <label for="fst-4">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                                                    <path
+                                                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                                                </svg>
+                                                                            </label>
+                                                                            <input name="fst" id="fst-4" value="4" type="radio" />
+                        
+                                                                            <!-- рейтинг 5 -->
+                                                                            <label for="fst-5">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                                                    <path
+                                                                                        d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                                                </svg>
+                                                                            </label>
+                                                                            <input name="fst" id="fst-5" value="5" type="radio" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="review-date-submitted">
+                                                                        ${getFormattedNow()}
+                                                                    </div> 
+                                                                </div>
+                                                                <div class="review-block review-block-existent-review">
+                                                                    <div class="review-text review-text-existent-review">
+                                                                        ${review.comment}
+                                                                    </div>
+                                                                </div>
+                                                            </div>   
+
+                                                            <hr class="review-divider">     
         `
         reviewsDiv.prepend(newReview)
 
@@ -189,11 +273,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const now = new Date()
 
+        // путь к аватарке
+        const profilePhotoUrl = review.user.profile_photo
+            ? review.user.profile_photo
+            : '/static/icons/profile-image-default.png'  // путь к дефолтной иконке
+
         item.innerHTML = `
             <div class="review">
                 <div class="col-lg-4 user-info">
                     <div class="user-icon">
-                        <img src="/static/icons/profile-image-default.png" alt="">
+                        <img src="${profilePhotoUrl}" alt="">
                     </div>
                     <div class="username">${review.user.last_name} <br> ${review.user.first_name}</div>
                     <div class="review-date-submitted">${getFormattedNow()}</div>
@@ -281,10 +370,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const reviewMobile = document.createElement('div')
         reviewMobile.classList.add('review-container-mobile')
 
+        // путь к аватарке
+        const profilePhotoUrl = review.user.profile_photo
+            ? review.user.profile_photo
+            : '/static/icons/profile-image-default.png'  // путь к дефолтной иконке
+
         reviewMobile.innerHTML = `
         <div class="user-info-mobile">
             <div class="user-icon-mobile">
-                <img src="/static/icons/profile-image-default.png" alt="">
+                <img src="${profilePhotoUrl}" alt="">
             </div>
             <div class="username-mobile">${review.user.last_name} ${review.user.first_name}</div>
             <div class="review-date-submitted-mobile">${getFormattedNow()}</div> 

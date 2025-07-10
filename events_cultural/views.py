@@ -197,20 +197,35 @@ def attractions_card(request, event_slug=False, event_id=False):
 
     events = Attractions.objects.all()
     
+    reviews = {}
+
     favorites = Favorite.objects.filter(user=request.user, attractions__in=events)
     favorites_dict = {favorite.attractions.slug: favorite.id for favorite in favorites}
     
-    reviews = {}
-
     for event_rew in events:
         content_type = ContentType.objects.get_for_model(event)
         reviews[event_rew.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
+    rev = Review.objects.all()
+
+    reviews_avg = {}
+    for avg in events:
+        content_type = ContentType.objects.get_for_model(avg)
+
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=avg.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[avg.id] = round(avg_rating, 1) if avg_rating else 0
+
+        
     context = {
         'event': event,
         'reviews': reviews, 
         'favorites': favorites_dict,
         'now': now().date(),
+        'reviews_avg': reviews_avg,
     }
     return render(request, 'events_cultural/card.html', context=context)
 
@@ -380,16 +395,31 @@ def for_visiting_card(request, event_slug=False, event_id=False):
 
     events = Events_for_visiting.objects.all()
 
+    reviews = {}
+
     favorites = Favorite.objects.filter(user=request.user, for_visiting__in=events)
     favorites_dict = {favorite.for_visiting.slug: favorite.id for favorite in favorites}
 
     registered = Registered.objects.filter(user=request.user, for_visiting__in=events)
     registered_dict = {reg.for_visiting.id: reg.id for reg in registered}
 
-    reviews = {}
     for event_rew in events:
         content_type = ContentType.objects.get_for_model(event)
         reviews[event_rew.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
+
+
+    rev = Review.objects.all()
+
+    reviews_avg = {}
+    for avg in events:
+        content_type = ContentType.objects.get_for_model(avg)
+        
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=avg.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[avg.id] = round(avg_rating, 1) if avg_rating else 0
 
     context = {
         'event': event,
@@ -397,6 +427,7 @@ def for_visiting_card(request, event_slug=False, event_id=False):
         'registered': registered_dict,
         'favorites': favorites_dict, 
         'now': now().date(),
+        'reviews_avg': reviews_avg,
     }
     return render(request, 'events_cultural/card.html', context=context)
 

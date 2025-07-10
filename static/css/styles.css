@@ -345,7 +345,7 @@ button {
     font-family: 'Onest';
     font-size: 20px;
     font-weight: 400;
-    /* line-height: 130%; */
+    line-height: 130%;
     letter-spacing: 0%;
     border-radius: 25px;
     border: none;
@@ -4425,3 +4425,4 @@ td {
         padding-left: 25px;
     }
 } */
+

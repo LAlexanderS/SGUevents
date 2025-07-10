@@ -7,8 +7,6 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}"/>
-        <script src="{% static 'lib/js/popper.min.js' %}"></script>
-        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
         <link rel="stylesheet" href="{% static "css/styles.css" %}">
         <link rel="stylesheet" href="{% static "css/card.css" %}">
         <link rel="stylesheet" href="{% static "css/notification.css" %}">
@@ -433,83 +431,33 @@
                                 </div>
                             {% endif %}
                             {% comment %} {% if reviews|get_item:event.unique_id|length > 0 %} {% endcomment %}
-                                <h2 class="comment-title" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">что о нас говорят</h2>
-                                <div class="half-stars" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">
+                            <h2 class="comment-title" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">что о нас говорят</h2>
+                            <div class="half-stars" style="{% if reviews|get_item:event.unique_id|length < 1 %} display: none;{% endif %}">
 
-                                <div class="rating-overlay" data-event-id="{{ event.id }}">
-                                    <div class="half-stars">
+                            
+
+                                {% comment %} <div class="rating-overlay-card" data-event-id="{{ event.id }}"> {% endcomment %}
+                                <div class="rating-overlay rating-overlay-card" data-event-id="{{ event.id }}">
+
+                                    <div class="half-stars half-stars-static">
                                         <div class="ranting-count">{{ reviews_avg|get_item:event.id|floatformat:1|default:"0.0" }}</div>
                                     
-                                        <div class="rating-group">
+                                        <div class="rating-group-static">
                                         <!-- по умолчанию 0 -->
                                         <input disabled checked name="hsr" value="0" type="radio">
 
                                         <!-- рейтинг 0.5 -->
-                                        <input disabled name="hsr" id="hsr1-05" value="0.5" type="radio">
+                                        {% comment %} <input disabled name="hsr" id="hsr1-05" value="0.5" type="radio">
                                             <label class="hsr" for="hsr1-05">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                                                             <path
                                                                 d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
                                                         </svg>
-                                        </label>
+                                        </label> {% endcomment %}
 
-                                        <!-- рейтинг 1 -->
-                                        <input disabled name="hsr" id="hsr1-10" value="1" type="radio">
-                                            <label for="hsr1-10">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                                                            <path
-                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
-                                                        </svg>
-                                        </label>
-
-                                        <!-- рейтинг 1.5 -->
-                                        <input disabled name="hsr" id="hsr1-15" value="1.5" type="radio">
-                                            <label class="hsr" for="hsr1-15">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                                                            <path
-                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
-                                                        </svg>
-                                        </label>
-
-                                        <!-- рейтинг 2 -->
-                                        <input disabled name="hsr" id="hsr1-20" value="2" type="radio">
-                                            <label for="hsr1-20">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                                                            <path
-                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
-                                                        </svg>
-                                        </label>
-
-                                        <!-- рейтинг 2.5 -->
-                                        <input disabled name="hsr" id="hsr1-25" value="2.5" type="radio">
-                                            <label class="hsr" for="hsr1-25">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                                                            <path
-                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
-                                                        </svg>
-                                        </label>
-
-                                        <!-- рейтинг 3 -->
-                                        <input disabled name="hsr" id="hsr1-30" value="3" type="radio">
-                                            <label for="hsr1-30">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                                                            <path
-                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
-                                                        </svg>
-                                        </label>
-
-                                        <!-- рейтинг 3.5 -->
-                                        <input disabled name="hsr" id="hsr1-35" value="3.5" type="radio">
-                                            <label class="hsr" for="hsr1-35">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                                                            <path
-                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
-                                                        </svg>
-                                        </label>
-
-                                        <!-- рейтинг 4 -->
-                                        <input disabled name="hsr" id="hsr1-40" value="4" type="radio">
-                                            <label for="hsr1-40">
+                                        <!-- рейтинг 5 -->
+                                        <input disabled name="hsr" id="hsr1-50" value="5" type="radio">
+                                            <label for="hsr1-50">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                                                             <path
                                                                 d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
@@ -525,14 +473,83 @@
                                                         </svg>
                                         </label>
 
-                                        <!-- рейтинг 5 -->
-                                        <input disabled name="hsr" id="hsr1-50" value="5" type="radio">
-                                            <label for="hsr1-50">
+                                        <!-- рейтинг 4 -->
+                                        <input disabled name="hsr" id="hsr1-40" value="4" type="radio">
+                                            <label for="hsr1-40">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                                                             <path
                                                                 d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
                                                         </svg>
                                         </label>
+
+                                        <!-- рейтинг 3.5 -->
+                                        <input disabled name="hsr" id="hsr1-35" value="3.5" type="radio">
+                                            <label class="hsr" for="hsr1-35">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                                        </svg>
+                                        </label>
+
+                                        <!-- рейтинг 3 -->
+                                        <input disabled name="hsr" id="hsr1-30" value="3" type="radio">
+                                            <label for="hsr1-30">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                        </label>
+
+                                        <!-- рейтинг 2.5 -->
+                                        <input disabled name="hsr" id="hsr1-25" value="2.5" type="radio">
+                                            <label class="hsr" for="hsr1-25">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                                        </svg>
+                                        </label>
+
+                                        <!-- рейтинг 2 -->
+                                        <input disabled name="hsr" id="hsr1-20" value="2" type="radio">
+                                            <label for="hsr1-20">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                        </label>
+
+                                        <!-- рейтинг 1.5 -->
+                                        <input disabled name="hsr" id="hsr1-15" value="1.5" type="radio">
+                                            <label class="hsr" for="hsr1-15">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M288 0c-11.4 0-22.8 5.9-28.7 17.8L194 150.2 47.9 171.4c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.1 23 46 46.4 33.7L288 439.6V0z" />
+                                                        </svg>
+                                        </label>
+
+                                        <!-- рейтинг 1 -->
+                                        <input disabled name="hsr" id="hsr1-10" value="1" type="radio">
+                                            <label for="hsr1-10">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                                                            <path
+                                                                d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z" />
+                                                        </svg>
+                                        </label>
+
+                                        
+
+                                        
+
+                                        
+
+                                        
+
+                                        
+
+                                        
+
+
+
                                         </div>
                                     </div>
                                     
@@ -685,6 +702,7 @@
                                 </div>
 
                             {% comment %} {% endif %} {% endcomment %}
+                            </div>
 
                             {% if event.documents %}
                                 <div style="text-align: center; text-indent: 0;" class="docs">
@@ -736,39 +754,41 @@
                                             style="text-indent: 0; margin-right: 10px;">Оценка:</label>
                                         <div class="full-stars">
                                             <div class="rating-group">
-                                                <!-- по умолчанию 0 -->
-                                                <input name="rating_{{ event.unique_id }}" value="0" type="radio" disabled checked />
+                                                
                                                 
                                                     
                                                     <!-- рейтинг 1 -->    
-                                                    <label for="rating_{{ event.unique_id }}-1">
+                                                    <input name="rating" id="rating-5" value="5" type="radio" />
+                                                    <label for="rating-5">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
                                                     </label>
-                                                    <input name="rating_{{ event.unique_id }}" id="rating_{{ event.unique_id }}-1" value="1" type="radio" />
                                                     
                                                     <!-- рейтинг 2 -->    
-                                                    <label for="rating_{{ event.unique_id }}-2">
+                                                    <input name="rating" id="rating-4" value="4" type="radio" />
+                                                    <label for="rating-4">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
                                                     </label>
-                                                    <input name="rating_{{ event.unique_id }}" id="rating_{{ event.unique_id }}-2" value="2" type="radio" />
 
                                                     <!-- рейтинг 3 -->    
-                                                    <label for="rating_{{ event.unique_id }}-3">
+                                                    <input name="rating" id="rating-3" value="3" type="radio" />
+                                                    <label for="rating-3">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
                                                     </label>
-                                                    <input name="rating_{{ event.unique_id }}" id="rating_{{ event.unique_id }}-3" value="3" type="radio" />
 
                                                     <!-- рейтинг 4 -->    
-                                                    <label for="rating_{{ event.unique_id }}-4">
+                                                    <input name="rating" id="rating-2" value="2" type="radio" />
+                                                    <label for="rating-2">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
                                                     </label>
-                                                    <input name="rating_{{ event.unique_id }}" id="rating_{{ event.unique_id }}-4" value="4" type="radio" />
 
                                                     <!-- рейтинг 5 -->    
-                                                    <label for="rating_{{ event.unique_id }}-5">
+                                                    <input name="rating" id="rating-1" value="1" type="radio" />
+                                                    <label for="rating-1">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/></svg>
                                                     </label>
-                                                    <input name="rating_{{ event.unique_id }}" id="rating_{{ event.unique_id }}-5" value="5" type="radio" />
+
+                                                    <!-- по умолчанию 0 -->
+                                                    <input name="rating" value="0" type="radio" disabled checked />
                                             </div>
                                         </div>
                                     </div>
@@ -819,6 +839,9 @@
         <script src="{% static "js/review_slider_script.js" %}"></script>
 
         <script src="{% static "js/card_like.js" %}"></script>
+
+        <script src="{% static 'lib/js/popper.min.js' %}"></script>
+        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
         
 
         <script>
@@ -918,7 +941,7 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                document.querySelectorAll('.rating-overlay').forEach(overlay => {
+                document.querySelectorAll('.rating-overlay-card').forEach(overlay => {
                 const ratingText = overlay.querySelector('.ranting-count');
                 if (!ratingText) return;
             
@@ -926,8 +949,8 @@
                 const raw = parseFloat(rawText) || 0;
                 const rounded = Math.round(raw * 2) / 2;
             
-                const inputs = overlay.querySelectorAll('.rating-group input[type="radio"]');
-                const labels = overlay.querySelectorAll('.rating-group label');
+                const inputs = overlay.querySelectorAll('.rating-group-static input[type="radio"]');
+                const labels = overlay.querySelectorAll('.rating-group-static label');
             
                 // Очистка
                 labels.forEach(label => label.classList.remove('filled'));
@@ -935,9 +958,16 @@
                 // Заполнение
                 inputs.forEach(input => {
                     const val = parseFloat(input.value);
+                    console.log('VALUE ', val)
+                    console.log('Rounded ', rounded)
+
                     const label = overlay.querySelector(`label[for="${input.id}"]`);
                     if (val <= rounded) {
+                    console.log('IF 1  ')
+
                     if (label) label.classList.add('filled');
+                    console.log('IF 2  ')
+
                     } else {
                     }
                 });
@@ -948,3 +978,26 @@
     </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
