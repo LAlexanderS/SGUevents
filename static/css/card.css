@@ -620,3 +620,22 @@ h1 {
     background: none;
     pointer-events: auto;
 }
+
+.rating-group label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+
+.rating-group-static {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-group-static label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+/* .half-stars-static input:checked~label svg {
+    fill:green;
+} */
