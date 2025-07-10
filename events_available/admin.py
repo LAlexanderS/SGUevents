@@ -121,7 +121,7 @@ class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:
             return []
-        return ['category']
+        return ['category', 'save_media_to_disk', 'yandex_disk_link']
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
