@@ -232,15 +232,10 @@ def online_card(request, event_slug=False, event_id=False):
     registered_dict = {reg.online.id: reg.id for reg in registered}
 
     rev = Review.objects.all()
-    for rr in rev:
-        print(f'idd {rr.id}')
     reviews_avg = {}
     for avg in events:
         content_type = ContentType.objects.get_for_model(avg)
-        print(f'sssssssssssss {avg.id}')
-
-
-
+        
         avg_rating = Review.objects.filter(
             content_type=content_type,
             object_id=avg.id,
@@ -492,14 +487,10 @@ def offline_card(request, event_slug=False, event_id=False):
     registered_dict = {reg.offline.id: reg.id for reg in registered}
 
     rev = Review.objects.all()
-    for rr in rev:
-        print(f'idd {rr.id}')
+
     reviews_avg = {}
     for avg in events:
         content_type = ContentType.objects.get_for_model(avg)
-        print(f'sssssssssssss {avg.id}')
-
-
 
         avg_rating = Review.objects.filter(
             content_type=content_type,
