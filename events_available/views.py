@@ -219,27 +219,44 @@ def online_card(request, event_slug=False, event_id=False):
 
     events = Events_online.objects.all()
     
-    favorites = Favorite.objects.filter(user=request.user, online__in=events)
-    favorites_dict = {favorite.online.slug: favorite.id for favorite in favorites}
-
-
-    registered = Registered.objects.filter(user=request.user, online__in=events)
-    registered_dict = {reg.online.id: reg.id for reg in registered}
-
     reviews = {}
 
     for event_rew in events:
         content_type = ContentType.objects.get_for_model(event)
         reviews[event_rew.unique_id] = Review.objects.filter(content_type=content_type, object_id=event.id)
 
+    favorites = Favorite.objects.filter(user=request.user, online__in=events)
+    favorites_dict = {favorite.online.slug: favorite.id for favorite in favorites}
+
+    registered = Registered.objects.filter(user=request.user, online__in=events)
+    registered_dict = {reg.online.id: reg.id for reg in registered}
+
+    rev = Review.objects.all()
+    for rr in rev:
+        print(f'idd {rr.id}')
+    reviews_avg = {}
+    for avg in events:
+        content_type = ContentType.objects.get_for_model(avg)
+        print(f'sssssssssssss {avg.id}')
+
+
+
+        avg_rating = Review.objects.filter(
+            content_type=content_type,
+            object_id=avg.id,
+            rating__isnull=False
+        ).aggregate(Avg('rating'))['rating__avg']
+        reviews_avg[avg.id] = round(avg_rating, 1) if avg_rating else 0
+
     context = {
         'event': event,
-        'reviews': reviews,
+        'reviews': reviews, 
         'registered': registered_dict,
-        'favorites': favorites_dict, 
+        'favorites': favorites_dict,
         'now': now().date(),
-
+        'reviews_avg': reviews_avg,
     }
+    
     return render(request, 'events_available/card.html', context=context)
 
 
