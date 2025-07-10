@@ -343,9 +343,9 @@ button {
     background-color: rgba(217, 217, 217, 0.9);
     color: rgb(39, 66, 106);
     font-family: 'Onest';
-    font-size: 20px;
+    /* font-size: 20px; */
     font-weight: 400;
-    line-height: 130%;
+    /* line-height: 130%; */
     letter-spacing: 0%;
     border-radius: 25px;
     border: none;
@@ -3571,7 +3571,7 @@ td {
 
     .username-existent-review {
         text-indent: 0;
-        padding: 5px;
+        /* padding: 5px; */
         padding-top: 0;
         font-size: 14px;
         width: fit-content;
@@ -3600,6 +3600,10 @@ td {
 
     .quote-existent-review {
         display: none;
+    }
+
+    .review-divider {
+        margin: 0.5rem 0;
     }
 
     .arrow-nav-left,
@@ -3690,6 +3694,9 @@ td {
         margin-top: 20px;
     }
 
+    .filter-events-row .col-lg-2 {
+        margin-top: 5px;
+    }
 }
 
 
@@ -4300,7 +4307,7 @@ td {
 
 .modal-dialog {
     max-width: 800px;
-    width: 90%;
+    /* width: 90%; */
 }
 
 .modal-content {
@@ -4425,4 +4432,3 @@ td {
         padding-left: 25px;
     }
 } */
-
