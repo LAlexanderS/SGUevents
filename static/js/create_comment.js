@@ -56,6 +56,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     const modal = bootstrap.Modal.getInstance(document.getElementById('commentModal'))
                     if (modal) modal.hide()
+                // Удаляем backdrop Bootstrap
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove())
+                    // Убираем класс show и display у всех модалок
+                    document.querySelectorAll('.modal').forEach(el => {
+                        el.classList.remove('show')
+                        el.style.display = 'none'
+                    })
+                    // Убираем overlay, если есть
+                    const overlay = document.getElementById('overlay')
+                    if (overlay) overlay.style.display = 'none'
+                    // Убираем modal-open с body
+                    document.body.classList.remove('modal-open')
 
                     addReviewToAppropriateBlock(eventId, data.review, data.formatted_date)
 

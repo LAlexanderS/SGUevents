@@ -577,3 +577,46 @@ h1 {
         min-height: 40px !important;
     }
 }
+
+.rating-group {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-group input[type="radio"] {
+    display: none;
+}
+
+.rating-group label {
+    font-size: 2rem;
+    fill: #7d2222 !important;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rating-group label svg {
+    fill: #BFE2FF !important;
+    transition: fill 0.2s;
+}
+
+
+.rating-group input[type="radio"]:checked~label svg,
+.rating-group label:hover svg,
+.rating-group label:hover~label svg {
+    fill: rgb(39, 66, 106) !important;
+}
+
+
+/* Контейнер для рейтинга */
+.rating-overlay-card {
+    position: static;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    pointer-events: auto;
+}
