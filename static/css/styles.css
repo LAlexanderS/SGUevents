@@ -4303,7 +4303,7 @@ td {
 
 .modal-dialog {
     max-width: 800px;
-    width: 90%;
+    /* width: 90%; */
 }
 
 .modal-content {
