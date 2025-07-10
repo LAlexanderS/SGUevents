@@ -3690,6 +3690,9 @@ td {
         margin-top: 20px;
     }
 
+    .filter-events-row .col-lg-2 {
+        margin-top: 5px;
+    }
 }
 
 
@@ -4425,4 +4428,3 @@ td {
         padding-left: 25px;
     }
 } */
-
