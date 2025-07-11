@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
-    </head>
-    <body>
-        <p>404</p>
-    </body>
-</html>
+{% extends "errors/error.html" %}
+{% load static %}
+
+{% block title %}404{% endblock title %}
+
+{% block content %}
+    <div class="error-content">
+        <img class="error-img" src="{% static "images/error.svg" %}" alt="">
+        <h2 class="error-text">Кажется, что-то пошло не так :(  <br></h2>
+    </div>
+{% endblock content %}
+    
