@@ -8,7 +8,7 @@
     src: url('Kadwa-Regular.ttf') format('truetype');
 }
 
-.col-lg-2,
+/* .col-lg-2, */
 .dropdown {
     padding-left: 0;
 }
@@ -84,12 +84,12 @@ header {
     box-sizing: content-box;
 }
 
-div {
-    /* text-indent: 20px; */
+/* div {
+    text-indent: 20px;
     line-height: 2;
     text-align: justify;
 
-}
+} */
 
 .btn-outline-success {
     background: rgba(109, 106, 129, 0.5);
@@ -121,6 +121,7 @@ h3 {
 .page-header {
     font-size: 48px;
     padding: 2px;
+    margin-left: 10px;
 }
 
 .dropdown-menu {
@@ -303,7 +304,7 @@ button {
     box-shadow: 0px 0px 10px 6px rgba(65, 84, 170, 0.5);
 }
 
-.btn-remove_app {
+.message-icon .btn-remove_app {
     background: rgba(109, 106, 129, 0.5);
 }
 
@@ -342,9 +343,9 @@ button {
     background-color: rgba(217, 217, 217, 0.9);
     color: rgb(39, 66, 106);
     font-family: 'Onest';
-    font-size: 20px;
+    /* font-size: 20px; */
     font-weight: 400;
-    line-height: 130%;
+    /* line-height: 130%; */
     letter-spacing: 0%;
     border-radius: 25px;
     border: none;
@@ -607,6 +608,7 @@ button {
     line-height: 130%;
     letter-spacing: 0%;
     text-align: left;
+    text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 .event-preview-time,
@@ -761,7 +763,12 @@ button {
     font-weight: 400;
     line-height: 130%;
     letter-spacing: 0%;
-    max-width: 400px;
+    max-width: 40%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+
 }
 
 .event-reviews-link {
@@ -799,61 +806,13 @@ button {
     text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
-.profile-fields {
-    text-indent: 0;
-    top: 201px;
-    color: rgb(39, 66, 106);
-    font-family: Onest;
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 160%;
-    letter-spacing: 0%;
-}
 
-.account-information {
-    text-indent: 0;
-    color: rgb(39, 66, 106);
-    font-family: 'Onest';
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 160%;
-    letter-spacing: 0%;
-    text-align: left;
-}
 
-.button-column {
-    text-indent: 0;
-}
 
-.change-password {
-    width: 100%;
-    margin-top: 10px;
-    margin-right: 0;
-    border-radius: 25px;
-    box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25), -2px 2px 4px 0px rgba(0, 0, 0, 0.25);
-    background: rgb(39, 66, 106);
-    border: none;
-    color: rgb(255, 255, 255);
-    font-family: 'Onest';
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 170%;
-    letter-spacing: 0%;
-    text-align: center;
 
-}
 
-.admin-request {
-    text-indent: 0;
-    color: rgb(39, 66, 106);
-    font-family: 'Onest';
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 160%;
-    letter-spacing: 0%;
-    text-align: left;
-    margin-top: 10px;
-}
+
+
 
 .request-reason {
     min-height: 50px;
@@ -873,21 +832,7 @@ button {
     padding-inline: 15px;
 }
 
-.send-request {
-    width: 35%;
-    margin-top: 20px;
-    border-radius: 25px;
-    border: none;
-    box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.25), -1px 1px 3px 0px rgba(0, 0, 0, 0.25);
-    background: rgb(39, 66, 106);
-    color: rgb(255, 255, 255);
-    font-family: 'Onest';
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 200%;
-    letter-spacing: 0%;
-    text-align: center;
-}
+
 
 .rights-title {
     text-indent: 0;
@@ -1330,12 +1275,17 @@ td {
     line-height: 130%;
     letter-spacing: 0%;
     text-align: center;
+
+
+}
+
+.user-lastname {
+    line-height: 1;
 }
 
 .review-block {
     display: flex;
 }
-
 
 .review-text,
 .hashtags {
@@ -1657,17 +1607,13 @@ td {
     white-space: nowrap;
 }
 
+
+
+
+
 @media (max-width: 1705px) {
     .page-header {
-        font-size: 46px;
-    }
-
-    .profile-fields {
-        font-size: 20px;
-    }
-
-    .account-information {
-        font-size: 20px;
+        font-size: 40px;
     }
 
     .account-title {
@@ -1732,10 +1678,6 @@ td {
         margin-top: 3px;
     }
 
-    .send-request {
-        font-size: 16px;
-        width: 40%;
-    }
 
     .hidden {
         display: none;
@@ -1842,29 +1784,8 @@ td {
 
 @media (max-width: 1467px) {
 
-    .profile-fields {
-        font-size: 18px;
-    }
-
-    .account-information,
-    .role,
-    .role-info,
-    .groups,
-    .group-info {
-        font-size: 18px;
-    }
-
     .account-title {
         font-size: 36px;
-    }
-
-    .change-password {
-        font-size: 16px;
-    }
-
-    .send-request {
-        font-size: 16px;
-        width: 40%;
     }
 
     .btn-primary {
@@ -2036,43 +1957,11 @@ td {
 
 @media (max-width: 1341px) {
     .page-header {
-        font-size: 44px;
-    }
-
-    .fields {
-        width: 30%;
-    }
-
-    .info {
-        width: 30%;
-    }
-
-    .button-column {
-        width: 60%;
-    }
-
-    .side-indent {
-        width: 20%;
-    }
-
-    .profile-fields {
-        font-size: 16px;
-    }
-
-    .account-information,
-    .role,
-    .role-info,
-    .groups,
-    .group-info {
-        font-size: 16px;
+        font-size: 36px;
     }
 
     .account-title {
         font-size: 34px;
-    }
-
-    .change-password {
-        margin-top: 5px;
     }
 
     .btn-primary {
@@ -2171,25 +2060,8 @@ td {
         width: 80%;
     }
 
-    .profile-fields {
-        font-size: 14px;
-    }
-
-    .account-information,
-    .role,
-    .role-info,
-    .groups,
-    .group-info {
-        font-size: 14px;
-    }
-
     .account-title {
         font-size: 32px;
-    }
-
-    .change-password {
-        margin-top: 5px;
-        font-size: 14px;
     }
 
     .btn-primary {
@@ -2319,6 +2191,9 @@ td {
         width: 34px;
     }
 
+    .arrow-nav-right {
+        right: 15%;
+    }
 }
 
 @media (max-width: 1155px) {
@@ -2391,25 +2266,6 @@ td {
         margin: 0;
     }
 
-    .change-password {
-        height: 30px;
-        width: 100%;
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 170%;
-        letter-spacing: 0%;
-    }
-
-    .send-request {
-        margin-top: 10px;
-        height: 30px;
-        width: 50%;
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 170%;
-        letter-spacing: 0%;
-    }
-
     .button-substrate {
         padding-top: 7px;
     }
@@ -2456,25 +2312,6 @@ td {
         border: none;
         box-shadow: none;
         margin-left: 5px;
-    }
-
-    .change-password {
-        height: 30px;
-        width: 100%;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 170%;
-        letter-spacing: 0%;
-    }
-
-    .send-request {
-        margin-top: 10px;
-        height: 30px;
-        width: 50%;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 170%;
-        letter-spacing: 0%;
     }
 
     .card {
@@ -2552,10 +2389,10 @@ td {
         font-size: 14px;
     }
 
-    .arrow-nav-right {
+    /* .arrow-nav-right {
         right: 14%;
 
-    }
+    } */
 
     .event-reviews-link {
         margin-top: 20px;
@@ -2782,6 +2619,10 @@ td {
         font-size: 14px;
     }
 
+    .selection {
+        padding-right: 100px;
+    }
+
 
 }
 
@@ -2870,6 +2711,10 @@ td {
 
     .preview-event-id {
         margin-top: 20px;
+    }
+
+    .arrow-nav-right {
+        right: 5%;
     }
 
 }
@@ -2994,18 +2839,19 @@ td {
         margin: 0;
     }
 
-    .main-header {
+    /* .main-header {
         padding-left: 70px;
-    }
+    } */
 
-    .selection {
-        padding-right: 100px;
-    }
+
 
     .preview-event-id {
         margin-top: 20px;
     }
 
+    .arrow-nav-right {
+        right: 5%;
+    }
 }
 
 @media (max-width: 850px) {
@@ -3027,23 +2873,6 @@ td {
 @media (max-width: 795px) {
     .account-title {
         font-size: 30px;
-    }
-
-    .fields {
-        width: 35%;
-    }
-
-    .info {
-        width: 35%;
-    }
-
-    .button-column {
-        width: 65%;
-        padding: 0;
-    }
-
-    .side-indent {
-        width: 15%;
     }
 
     .btn-primary {
@@ -3172,6 +3001,14 @@ td {
         margin-top: 20px;
     }
 
+    .preview-event-id {
+        width: 100%;
+        display: block;
+        position: relative;
+        bottom: 0;
+        right: 0;
+    }
+
 }
 
 @media (max-width: 650px) {
@@ -3188,6 +3025,12 @@ td {
         width: 410px;
         height: 250px;
         border-radius: 25px;
+    }
+
+    .selection-icon {
+        margin: 0;
+        height: 34px;
+        width: 34px;
     }
 
 }
@@ -3257,13 +3100,13 @@ td {
 
     }
 
-    .preview-date,
+    /* .preview-date,
     .preview-time,
     .event-preview-time,
     .event-preview-speaker,
     .event-preview-adress {
         font-size: 16px;
-    }
+    } */
 
     .preview-event-id {
         font-size: 8px;
@@ -3330,11 +3173,11 @@ td {
         margin-bottom: 0;
     }
 
-    .event-preview-time,
+    /* .event-preview-time,
     .event-preview-adress {
         width: 50%;
         padding-right: 0%;
-    }
+    } */
 
     .preview-date {
         margin: 0;
@@ -3374,56 +3217,15 @@ td {
         font-size: 26px;
     }
 
-    .fields {
-        width: 46%;
-        margin: 0;
-        padding: 0;
-    }
-
-    .info {
-        width: 46%;
-        margin: 0;
-        padding: 0;
-    }
-
-    .button-column {
-        margin-left: 20px;
-        width: 90%;
-        padding: 0;
-    }
-
     .rights-column {
         margin-left: 20px;
         width: 90%;
         padding: 0;
     }
 
-    .change-password {
-        height: 30px;
-        width: 100%;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 170%;
-        letter-spacing: 0%;
-    }
-
-    .side-indent {
-        width: 1%;
-    }
-
-    .send-request {
-        margin-top: 10px;
-        height: 30px;
-        width: 50%;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 170%;
-        letter-spacing: 0%;
-    }
-
     .request-reason {
         min-height: 30px;
-        margin-top: 10px;
+        margin-top: 0px;
         width: 100%;
         border-radius: 25px;
         border: none;
@@ -3446,18 +3248,6 @@ td {
         margin-right: 0;
         border-bottom-right-radius: 35px;
         border-bottom-left-radius: 35px;
-    }
-
-    .admin-request {
-        text-indent: 0;
-        color: rgb(39, 66, 106);
-        font-family: 'Onest';
-        font-size: 18px;
-        font-weight: 600;
-        line-height: 160%;
-        letter-spacing: 0%;
-        text-align: left;
-        margin-top: 10px;
     }
 
     .rights-title {
@@ -3491,12 +3281,6 @@ td {
         padding-top: 0;
     }
 
-    .selection-icon {
-        margin: 0;
-        height: 34px;
-        width: 34px;
-    }
-
     .selection-icon:hover {
         height: 34px;
         width: 34px;
@@ -3508,24 +3292,6 @@ td {
         height: 54px;
         width: 54px;
         box-shadow: 0px 0px 10px 6px #d9d9d9;
-    }
-
-    .change-password {
-        width: 100%;
-    }
-
-    .change-password:hover {
-        box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25), -2px 2px 4px 0px rgba(0, 0, 0, 0.25);
-        background: rgb(39, 66, 106);
-        border: none;
-        color: rgb(255, 255, 255);
-    }
-
-    .send-request:hover {
-        box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25), -2px 2px 4px 0px rgba(0, 0, 0, 0.25);
-        background: rgb(39, 66, 106);
-        border: none;
-        color: rgb(255, 255, 255);
     }
 
     .dropdown-filter {
@@ -3805,7 +3571,7 @@ td {
 
     .username-existent-review {
         text-indent: 0;
-        padding: 5px;
+        /* padding: 5px; */
         padding-top: 0;
         font-size: 14px;
         width: fit-content;
@@ -3834,6 +3600,10 @@ td {
 
     .quote-existent-review {
         display: none;
+    }
+
+    .review-divider {
+        margin: 0.5rem 0;
     }
 
     .arrow-nav-left,
@@ -3924,6 +3694,9 @@ td {
         margin-top: 20px;
     }
 
+    .filter-events-row .col-lg-2 {
+        margin-top: 5px;
+    }
 }
 
 
@@ -3944,10 +3717,6 @@ td {
     .selection {
         width: fit-content;
 
-    }
-
-    .change-password {
-        width: 100%;
     }
 
     .filter-message {
@@ -4179,10 +3948,6 @@ td {
         box-shadow: none;
     }
 
-    .change-password {
-        width: 100%;
-    }
-
     .hidden {
         display: none;
     }
@@ -4400,12 +4165,16 @@ td {
 
     }
 
-    .main-header {
-        width: 50%;
+    .page-header {
+        font-size: 20px;
+    }
+
+    .page-header-online,
+    .page-header-offline .page-header-favorites {
+        font-size: 30px;
     }
 
     .selection {
-        width: 50%;
         padding-right: 30px;
     }
 
@@ -4497,31 +4266,28 @@ td {
     }
 
     .page-header {
-        text-indent: 10px;
-        font-size: 32px;
+        font-size: 18px;
     }
 
     .selection-icon {
-        margin: 0;
-        height: 40px;
-        width: 40px;
+        height: 30px;
+        width: 30px;
     }
 
     .selection-icon:hover {
-        height: 40px;
-        width: 40px;
+        height: 34px;
+        width: 34px;
         box-shadow: none;
     }
 
-    /* либо оставить так, либо заменить свойство hover на focus */
     .selection-icon:active {
-        height: 44px;
-        width: 44px;
+        height: 34px;
+        width: 34px;
         box-shadow: 0px 0px 10px 6px #d9d9d9;
     }
 
     .btn-primary {
-        height: 0px;
+        /* height: 0px; */
         background: none;
         width: auto;
         padding: 0;
@@ -4541,7 +4307,7 @@ td {
 
 .modal-dialog {
     max-width: 800px;
-    width: 90%;
+    /* width: 90%; */
 }
 
 .modal-content {
@@ -4655,6 +4421,11 @@ td {
 }
 
 
+@media(min-width: 528px) {
+    .filter-events-row {
+        margin-left: 0px;
+    }
+}
 
 /* @media(min-width: 992px) {
     .filter-events-row {

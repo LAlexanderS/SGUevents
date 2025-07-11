@@ -81,7 +81,7 @@ p {
     background-color: #fff;
     border-radius: 25px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 30px;
+    padding: 13px 20px;
     margin: 10px;
     width: 220px;
     height: 300px;
@@ -137,6 +137,12 @@ p {
     line-height: 130%;
     letter-spacing: 0%;
     text-align: center;
+    overflow: hidden;
+    /* max-width: 100%;
+    display: block;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal; */
 }
 
 .review-block {
@@ -146,6 +152,7 @@ p {
     align-items: center; */
     width: 100%;
     padding: 0%;
+    height: 47%;
 }
 
 .review-text {
@@ -570,3 +577,65 @@ h1 {
         min-height: 40px !important;
     }
 }
+
+.rating-group {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-group input[type="radio"] {
+    display: none;
+}
+
+.rating-group label {
+    font-size: 2rem;
+    fill: #7d2222 !important;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rating-group label svg {
+    fill: #BFE2FF !important;
+    transition: fill 0.2s;
+}
+
+
+.rating-group input[type="radio"]:checked~label svg,
+.rating-group label:hover svg,
+.rating-group label:hover~label svg {
+    fill: rgb(39, 66, 106) !important;
+}
+
+
+/* Контейнер для рейтинга */
+.rating-overlay-card {
+    position: static;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    pointer-events: auto;
+}
+
+.rating-group label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+
+.rating-group-static {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-group-static label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+/* .half-stars-static input:checked~label svg {
+    fill:green;
+} */

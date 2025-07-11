@@ -81,7 +81,6 @@ document.addEventListener('click', function (event) {
                     button.classList.remove('add-to-cart')
                     button.classList.add('remove-from-favorites')
                     button.setAttribute('data-event-id', data.event_id)
-                    localStorage.setItem(`event-${eventSlug}`, 'liked')
                     showNotification("Добавлено в избранное")
                 }
             })
@@ -109,7 +108,6 @@ document.addEventListener('click', function (event) {
                     button.classList.remove('remove-from-favorites')
                     button.classList.add('add-to-cart')
                     button.removeAttribute('data-event-id')
-                    localStorage.removeItem(`event-${eventSlug}`)
                     showNotification("Удалено из избранного")
                 }
             })

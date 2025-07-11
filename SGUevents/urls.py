@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
 from users.views import telegram_webhook
+from django.conf.urls import handler404, handler500, handler403, handler400
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,3 +33,7 @@ urlpatterns += [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
+handler404 = 'main.views.custom_404'
+handler500 = 'main.views.custom_500'
+handler403 = 'main.views.custom_403'
+handler400 = 'main.views.custom_400'
