@@ -552,7 +552,11 @@ def submit_review(request, event_id):
 
         content_type = ContentType.objects.get_for_model(event)
 
-        print(f'Рейтинг в submit_review {rating}')
+        if request.user.profile_photo:
+            profile_photo = request.user.profile_photo.url
+        else:
+            profile_photo = '/static/icons/profile-image-default.png'
+
         review = Review.objects.create(
                 user=request.user,
                 content_type=content_type,
@@ -569,7 +573,6 @@ def submit_review(request, event_id):
         ).aggregate(Avg('rating'))['rating__avg']
         avg_rating = round(avg_rating, 1) if avg_rating else 0
 
-        print(f'qqqqqqqqqqq {avg_rating}')
 
         # # Проверяем, существует ли уже отзыв от этого пользователя
         # existing_review = Review.objects.filter(
@@ -609,7 +612,8 @@ def submit_review(request, event_id):
                     'last_name': request.user.last_name
                 },
                 'comment': comment,
-                'rating': review.rating
+                'rating': review.rating,
+                'profile_photo': profile_photo
             }
         })
     return JsonResponse({'success': False, 'message': 'Некорректный запрос'}, status=400)

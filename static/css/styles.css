@@ -1342,10 +1342,12 @@ td {
 }
 
 .user-icon-existent-review img {
-    height: 25px;
-    width: auto;
+    height: 35px;
+    width: 35px;
     display: block;
     margin: auto;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .review-date-submitted {
@@ -3559,14 +3561,14 @@ td {
 
     .user-icon-existent-review {
         text-indent: 0;
-        width: fit-content;
+        /* width: fit-content; */
         padding-right: 0;
 
     }
 
     .user-icon-existent-review img {
-        height: 20px;
-        width: auto;
+        height: 30px;
+        width: 30px;
     }
 
     .username-existent-review {

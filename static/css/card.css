@@ -117,11 +117,14 @@ p {
     border-radius: 50%;
     display: inline;
     text-align: center;
+    margin-right: 0px;
 }
 
 .user-icon img {
-    width: 45px;
     height: 45px;
+    width: 45px;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .username {
@@ -485,8 +488,8 @@ h1 {
     }
 
     .user-icon-mobile {
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
         background-size: contain;
         background-repeat: no-repeat;
         margin-bottom: 5px;
@@ -494,8 +497,10 @@ h1 {
     }
 
     .user-icon-mobile img {
-        width: 30px;
-        height: 30px;
+        height: 40px;
+        width: 40px;
+        object-fit: cover;
+        border-radius: 50%;
     }
 
     .username-mobile {

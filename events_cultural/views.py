@@ -460,6 +460,11 @@ def submit_review(request, event_id):
         else:
             return JsonResponse({'success': False, 'message': 'Некорректный тип мероприятия'}, status=400)
 
+        if request.user.profile_photo:
+            profile_photo = request.user.profile_photo.url
+        else:
+            profile_photo = '/static/icons/profile-image-default.png'
+
         content_type = ContentType.objects.get_for_model(event)
         
         review = Review.objects.create(
@@ -491,6 +496,7 @@ def submit_review(request, event_id):
                     'first_name': request.user.first_name,
                     'last_name': request.user.last_name
                 },
+                'profile_photo': profile_photo,
                 'comment': comment,
                 'rating': review.rating,
             }

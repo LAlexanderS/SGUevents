@@ -114,7 +114,7 @@
                                 <div class="col-lg-1 d-none d-lg-block"></div>
                                 <div class="col-4 col-lg-3 user-photo">
                                     {% if user.profile_photo %}
-                                        <img src="{{ user.profile_photo.url }}" alt="Фото профиля" style="width: 100%; max-width: 150px; height: auto; border-radius: 8px;">
+                                        <img src="{{ user.profile_photo.url }}" alt="Фото профиля">
                                     {% else %}
                                         <img src="{% static "icons/profile_photo.png" %}" alt="">
                                     {% endif %}
