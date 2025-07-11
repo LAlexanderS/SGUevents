@@ -286,7 +286,7 @@
                                                                                 <div class="user-lastname">{{ review.user.username }}</div>
                                                                             </div>
 
-                                                                            <div class="full-stars-com">
+                                                                            {% comment %} <div class="full-stars-com">
                                                                                 <div class="rating-group-com">
                                                                                     <!-- по умолчанию 0 -->
                                                                                     <input name="fst" value="0" type="radio" disabled checked />
@@ -336,7 +336,7 @@
                                                                                     </label>
                                                                                     <input name="fst" id="fst-5" value="5" type="radio" />
                                                                                 </div>
-                                                                            </div>
+                                                                            </div> {% endcomment %}
 
                                                                             <div class="review-date-submitted">
                                                                                 {{ review.formatted_date }}

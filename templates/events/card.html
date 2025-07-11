@@ -569,7 +569,7 @@
                                                         </div>
                                                         <div class="username">{{ review.user.last_name }} <br> {{ review.user.first_name }}</div>
                                                         <div class="review-date-submitted">{{ review.formatted_date }}</div> 
-                                                        <div class="full-stars-com">
+                                                        {% comment %} <div class="full-stars-com">
                                                             <div class="rating-group-com">
                                                                 <!-- по умолчанию 0 -->
                                                                 <input name="fst" value="0" type="radio" disabled checked />
@@ -619,7 +619,7 @@
                                                                 </label>
                                                                 <input name="fst" id="fst-5" value="5" type="radio" />
                                                             </div>
-                                                        </div>
+                                                        </div> {% endcomment %}
                                                     </div>
                                                     <div class="review-block .review-block-existent-review-card">
                                                         <div class="review-text"
@@ -650,7 +650,7 @@
                                                 </div>
                                                 <div class="username-mobile">{{ review.user.last_name }} {{ review.user.first_name }}</div>
                                                 <div class="review-date-submitted-mobile">{{ review.formatted_date }}</div> 
-                                                <div class="full-stars-com">
+                                                {% comment %} <div class="full-stars-com">
                                                     <div class="rating-group-com">
                                                         <!-- по умолчанию 0 -->
                                                         <input name="fst" value="0" type="radio" disabled checked />
@@ -700,7 +700,7 @@
                                                         </label>
                                                         <input name="fst" id="fst-5" value="5" type="radio" />
                                                     </div>
-                                                </div>
+                                                </div> {% endcomment %}
                                             </div>
                                             <div class="review-content-mobile">
                                                 <div class="review-text review-text-mobile">{{ review.comment }}</div>

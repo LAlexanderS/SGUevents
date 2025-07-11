@@ -155,10 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
         newReview.classList.add('existent-comment')
 
         // путь к аватарке
-        const profilePhotoUrl = review.user.profile_photo
-            ? review.user.profile_photo
-            : '/static/icons/profile-image-default.png'  // путь к дефолтной иконке
-
+        const profilePhotoUrl = review.profile_photo
         newReview.innerHTML = `
                                                             <div class="existent-review">
                                                                 <div class="user-info-existent-review">
@@ -274,9 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const now = new Date()
 
         // путь к аватарке
-        const profilePhotoUrl = review.user.profile_photo
-            ? review.user.profile_photo
-            : '/static/icons/profile-image-default.png'  // путь к дефолтной иконке
+        const profilePhotoUrl = review.profile_photo
 
         item.innerHTML = `
             <div class="review">
@@ -371,9 +366,10 @@ document.addEventListener('DOMContentLoaded', function () {
         reviewMobile.classList.add('review-container-mobile')
 
         // путь к аватарке
-        const profilePhotoUrl = review.user.profile_photo
-            ? review.user.profile_photo
-            : '/static/icons/profile-image-default.png'  // путь к дефолтной иконке
+        console.log("URL", review.user.profile_photo)
+        console.log("PHOTO", review.user.profile_photo.url)
+
+        const profilePhotoUrl = review.profile_photo
 
         reviewMobile.innerHTML = `
         <div class="user-info-mobile">
