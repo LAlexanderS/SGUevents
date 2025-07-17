@@ -286,13 +286,35 @@ def send_registration_details_sync(telegram_id, username, password):
             logger.info(f"Учетные данные отправлены новому пользователю {username}")
         else:
             logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
+        
+        # Отправляем кнопку с ссылкой на портал
+        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://sguevents.help"
+        site_keyboard = {
+            "inline_keyboard": [
+                [{
+                    "text": "🌐 Перейти на портал",
+                    "url": base_url
+                }]
+            ]
+        }
+        
+        site_payload = {
+            'chat_id': telegram_id,
+            'text': "Перейти на портал:",
+            'reply_markup': json.dumps(site_keyboard)
+        }
+        
+        requests.post(url, json=site_payload, headers=headers)
             
-        # Отправляем клавиатуру меню
+        # Отправляем клавиатуру меню (2x2)
         kb = [
             [
                 "👤 Мой профиль",
-                "📓 Мои мероприятия",
-                "❔ Помощь"
+                "📓 Мои мероприятия"
+            ],
+            [
+                "❔ Помощь",
+                "🌐 Портал"
             ]
         ]
         keyboard = {
@@ -320,8 +342,11 @@ async def cmd_start_user(telegram_id):
         kb = [
             [
                 types.KeyboardButton(text="\U0001F464 Мой профиль"),
-                types.KeyboardButton(text="\U0001F5D3 Мои мероприятия"),
-                types.KeyboardButton(text="\U00002754 Помощь")
+                types.KeyboardButton(text="📓 Мои мероприятия")
+            ],
+            [
+                types.KeyboardButton(text="\U00002754 Помощь"),
+                types.KeyboardButton(text="🌐 Портал")
             ],
         ]
         keyboard = types.ReplyKeyboardMarkup(
