@@ -191,8 +191,11 @@ async def cmd_start(message: types.Message, state: FSMContext):
         kb = [
             [
                 types.KeyboardButton(text="\U0001F464 Мой профиль"),
-                types.KeyboardButton(text="📓 Мои мероприятия"),
-                types.KeyboardButton(text="\U00002754 Помощь")
+                types.KeyboardButton(text="📓 Мои мероприятия")
+            ],
+            [
+                types.KeyboardButton(text="\U00002754 Помощь"),
+                types.KeyboardButton(text="🌐 Портал")
             ],
         ]
         keyboard = types.ReplyKeyboardMarkup(
@@ -921,6 +924,35 @@ async def help_request_button(message: types.Message, state: FSMContext):
     if user:
         await message.answer("\U00002754 Пожалуйста, введите ваш вопрос:")
         await state.set_state(SupportRequestForm.waiting_for_question)
+    else:
+        await message.answer("Вы не зарегистрированы на портале.")
+
+@router.message(F.text == "🌐 Портал")
+async def portal_button(message: types.Message):
+    # Проверяем, что это личный чат
+    if message.chat.type != 'private':
+        return
+        
+    user = await get_user_profile(message.from_user.id)
+    if user:
+        # Формируем URL портала
+        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://sguevents.help"
+        
+        # Создаем клавиатуру с кнопкой
+        keyboard = types.InlineKeyboardMarkup(
+            inline_keyboard=[
+                [types.InlineKeyboardButton(
+                    text="🌐 Перейти на портал",
+                    url=base_url
+                )]
+            ]
+        )
+        
+        await message.answer(
+            f"🌐 Портал мероприятий СГУ: <a href='{base_url}'>{base_url}</a>",
+            reply_markup=keyboard,
+            parse_mode='HTML'
+        )
     else:
         await message.answer("Вы не зарегистрированы на портале.")
 
