@@ -7,7 +7,7 @@ from events_cultural.models import Attractions, Events_for_visiting
 from users.models import User
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from users.telegram_utils import send_message_to_user_with_toggle_button, send_custom_notification_with_toggle
+from users.telegram_utils import send_custom_notification_with_toggle
 import logging
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
@@ -124,21 +124,7 @@ class Review(models.Model):
 
 
 
-@receiver(post_save, sender=Registered)
-def notify_user_on_registration(sender, instance, created, **kwargs):
-    if created:
-        event_name = instance.online.name if instance.online else (
-            instance.offline.name if instance.offline else (
-                instance.attractions.name if instance.attractions else instance.for_visiting.name))
-        message = f"\U00002705 Вы зарегистрировались на мероприятие: {event_name}."
-        user_telegram_id = instance.user.telegram_id
 
-        # Проверка наличия Telegram ID
-        if user_telegram_id:
-            logger.info(f"Отправка сообщения о регистрации пользователю {instance.user.username} с telegram_id: {user_telegram_id}")
-            send_message_to_user_with_toggle_button(user_telegram_id, message, instance.id, instance.notifications_enabled)
-        else:
-            logger.warning(f"У пользователя {instance.user.username} нет telegram_id, пропускаем отправку.")
 
 
 

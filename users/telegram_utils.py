@@ -16,7 +16,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from asgiref.sync import async_to_sync
 import aiohttp
 import asyncio
-
+from django.urls import reverse
 
 
 logger = logging.getLogger('my_debug_logger')
@@ -66,29 +66,6 @@ def send_message_to_user(telegram_id, message, event_id=None, reply_markup=None)
     else:
         print(f"Ошибка отправки сообщения пользователю: {response.text}")
 
-def send_message_to_user_with_toggle_button(telegram_id, message, event_id, notifications_enabled):
-    send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
-    button_text = "\U0001F534 Отключить уведомления" if notifications_enabled else "\U0001F7E2 Включить уведомления"
-    callback_data = f"toggle_{event_id}"
-    inline_keyboard = {
-        "inline_keyboard": [[
-            {
-                "text": button_text,
-                "callback_data": callback_data
-            }
-        ]]
-    }
-    data = {
-        "chat_id": telegram_id,
-        "text": message,
-        "reply_markup": json.dumps(inline_keyboard)
-    }
-    response = requests.post(send_url, data=data)
-    if response.ok:
-        print(f"Сообщение успешно отправлено пользователю с telegram_id: {telegram_id}")
-    else:
-        print(f"Ошибка отправки сообщения пользователю: {response.text}")
-
 def send_message_to_user(telegram_id, message, event_id=None, reply_markup=None):
     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
     data = {
@@ -120,13 +97,15 @@ def send_message_to_user_with_toggle_button(telegram_id, message, event_id, noti
     data = {
         "chat_id": telegram_id,
         "text": message,
+        "parse_mode": "HTML",
         "reply_markup": json.dumps(inline_keyboard)
     }
-    response = requests.post(send_url, data=data)
+    
+    response = requests.post(send_url, json=data)
     if response.ok:
-        print(f"Сообщение успешно отправлено пользователю с telegram_id: {telegram_id}")
+        logger.info(f"Сообщение успешно отправлено пользователю с telegram_id: {telegram_id}")
     else:
-        print(f"Ошибка отправки сообщения пользователю: {response.text}")
+        logger.error(f"Ошибка отправки сообщения пользователю: {response.text}")
 
 
 
@@ -159,6 +138,7 @@ def send_message_to_user_with_review_buttons(telegram_id, message, event_unique_
     data = {
         "chat_id": telegram_id,
         "text": message,
+        "parse_mode": "HTML",
         "reply_markup": inline_keyboard_to_dict(reply_markup)
     }
 
@@ -208,6 +188,7 @@ def send_custom_notification_with_toggle(telegram_id, message, event_unique_id, 
     data = {
         "chat_id": telegram_id,
         "text": message,
+        "parse_mode": "HTML",
         "reply_markup": json.dumps(inline_keyboard)
     }
 
@@ -379,7 +360,8 @@ def send_message_to_telegram(telegram_id, message, reply_markup=None):
     url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
         'chat_id': telegram_id,
-        'text': message
+        'text': message,
+        'parse_mode': 'HTML'
     }
 
     # Добавляем обработку reply_markup, если он передан
@@ -606,3 +588,40 @@ def download_telegram_avatar(telegram_id):
     except Exception as e:
         logger.error(f"Ошибка при загрузке аватара из Telegram для пользователя {telegram_id}: {str(e)}")
         return None
+
+def get_event_url(event_obj):
+    """
+    Генерирует полный URL для мероприятия в зависимости от его типа
+    """
+    try:
+        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://sguevents.help"
+        
+        # Определяем тип мероприятия и соответствующий URL
+        if hasattr(event_obj, '_meta'):
+            model_name = event_obj._meta.model_name
+            
+            if model_name == 'events_online':
+                relative_url = reverse('events_available:online_card', kwargs={'event_slug': event_obj.slug})
+            elif model_name == 'events_offline':
+                relative_url = reverse('events_available:offline_card', kwargs={'event_slug': event_obj.slug})
+            elif model_name == 'attractions':
+                relative_url = reverse('events_cultural:attractions_card', kwargs={'event_slug': event_obj.slug})
+            elif model_name == 'events_for_visiting':
+                relative_url = reverse('events_cultural:events_for_visiting_card', kwargs={'event_slug': event_obj.slug})
+            else:
+                logger.warning(f"Неизвестный тип мероприятия: {model_name}")
+                return None
+                
+            return f"{base_url}{relative_url}"
+    except Exception as e:
+        logger.error(f"Ошибка при генерации URL для мероприятия: {e}")
+        return None
+
+def create_event_hyperlink(event_name, event_url):
+    """
+    Создает HTML гиперссылку для мероприятия
+    """
+    if event_url:
+        return f'<a href="{event_url}">{event_name}</a>'
+    else:
+        return event_name

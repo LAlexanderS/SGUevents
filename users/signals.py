@@ -113,17 +113,23 @@ def notify_participants_on_specific_field_change(sender, instance, created, **kw
 
     for registration in registered_users:
         if registration.user.telegram_id:
+            from users.telegram_utils import get_event_url, create_event_hyperlink
+            
+            # Создаем гиперссылку для мероприятия
+            event_url = get_event_url(instance)
+            event_hyperlink = create_event_hyperlink(instance.name, event_url)
+            
             # Формируем сообщение в зависимости от изменённых полей
             messages = []
             for field in fields_changed:
                 if field == 'start_datetime':
                     messages.append(
-                        f"Изменилось время начала мероприятия '{instance.name}'. Новое время: {instance.start_datetime.strftime('%d.%m.%Y %H:%M')}."
+                        f"Изменилось время начала мероприятия {event_hyperlink}. Новое время: {instance.start_datetime.strftime('%d.%m.%Y %H:%M')}."
                     )
                 # Добавьте обработку других полей по необходимости
 
             # Объединяем сообщения
-            message = " ".join(messages) if messages else f"Изменились детали мероприятия '{instance.name}'."
+            message = " ".join(messages) if messages else f"Изменились детали мероприятия {event_hyperlink}."
 
             try:
                 send_custom_notification_with_toggle(
