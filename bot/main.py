@@ -316,8 +316,41 @@ async def my_events(message: types.Message):
             await message.answer("📓 Ваши мероприятия:")
             
             for event_info in event_details:
-                # Формируем текст мероприятия
-                event_text = f"🎯 <b>{event_info['name']}</b>\n"
+                from users.telegram_utils import get_event_url, create_event_hyperlink
+                
+                # Получаем объект мероприятия для создания URL
+                event_obj = None
+                if event_info['event_type'] == 'online':
+                    from events_available.models import Events_online
+                    try:
+                        event_obj = await sync_to_async(Events_online.objects.get)(id=event_info['event_id'])
+                    except Events_online.DoesNotExist:
+                        pass
+                elif event_info['event_type'] == 'offline':
+                    from events_available.models import Events_offline
+                    try:
+                        event_obj = await sync_to_async(Events_offline.objects.get)(id=event_info['event_id'])
+                    except Events_offline.DoesNotExist:
+                        pass
+                elif event_info['event_type'] == 'attractions':
+                    from events_cultural.models import Attractions
+                    try:
+                        event_obj = await sync_to_async(Attractions.objects.get)(id=event_info['event_id'])
+                    except Attractions.DoesNotExist:
+                        pass
+                elif event_info['event_type'] == 'for_visiting':
+                    from events_cultural.models import Events_for_visiting
+                    try:
+                        event_obj = await sync_to_async(Events_for_visiting.objects.get)(id=event_info['event_id'])
+                    except Events_for_visiting.DoesNotExist:
+                        pass
+                
+                # Создаем гиперссылку для мероприятия
+                event_url = await sync_to_async(get_event_url)(event_obj) if event_obj else None
+                event_hyperlink = await sync_to_async(create_event_hyperlink)(event_info['name'], event_url)
+                
+                # Формируем текст мероприятия с гиперссылкой
+                event_text = f"🎯 <b>{event_hyperlink}</b>\n"
                 if event_info['start_datetime']:
                     start_datetime_local = localtime(event_info['start_datetime'])
                     event_text += f"🕐 {start_datetime_local.strftime('%d.%m.%Y %H:%M')}"

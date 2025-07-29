@@ -16,10 +16,19 @@ def round_to_minute(dt):
 @shared_task
 def send_notification(event_registered_id, user_id, event_name, timeframe):
     try:
+        from users.telegram_utils import get_event_url, create_event_hyperlink
+        
         user = User.objects.get(id=user_id)
         registered_event = Registered.objects.get(id=event_registered_id)
         if registered_event.notifications_enabled:
-            message = f"\U0001F550 Напоминаем, что мероприятие '{event_name}' начнется через {timeframe}."
+            # Получаем объект мероприятия для создания гиперссылки
+            event_obj = registered_event.online or registered_event.offline or registered_event.attractions or registered_event.for_visiting
+            
+            # Создаем гиперссылку для мероприятия
+            event_url = get_event_url(event_obj) if event_obj else None
+            event_hyperlink = create_event_hyperlink(event_name, event_url)
+            
+            message = f"\U0001F550 Напоминаем, что мероприятие {event_hyperlink} начнется через {timeframe}."
             if user.telegram_id:
                 # Отправляем уведомление с кнопкой отмены регистрации
                 send_event_notification_with_buttons(

@@ -207,6 +207,23 @@ def events_registered(request, event_slug):
         elif event_type == 'for_visiting':
             registered, created = Registered.objects.get_or_create(user=request.user, for_visiting=event)
 
+        # Отправляем уведомление с гиперссылкой
+        if created and request.user.telegram_id:
+            from users.telegram_utils import get_event_url, create_event_hyperlink, send_message_to_user_with_toggle_button
+            
+            # Генерируем URL и создаем гиперссылку
+            event_url = get_event_url(event)
+            event_hyperlink = create_event_hyperlink(event.name, event_url)
+            
+            message = f"✅ Вы зарегистрировались на мероприятие: {event_hyperlink}."
+            
+            send_message_to_user_with_toggle_button(
+                request.user.telegram_id, 
+                message, 
+                registered.id, 
+                registered.notifications_enabled
+            )
+
         event.member.add(request.user)
 
         if created:
