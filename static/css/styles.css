@@ -1311,11 +1311,16 @@ td {
     border-radius: 4px;
     font-family: 'Onest';
     font-size: 20px;
-    font-weight: 400;
     line-height: 130%;
     color: rgb(39, 66, 106);
     max-height: 150px;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 500;
+    text-indent: 0;
 }
+
 
 .item {
     display: inline-block;

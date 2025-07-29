@@ -9,6 +9,9 @@ if (path.includes('/online')) {
   formId = 'dateDropdownAttractions'
 } else if (path.includes('/events_for_visiting')) {
   formId = 'dateDropdownForVisiting'
+} else if (path.includes('/personal')) {
+  formId = 'dateDropdownPersonal'
+
 }
 
 

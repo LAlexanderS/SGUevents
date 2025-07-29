@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", function () {
     currentCategory = 'attractions'
   } else if (url.includes('/events_for_visiting')) {
     currentCategory = 'for_visiting'
+  } else if (url.includes('/personal')) {
+    currentCategory = 'personal'
   }
 
   const previousCategory = localStorage.getItem('activeCategory')
