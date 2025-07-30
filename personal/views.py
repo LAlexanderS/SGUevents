@@ -162,7 +162,7 @@ def personal(request):
                 speakers_objects.extend(users)
         
         # Применяем фильтр по спикерам, если есть результаты
-        print(f'aaaaaaaaaa {speakers_objects}')
+
         if speakers_objects:
             events = [e for e in events if e.speakers in speakers_objects]
     # Фильтр по тегам

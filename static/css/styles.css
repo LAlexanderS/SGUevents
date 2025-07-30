@@ -1064,23 +1064,7 @@ td {
     margin-bottom: 150px;
 }
 
-.info-block {
-    display: inline-block;
-    margin: 30px;
-    width: 380px;
-    height: 150px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 25px;
-    box-shadow: -2px 2px 6px 0px rgba(0, 0, 0, 0.25), 2px 2px 6px 0px rgba(0, 0, 0, 0.25);
-    background: rgba(217, 217, 217, 0.8);
-    color: rgb(76, 79, 95);
-    font-family: 'Onest';
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 130%;
-    letter-spacing: 0%;
-    text-align: center;
-}
+
 
 .info-content {
     padding-top: 10px;
@@ -1748,12 +1732,7 @@ td {
         font-size: 18px;
     }
 
-    .info-block {
-        display: inline-block;
-        margin: 25px;
-        width: 330px;
-        height: 130px;
-    }
+
 
     .title {
         height: 50.88px;
@@ -1920,13 +1899,6 @@ td {
 
     .hashtags {
         font-size: 16px;
-    }
-
-    .info-block {
-        display: inline-block;
-        margin: 25px;
-        width: 330px;
-        height: 130px;
     }
 
     .title {
@@ -2161,11 +2133,6 @@ td {
         font-size: 14px;
     }
 
-    .info-block {
-        margin: 20px;
-        width: 330px;
-        height: 130px;
-    }
 
     .title {
         height: 50.88px;
@@ -3376,14 +3343,7 @@ td {
         padding-bottom: 5px;
     }
 
-    .info-block {
-        display: block;
-        width: 70%;
-        height: 90px;
-        margin-bottom: 0;
-        margin-top: 10px;
-        margin-left: 15%;
-    }
+
 
     .title {
         height: 40px;

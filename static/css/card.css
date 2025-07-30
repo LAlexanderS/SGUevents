@@ -265,6 +265,145 @@ h1 {
 
 
 
+
+
+
+
+
+.rating-group {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-group input[type="radio"] {
+    display: none;
+}
+
+.rating-group label {
+    font-size: 2rem;
+    fill: #7d2222 !important;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rating-group label svg {
+    fill: #BFE2FF !important;
+    transition: fill 0.2s;
+}
+
+
+.rating-group input[type="radio"]:checked~label svg,
+.rating-group label:hover svg,
+.rating-group label:hover~label svg {
+    fill: rgb(39, 66, 106) !important;
+}
+
+
+/* Контейнер для рейтинга */
+.rating-overlay-card {
+    position: static;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    pointer-events: auto;
+}
+
+.rating-group label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+
+.rating-group-static {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-group-static label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+
+
+/* .half-stars-static input:checked~label svg {
+    fill:green;
+} */
+
+.info-block {
+    display: inline-block;
+
+    width: 380px;
+    height: 150px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 25px;
+    box-shadow: -2px 2px 6px 0px rgba(0, 0, 0, 0.25), 2px 2px 6px 0px rgba(0, 0, 0, 0.25);
+    background: rgba(217, 217, 217, 0.8);
+    color: rgb(76, 79, 95);
+    font-family: 'Onest';
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 130%;
+    letter-spacing: 0%;
+    text-align: center;
+}
+
+.carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+}
+
+.carousel-btn-wrapper {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.carousel-wrapper {
+    overflow: hidden;
+    flex: 1;
+}
+
+.carousel-track {
+    display: flex;
+    margin-left: 0;
+    transition: transform 0.4s ease;
+    gap: 20px;
+    padding: 0px 10px;
+}
+
+.carousel-track>.info-block {
+    flex: 0 0 calc((100% - 40px) / 3);
+    /* 2 * gap */
+    box-sizing: border-box;
+    min-width: 0;
+    margin: 10px 0px;
+}
+
+.carousel-btn {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    line-height: 34px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    user-select: none;
+}
+
+
 @media (max-width: 1440px) {
     .review-container {
         display: flex;
@@ -581,66 +720,13 @@ h1 {
     .btn-support {
         min-height: 40px !important;
     }
+
+    .info-block {
+        display: block;
+        width: 70%;
+        height: 90px;
+        margin-bottom: 0;
+        margin-top: 10px;
+        margin-left: 15%;
+    }
 }
-
-.rating-group {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-}
-
-.rating-group input[type="radio"] {
-    display: none;
-}
-
-.rating-group label {
-    font-size: 2rem;
-    fill: #7d2222 !important;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.rating-group label svg {
-    fill: #BFE2FF !important;
-    transition: fill 0.2s;
-}
-
-
-.rating-group input[type="radio"]:checked~label svg,
-.rating-group label:hover svg,
-.rating-group label:hover~label svg {
-    fill: rgb(39, 66, 106) !important;
-}
-
-
-/* Контейнер для рейтинга */
-.rating-overlay-card {
-    position: static;
-    width: auto;
-    height: auto;
-    opacity: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    pointer-events: auto;
-}
-
-.rating-group label.filled svg path {
-    fill: rgb(39, 66, 106);
-}
-
-
-.rating-group-static {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-}
-
-.rating-group-static label.filled svg path {
-    fill: rgb(39, 66, 106);
-}
-
-/* .half-stars-static input:checked~label svg {
-    fill:green;
-} */
