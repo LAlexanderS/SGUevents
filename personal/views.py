@@ -84,7 +84,7 @@ def personal(request):
     is_logistics = current_user.groups.filter(name="Логистика").exists()
 
     
-    events = list(chain(online_events, offline_events, attractions, for_visiting))
+    events = sorted(list(chain(online_events, offline_events, attractions, for_visiting)), key=lambda x: x.date_add, reverse=True)
 
     # Фильтр по названию
     if name_search:
