@@ -107,6 +107,7 @@ def index(request):
         cultural = Attractions.objects.order_by('-date_add')
         cultural1 = Events_for_visiting.objects.order_by('-date_add')
         events_all = list(chain(available, available1, cultural, cultural1))
+        events_all = sorted(events_all, key=lambda x: x.date_add, reverse=True)
 
 
     # Фильтрация по дате
