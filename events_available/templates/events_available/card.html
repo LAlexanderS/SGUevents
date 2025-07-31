@@ -1,104 +1,123 @@
 {% extends 'events/card.html' %} 
 {% load static %} 
-{% load events_available_tags %}
+{% load events_available_tags %} 
 
-{% block heart %}
-
-{% if event.category == "Оффлайн" %}
-	{% if event.id in favorites %}
-	<a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:event.id }}">
-		<img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-	</a>
-	{% else %}
-	<a href="#" class="btn add-to-cart" data-event-slug="{{ event.slug }}">
-		<img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-	</a>
-	{% endif %}
-{% elif event.category == "Онлайн" %}
-	{% if event.id in favorites %}
-	<a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:event.id }}">
-		<img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32">
-	</a>
-	{% else %}
-	<a href="#" class="btn add-to-cart" data-event-slug="{{ event.slug }}">
-		<img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32">
-	</a>
-	{% endif %}
-{% endif %}
-
-{% endblock heart %}
-
+{% block heart %} 
+	{% if event.category == "Оффлайн" %} 
+		{% if event.id in favorites %}
+			<a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:event.id }}">
+				<img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32" />
+			</a>
+		{% else %}
+			<a href="#" class="btn add-to-cart" data-event-slug="{{ event.slug }}">
+				<img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32" />
+			</a>
+		{% endif %} 
+	{% elif event.category == "Онлайн" %} 
+		{% if event.id in favorites %}
+			<a href="#" class="btn remove-from-favorites" data-event-id="{{ favorites|get_item:event.id }}">
+				<img class="mx-1 heart-icon" src="{% static 'general/icons/heart_red.png' %}" alt="Catalog Icon" width="32" height="32" />
+			</a>
+		{% else %}
+			<a href="#" class="btn add-to-cart" data-event-slug="{{ event.slug }}">
+				<img class="mx-1 heart-icon" src="{% static 'general/icons/heart.svg' %}" alt="Catalog Icon" width="32" height="32" />
+			</a>
+		{% endif %} 
+	{% endif %} 
+{% endblock heart %} 
 
 {% block content %}
-<!-- Контент на странице -->
-<div class="row">
+	<!-- Контент на странице -->
+	<div class="row">
 		{% if event.category == "Оффлайн" %}
-			<div class="col-lg-6 main-button" style="text-align: center;">
-				{% if event.date >= now or request.user in event.member.all %}
-					{% if event.id in registered %}
-						<a href="#" class="btn btn-remove_app card-button" data-event-id="{{ registered|get_item:event.id }}">
-							Отмена регистрации
-						</a>
-					{% else %}
-						<a href="#" class="btn btn-sent_app card-button" data-event-slug="{{ event.slug }}">
-							Регистрация
-						</a>
-					{% endif %}
-				{% else %}
-					<span class="btn btn-secondary card-button">Регистрация закрыта</span>
+		<div class="col-lg-6 main-button" style="text-align: center">
+			{% if event.date >= now or request.user in event.member.all %} {% if event.id in registered %}
+			<a href="#" class="btn btn-remove_app card-button" data-event-id="{{ registered|get_item:event.id }}"> Отмена регистрации </a>
+			{% else %}
+			<a href="#" class="btn btn-sent_app card-button" data-event-slug="{{ event.slug }}"> Регистрация </a>
+			{% endif %} {% else %}
+			<span class="btn btn-secondary card-button">Регистрация закрыта</span>
+			{% endif %}
+		</div>
+
+		<div class="col-lg-6 main-button" style="text-align: center">
+			<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="offline">Оставить отзыв</button>
+		</div>
+		{% if event.support_chat_id %}
+		<div class="col-lg-12 admin-connect mt-3" style="text-align: center">
+			<button class="btn btn-secondary btn-support" data-event-id="{{ event.id }}" data-model-type="offline" style="height: fit-content; padding: 5px; padding-inline: 10px"><img src="{% static "icons/admin.png" %}" alt="" style="max-height: 30px; width: auto;"> Связь с организатором</button>
+		</div>
+		{% endif %} {% elif event.category == "Онлайн" %}
+		<div class="col-lg-6 main-button" style="text-align: center">
+			{% if event.date >= now or request.user in event.member.all %} {% if event.id in registered %}
+			<a href="#" class="btn btn-remove_app card-button" data-event-id="{{ registered|get_item:event.id }}"> Отмена регистрации </a>
+			{% else %}
+			<a href="#" class="btn btn-sent_app card-button" data-event-slug="{{ event.slug }}"> Регистрация </a>
+			{% endif %} {% else %}
+			<span class="btn btn-secondary card-button">Регистрация закрыта</span>
+			{% endif %}
+		</div>
+		<div class="col-lg-6 main-button" style="text-align: center">
+			<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="online">Оставить отзыв</button>
+		</div>
+		{% if event.support_chat_id %}
+		<div class="col-lg-12 admin-connect mt-3" style="text-align: center">
+			<button class="btn btn-secondary btn-support" data-event-id="{{ event.id }}" data-model-type="online" style="height: fit-content; padding: 5px; padding-inline: 10px"><img src="{% static "icons/admin.png" %}" alt="" style="max-height: 30px; width: auto;"> Связь с организатором</button>
+		</div>
+		{% endif %} {% endif %}
+	</div>
+{% endblock content %} 
+
+{% block content_card %} 
+	{% comment %} Спикеры {% endcomment %}
+	{% if event.speakers.all %}
+		<div class="info-block speaker">
+			<div class="title"> Спикер </div>
+			<div class="info-content">
+				{% for speaker in event.speakers.all %} 
+					{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %} 
+				{% endfor %} 
+			</div>
+		</div>
+	{% endif %}
+
+	{% comment %} Дата\Время {% endcomment %}
+	<div class="info-block date-time">
+		<div class="title">
+			Дата и время
+		</div>
+		<div class="info-content">
+			<label for="date"> {% if event.date_end and event.date_end == event.date %} {{ event.formatted_date_2 }} {% else %} {{ event.date }} {% endif %}</label> <br />
+			<label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
+		</div>
+	</div>
+
+	{% comment %} Место проведения\расположения {% endcomment %}
+	{% if event.category == "Оффлайн" %}
+		<div class="info-block place">
+			<div class="title">Место проведения</div>
+				<div class="info-content">
+					<label>{% if event.town %}г.{{ event.town }}{% endif %} {% if event.street %}ул.{{ event.street }}{% endif %} {% if event.house %} д.{{ event.house }}{% endif %}{% if event.cabinet %} кабинет {{ event.cabinet }}{% endif %}</label>
+			</div>
+		</div>
+	{% endif %}
+
+	{% comment %} Ссыдка\QR {% endcomment %}
+	{% if event.link or event.qr %}
+		<div class="info-block connection">
+			<div class="title">
+				Подключение
+			</div>
+			<div class="info-content">
+				{% if event.link %}
+					<label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
+				{% endif %} 
+				{% if event.qr %}
+					<label><a href="" class="connection-link open-modal" id="openModal">QR-код</a></label>
 				{% endif %}
 			</div>
-
-			<div class="col-lg-6 main-button" style="text-align: center;">
-				<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="offline">Оставить отзыв</button>
-			</div>
-			{% if event.support_chat_id %}
-				<div class="col-lg-12 admin-connect mt-3" style="text-align: center;">
-					<button class="btn btn-secondary btn-support"
-							data-event-id="{{ event.id }}"
-							data-model-type="offline"
-							style="height: fit-content; padding: 5px; padding-inline: 10px;">
-						<img src="{% static "icons/admin.png" %}" alt="" style="max-height: 30px; width: auto;">
-						Связь с администратором
-					</button>
-				</div>
-			{% endif %}
-			
-		{% elif event.category == "Онлайн" %}
-			<div class="col-lg-6 main-button" style="text-align: center;">
-				{% if event.date >= now or request.user in event.member.all %}
-						{% if event.id in registered %}
-							<a href="#" class="btn btn-remove_app card-button" data-event-id="{{ registered|get_item:event.id }}">
-								Отмена регистрации
-							</a>
-						{% else %}
-							<a href="#" class="btn btn-sent_app card-button" data-event-slug="{{ event.slug }}">
-								Регистрация
-							</a>
-						{% endif %}
-				{% else %}
-					<span class="btn btn-secondary card-button">Регистрация закрыта</span>
-				{% endif %}
-			</div>
-			<div class="col-lg-6 main-button" style="text-align: center;">
-				<button class="btn btn-comment card-button" data-event-id="{{ event.id }}" data-model-type="online">Оставить отзыв</button>
-			</div>
-			{% if event.support_chat_id %}
-				<div class="col-lg-12 admin-connect mt-3" style="text-align: center;">
-					<button class="btn btn-secondary btn-support"
-							data-event-id="{{ event.id }}"
-							data-model-type="online"
-							style="height: fit-content; padding: 5px; padding-inline: 10px;">
-						<img src="{% static "icons/admin.png" %}" alt="" style="max-height: 30px; width: auto;">
-						Связь с администратором
-					</button>
-				</div>
-			{% endif %}
-		{% endif %}
-
-	
-</div>
+		</div>
+	{% endif %}	
 
 
-
-{% endblock content %}
+{% endblock content_card %}

@@ -285,75 +285,7 @@
                                 <div class="carousel-wrapper">
                                     <div class="carousel-track" id="carousel-track">
                                         
-                                        {% if event.speakers.all or event.place_free or event.place_limit %}
-                                            <div class="info-block speaker">
-                                                <div class="title">
-                                                    {% if event.category != "Доступные к посещению" %} 
-                                                        Спикер
-                                                    {% else %}
-                                                        Свободные места
-                                                    {% endif %}
-                                                </div>
-                                                <div class="info-content">
-                                                    {% if event.category != "Доступные к посещению" %} 
-                                                        {% for speaker in event.speakers.all %}
-                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-                                                    {% else %}
-                                                        <span id="free-places-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}                                  
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        {% endif %}
-
-                                        <div class="info-block date-time">
-                                            <div class="title">Дата и время</div>
-                                            <div class="info-content">
-                                                <label for="date">
-                                                    {% if event.date_end and event.date_end == event.date %}
-                                                        {{ event.formatted_date_2 }}
-                                                    {% else %}
-                                                        {{ event.date }}
-                                                    {% endif %}</label> <br>
-                                                <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
-                                            </div>
-                                        </div>
-
-                                        <div class="info-block date-time">
-                                            <div class="title">Дата и время 2</div>
-                                            <div class="info-content">
-                                                <label for="date">
-                                                    {% if event.date_end and event.date_end == event.date %}
-                                                        {{ event.formatted_date_2 }}
-                                                    {% else %}
-                                                        {{ event.date }}
-                                                    {% endif %}</label> <br>
-                                                <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
-                                            </div>
-                                        </div>
-
-
-
-                                        {% if event.link or event.qr or event.town or event.street %}
-                                            <div class="info-block connection">
-                                                {% if event.category == "Оффлайн" %}
-                                                    <div class="title">Место проведения</div>
-                                                    <div class="info-content">
-                                                        <label>{% if event.town %}г.{{ event.town }}{% endif %} {% if event.street %}ул.{{ event.street }}{% endif %} {% if event.house %} д.{{ event.house }}{% endif %}{% if event.cabinet %} кабинет {{ event.cabinet }}{% endif %}</label>
-                                                    </div>
-                                                {% else %}
-                                                    <div class="title">Подключение</div>
-                                                    <div class="info-content">
-                                                        {% if event.link %}
-                                                            <label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
-                                                        {% endif %}
-                                                        {% if event.qr %}
-                                                            <label><a href="" class="connection-link open-modal" id="openModal">QR-код</a></label>
-                                                        {% endif %}
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
+                                        {% block content_card %}{% endblock content_card %}
                                     </div>
                                 </div>
 
@@ -406,6 +338,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 400);
   }
 
+    // Скрыть кнопки, если блоков меньше 4
+    const infoBlocks = document.querySelectorAll('.carousel-track .info-block');
+    if (infoBlocks.length < 4) {
+    document.querySelector('.carousel-btn.left').style.display = 'none';
+    document.querySelector('.carousel-btn.right').style.display = 'none';
+    }
   document.querySelector('.carousel-btn.right').addEventListener('click', moveLeft);
   document.querySelector('.carousel-btn.left').addEventListener('click', moveRight);
 });
