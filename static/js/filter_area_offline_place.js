@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="dropdown dropdown-button">
         <button class="btn btn-secondary dropdown-toggle w-100" type="button"
             data-bs-toggle="dropdown" aria-expanded="false">
-            Место проведения
+            Место
         </button>
         <form action="" method="get" class="dropdown-menu dropdown-filter w-100"
             data-bs-theme="dark" id="place-form">
