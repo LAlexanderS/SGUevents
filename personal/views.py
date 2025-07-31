@@ -200,7 +200,7 @@ def personal(request):
         'is_attraction_group': is_attraction_group,
         'is_for_visiting_group': is_for_visiting_group,
         'is_logistics': is_logistics,
-        'name_page': "Кабинет администратора",
+        'name_page': "Кабинет организатора",
         'reviews_avg': reviews_avg,
         'speakers': speakers,
         'filters_applied': filters_applied,
