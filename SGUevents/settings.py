@@ -24,7 +24,7 @@ ALLOWED_HOSTS = ['*']
 
 DEBUG = True
 # ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '127.0.0.1', 'localhost', 'sguevents.help', 'sguevents']
-# ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '95.47.161.83']
+# ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '95.47.161.83', 'sguevents.help', 'www.sguevents.help']
 
 
 # Значение по умолчанию для разработки
@@ -186,6 +186,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://sguevents.ru',
     'https://www.sguevents.ru',
     'https://sguevents.help',
+    'https://www.sguevents.help',
     'http://127.0.0.1:8000',  # Для прямого доступа при разработке
     'http://localhost:8000',
 ]
