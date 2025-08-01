@@ -49,7 +49,7 @@ class Events_online(models.Model):
     link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка для подключения')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/online', blank=True, null=True, verbose_name='Изображение')
-    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_online', verbose_name="Администратор")
+    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_online', verbose_name="Соорганизаторы")
     documents = models.FileField(blank=True, null=True, verbose_name='Программа мероприятия')
     const_category = 'Онлайн'
     category = models.CharField(default=const_category, max_length=30, unique=False, blank=False, null=False, verbose_name='Тип мероприятия')
@@ -153,7 +153,7 @@ class Events_offline(models.Model):
     link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка к мероприятию')
     qr = models.FileField(blank=True, null=True, verbose_name='QR-код')
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
-    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_offline', verbose_name="Администратор")
+    events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_offline', verbose_name="Соорганизаторы")
     documents = models.FileField(blank=True, null=True, verbose_name='Программа мероприятия')
     const_category = 'Оффлайн'
     category = models.CharField(default=const_category, max_length=30, unique=False, blank=False, null=False, verbose_name='Тип мероприятия')
