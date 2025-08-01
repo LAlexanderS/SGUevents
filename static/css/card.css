@@ -375,7 +375,7 @@ h1 {
 
 .carousel-track {
     display: flex;
-    justify-content: center;
+    /* justify-content: center; */
     margin-left: 0;
     transition: transform 0.4s ease;
     gap: 20px;

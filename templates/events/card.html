@@ -345,17 +345,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('.carousel-btn.right').style.display = 'none';
     }
 
+    
+    if (infoBlocks.length < 3) {
+        track.style.justifyContent = 'center';
+    } else {
+        track.style.justifyContent = 'flex-start';
+    }
 
-    // const track = document.getElementById("carousel-track");
-    // if (infoBlocks.length < 3) {
-        // track.style.justifyContent = 'center';
-    // } else {
-        // track.style.justifyContent = 'flex-start';
-    // }
 
-
-  document.querySelector('.carousel-btn.right').addEventListener('click', moveLeft);
-  document.querySelector('.carousel-btn.left').addEventListener('click', moveRight);
+    document.querySelector('.carousel-btn.right').addEventListener('click', moveLeft);
+    document.querySelector('.carousel-btn.left').addEventListener('click', moveRight);
 });
 </script>
 
