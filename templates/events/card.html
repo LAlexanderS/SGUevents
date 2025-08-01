@@ -361,66 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <div class="row mobile-blocks" style="width: 100%; padding-left: 22px;">
                                 <div class="col-lg-1"></div>
                                 <div class="col-lg-10">
-                                    <table>
-                                        <tr>
-                                            {% if event.speakers.all or event.place_free or event.place_limit %}
-                                                <td><img class="info-icon" src="{% static "icons/speaker.png" %}" alt=""></td>
-
-                                            {% endif %}
-                                            <td><img class="info-icon" src="{% static "icons/datetime.png" %}" alt=""></td>
-                                            {% if event.link %}
-                                                <td><img class="info-icon" src="{% static "icons/link.png" %}" alt=""></td>
-                                            {% endif %}
-                                        </tr>
-                                        <tr>
-                                            {% if event.speakers.all or event.place_free or event.place_limit %}
-                                                <td>
-                                                    <div class="info-title">
-                                                        {% if event.category != "Доступные к посещению" %} 
-                                                            Спикер
-                                                        {% else %}
-                                                            Свободных мест
-                                                        {% endif %}
-                                                    </div>
-                                                </td>
-                                            {% endif %}
-                                            
-                                            <td style="padding-inline: 0;">
-                                                <div class="info-title">Дата и время</div>
-                                            </td>
-                                            {% if event.link %}
-                                                <td>
-                                                    <div class="info-title">Подключение</div>
-                                                </td>
-                                            {% endif %}
-
-                                        </tr>
-                                        <tr>
-                                            {% if event.speakers.all or event.place_free or event.place_limit %}
-                                                <td class="info-cell">
-                                                    <label for="speaker">
-                                                        {% if event.category != "Доступные к посещению" %} 
-                                                            {% for speaker in event.speakers.all %}
-                                                                {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                                            {% endfor %}
-                                                        {% else %}
-                                                            <span id="free-places-mobile-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}   
-                                                        {% endif %}
-                                                    </label>
-                                                </td>
-                                            {% endif %}
-                                            <td class="info-cell"><label for="date">{{ event.date }}</label> <br>
-                                                <label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
-                                            </td>
-                                            {% if event.link %}
-                                                <td class="info-cell"><a href="{{event.link}}" class="connection-link">Ссылка для
-                                                        подключения</a>
-                                                    <label><a href="" class="connection-link open-modal"
-                                                            id="openModal2">QR-код</a></label>
-                                                </td>
-                                            {% endif %}
-                                        </tr>
-                                    </table>
+                                    {% block content_card_mobile %}{% endblock content_card_mobile %}
                                 </div>
                                 <div class="col-lg-1"></div>
                             </div>

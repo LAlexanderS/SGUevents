@@ -123,11 +123,6 @@ class Review(models.Model):
         return self.date_submitted.astimezone(local_timezone).strftime("%d.%m.%Y %H:%M")
 
 
-
-
-
-
-
 def send_update_notification(user, event, new_start_time):
     message = f"Изменились детали мероприятия: дата и время начала изменилось на {new_start_time}."
     user_telegram_id = user.telegram_id
