@@ -28,7 +28,7 @@ class Attractions(models.Model):
     image = models.ImageField(upload_to='events_available_images/offline', blank=True, null=True, verbose_name='Изображение')
     events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_attractions', verbose_name="Администратор")
     rating = models.DecimalField(default=0.00, max_digits=4, decimal_places=2, blank=False, verbose_name='Рейтинг 1-10')
-    documents = models.FileField(blank=True, null=True, verbose_name='Документы')
+    documents = models.FileField(blank=True, null=True, verbose_name='Программа мероприятия')
     const_category = 'Достопримечательности'
     category = models.CharField(default=const_category, max_length=30, blank=False, verbose_name='Тип мероприятия')
     reviews = GenericRelation('bookmarks.Review', related_query_name='attraction_reviews')
@@ -120,7 +120,7 @@ class Events_for_visiting(models.Model):
     events_admin = models.ManyToManyField(User, limit_choices_to={'is_staff': True}, blank=True, related_name='admin_visiting', verbose_name="Администратор")
     place_limit = models.IntegerField(unique=False, blank=False, null=False, verbose_name='Количество мест')
     place_free = models.IntegerField(unique=False, blank=False, null=False, verbose_name='Количество свободных мест')
-    documents = models.FileField(blank=True, null=True, verbose_name='Документы')
+    documents = models.FileField(blank=True, null=True, verbose_name='Программа мероприятия')
     const_category = 'Доступные к посещению'
     category = models.CharField(default=const_category, max_length=30, unique=False, blank=False, null=False, verbose_name='Тип мероприятия')
     reviews = GenericRelation('bookmarks.Review', related_query_name='visiting_reviews')
