@@ -79,7 +79,7 @@
                                         </li>
                                     {% endif %}
                                 <li>
-                                    <a class="dropdown-item text-black" href="{% url 'personal:personal' %}">Кабинет администратора</a>
+                                    <a class="dropdown-item text-black" href="{% url 'personal:personal' %}">Кабинет организатора</a>
                                 </li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider" /></li>
@@ -166,7 +166,7 @@
                                 <div class="col-12 col-lg-4 user-right-profile">
                                     <div class="row">
                                         <div class="col-12">
-                                            <div class="admin-request">Запрос админских прав</div>
+                                            <div class="admin-request">Запрос прав организатора</div>
                                             <div class="input-with-button">
                                                 <input class="request-reason form-control" type="text" id="reason" placeholder="Обоснование запроса">
                                                 <button class="send-request" onclick="requestAdminRights()"><img src="{% static "/icons/send-message.png" %}" alt=""> </button>

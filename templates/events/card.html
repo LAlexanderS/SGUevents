@@ -344,6 +344,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('.carousel-btn.left').style.display = 'none';
     document.querySelector('.carousel-btn.right').style.display = 'none';
     }
+
+
+    // const track = document.getElementById("carousel-track");
+    // if (infoBlocks.length < 3) {
+        // track.style.justifyContent = 'center';
+    // } else {
+        // track.style.justifyContent = 'flex-start';
+    // }
+
+
   document.querySelector('.carousel-btn.right').addEventListener('click', moveLeft);
   document.querySelector('.carousel-btn.left').addEventListener('click', moveRight);
 });
@@ -737,7 +747,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <div style="text-align: center; text-indent: 0;" class="docs">
                                     <img src="{% static "icons/paperclip.png" %}" alt="" style="max-height: 30px; width: auto;"
                                         class="paperclip"><a class="docs-link" href="{{ event.documents.url }}" target="_blank"
-                                        download>Документы</a>
+                                        download>Программа мероприятия</a>
                                 </div>
                             {% endif %}
                             
