@@ -123,146 +123,63 @@
 {% endblock content_card %}
 
 {% block content_card_mobile %}
-	<div class="info-block-mobile">
-		{% if event.speakers.all %}
-		<div class="info-column">
-			<img class="info-icon" src="{% static 'icons/speaker.png' %}" alt="">
-			<div class="info-title">Спикер</div>
-			<div class="info-cell">
-			{% for speaker in event.speakers.all %} 
-				{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %} 
-			{% endfor %}
-			</div>
-		</div>
-		{% endif %}
+	{% if event.speakers.all %}
+        <div class="info-slide">
+            <div class="info-column">
+                <img class="info-icon" src="{% static 'icons/speaker.png' %}" alt="">
+                <div class="info-title">Спикер</div>
+                <div class="info-cell">
+                    {% for speaker in event.speakers.all %} 
+                        {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %} 
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
-		<div class="info-column">
-			<img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
-			<div class="info-title">Дата и время</div>
-			<div class="info-cell">
-			<label for="date">
-				{% if event.date_end and event.date_end == event.date %}
-				{{ event.formatted_date_2 }}
-				{% else %}
-				{{ event.date }}
-				{% endif %}
-			</label><br>
-			<label for="time">{{ event.time_start }} – {{ event.time_end }}</label>
-			</div>
-		</div>
+    <div class="info-slide">
+        <div class="info-column">
+            <img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
+            <div class="info-title">Дата и время</div>
+            <div class="info-cell">
+                <label for="date">
+                    {% if event.date_end and event.date_end == event.date %}
+                        {{ event.formatted_date_2 }}
+                    {% else %}
+                        {{ event.date }}
+                    {% endif %}
+                </label><br>
+                <label for="time">{{ event.time_start }} – {{ event.time_end }}</label>
+            </div>
+        </div>
+    </div>
 
-		{% if event.category == "Оффлайн" %}
-			<div class="info-column">
-				<img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
-				<div class="info-title">Место проведения</div>
-				<div class="info-cell">
-				{% if event.town %}г.{{ event.town }}{% endif %}
-				{% if event.street %}ул.{{ event.street }}{% endif %}
-				{% if event.house %}д.{{ event.house }}{% endif %}
-				{% if event.cabinet %}каб. {{ event.cabinet }}{% endif %}
-				</div>
-			</div>
-		{% endif %}
+    {% if event.category == "Оффлайн" %}
+        <div class="info-slide">
+            <div class="info-column">
+                <img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
+                <div class="info-title">Место</div>
+                <div class="info-cell">
+                    {% if event.town %}г.{{ event.town }}{% endif %}
+                    {% if event.street %}ул.{{ event.street }}{% endif %}
+                    {% if event.house %}д.{{ event.house }}{% endif %}
+                    {% if event.cabinet %}каб. {{ event.cabinet }}{% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
-		{% if event.link %}
-			<div class="info-column">
-				<img class="info-icon" src="{% static 'icons/link.png' %}" alt="">
-				<div class="info-title">Подключение</div>
-				<div class="info-cell">
-				<a href="{{ event.link }}" class="connection-link">Ссылка</a><br>
-				<label><a href="" class="connection-link open-modal" id="openModal2">QR-код</a></label>
-				</div>
-			</div>
-		{% endif %}
-	</div>
+    {% if event.link %}
+        <div class="info-slide">
+            <div class="info-column">
+                <img class="info-icon" src="{% static 'icons/link.png' %}" alt="">
+            	<div class="info-title">Подключение</div>
+            	<div class="info-cell">
+                	<a href="{{ event.link }}" class="connection-link">Ссылка</a><br>
+                    	<label><a href="" class="connection-link open-modal" id="openModal2">QR-код
+					</a></label>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock content_card_mobile %}
-
-	<table>
-		<tr>
-			{% comment %} Иконка спикеров {% endcomment %}
-			{% if event.speakers.all %}
-				<td><img class="info-icon" src="{% static "icons/speaker.png" %}" alt=""></td>
-			{% endif %}
-
-			{% comment %} Иконка Дата и время {% endcomment %}
-			<td>
-				<img class="info-icon" src="{% static "icons/datetime.png" %}" alt="">
-			</td>
-
-			{% comment %} Иконка Место проведения {% endcomment %}
-			{% if event.category == "Оффлайн" %}
-				<td>
-					<img class="info-icon" src="{% static "icons/datetime.png" %}" alt="">
-				</td>
-			{% endif %}
-
-			{% comment %} Иконка Ссылка\QR {% endcomment %}
-			{% if event.link %}
-				<td><img class="info-icon" src="{% static "icons/link.png" %}" alt=""></td>
-			{% endif %}
-		</tr>
-		<tr>
-			{% comment %} Подпись спикер {% endcomment %}
-			{% if event.speakers.all or event.place_free or event.place_limit %}
-				<td>
-					<div class="info-title">
-						Спикер 
-					</div>
-				</td>
-			{% endif %}
-
-			{% comment %} Подпись Дата и время {% endcomment %}
-			<td style="padding-inline: 0">
-				<div class="info-title">Дата и время</div>
-			</td>
-
-			{% comment %} Подпись Место проведения{% endcomment %}
-			{% if event.category == "Оффлайн" %}
-				<td style="padding-inline: 0">
-					<div class="info-title">Место проведения</div>
-				</td>
-			{% endif %}
-
-			{% comment %} Подпись Ссылка\QR {% endcomment %}
-			{% if event.link %}
-				<td>
-					<div class="info-title">Подключение</div>
-				</td>
-			{% endif %}
-		</tr>
-		<tr>
-			{% comment %} Спикер {% endcomment %}
-			{% if event.speakers.all %}
-				<td class="info-cell">
-					<label for="speaker">
-						{% for speaker in event.speakers.all %} 
-							{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %} 
-						{% endfor %} 
-					</label>
-				</td>
-			{% endif %}
-
-			{% comment %} Дата и время  {% endcomment %}
-			<td class="info-cell">
-				<label for="date"> {% if event.date_end and event.date_end == event.date %} {{ event.formatted_date_2 }} {% else %} {{ event.date }} {% endif %}</label> <br />
-				<label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
-			</td>
-
-			{% comment %} Место проведения {% endcomment %}
-			{% if event.category == "Оффлайн" %}
-				<td class="info-cell">
-					<label for="speaker">
-						{% if event.town %}г.{{ event.town }}{% endif %} {% if event.street %}ул.{{ event.street }}{% endif %} {% if event.house %} д.{{ event.house }}{% endif %}{% if event.cabinet %} кабинет {{ event.cabinet }}{% endif %}
-					</label>
-				</td>
-			{% endif %}
-
-			{% comment %} Ссылка\QR {% endcomment %}
-			{% if event.link %}
-				<td class="info-cell">
-					<a href="{{event.link}}" class="connection-link">Ссылка для подключения</a>
-					<label><a href="" class="connection-link open-modal" id="openModal2">QR-код</a></label>
-				</td>
-			{% endif %}
-		</tr>
-	</table>
