@@ -123,6 +123,60 @@
 {% endblock content_card %}
 
 {% block content_card_mobile %}
+	<div class="info-block-mobile">
+		{% if event.speakers.all %}
+		<div class="info-column">
+			<img class="info-icon" src="{% static 'icons/speaker.png' %}" alt="">
+			<div class="info-title">Спикер</div>
+			<div class="info-cell">
+			{% for speaker in event.speakers.all %} 
+				{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %} 
+			{% endfor %}
+			</div>
+		</div>
+		{% endif %}
+
+		<div class="info-column">
+			<img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
+			<div class="info-title">Дата и время</div>
+			<div class="info-cell">
+			<label for="date">
+				{% if event.date_end and event.date_end == event.date %}
+				{{ event.formatted_date_2 }}
+				{% else %}
+				{{ event.date }}
+				{% endif %}
+			</label><br>
+			<label for="time">{{ event.time_start }} – {{ event.time_end }}</label>
+			</div>
+		</div>
+
+		{% if event.category == "Оффлайн" %}
+			<div class="info-column">
+				<img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
+				<div class="info-title">Место проведения</div>
+				<div class="info-cell">
+				{% if event.town %}г.{{ event.town }}{% endif %}
+				{% if event.street %}ул.{{ event.street }}{% endif %}
+				{% if event.house %}д.{{ event.house }}{% endif %}
+				{% if event.cabinet %}каб. {{ event.cabinet }}{% endif %}
+				</div>
+			</div>
+		{% endif %}
+
+		{% if event.link %}
+			<div class="info-column">
+				<img class="info-icon" src="{% static 'icons/link.png' %}" alt="">
+				<div class="info-title">Подключение</div>
+				<div class="info-cell">
+				<a href="{{ event.link }}" class="connection-link">Ссылка</a><br>
+				<label><a href="" class="connection-link open-modal" id="openModal2">QR-код</a></label>
+				</div>
+			</div>
+		{% endif %}
+	</div>
+{% endblock content_card_mobile %}
+
 	<table>
 		<tr>
 			{% comment %} Иконка спикеров {% endcomment %}
@@ -212,4 +266,3 @@
 			{% endif %}
 		</tr>
 	</table>
-{% endblock content_card_mobile %}

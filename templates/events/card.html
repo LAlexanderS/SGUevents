@@ -294,20 +294,164 @@
                                 </div>
                             </div>
 
+
+
+
+                                {% comment %} <div class="col-lg-1"></div> {% endcomment %}
+                                <div class="col-12 ">
+                                    <div class="carousel-wrapper-mobile">
+                                    <button class="carousel-btn-mobile left">‹</button>
+
+                                    <div id="carousel-track-mobile" class="carousel-track-mobile">
+                                        {% if event.speakers.all %}
+                                        <div class="info-slide">
+                                        <div class="info-column">
+                                            <img class="info-icon" src="{% static 'icons/speaker.png' %}" alt="">
+                                            <div class="info-title">Спикер</div>
+                                            <div class="info-cell">
+                                            {% for speaker in event.speakers.all %} 
+                                                {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %} 
+                                            {% endfor %}
+                                            </div>
+                                        </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="info-slide">
+                                        <div class="info-column">
+                                            <img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
+                                            <div class="info-title">Дата и время</div>
+                                            <div class="info-cell">
+                                            <label for="date">
+                                                {% if event.date_end and event.date_end == event.date %}
+                                                {{ event.formatted_date_2 }}
+                                                {% else %}
+                                                {{ event.date }}
+                                                {% endif %}
+                                            </label><br>
+                                            <label for="time">{{ event.time_start }} – {{ event.time_end }}</label>
+                                            </div>
+                                        </div>
+                                        </div>
+
+                                        {% if event.category == "Оффлайн" %}
+                                        <div class="info-slide">
+                                        <div class="info-column">
+                                            <img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
+                                            <div class="info-title">Место</div>
+                                            <div class="info-cell">
+                                            {% if event.town %}г.{{ event.town }}{% endif %}
+                                            {% if event.street %}ул.{{ event.street }}{% endif %}
+                                            {% if event.house %}д.{{ event.house }}{% endif %}
+                                            {% if event.cabinet %}каб. {{ event.cabinet }}{% endif %}
+                                            </div>
+                                        </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if event.link %}
+                                        <div class="info-slide">
+                                        <div class="info-column">
+                                            <img class="info-icon" src="{% static 'icons/link.png' %}" alt="">
+                                            <div class="info-title">Подключение</div>
+                                            <div class="info-cell">
+                                            <a href="{{ event.link }}" class="connection-link">Ссылка</a><br>
+                                            <label><a href="" class="connection-link open-modal" id="openModal2">QR-код</a></label>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <button class="carousel-btn-mobile right">›</button>
+                                    </div>
+                                </div>
+                                {% comment %} <div class="col-lg-1"></div> {% endcomment %}
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  // === DESKTOP ===
   const track = document.getElementById("carousel-track");
+  if (track) {
+    const infoBlocks = track.querySelectorAll('.info-block');
+
+    if (infoBlocks.length < 4) {
+      document.querySelector('.carousel-btn.left').style.display = 'none';
+      document.querySelector('.carousel-btn.right').style.display = 'none';
+    }
+
+    track.style.justifyContent = infoBlocks.length < 3 ? 'center' : 'flex-start';
+
+    let isMovingDesktop = false;
+
+    function moveLeftDesktop() {
+      if (isMovingDesktop) return;
+      isMovingDesktop = true;
+
+      track.style.transition = 'transform 0.4s ease';
+      track.style.transform = 'translateX(-33.3333%)';
+
+      setTimeout(() => {
+        track.appendChild(track.firstElementChild);
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0)';
+        isMovingDesktop = false;
+      }, 400);
+    }
+
+    function moveRightDesktop() {
+      if (isMovingDesktop) return;
+      isMovingDesktop = true;
+
+      track.insertBefore(track.lastElementChild, track.firstElementChild);
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(-33.3333%)';
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          track.style.transition = 'transform 0.4s ease';
+          track.style.transform = 'translateX(0)';
+        });
+      });
+
+      setTimeout(() => {
+        isMovingDesktop = false;
+      }, 400);
+    }
+
+    document.querySelector('.carousel-btn.right')?.addEventListener('click', moveLeftDesktop);
+    document.querySelector('.carousel-btn.left')?.addEventListener('click', moveRightDesktop);
+  }
+
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const track = document.getElementById("carousel-track-mobile");
+  const btnLeft = document.querySelector('.carousel-btn-mobile.left');
+  const btnRight = document.querySelector('.carousel-btn-mobile.right');
+
+  if (!track) return;
+
+  const slides = track.querySelectorAll('.info-slide');
+
+  if (slides.length < 4) {
+    btnLeft.style.display = 'none';
+    btnRight.style.display = 'none';
+    track.style.justifyContent = slides.length < 3 ? 'center' : 'flex-start';
+    return;
+  }
+
   let isMoving = false;
 
   function moveLeft() {
     if (isMoving) return;
     isMoving = true;
 
-    // сдвигаем влево
     track.style.transition = 'transform 0.4s ease';
     track.style.transform = 'translateX(-33.3333%)';
 
-    // после анимации перемещаем первый элемент в конец и сбрасываем transform
     setTimeout(() => {
       track.appendChild(track.firstElementChild);
       track.style.transition = 'none';
@@ -320,12 +464,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isMoving) return;
     isMoving = true;
 
-    // перед движением — вставляем последний в начало
     track.insertBefore(track.lastElementChild, track.firstElementChild);
     track.style.transition = 'none';
     track.style.transform = 'translateX(-33.3333%)';
 
-    // а теперь "откатываемся" к 0 с анимацией
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         track.style.transition = 'transform 0.4s ease';
@@ -338,34 +480,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 400);
   }
 
-    // Скрыть кнопки, если блоков меньше 4
-    const infoBlocks = document.querySelectorAll('.carousel-track .info-block');
-    if (infoBlocks.length < 4) {
-    document.querySelector('.carousel-btn.left').style.display = 'none';
-    document.querySelector('.carousel-btn.right').style.display = 'none';
-    }
-
-    
-    if (infoBlocks.length < 3) {
-        track.style.justifyContent = 'center';
-    } else {
-        track.style.justifyContent = 'flex-start';
-    }
-
-
-    document.querySelector('.carousel-btn.right').addEventListener('click', moveLeft);
-    document.querySelector('.carousel-btn.left').addEventListener('click', moveRight);
+  btnRight.addEventListener('click', moveLeft);
+  btnLeft.addEventListener('click', moveRight);
 });
 </script>
-
-                            <div class="row mobile-blocks" style="width: 100%; padding-left: 22px;">
-                                <div class="col-lg-1"></div>
-                                <div class="col-lg-10">
-                                    {% block content_card_mobile %}{% endblock content_card_mobile %}
-                                </div>
-                                <div class="col-lg-1"></div>
-                            </div>
-
 
                             {% if event.tags %}
                                 <div class="event-hashtags">

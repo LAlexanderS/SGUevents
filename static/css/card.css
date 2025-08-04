@@ -533,13 +533,9 @@ h1 {
         display: none;
     }
 
-    .mobile-blocks {
-        display: block;
-        padding-top: 10px;
-        margin-bottom: 5px;
-    }
 
-    tr {
+
+    /* tr {
         margin-right: 10px;
     }
 
@@ -569,7 +565,7 @@ h1 {
         color: rgb(39, 66, 106);
         line-height: 110%;
         text-shadow: 0px 1px 7px #686868ab;
-    }
+    } */
 
     .small-to-main-arrow {
         display: block;
@@ -722,6 +718,11 @@ h1 {
         min-height: 40px !important;
     }
 
+
+
+
+
+
     .info-block {
         display: block;
         width: 70%;
@@ -741,5 +742,139 @@ h1 {
 
     .carousel-btn.right {
         display: none;
+    }
+
+
+    .carousel-wrapper-mobile {
+        display: flex;
+        align-items: center;
+        /* Центровка стрелок по вертикали */
+        justify-content: center;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        gap: 8px;
+        padding: 0 15px;
+        box-sizing: border-box;
+    }
+
+    .carousel-btn-mobile {
+        background-color: white;
+        border: none;
+        border-radius: 50%;
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 2;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease;
+    }
+
+    .carousel-btn-mobile:hover {
+        background-color: #f0f0f0;
+    }
+
+    .carousel-track-mobile {
+        display: flex;
+        margin-left: 0;
+        transition: transform 0.4s ease;
+        /* padding: 0px 10px; */
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .carousel-track-mobile>.info-block {
+        flex: 0 0 calc((100% - 40px) / 3);
+        /* 2 * gap */
+        box-sizing: border-box;
+        min-width: 0;
+        margin: 10px 0px;
+    }
+
+    .info-slide {
+        flex: 0 0 33.3333%;
+        max-width: 33.3333%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        /* вот ключ к ширине 100% */
+        text-align: left;
+    }
+
+    .info-slide .info-icon,
+    .info-slide .info-title,
+    .info-slide .info-cell {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+
+    .carousel-btn-mobile.left {
+        display: block;
+    }
+
+    .carousel-btn-mobile.right {
+        display: block;
+    }
+
+
+    .mobile-blocks {
+        display: block;
+        padding-top: 10px;
+        margin-bottom: 5px;
+    }
+
+    .info-block-mobile {
+        display: flex;
+        width: 100%;
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    .info-column {
+        flex: 0 0 33.3333%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 0 4px;
+        /* можно убрать, если нужно без отступов совсем */
+    }
+
+    .info-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 6px;
+        object-fit: contain;
+    }
+
+    .info-title,
+    .info-cell {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+        margin: 0 auto;
+    }
+
+
+    .info-title {
+        font-weight: bold;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    .info-cell {
+        font-size: 13px;
     }
 }
