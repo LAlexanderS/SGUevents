@@ -404,6 +404,10 @@ h1 {
     user-select: none;
 }
 
+.carousel-container-mobile {
+    display: none;
+}
+
 
 @media (max-width: 1440px) {
     .review-container {
@@ -722,6 +726,11 @@ h1 {
 
 
 
+    /* КАРУСЕЛЬ ИНФО-БЛОКОВ */
+
+    .carousel-container-mobile {
+        display: block;
+    }
 
     .info-block {
         display: block;
@@ -876,5 +885,11 @@ h1 {
 
     .info-cell {
         font-size: 13px;
+    }
+
+    /* КОНЕЦ СТИЛЕЙ ИНФО-БЛОКОВ */
+
+    .comment-title {
+        margin-top: 20px;
     }
 }

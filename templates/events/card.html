@@ -298,7 +298,7 @@
 
 
                                 {% comment %} <div class="col-lg-1"></div> {% endcomment %}
-                                <div class="col-12 ">
+                                <div class="col-12 mt-3 carousel-container-mobile">
                                     <div class="carousel-wrapper-mobile">
                                     <button class="carousel-btn-mobile left">‹</button>
 
@@ -310,123 +310,6 @@
                                     </div>
                                 </div>
                                 {% comment %} <div class="col-lg-1"></div> {% endcomment %}
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  // === DESKTOP ===
-  const track = document.getElementById("carousel-track");
-  if (track) {
-    const infoBlocks = track.querySelectorAll('.info-block');
-
-    if (infoBlocks.length < 4) {
-      document.querySelector('.carousel-btn.left').style.display = 'none';
-      document.querySelector('.carousel-btn.right').style.display = 'none';
-    }
-
-    track.style.justifyContent = infoBlocks.length < 3 ? 'center' : 'flex-start';
-
-    let isMovingDesktop = false;
-
-    function moveLeftDesktop() {
-      if (isMovingDesktop) return;
-      isMovingDesktop = true;
-
-      track.style.transition = 'transform 0.4s ease';
-      track.style.transform = 'translateX(-33.3333%)';
-
-      setTimeout(() => {
-        track.appendChild(track.firstElementChild);
-        track.style.transition = 'none';
-        track.style.transform = 'translateX(0)';
-        isMovingDesktop = false;
-      }, 400);
-    }
-
-    function moveRightDesktop() {
-      if (isMovingDesktop) return;
-      isMovingDesktop = true;
-
-      track.insertBefore(track.lastElementChild, track.firstElementChild);
-      track.style.transition = 'none';
-      track.style.transform = 'translateX(-33.3333%)';
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          track.style.transition = 'transform 0.4s ease';
-          track.style.transform = 'translateX(0)';
-        });
-      });
-
-      setTimeout(() => {
-        isMovingDesktop = false;
-      }, 400);
-    }
-
-    document.querySelector('.carousel-btn.right')?.addEventListener('click', moveLeftDesktop);
-    document.querySelector('.carousel-btn.left')?.addEventListener('click', moveRightDesktop);
-  }
-
-});
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const track = document.getElementById("carousel-track-mobile");
-  const btnLeft = document.querySelector('.carousel-btn-mobile.left');
-  const btnRight = document.querySelector('.carousel-btn-mobile.right');
-
-  if (!track) return;
-
-  const slides = track.querySelectorAll('.info-slide');
-
-  if (slides.length < 4) {
-    btnLeft.style.display = 'none';
-    btnRight.style.display = 'none';
-    track.style.justifyContent = slides.length < 3 ? 'center' : 'flex-start';
-    return;
-  }
-
-  let isMoving = false;
-
-  function moveLeft() {
-    if (isMoving) return;
-    isMoving = true;
-
-    track.style.transition = 'transform 0.4s ease';
-    track.style.transform = 'translateX(-33.3333%)';
-
-    setTimeout(() => {
-      track.appendChild(track.firstElementChild);
-      track.style.transition = 'none';
-      track.style.transform = 'translateX(0)';
-      isMoving = false;
-    }, 400);
-  }
-
-  function moveRight() {
-    if (isMoving) return;
-    isMoving = true;
-
-    track.insertBefore(track.lastElementChild, track.firstElementChild);
-    track.style.transition = 'none';
-    track.style.transform = 'translateX(-33.3333%)';
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        track.style.transition = 'transform 0.4s ease';
-        track.style.transform = 'translateX(0)';
-      });
-    });
-
-    setTimeout(() => {
-      isMoving = false;
-    }, 400);
-  }
-
-  btnRight.addEventListener('click', moveLeft);
-  btnLeft.addEventListener('click', moveRight);
-});
-</script>
 
                             {% if event.tags %}
                                 <div class="event-hashtags">
