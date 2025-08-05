@@ -7,6 +7,7 @@ let pages = []
 
 const rawText = textContainer.dataset.description
 const fullText = textSanitizer.cleanText(rawText)
+console.log(fullText)
 
 
 // Максимальное количество символов на странице
@@ -51,7 +52,7 @@ function createPages() {
     pages.forEach((pageText) => {
         const page = document.createElement('div')
         page.classList.add('page')
-        page.textContent = pageText
+        page.innerHTML = pageText
         textContainer.appendChild(page)
     })
 

@@ -968,9 +968,8 @@ td {
 
 .text-container {
     overflow: hidden;
-    /* Скрываем лишний контент */
     height: 260px;
-    /*  Установите нужную высоту блока */
+    white-space: pre-wrap;
 }
 
 .page {
