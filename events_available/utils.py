@@ -16,6 +16,7 @@ from django.contrib.postgres.search import (
 from django.db.models import Q, F, Value, CharField
 from django.db.models.functions import Greatest
 from django.db.models import Func
+import bleach
 
 def q_search_online(query):
     if query.isdigit() and len(query) <= 5:
@@ -154,3 +155,8 @@ def q_search_name_offline(query_name):
     )
     
     return result
+
+def sanitize_html(text):
+    allowed_tags = ['strong', 'em', 'br', 'ul', 'ol', 'li', 'p']
+    allowed_attrs = {}
+    return bleach.clean(text, tags=allowed_tags, attributes=allowed_attrs, strip=True)

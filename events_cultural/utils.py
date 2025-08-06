@@ -5,6 +5,7 @@ from django.contrib.postgres.search import TrigramSimilarity, SearchHeadline
 from django.db.models import F, Value
 from django.db.models.functions import Greatest
 from django.db.models.expressions import Func
+import bleach
 
 def q_search_events_for_visiting(query):
     if query.isdigit() and len(query) <= 5:
@@ -111,3 +112,9 @@ def q_search_attractions(query):
     )
 
     return result
+
+
+def sanitize_html(text):
+    allowed_tags = ['strong', 'em', 'br', 'ul', 'ol', 'li', 'p']
+    allowed_attrs = {}
+    return bleach.clean(text, tags=allowed_tags, attributes=allowed_attrs, strip=True)

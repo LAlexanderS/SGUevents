@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 from datetime import timedelta 
 
-from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery, MediaFile, EventLogistics
+from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery, MediaFile, EventLogistics, EventOfflineCheckList
 
 User = get_user_model()
 
@@ -102,6 +102,11 @@ class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
             form.instance.events_admin.add(request.user)
 
 
+class EventOfflineCheckListInline(admin.TabularInline):
+    model = EventOfflineCheckList
+    extra = 0
+    autocomplete_fields = ['responsible']
+
 class EventOfflineGalleryInline(admin.TabularInline):
     model = EventOfflineGallery
     extra = 1
@@ -113,7 +118,7 @@ class EventOfflineGalleryInline(admin.TabularInline):
 class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')  
-    inlines = [EventOfflineGalleryInline]
+    inlines = [EventOfflineGalleryInline, EventOfflineCheckListInline]
     list_display = ('name', 'date', 'average_rating_cached')
     readonly_fields = ('average_rating_cached', 'date_add')
     search_fields = ('name', 'description', 'town')

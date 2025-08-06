@@ -11,6 +11,8 @@ from pytz import timezone as pytz_timezone
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from django.conf import settings
+from django.dispatch import receiver
+from django.db.models.signals import post_save, pre_save
 
 import logging
 logger = logging.getLogger(__name__)
@@ -102,6 +104,10 @@ class Events_online(models.Model):
             return f'{start_str}-{end_str}'
         else:
             return self.date.strftime('%d.%m.%Y')
+        
+    def safe_description(self):
+        from .utils import sanitize_html
+        return sanitize_html(self.description)
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -207,6 +213,10 @@ class Events_offline(models.Model):
         else:
             return self.date.strftime('%d.%m.%Y')
         
+    def safe_description(self):
+        from .utils import sanitize_html
+        return sanitize_html(self.description)
+        
     def save(self, *args, **kwargs):
         self.clean()
 
@@ -239,6 +249,61 @@ class EventOfflineGallery(models.Model):
 
     def __str__(self):
         return f'Фото для {self.event.name}'
+
+class EventOfflineCheckList(models.Model):
+        event = models.ForeignKey(
+            'Events_offline',
+            on_delete=models.CASCADE,
+            related_name='checklist',
+            verbose_name='Мероприятие'
+        )
+        task_name = models.CharField(max_length=255, verbose_name='Наименование задачи')
+        responsible = models.ForeignKey(
+            User,
+            on_delete=models.SET_NULL,
+            blank=True,
+            null=True,
+            verbose_name='Ответственный'
+        )
+        planned_date = models.DateField(null=True, blank=True, verbose_name='Плановая дата')
+        actual_date = models.DateField(null=True, blank=True, verbose_name='Дата исполнения')
+        completed = models.BooleanField(default=False, verbose_name='Исполнено')
+
+        class Meta:
+            verbose_name = 'Этап подготовки'
+            verbose_name_plural = 'Чек-лист мероприятия'
+            ordering = ['planned_date']
+
+        def __str__(self):
+            return f"{self.task_name} ({'✓' if self.completed else '—'})"
+        
+
+# @receiver(post_save, sender=EventOfflineCheckList)
+# def create_default_checklist(sender, instance, created, **kwargs):
+    
+#     DEFAULT_TASKS = [
+#         "Определение количества и состава участников",
+#         "Составление сметы мероприятия",
+#         "Сбор регистрационной информации (Дата, время прилета, рейс, гостиница, необходимость трансфера)",
+#         "Составление заявок на проход на территорию",
+#         "Составление маршрута транспорта",
+#         "Составление заявок на транспорт",
+#         "Составление заявок на разрешение фото-, видеосъемки",
+#         "Составление культурной пограммы",
+#         "Сбор информации по участию в культурной программе (возможно как доп информация в регистрационной карточке)",
+#         "Оформление приветственной открытки",
+#         "Оформление приветственного пакета",
+#         "Оформление бэйджей",
+#         "Оформление стоек с ФИО на столы",
+#         "Оформление раздаточного материала (рабочая тетрадь)",
+#         "Оформление макета баннера",
+#         "Согласование сопровождения фото-, видеосъемки",
+#         "Согласование рассадки гостей в залах",
+#         "Подготовка презентационного материала",
+#         "Закупка сувенирной (брендированной) продукции"
+#     ]
+#     for task in DEFAULT_TASKS:
+#         EventOfflineCheckList.objects.create(event=instance, task_name=task)
 
 class EventLogistics(models.Model):
     """

@@ -72,6 +72,10 @@ class Attractions(models.Model):
             return f'{start_str} - {end_str}'
         else:
             return self.date.strftime('%d.%m.%Y')
+        
+    def safe_description(self):
+        from .utils import sanitize_html
+        return sanitize_html(self.description)
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -170,6 +174,10 @@ class Events_for_visiting(models.Model):
             return f'{start_str} - {end_str}'
         else:
             return self.date.strftime('%d.%m.%Y')
+        
+    def safe_description(self):
+        from .utils import sanitize_html
+        return sanitize_html(self.description)
         
     def save(self, *args, **kwargs):
         self.clean()
