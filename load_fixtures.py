@@ -15,6 +15,7 @@ fixtures = [
     'fixtures/events_cultural/events_for_visiting.json',
     'fixtures/bookmarks/favorites.json',
     'fixtures/bookmarks/registered.json',
+    'fixtures/checklist_tasks.json'
 ]
 
 def load_fixtures():

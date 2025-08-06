@@ -1,0 +1,116 @@
+[
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Определение количества и состава участников"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Составление сметы мероприятия"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Сбор регистрационной информации (Дата, время прилета, рейс, гостиница, необходимость трансфера)"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Составление заявок на проход на территорию"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Составление маршрута транспорта"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Составление заявок на транспорт"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Составление заявок на разрешение фото-, видеосъемки"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Составление культурной пограммы"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Сбор информации по участию в культурной программе (возможно как доп информация в регистрационной карточке)"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Оформление приветственной открытки"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Оформление приветственного пакета"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Оформление бэйджей"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Оформление стоек с ФИО на столы"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Оформление раздаточного материала (рабочая тетрадь)"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Оформление макета баннера"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Согласование сопровождения фото-, видеосъемки"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Согласование рассадки гостей в залах"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Подготовка презентационного материала"
+        }
+    },
+    {
+        "model": "events_available.defaulttasks",
+        "fields": {
+            "name": "Закупка сувенирной (брендированной) продукции"
+        }
+    }
+]

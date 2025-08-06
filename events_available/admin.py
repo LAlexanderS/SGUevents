@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 from datetime import timedelta 
 
-from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery, MediaFile, EventLogistics, EventOfflineCheckList
+from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery, MediaFile, EventLogistics, EventOfflineCheckList, DefaultTasks
 
 User = get_user_model()
 
@@ -101,11 +101,14 @@ class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
         if not change and request.user.is_authenticated:
             form.instance.events_admin.add(request.user)
 
+@admin.register(DefaultTasks)
+class DefaultTasksAdmin(admin.ModelAdmin):
+    search_fields = ['name']
 
 class EventOfflineCheckListInline(admin.TabularInline):
     model = EventOfflineCheckList
     extra = 0
-    autocomplete_fields = ['responsible']
+    autocomplete_fields = ['task_name','responsible']
 
 class EventOfflineGalleryInline(admin.TabularInline):
     model = EventOfflineGallery

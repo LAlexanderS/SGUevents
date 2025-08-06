@@ -257,7 +257,14 @@ class EventOfflineCheckList(models.Model):
             related_name='checklist',
             verbose_name='Мероприятие'
         )
-        task_name = models.CharField(max_length=255, verbose_name='Наименование задачи')
+        # task_name = models.CharField(max_length=255, verbose_name='Наименование задачи')
+        task_name = models.ForeignKey(
+            'DefaultTasks',
+            on_delete=models.CASCADE,
+            null=True,
+            blank=True,
+            verbose_name='Наименование задачи'
+        )
         responsible = models.ForeignKey(
             User,
             on_delete=models.SET_NULL,
@@ -277,6 +284,15 @@ class EventOfflineCheckList(models.Model):
         def __str__(self):
             return f"{self.task_name} ({'✓' if self.completed else '—'})"
         
+
+class DefaultTasks(models.Model):
+    name = models.CharField(max_length=512, verbose_name="Задача")
+
+    class Meta:
+        verbose_name = 'Задачи'
+
+    def __str__(self):
+        return f"{self.name}"
 
 # @receiver(post_save, sender=EventOfflineCheckList)
 # def create_default_checklist(sender, instance, created, **kwargs):
