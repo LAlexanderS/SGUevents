@@ -3,11 +3,11 @@ name: events workflow
 on:
   push:
     branches:
-      - main
+      - checkdevops
 
 jobs:
   tests:
-    if: github.repository == 'LAlexanderS/SGUevents' && github.ref == 'refs/heads/main'
+    if: github.repository == 'LAlexanderS/SGUevents' && github.ref == 'refs/heads/checkdevops'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -24,7 +24,7 @@ jobs:
           pip install -r requirements.txt
 
   build_and_push_to_docker_hub:
-    if: github.repository == 'LAlexanderS/SGUevents' && github.ref == 'refs/heads/main'
+    if: github.repository == 'LAlexanderS/SGUevents' && github.ref == 'refs/heads/checkdevops'
     runs-on: ubuntu-latest
     needs: tests
     steps:
@@ -49,7 +49,7 @@ jobs:
           build-args: --no-cache
 
   deploy:
-    if: github.repository == 'LAlexanderS/SGUevents' && github.ref == 'refs/heads/main'
+    if: github.repository == 'LAlexanderS/SGUevents' && github.ref == 'refs/heads/checkdevops'
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
     steps:
