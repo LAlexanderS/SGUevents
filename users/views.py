@@ -22,7 +22,7 @@ from django.utils.timezone import now
 from datetime import datetime
 
 
-from .forms import RegistrationForm
+from .forms import RegistrationForm, UserPasswordChangeForm
 from .models import Department, AdminRightRequest, TelegramAuthToken
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
 from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
@@ -179,22 +179,32 @@ def telegram_auth(request, token):
 @csrf_exempt
 @login_required
 def change_password(request):
-    if request.method == 'POST' and request.user.telegram_id:
-        new_password = get_random_string(8)
-        request.user.set_password(new_password)
-        request.user.save()
-        
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Неверный метод'}, status=405)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        data = request.POST
+
+    form = UserPasswordChangeForm(data)
+    if not form.is_valid():
+        errors = form.errors.get('__all__') or sum(form.errors.values(), [])
+        return JsonResponse({'success': False, 'error': '\n'.join(errors)})
+
+    new_password = form.cleaned_data['new_password1']
+    request.user.set_password(new_password)
+    request.user.save()
+
+    # Отправляем уведомление в Telegram (без самого пароля), если привязан Telegram
+    if getattr(request.user, 'telegram_id', None):
         try:
-            send_password_change_details_sync(request.user.telegram_id, request.user.username, new_password)
-            logger.info(f"Новый пароль отправлен пользователю {request.user.username}")
-            logout(request)
-            return JsonResponse({'success': True, 'message': 'Пароль успешно изменен. Новый пароль отправлен в Telegram.'})
+            send_password_change_details_sync(request.user.telegram_id, request.user.username, None)
         except Exception as e:
-            logger.error(f"Ошибка при отправке нового пароля: {str(e)}")
-            return JsonResponse({'success': False, 'error': 'Ошибка при отправке пароля в Telegram.'})
-    else:
-        logger.error("Failed to change password: Access denied or missing telegram_id")
-        return JsonResponse({'success': False, 'error': 'Access denied.'})
+            logger.error(f"Ошибка при отправке уведомления в Telegram: {str(e)}")
+
+    logout(request)
+    return JsonResponse({'success': True, 'message': 'Пароль изменён. Выполните вход с новым паролем.'})
 
 @csrf_exempt
 @login_required
