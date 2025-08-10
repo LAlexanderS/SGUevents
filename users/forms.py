@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 from .models import User, Department
 
 class RegistrationForm(forms.ModelForm):
@@ -63,3 +64,37 @@ class RegistrationForm(forms.ModelForm):
             cleaned['middle_name'] = ''
 
         return cleaned
+
+
+class UserPasswordChangeForm(forms.Form):
+    new_password1 = forms.CharField(
+        label='Новый пароль',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Введите новый пароль'}),
+    )
+    new_password2 = forms.CharField(
+        label='Повторите пароль',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Повторите новый пароль'}),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('new_password1')
+        password2 = cleaned_data.get('new_password2')
+
+        if not password1:
+            self.add_error('new_password1', 'Введите новый пароль')
+        if not password2:
+            self.add_error('new_password2', 'Повторите пароль')
+
+        if password1 and password2 and password1 != password2:
+            self.add_error('new_password2', 'Пароли не совпадают')
+
+        # Прогон через валидаторы Django (использует AUTH_PASSWORD_VALIDATORS)
+        if password1:
+            try:
+                validate_password(password1)
+            except forms.ValidationError as e:
+                for msg in e.messages:
+                    self.add_error('new_password1', msg)
+
+        return cleaned_data

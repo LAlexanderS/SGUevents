@@ -249,7 +249,7 @@ def send_registration_details_sync(telegram_id, username, password):
             f"\U0001F44B Добро пожаловать!\n"
             f"Ваши учетные данные:\n"
             f"Username: {username}\nПароль: {password}\n"
-            f"Вы можете войти просто через telegram, без логина и пароля"
+            f"Вы можете войти через Telegram без логина и пароля."
         )
         
         url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -343,14 +343,13 @@ async def cmd_start_user(telegram_id):
 def send_password_change_details_sync(telegram_id, username, new_password):
     try:
         message = (
-            f"\U0001F512 Ваш пароль был успешно изменен.\n"
-            f"Ваши новые учетные данные:\n"
-            f"Username: {username}\nПароль: {new_password}"
+            f"\U0001F512 Пароль для аккаунта {username} успешно изменён.\n"
+            f"Если это были не вы — срочно сообщите в поддержку."
         )
         send_message_to_telegram(telegram_id, message)
-        logger.info(f"Новый пароль отправлен пользователю {username}")
+        logger.info(f"Отправлено уведомление о смене пароля пользователю {username}")
     except Exception as e:
-        logger.error(f"Ошибка при отправке нового пароля в Telegram: {e}")
+        logger.error(f"Ошибка при отправке уведомления о смене пароля в Telegram: {e}")
 
 # Вспомогательная функция для отправки сообщения в Telegram
 def send_message_to_telegram(telegram_id, message, reply_markup=None):

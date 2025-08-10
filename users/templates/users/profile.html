@@ -170,8 +170,29 @@
                                     {% endif %}
                                 </div>
                                 <div class="col-12 col-lg-6 button-column mt-2" style="text-align: center; align-content: center;">
-                                    <button class="btn change-password" onclick="requestPasswordChange()">
-                                        <i class="password-icon">🔒</i> Сменить пароль</button>
+                                    <div id="passwordChangeContainer" class="card" style="background:#1b1f2a; border:1px solid #2b3244; padding:16px; text-align:left;">
+                                        <div style="font-weight:600; color:#fff; margin-bottom:8px;">Сменить пароль</div>
+                                        <div class="mb-2">
+                                            <label class="form-label" style="color:#cbd2e1;">Новый пароль</label>
+                                            <input type="password" id="new_password1" class="form-control" placeholder="Введите новый пароль" oninput="updatePasswordStrength(); clearFieldError('new_password1')">
+                                            <div id="new_password1_error" class="invalid-feedback" style="display:block; color:#ff7676; min-height: 1em;"></div>
+                                            <div class="progress mt-2" style="height: 6px; background:#2b3244;">
+                                                <div id="pwd_strength_bar" class="progress-bar" role="progressbar" style="width: 0%; background:#ff7676;"></div>
+                                            </div>
+                                            <div id="pwd_strength_text" style="font-size:0.85rem; color:#9aa4ba; margin-top:4px;"></div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label" style="color:#cbd2e1;">Повторите пароль</label>
+                                            <input type="password" id="new_password2" class="form-control" placeholder="Повторите новый пароль" oninput="clearFieldError('new_password2')">
+                                            <div id="new_password2_error" class="invalid-feedback" style="display:block; color:#ff7676; min-height: 1em;"></div>
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button class="btn change-password" onclick="requestPasswordChange()">
+                                                <i class="password-icon">🔒</i> Сохранить пароль
+                                            </button>
+                                        </div>
+                                        <div id="passwordHelp" style="color:#9aa4ba; font-size:0.9rem; margin-top:6px;">После сохранения вам нужно будет войти заново.</div>
+                                    </div>
                                 </div>
                                 <div class="col-lg-1 d-none d-lg-block"></div>                                
                             </div>
@@ -303,27 +324,88 @@
 
 <script>
     function requestPasswordChange() {
+        clearAllErrors();
+        const p1 = document.getElementById('new_password1').value;
+        const p2 = document.getElementById('new_password2').value;
         fetch('{% url "users:change_password" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{ csrf_token }}'
-            }
+            },
+            body: JSON.stringify({ new_password1: p1, new_password2: p2 })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
-                // Перенаправляем пользователя на страницу логина после успешного изменения пароля
                 window.location.href = '/users/login/';
             } else {
-                alert(data.error);
+                showErrors(data);
             }
         })
         .catch(error => {
             console.error('Ошибка:', error);
-            alert('Произошла ошибка при смене пароля.');
+            showErrors({ error: 'Произошла ошибка при смене пароля.' });
         });
+    }
+
+    function showErrors(data) {
+        // data.error может быть строкой или объектом полевых ошибок
+        if (data.field_errors) {
+            for (const [field, messages] of Object.entries(data.field_errors)) {
+                const el = document.getElementById(`${field}_error`);
+                if (el) el.textContent = Array.isArray(messages) ? messages.join('\n') : messages;
+            }
+        }
+        if (data.error) {
+            const el = document.getElementById('new_password1_error');
+            if (el) el.textContent = data.error;
+        }
+    }
+
+    function clearFieldError(field) {
+        const el = document.getElementById(`${field}_error`);
+        if (el) el.textContent = '';
+    }
+
+    function clearAllErrors() {
+        clearFieldError('new_password1');
+        clearFieldError('new_password2');
+    }
+
+    function updatePasswordStrength() {
+        const pwd = document.getElementById('new_password1').value;
+        const bar = document.getElementById('pwd_strength_bar');
+        const text = document.getElementById('pwd_strength_text');
+
+        const score = passwordScore(pwd);
+        const percent = Math.min(100, Math.max(0, Math.round((score / 7) * 100)));
+        bar.style.width = percent + '%';
+        if (percent < 34) {
+            bar.style.background = '#ff7676';
+            text.textContent = 'Слабый пароль';
+        } else if (percent < 67) {
+            bar.style.background = '#f5c36a';
+            text.textContent = 'Средний пароль';
+        } else {
+            bar.style.background = '#53d86a';
+            text.textContent = 'Надёжный пароль';
+        }
+    }
+
+    function passwordScore(pwd) {
+        if (!pwd) return 0;
+        let score = 0;
+        // длина
+        if (pwd.length >= 8) score += 2; else if (pwd.length >= 6) score += 1;
+        // разные классы символов
+        if (/[a-z]/.test(pwd)) score += 1;
+        if (/[A-Z]/.test(pwd)) score += 1;
+        if (/[0-9]/.test(pwd)) score += 1;
+        if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+        // штраф за повторяющиеся символы
+        if (/(.)\1{2,}/.test(pwd)) score -= 1;
+        return score;
     }
     
     function requestAdminRights() {
