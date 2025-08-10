@@ -223,6 +223,9 @@ MEDIA_URL = 'media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Ограничение размера загружаемого файла (10 МБ на один файл)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
 INTERNAL_IPS = [
     "127.0.0.1",
     # ...

@@ -11,7 +11,13 @@
     <script src="{% static 'lib/js/popper.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" href="{% static "css/styles.css" %}">
-    <link rel="stylesheet" href="{% static "css/profile.css" %}?v=3.1415">
+    <link rel="stylesheet" href="{% static "css/profile.css" %}?v=3.1416">
+    <style>
+        /* Локальный override, чтобы исключить влияние кэша и других стилей */
+        .photo-frame{height:160px;width:160px;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;background:#e0e0e0}
+        .user-photo-img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+        @media (max-width:480px){.photo-frame{height:90px;width:90px}}
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
@@ -113,11 +119,13 @@
                             <div class="row mt-3">
                                 <div class="col-lg-1 d-none d-lg-block"></div>
                                 <div class="col-4 col-lg-3 user-photo">
-                                    {% if user.profile_photo %}
-                                        <img src="{{ user.profile_photo.url }}" alt="Фото профиля">
-                                    {% else %}
-                                        <img src="{% static "icons/profile_photo.png" %}" alt="">
-                                    {% endif %}
+                                    <div class="photo-frame">
+                                        {% if user.profile_photo %}
+                                            <img class="user-photo-img" src="{{ user.profile_photo.url }}" alt="Фото профиля">
+                                        {% else %}
+                                            <img class="user-photo-img" src="{% static "icons/profile_photo.png" %}" alt="Фото профиля">
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="col-3 col-lg-2">
                                     <div class="profile-fields">
@@ -144,7 +152,10 @@
                                     <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="uploadPhoto()">
                                     <div class="photo-buttons-container">
                                         <button class="btn photo-upload-btn" onclick="document.getElementById('photoInput').click()">
-                                            <i class="upload-icon">📷</i> Загрузить фото
+                                            <i class="upload-icon">📷</i> Загрузить с устройства
+                                        </button>
+                                        <button class="btn photo-upload-btn" onclick="fetchTelegramPhoto()" {% if not user.telegram_id %}disabled title="Привяжите Telegram, чтобы загрузить фото"{% endif %}>
+                                            <img src="{% static 'icons/tg-link.png' %}" alt="TG" style="height:18px; vertical-align: text-bottom;"> Загрузить из Telegram
                                         </button>
                                         {% if user.profile_photo %}
                                             <button class="btn photo-delete-btn" onclick="deletePhoto()">
@@ -152,6 +163,11 @@
                                             </button>
                                         {% endif %}
                                     </div>
+                                    {% if not user.telegram_id %}
+                                    <div class="mt-2" style="color:#ccc; font-size: 0.9rem;">
+                                        Чтобы загрузить фото из Telegram, войдите через Telegram (кнопка на странице входа).
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-12 col-lg-6 button-column mt-2" style="text-align: center; align-content: center;">
                                     <button class="btn change-password" onclick="requestPasswordChange()">
@@ -390,6 +406,29 @@
         .catch(error => {
             console.error('Ошибка:', error);
             alert('Произошла ошибка при удалении фото.');
+        });
+    }
+
+    function fetchTelegramPhoto() {
+        fetch('{% url "users:fetch_telegram_photo" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message || 'Фото из Telegram загружено');
+                location.reload();
+            } else {
+                alert(data.error || 'Не удалось загрузить фото из Telegram');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при загрузке фото из Telegram.');
         });
     }
     </script>
