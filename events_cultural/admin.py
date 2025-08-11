@@ -74,7 +74,7 @@ class Events_for_visitingGalleryInline(admin.TabularInline):
 @admin.register(Events_for_visiting)
 class Events_for_visitingAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    filter_horizontal = ('secret','events_admin', 'member')
+    filter_horizontal = ('secret','events_admin', 'speakers', 'member')
     inlines = [Events_for_visitingGalleryInline]
     list_display = ('name', 'date', 'average_rating_cached')
     readonly_fields = ('average_rating_cached',)
