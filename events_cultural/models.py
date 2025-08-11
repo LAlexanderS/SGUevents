@@ -115,7 +115,7 @@ class Events_for_visiting(models.Model):
     time_start = models.TimeField(unique=False, blank=False, null=False, verbose_name='Время начала')
     time_end = models.TimeField(unique=False, blank=True, null=True, verbose_name='Время окончания')
     description = models.TextField(unique=False, blank=False, null=False, verbose_name='Описание')
-    speakers = models.ManyToManyField(User, blank=True, null=True, related_name='speaker_offline', verbose_name='Спикеры')
+    speakers = models.ManyToManyField(User, blank=True, related_name='speaker_visiting', verbose_name='Спикеры')
     member =  models.ManyToManyField(User, blank=True, related_name='member_visiting', verbose_name='Участники')
     town = models.CharField(max_length=200, unique=False, blank=False, null=False, verbose_name='Город')
     street = models.CharField(max_length=100, unique=False, blank=False, null=False, verbose_name='Улица')
