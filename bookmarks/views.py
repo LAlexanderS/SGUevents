@@ -16,6 +16,15 @@ from bookmarks.models import Registered
 from django.utils.timezone import now
 import logging
 from django.db.models import Avg
+from django.conf import settings
+from io import BytesIO
+from django.utils.text import slugify
+try:
+    from docxtpl import DocxTemplate
+except Exception:
+    DocxTemplate = None
+import os
+from bookmarks.forms import ExportParticipantsForm
 
 
 logger = logging.getLogger(__name__)
@@ -513,3 +522,84 @@ def get_event_participants(request):
         return JsonResponse(participants, safe=False)
     except model.DoesNotExist:
         return JsonResponse({'error': 'Event not found'}, status=404)
+
+@staff_member_required
+def export_participants(request):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "У вас нет прав для выгрузки участников.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        event_type = request.POST.get('event_type')
+        form = ExportParticipantsForm(request.POST, event_type=event_type, user=request.user)
+        if form.is_valid():
+            event = form.cleaned_data['event']
+            export_all = form.cleaned_data['export_all']
+            selected_users = list(form.cleaned_data.get('selected_users', []))
+
+            if not request.user.is_superuser and request.user not in event.events_admin.all():
+                messages.error(request, "У вас нет прав для выгрузки участников этого мероприятия.")
+                return redirect('bookmarks:export_participants')
+
+            filter_kwargs = {f"{form.cleaned_data['event_type']}": event}
+            registrations = Registered.objects.filter(**filter_kwargs).select_related('user')
+
+            if not registrations.exists():
+                messages.error(request, "Нет зарегистрированных участников для выбранного мероприятия.")
+                return redirect('bookmarks:export_participants')
+
+            def user_full_name(u):
+                parts = [u.last_name or '', u.first_name or '', u.middle_name or '']
+                return ' '.join([p for p in parts if p]).strip()
+
+            if not export_all and selected_users:
+                user_ids = set(u.id for u in selected_users)
+                registrations = [r for r in registrations if r.user_id in user_ids]
+
+            # Отсортируем по алфавиту ФИО
+            registrations = sorted(registrations, key=lambda r: (r.user.last_name or '', r.user.first_name or '', r.user.middle_name or ''))
+
+            participants = [
+                {"idx": i + 1, "full_name": user_full_name(r.user)}
+                for i, r in enumerate(registrations)
+            ]
+
+            if DocxTemplate is None:
+                messages.error(request, "Сервер не поддерживает генерацию DOCX (docxtpl не установлен).")
+                return redirect('bookmarks:export_participants')
+
+            template_path = os.path.join(settings.BASE_DIR, 'users', 'docx_forms', 'Заявка на проход на мероприятия.docx')
+            if not os.path.exists(template_path):
+                messages.error(request, f"Шаблон не найден: {template_path}")
+                return redirect('bookmarks:export_participants')
+
+            doc = DocxTemplate(template_path)
+            context = {
+                'event_name': getattr(event, 'name', ''),
+                'event_category': getattr(event, 'category', ''),
+                'event_date': getattr(event, 'formatted_date_range', lambda: '')() if hasattr(event, 'formatted_date_range') else '',
+                'participants': participants,
+            }
+            doc.render(context)
+
+            output = BytesIO()
+            doc.save(output)
+            output.seek(0)
+
+            safe_event = slugify(getattr(event, 'name', 'event'))
+            filename = f"spisok-uchastnikov-{safe_event}.docx"
+
+            response = JsonResponse({})  # placeholder init
+            from django.http import HttpResponse
+            response = HttpResponse(
+                output.read(),
+                content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            )
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+        else:
+            messages.error(request, "Ошибка в форме")
+    else:
+        form = ExportParticipantsForm(user=request.user)
+
+    return render(request, 'bookmarks/export_participants.html', {'form': form})
