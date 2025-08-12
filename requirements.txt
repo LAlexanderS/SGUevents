@@ -66,3 +66,5 @@ wcwidth==0.2.13
 webencodings==0.5.1
 yadisk==3.2.0
 yarl==1.9.4
+python-docx==1.1.2
+docxtpl==0.16.7
