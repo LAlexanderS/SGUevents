@@ -89,13 +89,15 @@
 {% block content_card %} 
 	{% if event.category == "Доступные к посещению" %}
 		{% comment %} Спикеры {% endcomment %}
-		{% if event.speakers.all %}
-			<div class="info-block speaker">
-				<div class="title">Спикер</div>
-				<div class="info-content">
-					{% for speaker in event.speakers.all %} {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %},{% endif %}{% endfor %}
+		{% if event.speakers %}
+			{% if event.speakers.all %}
+				<div class="info-block speaker">
+					<div class="title">Спикер</div>
+					<div class="info-content">
+						{% for speaker in event.speakers.all %} {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %},{% endif %}{% endfor %}
+					</div>
 				</div>
-			</div>
+			{% endif %}
 		{% endif %}
 		
 		{% comment %} Дата\Время {% endcomment %}
