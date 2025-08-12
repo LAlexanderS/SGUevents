@@ -92,7 +92,7 @@
 		{% if event.speakers %}
 			{% if event.speakers.all %}
 				<div class="info-block speaker">
-					<div class="title">Спикер</div>
+					<div class="title">Ответственный</div>
 					<div class="info-content">
 						{% for speaker in event.speakers.all %} {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %},{% endif %}{% endfor %}
 					</div>
@@ -160,7 +160,7 @@
 			<div class="info-slide">
 				<div class="info-column">
 					<img class="info-icon" src="{% static 'icons/speaker.png' %}" alt="">
-					<div class="info-title">Спикер</div>
+					<div class="info-title">Ответственный</div>
 					<div class="info-cell">
 						{% for speaker in event.speakers.all %} 
 							{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %} 
