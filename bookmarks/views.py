@@ -552,12 +552,19 @@ def export_participants(request):
                 parts = [u.last_name or '', u.first_name or '', u.middle_name or '']
                 return ' '.join([p for p in parts if p]).strip()
 
+            # Преобразуем QuerySet в список для фильтрации и сортировки
+            registrations = list(registrations)
+
             if not export_all and selected_users:
                 user_ids = set(u.id for u in selected_users)
                 registrations = [r for r in registrations if r.user_id in user_ids]
 
-            # Отсортируем по алфавиту ФИО
-            registrations = sorted(registrations, key=lambda r: (r.user.last_name or '', r.user.first_name or '', r.user.middle_name or ''))
+            # Сортируем по фамилии, имени, отчеству в алфавитном порядке
+            registrations = sorted(registrations, key=lambda r: (
+                (r.user.last_name or '').lower(),
+                (r.user.first_name or '').lower(), 
+                (r.user.middle_name or '').lower()
+            ))
 
             participants = [
                 {"idx": i + 1, "full_name": user_full_name(r.user)}
@@ -573,30 +580,33 @@ def export_participants(request):
                 messages.error(request, f"Шаблон не найден: {template_path}")
                 return redirect('bookmarks:export_participants')
 
-            doc = DocxTemplate(template_path)
-            context = {
-                'event_name': getattr(event, 'name', ''),
-                'event_category': getattr(event, 'category', ''),
-                'event_date': getattr(event, 'formatted_date_range', lambda: '')() if hasattr(event, 'formatted_date_range') else '',
-                'participants': participants,
-            }
-            doc.render(context)
+            try:
+                doc = DocxTemplate(template_path)
+                context = {
+                    'event_name': getattr(event, 'name', ''),
+                    'event_category': getattr(event, 'category', ''),
+                    'event_date': getattr(event, 'formatted_date_range', lambda: '')() if hasattr(event, 'formatted_date_range') else '',
+                    'participants': participants,
+                }
+                doc.render(context)
 
-            output = BytesIO()
-            doc.save(output)
-            output.seek(0)
+                output = BytesIO()
+                doc.save(output)
+                output.seek(0)
 
-            safe_event = slugify(getattr(event, 'name', 'event'))
-            filename = f"spisok-uchastnikov-{safe_event}.docx"
+                safe_event = slugify(getattr(event, 'name', 'event'))
+                filename = f"spisok-uchastnikov-{safe_event}.docx"
 
-            response = JsonResponse({})  # placeholder init
-            from django.http import HttpResponse
-            response = HttpResponse(
-                output.read(),
-                content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            )
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            return response
+                from django.http import HttpResponse
+                response = HttpResponse(
+                    output.read(),
+                    content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                )
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+            except Exception as e:
+                messages.error(request, f"Ошибка при обработке шаблона: {str(e)}. Проверьте правильность тегов в DOCX файле.")
+                return redirect('bookmarks:export_participants')
         else:
             messages.error(request, "Ошибка в форме")
     else:
