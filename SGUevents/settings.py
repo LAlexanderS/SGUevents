@@ -20,11 +20,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4z
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
-DEBUG = True
+DEBUG = False
 # ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '127.0.0.1', 'localhost', 'sguevents.help', 'sguevents']
-# ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '95.47.161.83', 'sguevents.help', 'www.sguevents.help']
+ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '95.47.161.83', 'sguevents.help', 'www.sguevents.help']
 
 
 # Значение по умолчанию для разработки
@@ -172,7 +172,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Security settings for HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
