@@ -22,7 +22,7 @@ from django.utils.timezone import now
 from datetime import datetime
 
 
-from .forms import RegistrationForm
+from .forms import RegistrationForm, UserPasswordChangeForm
 from .models import Department, AdminRightRequest, TelegramAuthToken
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
 from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
@@ -68,18 +68,8 @@ def register(request):
             }
             new_user = User.objects.create_user(**user_kwargs)
 
-            # Загружаем аватар из Telegram если указан telegram_id
+            # Отправляем данные регистрации в Telegram, если указан telegram_id
             if new_user.telegram_id:
-                try:
-                    from .telegram_utils import download_telegram_avatar
-                    avatar_file = download_telegram_avatar(new_user.telegram_id)
-                    if avatar_file:
-                        # Используем save метод поля для корректного сохранения
-                        new_user.profile_photo.save(avatar_file.name, avatar_file, save=True)
-                        logger.info(f"Аватар из Telegram загружен для пользователя {new_user.username}")
-                except Exception as e:
-                    logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
-                
                 send_registration_details_sync(new_user.telegram_id, new_user.username, generated_password)
 
             return redirect('users:login')
@@ -156,16 +146,7 @@ def telegram_auth(request, token):
             user = User.objects.create_user(**user_kwargs)
             logger.info(f"Создан новый пользователь: {user.username}")
             
-            # Загружаем аватар из Telegram
-            try:
-                from .telegram_utils import download_telegram_avatar
-                avatar_file = download_telegram_avatar(auth_token.telegram_id)
-                if avatar_file:
-                    # Используем save метод поля для корректного сохранения
-                    user.profile_photo.save(avatar_file.name, avatar_file, save=True)
-                    logger.info(f"Аватар из Telegram загружен для пользователя {user.username}")
-            except Exception as e:
-                logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
+            # Автоматическая загрузка аватара из Telegram отключена
             
             # Отправляем данные для входа в Telegram
             try:
@@ -198,22 +179,32 @@ def telegram_auth(request, token):
 @csrf_exempt
 @login_required
 def change_password(request):
-    if request.method == 'POST' and request.user.telegram_id:
-        new_password = get_random_string(8)
-        request.user.set_password(new_password)
-        request.user.save()
-        
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Неверный метод'}, status=405)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        data = request.POST
+
+    form = UserPasswordChangeForm(data)
+    if not form.is_valid():
+        errors = form.errors.get('__all__') or sum(form.errors.values(), [])
+        return JsonResponse({'success': False, 'error': '\n'.join(errors)})
+
+    new_password = form.cleaned_data['new_password1']
+    request.user.set_password(new_password)
+    request.user.save()
+
+    # Отправляем уведомление в Telegram (без самого пароля), если привязан Telegram
+    if getattr(request.user, 'telegram_id', None):
         try:
-            send_password_change_details_sync(request.user.telegram_id, request.user.username, new_password)
-            logger.info(f"Новый пароль отправлен пользователю {request.user.username}")
-            logout(request)
-            return JsonResponse({'success': True, 'message': 'Пароль успешно изменен. Новый пароль отправлен в Telegram.'})
+            send_password_change_details_sync(request.user.telegram_id, request.user.username, None)
         except Exception as e:
-            logger.error(f"Ошибка при отправке нового пароля: {str(e)}")
-            return JsonResponse({'success': False, 'error': 'Ошибка при отправке пароля в Telegram.'})
-    else:
-        logger.error("Failed to change password: Access denied or missing telegram_id")
-        return JsonResponse({'success': False, 'error': 'Access denied.'})
+            logger.error(f"Ошибка при отправке уведомления в Telegram: {str(e)}")
+
+    logout(request)
+    return JsonResponse({'success': True, 'message': 'Пароль изменён. Выполните вход с новым паролем.'})
 
 @csrf_exempt
 @login_required
@@ -337,17 +328,7 @@ def telegram_login_callback(request):
             
             logger.info(f"Пользователь найден: {user.username}")
             
-            # Проверяем и загружаем аватар если его нет
-            if not user.profile_photo:
-                try:
-                    from .telegram_utils import download_telegram_avatar
-                    avatar_file = download_telegram_avatar(telegram_id)
-                    if avatar_file:
-                        # Используем save метод поля для корректного сохранения
-                        user.profile_photo.save(avatar_file.name, avatar_file, save=True)
-                        logger.info(f"Аватар из Telegram загружен для пользователя {user.username}")
-                except Exception as e:
-                    logger.error(f"Ошибка при загрузке аватара из Telegram: {str(e)}")
+            # Автоматическая загрузка аватара из Telegram отключена
             
             # Используем authenticate для проверки пользователя
             authenticated_user = authenticate(request, telegram_id=telegram_id)
@@ -438,9 +419,9 @@ def upload_photo(request):
             if not photo.content_type.startswith('image/'):
                 return JsonResponse({'success': False, 'error': 'Файл должен быть изображением'})
             
-            # Проверяем размер файла (не более 5MB)
-            if photo.size > 5 * 1024 * 1024:
-                return JsonResponse({'success': False, 'error': 'Размер файла не должен превышать 5MB'})
+            # Проверяем размер файла (не более 10MB)
+            if photo.size > 10 * 1024 * 1024:
+                return JsonResponse({'success': False, 'error': 'Размер файла не должен превышать 10MB'})
             
             # Удаляем старое фото если есть
             if request.user.profile_photo:
@@ -488,4 +469,42 @@ def delete_photo(request):
             logger.error(f"Ошибка при удалении фото: {str(e)}")
             return JsonResponse({'success': False, 'error': 'Произошла ошибка при удалении фото'})
     
+    return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+
+@csrf_exempt
+@login_required
+def fetch_telegram_photo(request):
+    """
+    Ручная загрузка фото профиля пользователя из Telegram
+    """
+    if request.method == 'POST':
+        try:
+            if not request.user.telegram_id:
+                return JsonResponse({'success': False, 'error': 'Telegram ID не указан. Войдите через Telegram, чтобы связать аккаунт.'})
+
+            from .telegram_utils import download_telegram_avatar
+            avatar_file = download_telegram_avatar(request.user.telegram_id)
+
+            if not avatar_file:
+                return JsonResponse({'success': False, 'error': 'Не удалось получить фото из Telegram. Убедитесь, что в Telegram установлено фото профиля.'})
+
+            # Удаляем старое фото если есть
+            if request.user.profile_photo:
+                try:
+                    old_photo_path = request.user.profile_photo.path
+                    if os.path.exists(old_photo_path):
+                        os.remove(old_photo_path)
+                except Exception:
+                    # Не критично, просто залогируем
+                    logger.warning('Не удалось удалить старое фото профиля перед обновлением из Telegram')
+
+            # Сохраняем новое фото
+            request.user.profile_photo.save(avatar_file.name, avatar_file, save=True)
+            logger.info(f"Пользователь {request.user.username} обновил фото профиля из Telegram")
+            return JsonResponse({'success': True, 'message': 'Фото профиля из Telegram успешно загружено'})
+
+        except Exception as e:
+            logger.error(f"Ошибка при ручной загрузке фото из Telegram: {str(e)}")
+            return JsonResponse({'success': False, 'error': 'Произошла ошибка при загрузке фото из Telegram'})
+
     return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
