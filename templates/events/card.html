@@ -310,6 +310,14 @@
                                 </div>
                                 {% comment %} <div class="col-lg-1"></div> {% endcomment %}
 
+                            {% if event.documents %}
+                                <div style="text-align: center; text-indent: 0;" class="docs">
+                                    <img src="{% static "icons/paperclip.png" %}" alt="" style="max-height: 30px; width: auto;"
+                                        class="paperclip"><a class="docs-link" href="{{ event.documents.url }}" target="_blank"
+                                        download>Программа мероприятия</a>
+                                </div>
+                            {% endif %}
+
                             {% if event.tags %}
                                 <div class="event-hashtags">
                                     <div class="hashtags"
@@ -626,13 +634,7 @@
                             {% comment %} {% endif %} {% endcomment %}
                             </div>
 
-                            {% if event.documents %}
-                                <div style="text-align: center; text-indent: 0;" class="docs">
-                                    <img src="{% static "icons/paperclip.png" %}" alt="" style="max-height: 30px; width: auto;"
-                                        class="paperclip"><a class="docs-link" href="{{ event.documents.url }}" target="_blank"
-                                        download>Программа мероприятия</a>
-                                </div>
-                            {% endif %}
+                            
                             
                             
                             {% if event.users_chat_link %}
