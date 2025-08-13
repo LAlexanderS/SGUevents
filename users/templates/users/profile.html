@@ -254,20 +254,26 @@
                                                 {% for logist in logistics %}
                                                     {% if logist.departure_datetime or logist.arrival_datetime  %}
                                                         <div class="user-movement-info">
-                                                            <span>Дата/время/рейс <br>отлёта - прилёта</span>
-                                                            <span>{{ logist.departure_datetime }}<br>{{ logist.arrival_datetime }}</span> 
+                                                            <span>Время прилёта</span>
+                                                            <span>{{ logist.arrival_datetime }}</span> 
                                                         </div>   
-                                                    {% endif %}
-                                                    {% if logist.departure_airport %}
-                                                        <div class="user-movement-info">
-                                                            <span>Место отлёта</span>
-                                                            <span>{{ logist.departure_airport }}</span> 
-                                                        </div>  
                                                     {% endif %}
                                                     {% if logist.arrival_airport %}
                                                         <div class="user-movement-info">
                                                             <span>Место прилёта</span>
                                                             <span>{{ logist.arrival_airport }}</span> 
+                                                        </div>  
+                                                    {% endif %}
+                                                    {% if logist.departure_airport %}
+                                                        <div class="user-movement-info">
+                                                            <span>Время отлёта</span>
+                                                            <span>{{ logist.departure_datetime }}</span> 
+                                                        </div>  
+                                                    {% endif %}
+                                                    {% if logist.arrival_airport %}
+                                                        <div class="user-movement-info">
+                                                            <span>Место отлёта</span>
+                                                            <span>{{ logist.departure_airport }}</span> 
                                                         </div>  
                                                     {% endif %}
                                                     {% if logist.hotel_details %}
