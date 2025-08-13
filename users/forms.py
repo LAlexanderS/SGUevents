@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.password_validation import validate_password
 from .models import User, Department
+from events_available.models import Events_offline, EventLogistics
+from bookmarks.models import Registered
 
 class RegistrationForm(forms.ModelForm):
     department_id = forms.CharField(
@@ -98,3 +100,38 @@ class UserPasswordChangeForm(forms.Form):
                     self.add_error('new_password1', msg)
 
         return cleaned_data
+
+
+class EventLogisticsForm(forms.ModelForm):
+    # event показываем как выпадающий список только из «моих» оффлайн‑мероприятий
+    event = forms.ModelChoiceField(
+        queryset=Events_offline.objects.none(),
+        label="Оффлайн‑мероприятие"
+    )
+
+    class Meta:
+        model = EventLogistics
+        exclude = ("user",)  # user НЕ в форме — выставим во вьюхе
+        widgets = {
+            # HTML5 datetime‑local: удобно для ручного ввода
+            "arrival_datetime":   forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "departure_datetime": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "hotel_details":      forms.Textarea(attrs={"rows": 3}),
+            "meeting_person":     forms.Textarea(attrs={"rows": 2}),
+        }
+
+    def __init__(self, *args, user=None, **kwargs):
+        """
+        user — обязателен, чтобы ограничить список event.
+        """
+        super().__init__(*args, **kwargs)
+        if user is not None:
+            offline_ids = (
+                Registered.objects
+                .filter(user=user, offline__isnull=False)
+                .values_list("offline", flat=True)
+            )
+            self.fields["event"].queryset = (
+                Events_offline.objects.filter(id__in=offline_ids)
+                .order_by("-start_datetime")
+            )

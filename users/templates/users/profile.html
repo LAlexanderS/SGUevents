@@ -252,22 +252,28 @@
                                         {% if logistics %}                           
                                             <div class="user-movement">
                                                 {% for logist in logistics %}
-                                                    {% if logist.departure_datetime %}
+                                                    {% if logist.departure_datetime or logist.arrival_datetime  %}
                                                         <div class="user-movement-info">
-                                                            <span>Дата/время/рейс <br>отлёта - прилёта</span>
-                                                            <span>{{ logist.departure_datetime }}<br>{{ logist.arrival_datetime }}</span> 
+                                                            <span>Время прилёта</span>
+                                                            <span>{{ logist.arrival_datetime }}</span> 
                                                         </div>   
-                                                    {% endif %}
-                                                    {% if logist.departure_airport %}
-                                                        <div class="user-movement-info">
-                                                            <span>Место отлёта</span>
-                                                            <span>{{ logist.departure_airport }}</span> 
-                                                        </div>  
                                                     {% endif %}
                                                     {% if logist.arrival_airport %}
                                                         <div class="user-movement-info">
                                                             <span>Место прилёта</span>
                                                             <span>{{ logist.arrival_airport }}</span> 
+                                                        </div>  
+                                                    {% endif %}
+                                                    {% if logist.departure_airport %}
+                                                        <div class="user-movement-info">
+                                                            <span>Время отлёта</span>
+                                                            <span>{{ logist.departure_datetime }}</span> 
+                                                        </div>  
+                                                    {% endif %}
+                                                    {% if logist.arrival_airport %}
+                                                        <div class="user-movement-info">
+                                                            <span>Место отлёта</span>
+                                                            <span>{{ logist.departure_airport }}</span> 
                                                         </div>  
                                                     {% endif %}
                                                     {% if logist.hotel_details %}
@@ -301,10 +307,116 @@
                                                     {% endif %}
                                                 {% endfor %}
                                             </div>
-                                        {% else %}
-                                            <p class="no-movement">Перемещения не запланированы</p> 
                                         {% endif %}
+                                        
+                                        <!-- Кнопка, открывающая модалку -->
+                                        <button type="button"
+                                                class="btn btn-success mt-4"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#logisticsModal">
+                                        Заполнить логистику
+                                        </button>
                                     </div>
+
+                                    <!-- Модальное окно -->
+                                    <div class="modal fade" id="logisticsModal" tabindex="-1" aria-labelledby="logisticsModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                        <form method="post" class="needs-validation" novalidate>
+                                            {% csrf_token %}
+                                            <input type="hidden" name="form_name" value="logistics">
+
+                                            <div class="modal-header">
+                                            <h5 class="modal-title" id="logisticsModalLabel">Добавить/изменить логистику</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                            </div>
+
+                                            <div class="modal-body">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                <label class="form-label">Оффлайн‑мероприятие</label>
+                                                {{ logistics_form.event }}
+                                                {% if logistics_form.event.errors %}
+                                                    <div class="text-danger small mt-1">{{ logistics_form.event.errors.0 }}</div>
+                                                {% endif %}
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                <label class="form-label">Дата и время прилёта</label>
+                                                {{ logistics_form.arrival_datetime }}
+                                                </div>
+                                                <div class="col-md-6">
+                                                <label class="form-label">Дата и время вылета</label>
+                                                {{ logistics_form.departure_datetime }}
+                                                {% if logistics_form.departure_datetime.errors %}
+                                                    <div class="text-danger small mt-1">{{ logistics_form.departure_datetime.errors.0 }}</div>
+                                                {% endif %}
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Рейс прилёта</label>
+                                                    {{ logistics_form.arrival_flight_number }}
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                    <label class="form-label">Аэропорт прилёта</label>
+                                                    {{ logistics_form.arrival_airport }}
+                                                    </div>
+
+                                                    <div class="col-md-4">
+                                                    <label class="form-label">Рейс вылета</label>
+                                                    {{ logistics_form.departure_flight_number }}
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                    <label class="form-label">Аэропорт вылета</label>
+                                                    {{ logistics_form.departure_airport }}
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                    <div class="form-check">
+                                                        {{ logistics_form.transfer_needed }}
+                                                        <label class="form-check-label">Нужен трансфер</label>
+                                                    </div>
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                    <label class="form-label">Гостиница проживания</label>
+                                                    {{ logistics_form.hotel_details }}
+                                                    {% if logistics_form.hotel_details.help_text %}
+                                                        <div class="form-text">{{ logistics_form.hotel_details.help_text }}</div>
+                                                    {% endif %}
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                    <label class="form-label">Встречающий</label>
+                                                    {{ logistics_form.meeting_person }}
+                                                    {% if logistics_form.meeting_person.help_text %}
+                                                        <div class="form-text">{{ logistics_form.meeting_person.help_text }}</div>
+                                                    {% endif %}
+                                                    </div>
+                                                </div>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                                                <button type="submit" class="btn btn-primary">Сохранить</button>
+                                                </div>
+                                            </form>
+                                            </div>
+                                        </div>
+                                        </div>
+
+                                        <!-- Скрипт автопоказа модалки при ошибках -->
+                                        <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            // Значение придёт из контекста: True, если форма невалидна
+                                            const shouldOpen = {{ open_logistics_modal|yesno:"true,false" }};
+                                            if (shouldOpen) {
+                                            const modalEl = document.getElementById('logisticsModal');
+                                            const modal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+                                            modal.show();
+                                            }
+                                        });
+                                        </script>
                                 
 
 

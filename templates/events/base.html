@@ -699,7 +699,7 @@
                                             </div>
 
                                             <div class="event-preview-speaker">
-                                                {% if events.category != "Доступные к посещению" %}
+                                                {% if events.category != "Доступные к посещению" and events.category != "Достопримечательности"%}
                                                 <label for="speaker" class="preview-speaker">Спикеры:</label>
                                                     {% for speaker in events.speakers.all %}
                                                         {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
