@@ -106,3 +106,94 @@ class SendMessageForm(forms.Form):
             self.fields['selected_users'].queryset = users
         
         return cleaned_data
+
+class ExportParticipantsForm(forms.Form):
+    event_choices = [
+        ('online', 'Онлайн мероприятия'),
+        ('offline', 'Оффлайн мероприятия'),
+        ('attractions', 'Достопримечательности'),
+        ('for_visiting', 'Доступные для посещения'),
+    ]
+
+    event_type = forms.ChoiceField(choices=event_choices, label='Тип мероприятия')
+    event = forms.ModelChoiceField(queryset=Events_online.objects.none(), label='Мероприятие', required=False)
+    export_all = forms.BooleanField(label='Выгрузить всех участников', required=False, initial=True)
+    selected_users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.none(),
+        label='Выбрать конкретных участников',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        event_type = kwargs.pop('event_type', None)
+        super(ExportParticipantsForm, self).__init__(*args, **kwargs)
+        self.user = user
+
+        if not event_type:
+            if user and not getattr(user, 'is_superuser', False):
+                from events_available.models import Events_online, Events_offline
+                from events_cultural.models import Attractions, Events_for_visiting
+                if Events_offline.objects.filter(events_admin=user).exists():
+                    event_type = 'offline'
+                elif Events_online.objects.filter(events_admin=user).exists():
+                    event_type = 'online'
+                elif Attractions.objects.filter(events_admin=user).exists():
+                    event_type = 'attractions'
+                elif Events_for_visiting.objects.filter(events_admin=user).exists():
+                    event_type = 'for_visiting'
+                else:
+                    event_type = 'online'
+            else:
+                event_type = 'online'
+
+        self.set_event_queryset(event_type)
+        self.fields['event_type'].initial = event_type
+
+        if args and args[0]:
+            event_id = args[0].get('event')
+            if event_id:
+                try:
+                    filter_kwargs = {f"{event_type}": event_id}
+                    registered_users = Registered.objects.filter(**filter_kwargs)
+                    users = User.objects.filter(id__in=registered_users.values_list('user_id', flat=True))
+                    self.fields['selected_users'].queryset = users
+                except Exception:
+                    pass
+
+    def set_event_queryset(self, event_type):
+        model_map = {
+            'online': Events_online,
+            'offline': Events_offline,
+            'attractions': Attractions,
+            'for_visiting': Events_for_visiting
+        }
+        model = model_map.get(event_type)
+        if model:
+            if self.user and not getattr(self.user, 'is_superuser', False):
+                self.fields['event'].queryset = model.objects.filter(events_admin=self.user)
+            else:
+                self.fields['event'].queryset = model.objects.all()
+        else:
+            self.fields['event'].queryset = Events_online.objects.none()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        export_all = cleaned_data.get('export_all')
+        selected_users = cleaned_data.get('selected_users')
+        event = cleaned_data.get('event')
+        event_type = cleaned_data.get('event_type')
+
+        if not event:
+            raise forms.ValidationError("Выберите мероприятие")
+
+        if not export_all and not selected_users:
+            raise forms.ValidationError("Выберите участников или отметьте 'Выгрузить всех участников'")
+
+        if event:
+            filter_kwargs = {f"{event_type}": event}
+            registered_users = Registered.objects.filter(**filter_kwargs)
+            users = User.objects.filter(id__in=registered_users.values_list('user_id', flat=True))
+            self.fields['selected_users'].queryset = users
+
+        return cleaned_data
