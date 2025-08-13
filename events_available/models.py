@@ -386,7 +386,7 @@ class EventLogistics(models.Model):
     )
 
     class Meta:
-        verbose_name = "Логистика по мероприятию"
+        verbose_name = "Логистику по мероприятию"
         verbose_name_plural = "Логистика по мероприятиям"
         # Гарантируем, что для одной пары пользователь-мероприятие есть только одна запись
         unique_together = ('user', 'event')
@@ -396,8 +396,6 @@ class EventLogistics(models.Model):
         if self.arrival_datetime and self.departure_datetime:
             if self.arrival_datetime >= self.departure_datetime:
                 raise ValidationError({'departure_datetime': 'Дата улёта должна быть позже даты прилёта'})
-        else:
-            raise ValidationError({'departure_datetime': 'Проверьте корректность заполнения данных'})
     
 
     def save(self, *args, **kwargs):

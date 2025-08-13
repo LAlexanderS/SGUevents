@@ -20,13 +20,18 @@ from asgiref.sync import async_to_sync
 from bot.main import handle_webhook
 from django.utils.timezone import now
 from datetime import datetime
+from django.db.models import Q
+from django.db.models.functions import Coalesce
 
 
 from .forms import RegistrationForm, UserPasswordChangeForm
 from .models import Department, AdminRightRequest, TelegramAuthToken
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
 from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
-from events_available.models import EventLogistics
+from events_available.models import EventLogistics, Events_offline
+from bookmarks.models import Registered
+from users.forms import EventLogisticsForm
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -254,15 +259,74 @@ def request_admin_rights(request):
             return JsonResponse({'success': False, 'error': 'Произошла ошибка при обработке запроса.'})
     return JsonResponse({'success': False, 'error': 'Недопустимый запрос.'})
 
+
 @login_required
 def profile(request):
     user = request.user
     login_method = request.session.get('login_method', 'Неизвестный способ входа')
-    department_name = user.department.department_name if user.department else 'Не указан'
-    today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
-    today = timezone.make_aware(today)
-    logistics = EventLogistics.objects.filter(user=user, departure_datetime__gte=today).order_by('departure_datetime')
-    return render(request, 'users/profile.html', {'user': user, 'login_method': login_method, 'department_name': department_name, 'logistics': logistics,})
+    department_name = user.department.department_name if getattr(user, "department", None) else 'Не указан'
+
+    today = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    logistics = (
+        EventLogistics.objects
+        .filter(user=user)
+        .filter(
+            Q(departure_datetime__gte=today) |                                   # будущий вылет
+            Q(departure_datetime__isnull=True, arrival_datetime__gte=today) |    # нет вылета, но прилёт в будущем
+            Q(arrival_datetime__lte=today, departure_datetime__gte=today)        # поездка уже началась и ещё не закончилась
+        )
+        .order_by(Coalesce('departure_datetime', 'arrival_datetime'))
+        .select_related('event')
+    )
+    
+    print(f'LOGG {logistics}')
+
+    # список регистраций для вывода (как у тебя было)
+    registered = (Registered.objects
+                  .filter(user=user, offline__isnull=False)
+                  .select_related('offline'))
+
+    # --- обработка формы логистики ---
+    if request.method == "POST" and request.POST.get("form_name") == "logistics":
+        form = EventLogisticsForm(request.POST, user=user)
+        if form.is_valid():
+            event = form.cleaned_data["event"]
+
+            # защита от подмены event вне своего списка:
+            if not form.fields["event"].queryset.filter(pk=event.pk).exists():
+                messages.error(request, "Вы не зарегистрированы на выбранное мероприятие.")
+                return redirect("profile")
+
+            # upsert по (user, event) — уникальность гарантируется unique_together
+            instance, created = EventLogistics.objects.get_or_create(user=user, event=event)
+
+            # заполняем остальные поля из формы
+            fields = [
+                "arrival_datetime", "arrival_flight_number", "arrival_airport",
+                "departure_datetime", "departure_flight_number", "departure_airport",
+                "transfer_needed", "hotel_details", "meeting_person",
+            ]
+            for f in fields:
+                setattr(instance, f, form.cleaned_data.get(f))
+
+            instance.save()
+            messages.success(request, "Логистика сохранена.")
+            return redirect('users:profile')
+    else:
+        form = EventLogisticsForm(user=user)
+
+    return render(
+        request,
+        "users/profile.html",
+        {
+            "user": user,
+            "login_method": login_method,
+            "department_name": department_name,
+            "logistics": logistics,
+            "registered": registered,
+            "logistics_form": form,
+        }
+    )
     # login_method = request.session.get('login_method', 'Неизвестный способ входа')
     # department_name = request.user.department.department_name if request.user.department else 'Не указан'
     # logistics = EventLogistics.objects.filter(user=request.user)
