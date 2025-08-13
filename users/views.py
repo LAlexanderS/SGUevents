@@ -22,6 +22,9 @@ from django.utils.timezone import now
 from datetime import datetime
 from django.db.models import Q
 from django.db.models.functions import Coalesce
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.views.decorators.http import require_POST
+from django.utils.dateparse import parse_datetime
 
 
 from .forms import RegistrationForm, UserPasswordChangeForm
@@ -260,6 +263,8 @@ def request_admin_rights(request):
     return JsonResponse({'success': False, 'error': 'Недопустимый запрос.'})
 
 
+
+
 @login_required
 def profile(request):
     user = request.user
@@ -271,47 +276,39 @@ def profile(request):
         EventLogistics.objects
         .filter(user=user)
         .filter(
-            Q(departure_datetime__gte=today) |                                   # будущий вылет
-            Q(departure_datetime__isnull=True, arrival_datetime__gte=today) |    # нет вылета, но прилёт в будущем
-            Q(arrival_datetime__lte=today, departure_datetime__gte=today)        # поездка уже началась и ещё не закончилась
+            Q(departure_datetime__gte=today) |
+            Q(departure_datetime__isnull=True, arrival_datetime__gte=today) |
+            Q(arrival_datetime__lte=today, departure_datetime__gte=today)
         )
         .order_by(Coalesce('departure_datetime', 'arrival_datetime'))
         .select_related('event')
     )
-    
-    print(f'LOGG {logistics}')
 
-    # список регистраций для вывода (как у тебя было)
     registered = (Registered.objects
                   .filter(user=user, offline__isnull=False)
                   .select_related('offline'))
 
-    # --- обработка формы логистики ---
+    open_logistics_modal = False  # <— флаг
+
     if request.method == "POST" and request.POST.get("form_name") == "logistics":
         form = EventLogisticsForm(request.POST, user=user)
         if form.is_valid():
             event = form.cleaned_data["event"]
-
-            # защита от подмены event вне своего списка:
             if not form.fields["event"].queryset.filter(pk=event.pk).exists():
                 messages.error(request, "Вы не зарегистрированы на выбранное мероприятие.")
-                return redirect("profile")
+                return redirect("users:profile")
 
-            # upsert по (user, event) — уникальность гарантируется unique_together
-            instance, created = EventLogistics.objects.get_or_create(user=user, event=event)
-
-            # заполняем остальные поля из формы
-            fields = [
-                "arrival_datetime", "arrival_flight_number", "arrival_airport",
-                "departure_datetime", "departure_flight_number", "departure_airport",
-                "transfer_needed", "hotel_details", "meeting_person",
-            ]
-            for f in fields:
+            instance, _ = EventLogistics.objects.get_or_create(user=user, event=event)
+            for f in ["arrival_datetime","arrival_flight_number","arrival_airport",
+                      "departure_datetime","departure_flight_number","departure_airport",
+                      "transfer_needed","hotel_details","meeting_person"]:
                 setattr(instance, f, form.cleaned_data.get(f))
-
             instance.save()
             messages.success(request, "Логистика сохранена.")
             return redirect('users:profile')
+        else:
+            # Если ошибки — откроем модалку заново
+            open_logistics_modal = True
     else:
         form = EventLogisticsForm(user=user)
 
@@ -325,13 +322,65 @@ def profile(request):
             "logistics": logistics,
             "registered": registered,
             "logistics_form": form,
+            "open_logistics_modal": open_logistics_modal,  # <—
         }
     )
-    # login_method = request.session.get('login_method', 'Неизвестный способ входа')
-    # department_name = request.user.department.department_name if request.user.department else 'Не указан'
-    # logistics = EventLogistics.objects.filter(user=request.user)
-    # print(logistics)
-    # return render(request, 'users/profile.html', {'user': request.user, 'login_method': login_method, 'department_name': department_name, 'logistics': logistics,})
+
+
+# --- AJAX: инлайн‑обновление одного поля без перезагрузки ---
+ALLOWED_FIELDS = {
+    "arrival_datetime", "arrival_flight_number", "arrival_airport",
+    "departure_datetime", "departure_flight_number", "departure_airport",
+    "transfer_needed", "hotel_details", "meeting_person",
+}
+
+@login_required
+def update_logistics_field(request, pk):
+    if request.method != "POST":
+        return HttpResponseBadRequest("Only POST")
+
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    field = data.get("field")
+    raw_value = data.get("value")
+
+    if field not in ALLOWED_FIELDS:
+        return HttpResponseBadRequest("Field not allowed")
+
+    logist = EventLogistics.objects.filter(pk=pk, user=request.user).first()
+    if not logist:
+        return HttpResponseForbidden("No access")
+
+    # Преобразование типов
+    value = raw_value
+    if field in ("arrival_datetime", "departure_datetime"):
+        if raw_value and len(raw_value) == 16:
+            raw_value = raw_value + ":00"
+        dt = parse_datetime(raw_value) if raw_value else None
+        if dt is not None and timezone.is_naive(dt):
+            dt = timezone.make_aware(dt, timezone.get_default_timezone())
+        value = dt
+    elif field == "transfer_needed":
+        value = True if str(raw_value).lower() in ("1", "true", "on", "yes") else False
+
+    setattr(logist, field, value)
+    try:
+        logist.full_clean()
+        logist.save()
+    except Exception as e:
+        return HttpResponseBadRequest(str(e))
+
+    # Ответ для отображения
+    pretty = value
+    if field in ("arrival_datetime", "departure_datetime"):
+        pretty = value.astimezone(timezone.get_current_timezone()).strftime("%d.%m.%Y %H:%M") if value else "—"
+    if field == "transfer_needed":
+        pretty = "Нужен" if value else "Не нужен"
+
+    return JsonResponse({"ok": True, "field": field, "value": pretty})
 
 @login_required
 def logout(request):
