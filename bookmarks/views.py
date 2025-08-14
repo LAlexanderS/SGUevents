@@ -226,11 +226,21 @@ def events_registered(request, event_slug):
             
             message = f"✅ Вы зарегистрировались на мероприятие: {event_hyperlink}."
             
+            # Определяем ссылку на чат участников при наличии
+            chat_url = None
+            if event_type in ('online', 'offline'):
+                try:
+                    if getattr(event, 'users_chat_id', None) and getattr(event, 'users_chat_link', None):
+                        chat_url = event.users_chat_link
+                except AttributeError:
+                    chat_url = None
+            
             send_message_to_user_with_toggle_button(
                 request.user.telegram_id, 
                 message, 
                 registered.id, 
-                registered.notifications_enabled
+                registered.notifications_enabled,
+                chat_url=chat_url
             )
 
         event.member.add(request.user)

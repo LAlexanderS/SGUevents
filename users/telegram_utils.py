@@ -82,7 +82,7 @@ def send_message_to_user(telegram_id, message, event_id=None, reply_markup=None)
     else:
         print(f"Ошибка отправки сообщения пользователю: {response.text}")
 
-def send_message_to_user_with_toggle_button(telegram_id, message, event_id, notifications_enabled):
+def send_message_to_user_with_toggle_button(telegram_id, message, event_id, notifications_enabled, chat_url=None):
     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
     button_text = "\U0001F534 Отключить уведомления" if notifications_enabled else "\U0001F7E2 Включить уведомления"
     callback_data = f"toggle_{event_id}"
@@ -94,6 +94,16 @@ def send_message_to_user_with_toggle_button(telegram_id, message, event_id, noti
             }
         ]]
     }
+
+    # Добавляем ссылку на чат участников, если передан chat_url
+    if chat_url:
+        inline_keyboard["inline_keyboard"].append([
+            {
+                "text": "\U0001F4AC Чат участников",
+                "url": chat_url
+            }
+        ])
+
     data = {
         "chat_id": telegram_id,
         "text": message,
