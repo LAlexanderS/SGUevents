@@ -25,6 +25,12 @@ except Exception:
     DocxTemplate = None
 import os
 from bookmarks.forms import ExportParticipantsForm
+from .forms import ExportLogisticsForm
+from events_available.models import EventLogistics
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+from django.utils import timezone
 
 
 logger = logging.getLogger(__name__)
@@ -623,3 +629,102 @@ def export_participants(request):
         form = ExportParticipantsForm(user=request.user)
 
     return render(request, 'bookmarks/export_participants.html', {'form': form})
+
+
+@staff_member_required
+def export_logistics(request):
+	if not (request.user.is_superuser or request.user.is_staff):
+		messages.error(request, "У вас нет прав для выгрузки логистики.")
+		return redirect('home')
+
+	from .forms import ExportLogisticsForm
+	from events_available.models import EventLogistics, Events_offline
+	from openpyxl import Workbook
+	from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+	from openpyxl.utils import get_column_letter
+	from django.utils import timezone
+	from django.http import HttpResponse
+	from django.utils.text import slugify as dj_slugify
+
+	def _build_xlsx_for_event(event):
+		qs = EventLogistics.objects.filter(event=event).select_related('user').order_by('user__last_name', 'user__first_name')
+		if not qs.exists():
+			return None
+		wb = Workbook(); ws = wb.active; ws.title = "Логистика"
+		title = f"Логистика по мероприятию \"{event.name}\""
+		ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=9)
+		cell = ws.cell(row=1, column=1, value=title); cell.font = Font(size=14, bold=True); cell.alignment = Alignment(horizontal='center')
+		headers = ["ФИО","Дата/время прилёта","Рейс прилёта","Аэропорт прилёта","Дата/время отлёта","Рейс отлёта","Аэропорт отлёта","Нужен трансфер","Гостиница","Встречающий"]
+		ws.append(headers)
+		head_fill = PatternFill(start_color="FFEEF5FF", end_color="FFEEF5FF", fill_type="solid")
+		thin = Side(style='thin', color='FFBBBBBB'); border = Border(left=thin, right=thin, top=thin, bottom=thin)
+		for col_idx in range(1, len(headers)+1):
+			c = ws.cell(row=2, column=col_idx); c.font = Font(bold=True); c.fill = head_fill; c.border = border; c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+		row = 3
+		for rec in qs:
+			fio = ' '.join(filter(None, [rec.user.last_name, rec.user.first_name, getattr(rec.user, 'middle_name', '') or None]))
+			arr_dt = rec.arrival_datetime.astimezone(timezone.get_current_timezone()).strftime('%d.%m.%Y %H:%M') if rec.arrival_datetime else ''
+			dep_dt = rec.departure_datetime.astimezone(timezone.get_current_timezone()).strftime('%d.%m.%Y %H:%M') if rec.departure_datetime else ''
+			row_values = [fio, arr_dt, rec.arrival_flight_number or '', rec.arrival_airport or '', dep_dt, rec.departure_flight_number or '', rec.departure_airport or '', "Да" if rec.transfer_needed else "Нет", rec.hotel_details or '', rec.meeting_person or '']
+			ws.append(row_values)
+			for col_idx in range(1, len(headers)+1):
+				c = ws.cell(row=row, column=col_idx); c.border = border; c.alignment = Alignment(vertical='top', wrap_text=True)
+			row += 1
+		# Автофильтр по шапке
+		ws.auto_filter.ref = f"A2:{get_column_letter(len(headers))}{ws.max_row if ws.max_row>2 else 2}"
+		for col_idx in range(1, len(headers)+1):
+			max_len = 0; col_letter = get_column_letter(col_idx)
+			for r in range(2, ws.max_row+1):
+				val = ws.cell(row=r, column=col_idx).value; max_len = max(max_len, len(str(val)) if val else 0)
+			ws.column_dimensions[col_letter].width = min(max_len + 2, 60)
+		filename = f"logistika-{dj_slugify(event.name)}.xlsx"
+		response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		response['Content-Disposition'] = f'attachment; filename="{filename}"'
+		wb.save(response)
+		return response
+
+	# Поддержка GET-загрузки
+	if request.method == 'GET' and request.GET.get('download') == '1':
+		try:
+			event_id = int(request.GET.get('event') or 0)
+		except Exception:
+			event_id = 0
+		if not event_id:
+			return redirect('bookmarks:export_logistics')
+		try:
+			event = Events_offline.objects.get(id=event_id)
+		except Events_offline.DoesNotExist:
+			messages.error(request, "Мероприятие не найдено")
+			return redirect('bookmarks:export_logistics')
+		if not request.user.is_superuser and request.user not in event.events_admin.all():
+			messages.error(request, "Нет прав на выгрузку по этому мероприятию")
+			return redirect('bookmarks:export_logistics')
+		resp = _build_xlsx_for_event(event)
+		if resp is None:
+			messages.warning(request, "Логистика отсутствует для выбранного мероприятия.")
+			return redirect('bookmarks:export_logistics')
+		return resp
+
+	# POST — по форме
+	if request.method == 'POST':
+		form = ExportLogisticsForm(request.POST, user=request.user)
+		if form.is_valid():
+			event = form.cleaned_data['event']
+			if not request.user.is_superuser and request.user not in event.events_admin.all():
+				messages.error(request, "У вас нет прав для выгрузки логистики этого мероприятия.")
+				return redirect('bookmarks:export_logistics')
+			resp = _build_xlsx_for_event(event)
+			if resp is None:
+				messages.warning(request, "Логистика отсутствует для выбранного мероприятия.")
+				return redirect('bookmarks:export_logistics')
+			return resp
+	else:
+		form = ExportLogisticsForm(user=request.user)
+		selected_event = form['event'].value()
+		participants_count = 0
+		if selected_event:
+			try:
+				participants_count = Registered.objects.filter(offline_id=selected_event).count()
+			except Exception:
+				participants_count = 0
+		return render(request, 'bookmarks/export_logistics.html', {'form': form, 'participants_count': participants_count})
