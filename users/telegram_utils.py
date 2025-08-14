@@ -634,3 +634,23 @@ def create_event_hyperlink(event_name, event_url):
         return f'<a href="{event_url}">{event_name}</a>'
     else:
         return event_name
+
+def send_text_to_chat(chat_id: str, text: str, parse_html: bool = True):
+    """
+    Отправляет текстовое сообщение в указанный чат Telegram по chat_id.
+    """
+    try:
+        url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': str(chat_id),
+            'text': text,
+        }
+        if parse_html:
+            payload['parse_mode'] = 'HTML'
+        response = requests.post(url, json=payload)
+        if not response.ok:
+            logger.error(f"Ошибка отправки в чат {chat_id}: {response.status_code} {response.text}")
+        return response
+    except Exception as e:
+        logger.error(f"Исключение при отправке сообщения в чат {chat_id}: {e}")
+        return None

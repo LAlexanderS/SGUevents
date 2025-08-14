@@ -10,6 +10,7 @@ from .models import SupportRequest, AdminRightRequest, User
 import logging
 from users.middleware import CurrentUserMiddleware
 import threading
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -218,6 +219,32 @@ def notify_task_assignee(sender, instance, created, **kwargs):
         logger.info(f"Отправлено уведомление о задаче '{task_name}' пользователю {responsible.username}")
     except Exception as e:
         logger.error(f"Ошибка при отправке уведомления по чек-лист задаче: {e}")
+
+# ====== Чек-лист: оповещение в чат поддержки при завершении ======
+@receiver(post_save, sender=EventOfflineCheckList)
+def notify_support_on_task_completion(sender, instance, created, **kwargs):
+    try:
+        # интересует только смена на completed=True
+        if not instance.completed:
+            return
+        event = instance.event
+        # только офлайн мероприятия с заданным чатом поддержки
+        support_chat_id = getattr(event, 'support_chat_id', None)
+        if not support_chat_id:
+            return
+        task_name = str(instance.task_name) if instance.task_name else 'Задача'
+        executor = str(instance.responsible) if instance.responsible else '—'
+        done_date = (instance.actual_date.strftime('%d.%m.%Y') if instance.actual_date else timezone.now().strftime('%d.%m.%Y'))
+        text = (
+            f"✅ Задача \"{task_name}\"\n"
+            f"Исполнитель: {executor}\n"
+            f"По мероприятию: {event.name}\n"
+            f"Отмечена выполненной {done_date}"
+        )
+        from users.telegram_utils import send_text_to_chat
+        send_text_to_chat(support_chat_id, text, parse_html=False)
+    except Exception as e:
+        logger.error(f"Ошибка при отправке уведомления в чат поддержки о завершении задачи: {e}")
 
 @receiver(post_save, sender=SupportRequest)
 def notify_user_on_support_request_update(sender, instance, created, **kwargs):
