@@ -367,6 +367,15 @@ async def my_events(message: types.Message):
                         )
                     ])
                 
+                # Кнопка "Чат участников" только для online/offline при наличии id и ссылки
+                if event_info['event_type'] in ('online', 'offline') and event_obj and getattr(event_obj, 'users_chat_id', None) and getattr(event_obj, 'users_chat_link', None):
+                    buttons.append([
+                        InlineKeyboardButton(
+                            text="💬 Чат участников",
+                            url=event_obj.users_chat_link
+                        )
+                    ])
+                
                 # Создаем клавиатуру
                 keyboard = InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None
                 
@@ -600,6 +609,7 @@ async def receive_review(message: types.Message, state: FSMContext):
         logger.error(f"Ошибка в обработчике receive_review: {e}")
         await message.answer("Произошла ошибка при приёме отзыва.")
         await state.clear()
+
 
 
 @router.callback_query(F.data.startswith("review:"))
