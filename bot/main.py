@@ -6,6 +6,7 @@ import uuid
 import os.path
 import yadisk
 from datetime import datetime, date
+from django.utils import timezone
 
 import requests
 from aiogram import Bot, Dispatcher, types, F, Router
@@ -1151,9 +1152,53 @@ async def show_event_tasks(callback_query: types.CallbackQuery):
         task_name = str(t.task_name) if t.task_name else 'Задача'
         deadline = t.planned_date.strftime('%d.%m.%Y') if t.planned_date else 'не указан'
         text = f"• {task_name}\nСрок: {deadline}"
-        await callback_query.message.answer(text)
+        kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="✅ Отметить завершенной", callback_data=f"mark_done_{t.id}")]])
+        await callback_query.message.answer(text, reply_markup=kb)
 
     await callback_query.answer()
+
+@router.callback_query(F.data.startswith("mark_done_"))
+async def mark_task_done(callback_query: types.CallbackQuery):
+    user = await get_user_profile(callback_query.from_user.id)
+    if not user:
+        await callback_query.answer("Вы не зарегистрированы на портале.", show_alert=True)
+        return
+
+    try:
+        _, _, task_id_str = callback_query.data.partition("mark_done_")
+        task_id = int(task_id_str)
+    except Exception:
+        await callback_query.answer("Некорректный запрос", show_alert=True)
+        return
+
+    from events_available.models import EventOfflineCheckList
+    try:
+        task = await sync_to_async(EventOfflineCheckList.objects.select_related('responsible').get)(id=task_id)
+    except EventOfflineCheckList.DoesNotExist:
+        await callback_query.answer("Задача не найдена", show_alert=True)
+        return
+
+    if not task.responsible or str(task.responsible_id) != str(user.id):
+        await callback_query.answer("Недостаточно прав для изменения задачи", show_alert=True)
+        return
+
+    # Обновляем задачу: выполнена + дата выполнения
+    def _complete_task():
+        task.completed = True
+        task.actual_date = timezone.localdate()
+        task.save(update_fields=["completed", "actual_date"])
+    await sync_to_async(_complete_task)()
+
+    # Пытаемся удалить сообщение с задачей
+    try:
+        await bot.delete_message(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id)
+    except Exception:
+        try:
+            await callback_query.message.edit_text("✅ Задача отмечена как выполненная")
+        except Exception:
+            pass
+
+    await callback_query.answer("Готово")
 
 if __name__ == "__main__":
     setup_django_environment()
