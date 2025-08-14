@@ -283,7 +283,7 @@ class EventOfflineCheckList(models.Model):
 
         def __str__(self):
             return f"{self.task_name} ({'✓' if self.completed else '—'})"
-        
+
 
 class DefaultTasks(models.Model):
     name = models.CharField(max_length=512, verbose_name="Задача")

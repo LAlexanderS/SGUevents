@@ -5,10 +5,12 @@ from django.http import HttpRequest
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 from datetime import timedelta 
+import logging
 
 from events_available.models import Events_offline, Events_online, EventOnlineGallery, EventOfflineGallery, MediaFile, EventLogistics, EventOfflineCheckList, DefaultTasks
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 # Проверка группы
 def user_in_group(user, group_name):

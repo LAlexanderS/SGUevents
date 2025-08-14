@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from .telegram_utils import send_message_to_user, send_custom_notification_with_toggle
-from events_available.models import Events_online, Events_offline
+from events_available.models import Events_online, Events_offline, EventOfflineCheckList
 from events_cultural.models import Attractions, Events_for_visiting
 from bookmarks.models import Registered
 from .models import SupportRequest, AdminRightRequest, User
@@ -140,6 +140,84 @@ def notify_participants_on_specific_field_change(sender, instance, created, **kw
                 logger.error(f"Ошибка при отправке уведомления пользователю {registration.user.username}: {e}")
         else:
             logger.warning(f"У пользователя {registration.user.username} нет telegram_id")
+
+# ====== Чек-лист задач по офлайн-мероприятию ======
+
+def _set_old_checklist(instance):
+    try:
+        old = EventOfflineCheckList.objects.get(pk=instance.pk)
+    except EventOfflineCheckList.DoesNotExist:
+        old = None
+    _thread_locals.old_checklist = old
+
+
+def _get_old_checklist():
+    return getattr(_thread_locals, 'old_checklist', None)
+
+
+def _is_valid_chat_id(chat_id):
+    try:
+        s = str(chat_id).strip()
+        if not s:
+            return False
+        s = s.lstrip('-')
+        return s.isdigit()
+    except Exception:
+        return False
+
+
+@receiver(pre_save, sender=EventOfflineCheckList)
+def store_old_checklist(sender, instance, **kwargs):
+    if instance.pk:
+        _set_old_checklist(instance)
+    else:
+        _thread_locals.old_checklist = None
+
+@receiver(post_save, sender=EventOfflineCheckList)
+def notify_task_assignee(sender, instance, created, **kwargs):
+    from users.telegram_utils import send_message_to_telegram, get_event_url, create_event_hyperlink
+    try:
+        responsible = instance.responsible
+        if not responsible:
+            return
+        if not responsible.telegram_id:
+            return
+        if not _is_valid_chat_id(responsible.telegram_id):
+            return
+
+        old = _get_old_checklist()
+
+        should_notify = False
+        reasons = []
+        if created:
+            should_notify = True
+            reasons.append('создана и назначена вам')
+        else:
+            if old and old.responsible != instance.responsible:
+                should_notify = True
+                reasons.append('назначена вам')
+            if old and old.planned_date != instance.planned_date:
+                should_notify = True
+                reasons.append('обновлён срок')
+        if not should_notify:
+            return
+
+        event = instance.event
+        event_url = get_event_url(event)
+        event_link = create_event_hyperlink(event.name, event_url)
+        task_name = str(instance.task_name) if instance.task_name else 'Задача'
+        deadline = instance.planned_date.strftime('%d.%m.%Y') if instance.planned_date else 'не указан'
+        message = (
+            f"\U0001F4CB Вам назначена задача: <b>{task_name}</b>\n"
+            f"Мероприятие: {event_link}\n"
+            f"Срок: {deadline}\n"
+            f"Статус: {'выполнено' if instance.completed else 'в работе'}\n"
+            f"Причина уведомления: {', '.join(reasons)}"
+        )
+        send_message_to_telegram(responsible.telegram_id, message)
+        logger.info(f"Отправлено уведомление о задаче '{task_name}' пользователю {responsible.username}")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке уведомления по чек-лист задаче: {e}")
 
 @receiver(post_save, sender=SupportRequest)
 def notify_user_on_support_request_update(sender, instance, created, **kwargs):
