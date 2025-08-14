@@ -5,7 +5,7 @@ import os
 import uuid
 import os.path
 import yadisk
-from datetime import datetime
+from datetime import datetime, date
 
 import requests
 from aiogram import Bot, Dispatcher, types, F, Router
@@ -294,9 +294,18 @@ async def profile(message: types.Message):
         department_name = await sync_to_async(get_department_name)(user)
         full_name = f"{user.last_name} {user.first_name}" + (f" {user.middle_name}" if user.middle_name else "")
         response_text = f"Ваше ФИО: {full_name}\nОтдел: {department_name}"
+
+        # Добавляем кнопку "Мои задачи (N)", если есть активные задачи
+        from events_available.models import EventOfflineCheckList
+        tasks_count = await sync_to_async(lambda: EventOfflineCheckList.objects.filter(responsible=user, completed=False).count())()
+        reply_markup = None
+        if tasks_count > 0:
+            kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=f"📝 Мои задачи ({tasks_count})", callback_data="mytasks")]])
+            reply_markup = kb
+        await message.answer(response_text, reply_markup=reply_markup)
     else:
         response_text = "Вы не зарегистрированы на портале."
-    await message.answer(response_text)
+        await message.answer(response_text)
 
 def get_department_name(user):
     from users.models import Department
@@ -1078,6 +1087,73 @@ async def show_logistics_info(callback_query: types.CallbackQuery):
     except Exception as e:
         logger.error(f"Ошибка при показе логистики: {e}")
         await callback_query.answer("Произошла ошибка при загрузке информации.")
+
+@router.callback_query(F.data == "mytasks")
+async def list_task_events(callback_query: types.CallbackQuery):
+    user = await get_user_profile(callback_query.from_user.id)
+    if not user:
+        await callback_query.answer("Вы не зарегистрированы на портале.", show_alert=True)
+        return
+
+    from events_available.models import EventOfflineCheckList, Events_offline
+    tasks = await sync_to_async(list)(
+        EventOfflineCheckList.objects.filter(responsible=user, completed=False).select_related('event')
+    )
+    if not tasks:
+        await callback_query.answer("Активных задач нет", show_alert=True)
+        return
+
+    # Группируем по мероприятиям
+    event_id_to_tasks = {}
+    for t in tasks:
+        event_id_to_tasks.setdefault(t.event_id, []).append(t)
+
+    # Отправляем по мероприятию название и кнопку показать задачи
+    from users.telegram_utils import get_event_url, create_event_hyperlink
+    for event_id, tlist in event_id_to_tasks.items():
+        try:
+            event_obj = await sync_to_async(Events_offline.objects.get)(id=event_id)
+        except Events_offline.DoesNotExist:
+            continue
+        event_url = await sync_to_async(get_event_url)(event_obj)
+        event_link = await sync_to_async(create_event_hyperlink)(event_obj.name, event_url)
+        text = f"📌 {event_link}"
+        kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=f"Показать задачи ({len(tlist)})", callback_data=f"mytasks_event_{event_id}")]])
+        await callback_query.message.answer(text, reply_markup=kb, parse_mode='HTML')
+
+    await callback_query.answer()
+
+@router.callback_query(F.data.startswith("mytasks_event_"))
+async def show_event_tasks(callback_query: types.CallbackQuery):
+    user = await get_user_profile(callback_query.from_user.id)
+    if not user:
+        await callback_query.answer("Вы не зарегистрированы на портале.", show_alert=True)
+        return
+    try:
+        _, _, event_id_str = callback_query.data.partition("mytasks_event_")
+        event_id = int(event_id_str)
+    except Exception:
+        await callback_query.answer("Некорректный запрос", show_alert=True)
+        return
+
+    from events_available.models import EventOfflineCheckList, Events_offline
+    tasks = await sync_to_async(list)(
+        EventOfflineCheckList.objects.filter(responsible=user, completed=False, event_id=event_id).select_related('task_name', 'event')
+    )
+    if not tasks:
+        await callback_query.answer("Задачи не найдены", show_alert=True)
+        return
+
+    # Сортировка по сроку (сначала ближайшие, без срока в конце)
+    tasks_sorted = sorted(tasks, key=lambda t: (t.planned_date is None, t.planned_date or date.max))
+
+    for t in tasks_sorted:
+        task_name = str(t.task_name) if t.task_name else 'Задача'
+        deadline = t.planned_date.strftime('%d.%m.%Y') if t.planned_date else 'не указан'
+        text = f"• {task_name}\nСрок: {deadline}"
+        await callback_query.message.answer(text)
+
+    await callback_query.answer()
 
 if __name__ == "__main__":
     setup_django_environment()
