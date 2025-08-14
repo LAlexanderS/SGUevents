@@ -197,3 +197,13 @@ class ExportParticipantsForm(forms.Form):
             self.fields['selected_users'].queryset = users
 
         return cleaned_data
+
+class ExportLogisticsForm(forms.Form):
+    event = forms.ModelChoiceField(queryset=Events_offline.objects.none(), label='Оффлайн мероприятие', required=True)
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user and not getattr(user, 'is_superuser', False):
+            self.fields['event'].queryset = Events_offline.objects.filter(events_admin=user)
+        else:
+            self.fields['event'].queryset = Events_offline.objects.all()
