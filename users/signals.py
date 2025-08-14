@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.dispatch import receiver
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
@@ -337,3 +337,77 @@ def assign_staff_view_permissions(sender, instance, created, **kwargs):
             logger.error(f'❌ Ошибка при выдаче прав пользователю {instance.username}: {e}')
     else:
         logger.info(f'Пользователь {instance.username} не подходит под условия (is_staff={instance.is_staff}, is_superuser={instance.is_superuser})')
+
+# ====== Автосоздание Registered при добавлении участника в админке (member m2m) ======
+
+def _notify_registered_user(user: User, event_obj, event_type: str, registered_obj: Registered):
+    try:
+        if not user.telegram_id:
+            return
+        from users.telegram_utils import get_event_url, create_event_hyperlink, send_message_to_user_with_toggle_button
+        event_url = get_event_url(event_obj)
+        event_hyperlink = create_event_hyperlink(event_obj.name, event_url)
+        message = f"✅ Вы зарегистрированы на мероприятие: {event_hyperlink}."
+        chat_url = None
+        if event_type in ('online', 'offline'):
+            try:
+                if getattr(event_obj, 'users_chat_id', None) and getattr(event_obj, 'users_chat_link', None):
+                    chat_url = event_obj.users_chat_link
+            except AttributeError:
+                chat_url = None
+        send_message_to_user_with_toggle_button = send_message_to_user_with_toggle_button  # noqa: F821
+        send_message_to_user_with_toggle_button(
+            user.telegram_id,
+            message,
+            registered_obj.id,
+            registered_obj.notifications_enabled,
+            chat_url=chat_url
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при отправке уведомления о регистрации пользователю {user.username}: {e}")
+
+
+def _ensure_registered(user_id: int, event_obj, event_type: str):
+    try:
+        user = User.objects.get(id=user_id)
+        created = False
+        reg = None
+        if event_type == 'online':
+            reg, created = Registered.objects.get_or_create(user=user, online=event_obj)
+        elif event_type == 'offline':
+            reg, created = Registered.objects.get_or_create(user=user, offline=event_obj)
+        elif event_type == 'attractions':
+            reg, created = Registered.objects.get_or_create(user=user, attractions=event_obj)
+        elif event_type == 'for_visiting':
+            reg, created = Registered.objects.get_or_create(user=user, for_visiting=event_obj)
+        if created:
+            _notify_registered_user(user, event_obj, event_type, reg)
+    except User.DoesNotExist:
+        pass
+    except Exception as e:
+        logger.error(f"Ошибка создания Registered: {e}")
+
+
+@receiver(m2m_changed, sender=Events_online.member.through)
+def sync_registered_on_online_member(sender, instance: Events_online, action, pk_set, **kwargs):
+    if action == 'post_add' and pk_set:
+        for user_id in pk_set:
+            _ensure_registered(user_id, instance, 'online')
+
+@receiver(m2m_changed, sender=Events_offline.member.through)
+def sync_registered_on_offline_member(sender, instance: Events_offline, action, pk_set, **kwargs):
+    if action == 'post_add' and pk_set:
+        for user_id in pk_set:
+            _ensure_registered(user_id, instance, 'offline')
+
+@receiver(m2m_changed, sender=Attractions.member.through)
+def sync_registered_on_attractions_member(sender, instance: Attractions, action, pk_set, **kwargs):
+    if action == 'post_add' and pk_set:
+        for user_id in pk_set:
+            _ensure_registered(user_id, instance, 'attractions')
+
+@receiver(m2m_changed, sender=Events_for_visiting.member.through)
+def sync_registered_on_visiting_member(sender, instance: Events_for_visiting, action, pk_set, **kwargs):
+    if action == 'post_add' and pk_set:
+        for user_id in pk_set:
+            _ensure_registered(user_id, instance, 'for_visiting')
