@@ -543,6 +543,54 @@ def telegram_login_callback(request):
     
     return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
 
+@login_required
+def get_logistics_for_event(request):
+    """
+    Возвращает сохранённую логистику текущего пользователя по выбранному оффлайн‑мероприятию.
+    GET-параметры: event_id
+    Ответ JSON: {exists: bool, fields...}
+    Дата/время в формате для input[type=datetime-local]: YYYY-MM-DDTHH:MM
+    """
+    if request.method != 'GET':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+
+    event_id = request.GET.get('event_id')
+    if not event_id:
+        return JsonResponse({'success': False, 'error': 'Не указан event_id'}, status=400)
+
+    try:
+        event = Events_offline.objects.get(pk=event_id)
+    except Events_offline.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Мероприятие не найдено'}, status=404)
+
+    logist = EventLogistics.objects.filter(user=request.user, event=event).first()
+    if not logist:
+        return JsonResponse({'exists': False})
+
+    tz = timezone.get_current_timezone()
+
+    def fmt_dt(dt):
+        if not dt:
+            return ''
+        aware = dt if timezone.is_aware(dt) else timezone.make_aware(dt, timezone.get_default_timezone())
+        local_dt = aware.astimezone(tz)
+        return local_dt.strftime('%Y-%m-%dT%H:%M')
+
+    data = {
+        'exists': True,
+        'arrival_datetime': fmt_dt(logist.arrival_datetime),
+        'arrival_flight_number': logist.arrival_flight_number or '',
+        'arrival_airport': logist.arrival_airport or '',
+        'departure_datetime': fmt_dt(logist.departure_datetime),
+        'departure_flight_number': logist.departure_flight_number or '',
+        'departure_airport': logist.departure_airport or '',
+        'transfer_needed': bool(logist.transfer_needed),
+        'hotel_details': logist.hotel_details or '',
+        'meeting_person': logist.meeting_person or '',
+    }
+
+    return JsonResponse(data)
+
 @csrf_exempt
 @login_required
 def event_support_request(request):
