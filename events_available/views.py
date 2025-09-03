@@ -243,6 +243,9 @@ def online_card(request, event_slug=False, event_id=False):
         ).aggregate(Avg('rating'))['rating__avg']
         reviews_avg[avg.id] = round(avg_rating, 1) if avg_rating else 0
 
+    related_events = event.get_related_events()
+
+
     context = {
         'event': event,
         'reviews': reviews, 
@@ -250,6 +253,7 @@ def online_card(request, event_slug=False, event_id=False):
         'favorites': favorites_dict,
         'now': now().date(),
         'reviews_avg': reviews_avg,
+        'related_events': related_events,
     }
     
     return render(request, 'events_available/card.html', context=context)
@@ -499,6 +503,8 @@ def offline_card(request, event_slug=False, event_id=False):
         ).aggregate(Avg('rating'))['rating__avg']
         reviews_avg[avg.id] = round(avg_rating, 1) if avg_rating else 0
 
+    related_events = event.get_related_events()
+
     context = {
         'event': event,
         'reviews': reviews, 
@@ -506,6 +512,7 @@ def offline_card(request, event_slug=False, event_id=False):
         'favorites': favorites_dict,
         'now': now().date(),
         'reviews_avg': reviews_avg,
+        'related_events': related_events,
     }
 
     return render(request, 'events_available/card.html', context=context)

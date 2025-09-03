@@ -43,7 +43,11 @@ class AttractionsGalleryInline(admin.TabularInline):
 @admin.register(Attractions)
 class AttractionsAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    filter_horizontal = ('secret','events_admin','member')
+    filter_horizontal = [
+        'member', 'events_admin', 'secret', 
+        'related_online_events', 'related_offline_events',
+        'related_attractions', 'related_events_for_visiting'
+    ]
     inlines = [AttractionsGalleryInline]
     list_display = ('name', 'date', 'average_rating_cached')
     readonly_fields = ('average_rating_cached',)
@@ -74,7 +78,11 @@ class Events_for_visitingGalleryInline(admin.TabularInline):
 @admin.register(Events_for_visiting)
 class Events_for_visitingAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    filter_horizontal = ('secret','events_admin', 'speakers', 'member')
+    filter_horizontal = [
+        'speakers', 'member', 'events_admin', 'secret', 
+        'related_online_events', 'related_offline_events',
+        'related_attractions', 'related_events_for_visiting'
+    ]
     inlines = [Events_for_visitingGalleryInline]
     list_display = ('name', 'date', 'average_rating_cached')
     readonly_fields = ('average_rating_cached',)

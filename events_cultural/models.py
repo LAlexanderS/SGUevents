@@ -44,6 +44,13 @@ class Attractions(models.Model):
     average_rating_cached = models.FloatField(default=0.0, verbose_name='Средний рейтинг', editable=False)
     support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
 
+    # Связанные мероприятия
+    related_online_events = models.ManyToManyField('events_available.Events_online', blank=True, related_name='related_to_attractions', verbose_name='Связанные онлайн мероприятия')
+    related_offline_events = models.ManyToManyField('events_available.Events_offline', blank=True, related_name='related_to_attractions', verbose_name='Связанные оффлайн мероприятия')
+    related_attractions = models.ManyToManyField('self', blank=True, related_name='related_to_attractions_self', verbose_name='Связанные достопримечательности')
+    related_events_for_visiting = models.ManyToManyField('Events_for_visiting', blank=True, related_name='related_to_attractions', verbose_name='Связанные мероприятия для посещения')
+
+
     class Meta:
         db_table = 'attractions'
         verbose_name = 'Достопримечательности'
@@ -77,6 +84,24 @@ class Attractions(models.Model):
         from .utils import sanitize_html
         return sanitize_html(self.description)
 
+    
+    def get_related_events(self):
+        related_events = []
+        
+        # Добавляем связанные онлайн мероприятия
+        related_events.extend(self.related_online_events.all())
+        
+        # Добавляем связанные оффлайн мероприятия
+        related_events.extend(self.related_offline_events.all())
+        
+        # Добавляем связанные достопримечательности
+        related_events.extend(self.related_attractions.all())
+        
+        # Добавляем связанные мероприятия для посещения
+        related_events.extend(self.related_events_for_visiting.all())
+        
+        return related_events
+
     def save(self, *args, **kwargs):
         self.clean()
 
@@ -94,6 +119,54 @@ class Attractions(models.Model):
         self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         super(Attractions, self).save(*args, **kwargs)
+
+
+# ====== Bidirectional sync for related fields of Attractions ======
+@receiver(m2m_changed, sender=Attractions.related_attractions.through)
+def sync_attractions_to_attractions(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    related_qs = Attractions.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_attractions.filter(pk=instance.pk).exists():
+            related.related_attractions.add(instance)
+
+@receiver(m2m_changed, sender=Attractions.related_online_events.through)
+def sync_attractions_to_online(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    from events_available.models import Events_online
+    related_qs = Events_online.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_attractions.filter(pk=instance.pk).exists():
+            related.related_attractions.add(instance)
+
+@receiver(m2m_changed, sender=Attractions.related_offline_events.through)
+def sync_attractions_to_offline(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    from events_available.models import Events_offline
+    related_qs = Events_offline.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_attractions.filter(pk=instance.pk).exists():
+            related.related_attractions.add(instance)
+
+@receiver(m2m_changed, sender=Attractions.related_events_for_visiting.through)
+def sync_attractions_to_visiting(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    related_qs = Events_for_visiting.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_attractions.filter(pk=instance.pk).exists():
+            related.related_attractions.add(instance)
 
 class AttractionsGallery(models.Model):
     event = models.ForeignKey('Attractions', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')
@@ -137,6 +210,11 @@ class Events_for_visiting(models.Model):
     average_rating_cached = models.FloatField(default=0.0, verbose_name='Средний рейтинг', editable=False)
     support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
 
+    # Связанные мероприятия
+    related_online_events = models.ManyToManyField('events_available.Events_online', blank=True, related_name='related_to_visiting', verbose_name='Связанные онлайн мероприятия')
+    related_offline_events = models.ManyToManyField('events_available.Events_offline', blank=True, related_name='related_to_visiting', verbose_name='Связанные оффлайн мероприятия')
+    related_attractions = models.ManyToManyField('Attractions', blank=True, related_name='related_to_visiting', verbose_name='Связанные достопримечательности')
+    related_events_for_visiting = models.ManyToManyField('self', blank=True, related_name='related_to_visiting_self', verbose_name='Связанные мероприятия для посещения')
 
     class Meta:
         db_table = 'Events_for_visiting'
@@ -179,6 +257,23 @@ class Events_for_visiting(models.Model):
     def safe_description(self):
         from .utils import sanitize_html
         return sanitize_html(self.description)
+
+    def get_related_events(self):
+        related_events = []
+        
+        # Добавляем связанные онлайн мероприятия
+        related_events.extend(self.related_online_events.all())
+        
+        # Добавляем связанные оффлайн мероприятия
+        related_events.extend(self.related_offline_events.all())
+        
+        # Добавляем связанные достопримечательности
+        related_events.extend(self.related_attractions.all())
+        
+        # Добавляем связанные мероприятия для посещения
+        related_events.extend(self.related_events_for_visiting.all())
+        
+        return related_events
         
     def save(self, *args, **kwargs):
         self.clean()
@@ -198,6 +293,53 @@ class Events_for_visiting(models.Model):
 
         super(Events_for_visiting, self).save(*args, **kwargs)
 
+
+# ====== Bidirectional sync for related fields of Events_for_visiting ======
+@receiver(m2m_changed, sender=Events_for_visiting.related_events_for_visiting.through)
+def sync_visiting_to_visiting(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    related_qs = Events_for_visiting.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_events_for_visiting.filter(pk=instance.pk).exists():
+            related.related_events_for_visiting.add(instance)
+
+@receiver(m2m_changed, sender=Events_for_visiting.related_online_events.through)
+def sync_visiting_to_online(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    from events_available.models import Events_online
+    related_qs = Events_online.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_events_for_visiting.filter(pk=instance.pk).exists():
+            related.related_events_for_visiting.add(instance)
+
+@receiver(m2m_changed, sender=Events_for_visiting.related_offline_events.through)
+def sync_visiting_to_offline(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    from events_available.models import Events_offline
+    related_qs = Events_offline.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_events_for_visiting.filter(pk=instance.pk).exists():
+            related.related_events_for_visiting.add(instance)
+
+@receiver(m2m_changed, sender=Events_for_visiting.related_attractions.through)
+def sync_visiting_to_attractions(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    related_qs = Attractions.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_events_for_visiting.filter(pk=instance.pk).exists():
+            related.related_events_for_visiting.add(instance)
 
 class Events_for_visitingGallery(models.Model):
     event = models.ForeignKey('Events_for_visiting', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')

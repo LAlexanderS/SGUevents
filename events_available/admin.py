@@ -83,7 +83,11 @@ class EventOnlineGalleryInline(admin.TabularInline):
 @admin.register(Events_online)
 class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')
+    filter_horizontal = [
+        'speakers', 'member', 'events_admin', 'secret', 
+        'related_online_events', 'related_offline_events',
+        'related_attractions', 'related_events_for_visiting'
+    ]
     inlines = [EventOnlineGalleryInline]
     list_display = ('name', 'date', 'average_rating_cached')
     readonly_fields = ('average_rating_cached',)
@@ -122,7 +126,11 @@ class EventOfflineGalleryInline(admin.TabularInline):
 @admin.register(Events_offline)
 class Events_offlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    filter_horizontal = ('secret', 'speakers', 'events_admin', 'member')  
+    filter_horizontal = [
+        'speakers', 'member', 'events_admin', 'secret', 
+        'related_online_events', 'related_offline_events',
+        'related_attractions', 'related_events_for_visiting'
+    ]  
     inlines = [EventOfflineGalleryInline, EventOfflineCheckListInline]
     list_display = ('name', 'date', 'average_rating_cached')
     readonly_fields = ('average_rating_cached', 'date_add')
@@ -157,3 +165,4 @@ class EventLogisticsAdmin(EventLogisticsRestrictedMixin, admin.ModelAdmin):
         'hotel_details'
     )
     autocomplete_fields = ['user', 'event']
+
