@@ -195,19 +195,70 @@
 @media (max-width: 768px) {
     .related-events-container {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        /* one card per row */
+        gap: 0.75rem;
+    }
+
+    /* Mobile: 1 card per row in fewer-than-4 mode as well */
+    .related-events-container.is-fewer-than-4 {
+        display: grid;
+        grid-template-columns: 1fr;
+        /* full width */
+        gap: 0.75rem;
+        justify-content: stretch;
+    }
+
+    /* Cards take full width on mobile */
+    .related-events-container.is-fewer-than-4 .related-event-card,
+    .related-events-container .related-event-card {
+        width: 100%;
+        max-width: 100%;
+        flex: initial;
+    }
+
+    /* Center single card section container (kept for safety) */
+    .related-events-container.is-fewer-than-4:has(.related-event-card:only-child) {
+        grid-template-columns: 1fr;
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .related-event-content {
-        padding: 1rem;
+        padding: 0.75rem;
     }
 
     .related-event-title {
-        font-size: 1rem;
+        font-size: 0.85rem;
+        min-height: calc(1.3em * 2);
+    }
+
+    .related-event-meta {
+        gap: 0.4rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .event-category {
+        font-size: 0.68rem;
+        padding: 0.15rem 0.45rem;
+    }
+
+    .event-date {
+        font-size: 0.78rem;
+    }
+
+    .related-event-description {
+        font-size: 0.75rem;
+        min-height: calc(1.4em * 2);
     }
 
     .related-events-title {
-        font-size: 1.3rem;
+        font-size: 1.15rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .related-event-image {
+        height: 140px;
     }
 }
 

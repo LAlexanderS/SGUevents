@@ -1041,7 +1041,7 @@ td {
 }
 
 .main-buttons {
-    margin-bottom: 100px;
+    margin-bottom: 50px;
 }
 
 .blocks,
@@ -1060,7 +1060,7 @@ td {
     justify-content: space-around;
     text-align: center;
     margin-top: 50px;
-    margin-bottom: 150px;
+    margin-bottom: 50px;
 }
 
 
@@ -3641,6 +3641,10 @@ td {
         z-index: 2;
     }
 
+    .half-stars input:checked~label svg {
+        fill: #BFE2FF;
+    }
+
     .admin-connect {
         text-indent: 0;
     }
@@ -3682,7 +3686,6 @@ td {
 
     .selection {
         width: fit-content;
-
     }
 
     .filter-message {
@@ -3739,7 +3742,7 @@ td {
     }
 
     .mob-row {
-        width: 100vw;
+        width: 100%;
     }
 
     .preview-event-id {
@@ -4030,7 +4033,7 @@ td {
     }
 
     .main-buttons {
-        margin-bottom: 100px;
+        margin-bottom: 50px;
         width: 80%;
         padding-left: 25px;
     }

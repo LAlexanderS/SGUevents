@@ -263,7 +263,9 @@ h1 {
     min-height: 60px !important;
 }
 
-
+.mob-row {
+    margin: 0px 0px 20px 0px;
+}
 
 
 

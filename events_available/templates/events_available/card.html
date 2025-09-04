@@ -72,9 +72,7 @@
 	<!-- Связанные мероприятия -->
 	{% if event.get_related_events %}
 		<div class="row mt-4">
-			<div class="col-1"></div>
-			
-			<div class="col-10">
+			<div class="col-12 col-md-10 offset-md-1">
 				<h4 class="related-events-title">Связанные мероприятия</h4>
 				<div class="related-events-container {% if event.get_related_events|length < 4 %}is-fewer-than-4{% endif %}">
 					{% for related_event in event.get_related_events %}
