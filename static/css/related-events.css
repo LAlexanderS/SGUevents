@@ -4,17 +4,39 @@
     font-weight: 600;
     margin-bottom: 1.5rem;
     text-align: center;
-    border-bottom: 2px solid #007bff;
+    border-bottom: 2px solid rgb(39, 66, 106);
     padding-bottom: 0.5rem;
 }
 
+/* Cards container: revert back to grid with centered container */
 .related-events-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1.5rem;
     margin-top: 1rem;
+    max-width: calc(4 * 260px + 3 * 1.5rem);
+    margin-left: auto;
+    margin-right: auto;
+    justify-items: stretch;
+    /* default: fill from left */
 }
 
+/* Center the entire grid row when items fewer than 4 */
+.related-events-container.is-fewer-than-4 {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+/* Limit width of single cards to prevent over-stretching */
+.related-events-container.is-fewer-than-4 .related-event-card {
+    max-width: 400px;
+    flex: 0 0 auto;
+    width: 300px;
+}
+
+/* Remove flex-based sizing from cards (grid handles sizing) */
 .related-event-card {
     background: #fff;
     border-radius: 12px;
@@ -23,6 +45,15 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid #e9ecef;
 }
+
+/* Stretch a bit on very wide screens */
+/* @media (min-width: 1400px) {
+    .related-events-container {
+        grid-template-columns: repeat(4, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: calc(4 * 340px + 3 * 2rem);
+    }
+} */
 
 .related-event-card:hover {
     transform: translateY(-5px);
@@ -59,13 +90,23 @@
 
 .related-event-content {
     padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
+/* Title: keep height stable across cards */
 .related-event-title {
-    margin-bottom: 1rem;
+    margin-bottom: 0.25rem;
     font-size: 1.1rem;
     font-weight: 600;
     line-height: 1.4;
+    min-height: calc(1.4em * 2);
+    /* reserve space for two lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .related-event-title a {
@@ -78,19 +119,28 @@
     color: #007bff;
 }
 
+/* Meta row: keep on a single row, let category shrink with ellipsis */
 .related-event-meta {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+    flex-wrap: nowrap;
 }
 
 .event-category {
-    padding: 0.25rem 0.75rem;
+    padding: 0.25rem 0.65rem;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 500;
     text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 66%;
+    flex: 1 1 auto;
+    text-align: center;
 }
 
 .event-category.онлайн {
@@ -103,17 +153,42 @@
     color: #7b1fa2;
 }
 
+/* Cultural categories */
+.event-category.достопримечательности {
+    background-color: #fff8d3;
+    /* warm light orange */
+    color: #C2410C;
+    /* deep orange text */
+}
+
+/* Note: category has spaces -> multiple classes: доступные к посещению
+   Use a combined selector to match all three classes on the badge */
+.event-category.доступные.к.посещению {
+    background-color: #E6F4EA;
+    /* soft green */
+    color: #1B5E20;
+    /* dark green text */
+}
+
 .event-date {
     color: #666;
     font-size: 0.9rem;
     font-weight: 500;
+    white-space: nowrap;
+    flex: 0 0 auto;
 }
 
+/* Description: clamp lines to keep heights consistent */
 .related-event-description {
     color: #666;
     font-size: 0.9rem;
     line-height: 1.5;
     margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(1.5em * 2);
 }
 
 /* Адаптивность для мобильных устройств */
@@ -122,16 +197,24 @@
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
     .related-event-content {
         padding: 1rem;
     }
-    
+
     .related-event-title {
         font-size: 1rem;
     }
-    
+
     .related-events-title {
         font-size: 1.3rem;
+    }
+}
+
+/* A bit smaller font for long cultural category names on narrow screens */
+@media (max-width: 576px) {
+    .event-category {
+        font-size: 0.75rem;
+        max-width: 60%;
     }
 }

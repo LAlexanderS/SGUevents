@@ -86,11 +86,15 @@
 </div>
 
 <!-- Связанные мероприятия -->
+
+{% endblock content %}
+
+{% block related_events %}
 {% if event.get_related_events %}
 <div class="row mt-4">
 	<div class="col-12">
 		<h4 class="related-events-title">Связанные мероприятия</h4>
-		<div class="related-events-container">
+		<div class="related-events-container {% if event.get_related_events|length < 4 %}is-fewer-than-4{% endif %}">
 			{% for related_event in event.get_related_events %}
 			<div class="related-event-card">
 				<div class="related-event-image">
@@ -110,8 +114,8 @@
 						</a>
 					</h5>
 					<div class="related-event-meta">
-						<span class="event-category {{ related_event.category|lower }}">{{
-							related_event.category}}</span>
+						<span
+							class="event-category {{ related_event.category|lower }}">{{related_event.category}}</span>
 						<span class="event-date">{{ related_event.formatted_date_range }}</span>
 					</div>
 					{% if related_event.description|length > 100 %}
@@ -126,7 +130,8 @@
 	</div>
 </div>
 {% endif %}
-{% endblock content %}
+{% endblock related_events %}
+
 
 {% block content_card %}
 {% if event.category == "Доступные к посещению" %}
