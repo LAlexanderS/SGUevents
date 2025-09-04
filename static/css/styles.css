@@ -3459,6 +3459,7 @@ td {
         width: 315px;
         padding-inline: 2px;
         text-indent: 0;
+        margin: 20px 0px 0px 0px;
     }
 
     .main-button {
@@ -3854,7 +3855,6 @@ td {
     }
 
     .main-buttons {
-        margin-left: 0px;
         width: 70%;
     }
 
@@ -4033,9 +4033,7 @@ td {
     }
 
     .main-buttons {
-        margin-bottom: 50px;
         width: 80%;
-        padding-left: 25px;
     }
 
     .review-container .prev-reviews,
