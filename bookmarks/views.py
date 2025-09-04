@@ -420,6 +420,11 @@ def get_event_choices(request):
     return JsonResponse(event_data, safe=False)
 
 @staff_member_required
+def reports(request):
+    return render(request, 'bookmarks/reports_page.html')
+
+
+@staff_member_required
 def send_message_to_participants(request):
     if not (request.user.is_superuser or request.user.is_staff):
         messages.error(request, "У вас нет прав для отправки сообщений.")

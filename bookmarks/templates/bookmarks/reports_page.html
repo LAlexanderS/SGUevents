@@ -1,0 +1,146 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отправка сообщения</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+
+    <script src="{% static 'lib/js/popper.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <style>
+        .text-lines label {
+            font-size: 18px;
+        }
+
+        .send-message:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+    </style>
+</head>
+<body style="background-image: url({% static 'images/background.jpg' %});">
+    <header>
+        <nav class="navbar navbar-expand-lg bg-dark text-white">
+            <div class="container-fluid">
+                <a class="navbar-brand" href={% url "main:index" %}><img class="home-icon" src="{% static 'icons/home.png' %}" alt="Home" width="25" height="25"></a> 
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Доступные мероприятия
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href={% url "events_available:online" %}>
+                                    Онлайн мероприятия</a></li>
+                                <li><a class="dropdown-item" href={% url "events_available:offline" %}>
+                                    Оффлайн мероприятия</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Культурные мероприятия
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href={% url "events_cultural:attractions" %}>Достопримечательности</a></li>
+
+                                <li><a class="dropdown-item" href={% url "events_cultural:events_for_visiting" %}>Доступные к посещению</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white calendar" aria-current="page" href={% url "events_calendar:index" %}>Календарь мероприятий</a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false"> Мой профиль </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item text-black" href="{% url 'users:profile' %}">Личный
+                                        кабинет</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-black" href={% url "bookmarks:registered" %}>Зарегистрированные</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-black" href="{% url 'bookmarks:favorites' %}">Избранные</a>
+                                </li>
+
+                                {% if user.is_staff %}
+                                    {% if user.is_admin or user.is_superuser %}
+                                        <li>
+                                            <a class="dropdown-item text-black" href="{% url 'admin:index' %}">Админ панель</a>
+                                        </li>
+                                    {% endif %}
+                                <li>
+                                    <a class="dropdown-item text-black" href="{% url 'personal:personal' %}">Кабинет администратора</a>
+                                </li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'users:logout' %}">Выйти</a>
+                                </li>
+                            </ul>
+                        </li>
+
+
+                    </ul>
+                    <form class="d-flex" role="search" action="{% if name_page == 'Онлайн' %}{% url "events_available:search_online" %}{% elif name_page == 'Оффлайн' %}{% url "events_available:search_offline" %}{% elif name_page == 'Доступные к посещению' %}{% url "events_cultural:search_events_for_visiting" %}{% elif name_page == 'Достопримечательности' %}{% url "events_cultural:search_attractions" %}{% elif name_page == 'Все мероприятия' %}{% url "main:search_all" %}{% endif %}" method="get">
+                        <input class="form-control search me-2 " type="search" name="q" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">
+                            <img src="{% static "icons/search.png" %}" alt="S" style="height: 20px; width: 20px;" margin-top: 0;> 
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Контейнер календаря -->
+    <section>
+        <div class="container mt-5">
+            <h1>Страница формирования отчётов</h1>
+            <div class="mb-3">
+                <a href="{% url 'bookmarks:export_participants' %}" class="btn btn-outline-light">Сформировать заявку на проход (Word)</a>
+                <a href="{% url 'bookmarks:export_logistics' %}" class="btn btn-outline-light ms-2">Выгрузить логистику (Excel)</a>
+            </div>
+            
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        </div>
+    </section>
+    
+    <script src="{% static "js/jquery.min.js" %}"></script>
+    <script src="{% static "js/moment.min.js" %}"></script>
+
+
+</body>
+</html>
+
+
+
+
+
+

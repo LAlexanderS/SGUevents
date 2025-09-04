@@ -27,4 +27,6 @@ urlpatterns = [
 	path('get_event_participants/', views.get_event_participants, name='get_event_participants'),
 	path('export_participants/', views.export_participants, name='export_participants'),
 	path('export_logistics/', views.export_logistics, name='export_logistics'),
+	path('reports/', views.reports, name='reports'),
+
 ]

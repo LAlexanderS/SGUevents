@@ -73,9 +73,7 @@
 <section>
     <div class="container mt-5">
         <h1>Сформировать заявку на проход</h1>
-        <div class="mb-3">
-            <a href="{% url 'bookmarks:send_message_to_participants' %}" class="btn btn-outline-light">Перейти к рассылке</a>
-        </div>
+
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
