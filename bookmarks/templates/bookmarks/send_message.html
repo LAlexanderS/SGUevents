@@ -8,6 +8,7 @@
     <title>Отправка сообщения</title>
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/send_message_and_reported.css' %}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,17 +16,6 @@
 
     <script src="{% static 'lib/js/popper.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-
-    <style>
-        .text-lines label {
-            font-size: 18px;
-        }
-
-        .send-message:hover {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-        }
-    </style>
 </head>
 <body style="background-image: url({% static 'images/background.jpg' %});">
     <header>
@@ -114,10 +104,6 @@
     <section>
             <div class="container mt-5">
         <h1>Отправка сообщения участникам</h1>
-        <div class="mb-3">
-            <a href="{% url 'bookmarks:export_participants' %}" class="btn btn-outline-light">Сформировать заявку на проход (Word)</a>
-            <a href="{% url 'bookmarks:export_logistics' %}" class="btn btn-outline-light ms-2">Выгрузить логистику (Excel)</a>
-        </div>
         
         {% if messages %}
             <div class="messages">

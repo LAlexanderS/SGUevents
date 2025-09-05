@@ -8,6 +8,7 @@
     <title>Отправка сообщения</title>
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/send_message_and_reported.css' %}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,14 +18,7 @@
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 
     <style>
-        .text-lines label {
-            font-size: 18px;
-        }
 
-        .send-message:hover {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-        }
     </style>
 </head>
 <body style="background-image: url({% static 'images/background.jpg' %});">
@@ -110,14 +104,10 @@
         </nav>
     </header>
 
-    <!-- Контейнер календаря -->
+    <!-- Контейнер отчетов -->
     <section>
         <div class="container mt-5">
             <h1>Страница формирования отчётов</h1>
-            <div class="mb-3">
-                <a href="{% url 'bookmarks:export_participants' %}" class="btn btn-outline-light">Сформировать заявку на проход (Word)</a>
-                <a href="{% url 'bookmarks:export_logistics' %}" class="btn btn-outline-light ms-2">Выгрузить логистику (Excel)</a>
-            </div>
             
             {% if messages %}
                 <div class="messages">
@@ -129,12 +119,200 @@
                 </div>
             {% endif %}
 
+            <!-- Кнопки для переключения между формами -->
+            <div class="mb-4">
+                <button type="button" class="btn btn-outline-light me-2" id="participants-btn" onclick="showForm('participants')">Сформировать заявку на проход</button>
+                <button type="button" class="btn btn-outline-light" id="logistics-btn" onclick="showForm('logistics')">Выгрузить логистику</button>
+            </div>
+
+            <!-- Форма экспорта участников -->
+            <div id="participants-form" class="form-container" style="display: none;">
+                <div class="card p-4">
+                    <h3>Экспорт участников в заявку Word</h3>
+                    <form method="post" id="exportParticipantsForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="export_participants">
+                        
+                        <div class="form-group mb-3">
+                            <span class="text-lines">{{ export_participants_form.event_type.label_tag }}</span>
+                            <select name="event_type" id="id_event_type_participants" class="form-control">
+                                {% for value, text in export_participants_form.event_type.field.choices %}
+                                    <option value="{{ value }}" {% if value == export_participants_form.event_type.initial %}selected{% endif %}>{{ text }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <span class="text-lines">{{ export_participants_form.event.label_tag }}</span>
+                            <select name="event" id="id_event_participants" class="form-control">
+                                <option value="">---------</option>
+                                {% for event in export_participants_form.event.field.queryset %}
+                                    <option value="{{ event.id }}">{{ event.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                {{ export_participants_form.export_all }}
+                                {{ export_participants_form.export_all.label_tag }}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3" id="userSelectGroupParticipants" style="display: none;">
+                            <span class="text-lines">{{ export_participants_form.selected_users.label_tag }}</span>
+                            {{ export_participants_form.selected_users }}
+                        </div>
+                        
+                        <button type="submit" class="btn send-message">Скачать заявку (DOCX)</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Форма экспорта логистики -->
+            <div id="logistics-form" class="form-container" style="display: none;">
+                <div class="card p-4">
+                    <h3>Экспорт логистики в Excel</h3>
+                    <form method="post" id="exportLogisticsForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="export_logistics">
+                        
+                        <div class="form-group mb-3">
+                            <span class="text-lines">{{ export_logistics_form.event.label_tag }}</span>
+                            {{ export_logistics_form.event }}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <span class="form-text">Участников: <strong id="participants-count">{{ participants_count }}</strong></span>
+                        </div>
+                        
+                        <button type="submit" class="btn send-message">Скачать Excel</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </section>
     
     <script src="{% static "js/jquery.min.js" %}"></script>
     <script src="{% static "js/moment.min.js" %}"></script>
 
+    <script>
+        // Функция для переключения между формами
+        function showForm(formType) {
+            // Скрываем все формы
+            document.getElementById('participants-form').style.display = 'none';
+            document.getElementById('logistics-form').style.display = 'none';
+            
+            // Убираем активный класс со всех кнопок
+            document.getElementById('participants-btn').classList.remove('active');
+            document.getElementById('logistics-btn').classList.remove('active');
+            
+            // Показываем выбранную форму и активируем кнопку
+            if (formType === 'participants') {
+                document.getElementById('participants-form').style.display = 'block';
+                document.getElementById('participants-btn').classList.add('active');
+            } else if (formType === 'logistics') {
+                document.getElementById('logistics-form').style.display = 'block';
+                document.getElementById('logistics-btn').classList.add('active');
+            }
+        }
+
+        // Показываем первую форму по умолчанию
+        document.addEventListener('DOMContentLoaded', function() {
+            showForm('participants');
+        });
+
+        // Обработка формы экспорта участников
+        document.addEventListener('DOMContentLoaded', function() {
+            const exportAllCheckbox = document.getElementById('id_export_all');
+            const userSelectGroup = document.getElementById('userSelectGroupParticipants');
+            const eventSelect = document.getElementById('id_event_participants');
+            const eventTypeSelect = document.getElementById('id_event_type_participants');
+            const selectedUsersSelect = document.getElementById('id_selected_users');
+
+            function loadEventsByType(eventType) {
+                fetch(`/bookmarks/get-event-choices/?event_type=${eventType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        eventSelect.innerHTML = '<option value="">---------</option>';
+                        data.forEach(event => {
+                            const option = new Option(event.name, event.id);
+                            eventSelect.add(option);
+                        });
+                    })
+                    .catch(error => console.error('Ошибка загрузки мероприятий:', error));
+            }
+
+            function updateUsersList() {
+                if (eventSelect.value) {
+                    fetch(`/bookmarks/get_event_participants/?event_id=${eventSelect.value}&event_type=${eventTypeSelect.value}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            selectedUsersSelect.innerHTML = '';
+                            data.forEach(user => {
+                                const option = new Option(user.name, user.id);
+                                selectedUsersSelect.add(option);
+                            });
+                        });
+                }
+            }
+
+            if (exportAllCheckbox) {
+                exportAllCheckbox.addEventListener('change', function() {
+                    userSelectGroup.style.display = this.checked ? 'none' : 'block';
+                    selectedUsersSelect.style.display = this.checked ? 'none' : 'block';
+                });
+            }
+
+            if (eventSelect) {
+                eventSelect.addEventListener('change', updateUsersList);
+            }
+
+            if (eventTypeSelect) {
+                eventTypeSelect.addEventListener('change', function() {
+                    eventSelect.value = '';
+                    selectedUsersSelect.innerHTML = '';
+                    loadEventsByType(eventTypeSelect.value);
+                });
+            }
+
+            if (exportAllCheckbox && !exportAllCheckbox.checked) {
+                userSelectGroup.style.display = 'block';
+                selectedUsersSelect.style.display = 'block';
+            }
+
+            const defaultEventType = eventTypeSelect ? eventTypeSelect.value || 'online' : 'online';
+            loadEventsByType(defaultEventType);
+        });
+
+        // Обработка формы экспорта логистики
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('id_event_logistics');
+            const counter = document.getElementById('participants-count');
+            
+            function updateCount() {
+                const val = select.value;
+                if (!val) { 
+                    counter.textContent = '0'; 
+                    return; 
+                }
+                fetch(`/bookmarks/get_event_participants/?event_id=${val}&event_type=offline`)
+                    .then(r => r.json())
+                    .then(data => { 
+                        counter.textContent = Array.isArray(data) ? data.length : 0; 
+                    })
+                    .catch(() => { 
+                        counter.textContent = '0'; 
+                    });
+            }
+            
+            if (select) {
+                select.addEventListener('change', updateCount);
+                updateCount();
+            }
+        });
+    </script>
 
 </body>
 </html>

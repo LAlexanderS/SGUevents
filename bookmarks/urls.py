@@ -25,8 +25,6 @@ urlpatterns = [
 	path('submit_review/<int:event_id>/', views.submit_review, name='submit_review'),
 	path('send_message/', views.send_message_to_participants, name='send_message_to_participants'),
 	path('get_event_participants/', views.get_event_participants, name='get_event_participants'),
-	path('export_participants/', views.export_participants, name='export_participants'),
-	path('export_logistics/', views.export_logistics, name='export_logistics'),
 	path('reports/', views.reports, name='reports'),
 
 ]
