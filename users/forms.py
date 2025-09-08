@@ -109,13 +109,32 @@ class EventLogisticsForm(forms.ModelForm):
         label="Оффлайн‑мероприятие"
     )
 
+    # Явно задаём поля даты/времени с HTML5‑виджетом datetime-local (с выбором времени)
+    arrival_datetime = forms.DateTimeField(
+        required=False,
+        label="Дата и время прибытия",
+        widget=forms.DateTimeInput(attrs={
+            "type": "datetime-local",
+            "step": "60",
+            "placeholder": "ГГГГ‑ММ‑ДД ЧЧ:ММ"
+        }),
+        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M"]
+    )
+    departure_datetime = forms.DateTimeField(
+        required=False,
+        label="Дата и время убытия",
+        widget=forms.DateTimeInput(attrs={
+            "type": "datetime-local",
+            "step": "60",
+            "placeholder": "ГГГГ‑ММ‑ДД ЧЧ:ММ"
+        }),
+        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M"]
+    )
+
     class Meta:
         model = EventLogistics
         exclude = ("user",)  # user НЕ в форме — выставим во вьюхе
         widgets = {
-            # HTML5 datetime‑local: удобно для ручного ввода
-            "arrival_datetime":   forms.DateTimeInput(attrs={"type": "datetime-local"}),
-            "departure_datetime": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "hotel_details":      forms.Textarea(attrs={"rows": 3}),
             "meeting_person":     forms.Textarea(attrs={"rows": 2}),
         }

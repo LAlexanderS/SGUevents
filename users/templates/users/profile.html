@@ -223,7 +223,7 @@
                                                     <td><label for="groups" class="groups">Группы</label></td>
                                                     <td><label for="" class="group-info">
                                                         {% for group in user.groups.all %}
-                                                            {{ group.name }}
+                                                            {{ group.name }}<br>
                                                         {% empty %}
                                                             Нет
                                                         {% endfor %}
@@ -320,7 +320,7 @@
 
                                     <!-- Модальное окно -->
                                     <div class="modal fade" id="logisticsModal" tabindex="-1" aria-labelledby="logisticsModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
                                         <div class="modal-content">
                                         <form method="post" class="needs-validation" novalidate>
                                             {% csrf_token %}
@@ -343,21 +343,21 @@
                                                 </div>
 
                                                 <!-- Левая колонка - Информация о прибытии -->
-                                                <div class="col-md-6">
-                                                    <div class="border rounded p-3 h-100">
-                                                        <h6 class="mb-3 text-primary">Информация о прибытии</h6>
+                                                <div class="col-md-6 info-block">
+                                                    <div class="border rounded p-lg-3 p-2 h-100">
+                                                        <h6 class="mb-lg-3 mb-1 text-primary">Информация о прибытии</h6>
                                                         
-                                                        <div class="mb-3">
+                                                        <div class="mb-lg-3 mb-1">
                                                             <label class="form-label">Дата и время прибытия</label>
                                                             {{ logistics_form.arrival_datetime }}
                                                         </div>
                                                         
-                                                        <div class="mb-3">
+                                                        <div class="mb-lg-3 mb-1">
                                                             <label class="form-label">Рейс прибытия</label>
                                                             {{ logistics_form.arrival_flight_number }}
                                                         </div>
                                                         
-                                                        <div class="mb-3">
+                                                        <div class="mb-lg-3 mb-1">
                                                             <label class="form-label">Место прибытия</label>
                                                             {{ logistics_form.arrival_airport }}
                                                         </div>
@@ -365,11 +365,11 @@
                                                 </div>
 
                                                 <!-- Правая колонка - Информация об убытии -->
-                                                <div class="col-md-6">
-                                                    <div class="border rounded p-3 h-100">
-                                                        <h6 class="mb-3 text-success">Информация об убытии</h6>
+                                                <div class="col-md-6 info-block">
+                                                    <div class="border rounded p-lg-3 p-2 h-100">
+                                                        <h6 class="mb-lg-3 mb-1 text-success">Информация об убытии</h6>
                                                         
-                                                        <div class="mb-3">
+                                                        <div class="mb-lg-3 mb-1">
                                                             <label class="form-label">Дата и время убытия</label>
                                                             {{ logistics_form.departure_datetime }}
                                                             {% if logistics_form.departure_datetime.errors %}
@@ -377,12 +377,12 @@
                                                             {% endif %}
                                                         </div>
                                                         
-                                                        <div class="mb-3">
+                                                        <div class="mb-lg-3 mb-1">
                                                             <label class="form-label">Рейс убытия</label>
                                                             {{ logistics_form.departure_flight_number }}
                                                         </div>
                                                         
-                                                        <div class="mb-3">
+                                                        <div class="mb-lg-3 mb-1">
                                                             <label class="form-label">Место убытия</label>
                                                             {{ logistics_form.departure_airport }}
                                                         </div>
@@ -390,24 +390,24 @@
                                                 </div>
 
                                                 <!-- Общие поля -->
-                                                <div class="col-12">
-                                                    <div class="border rounded p-3">
-                                                        <h6 class="mb-3 text-info">Дополнительная информация</h6>
+                                                <div class="col-12 info-block">
+                                                    <div class="border rounded p-lg-3 p-2">
+                                                        <h6 class="mb-lg-3 mb-1 text-info">Дополнительная информация</h6>
                                                         
                                                         <div class="row g-3">
-                                                            <div class="col-12">
+                                                            <div class="col-12 mt-2">
                                                                 <div class="form-check">
                                                                     {{ logistics_form.transfer_needed }}
                                                                     <label class="form-check-label">Нужен трансфер</label>
                                                                 </div>
                                                             </div>
                                                             
-                                                            <div class="col-12">
+                                                            <div class="col-12 mt-1">
                                                                 <label class="form-label">Гостиница проживания</label>
                                                                 {{ logistics_form.hotel_details }}
                                                             </div>
                                                             
-                                                            <div class="col-12">
+                                                            <div class="col-12 mt-1">
                                                                 <label class="form-label">Встречающий</label>
                                                                 {{ logistics_form.meeting_person }}
                                                             </div>
@@ -441,7 +441,7 @@
                                         
                                         <!-- Модальное окно смены пароля -->
                                         <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
+                                        <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content" style="background:#1b1f2a; border:1px solid #2b3244;">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="passwordModalLabel">Сменить пароль</h5>
