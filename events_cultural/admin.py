@@ -56,7 +56,7 @@ class AttractionsAdmin(RestrictedAdminMixin, admin.ModelAdmin):
     def get_exclude(self, request, obj = None):
         if request.user.is_superuser:
             return []
-        return ['category']
+        return ['category', 'date', 'date_end', 'time_start', 'time_end']
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)

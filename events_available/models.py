@@ -91,8 +91,9 @@ class Events_online(models.Model):
             if self.date > self.date_end:
                 raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
             elif self.date == self.date_end:
-                if self.time_start > self.time_end:
-                    raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+                if self.time_start and self.time_end:
+                    if self.time_start > self.time_end:
+                        raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
         else:
             raise ValidationError({'date': 'Проверьте корректность заполнения данных'})            
             
@@ -103,12 +104,18 @@ class Events_online(models.Model):
         return f'{self.id:05}'
     
     def formatted_date_range(self):
-        if self.date_end and self.date != self.date_end:
-            start_str = self.date.strftime('%d.%m')
-            end_str = self.date_end.strftime('%d.%m')
-            return f'{start_str}-{end_str}'
-        else:
+        if self.date and self.date_end: 
+            if self.date != self.date_end:
+                start_str = self.date.strftime('%d.%m')
+                end_str = self.date_end.strftime('%d.%m')
+                return f'{start_str}-{end_str}'
+            else:
+                return self.date.strftime('%d.%m.%Y')
+        elif self.date and not self.date_end:
             return self.date.strftime('%d.%m.%Y')
+        else:
+            return f''
+            
         
     def safe_description(self):
         from .utils import sanitize_html
@@ -145,9 +152,9 @@ class Events_online(models.Model):
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
         self.start_datetime = make_aware(combined_start_datetime, timezone=get_default_timezone())
-
-        combined_end_datetime = datetime.combine(self.date, self.time_end)
-        self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
+        if self.date and self.time_end:
+            combined_end_datetime = datetime.combine(self.date, self.time_end)
+            self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         # Сначала сохраняем мероприятие (нужно для того, чтобы иметь ID объекта)
         super().save(*args, **kwargs)

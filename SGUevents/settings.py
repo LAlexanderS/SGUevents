@@ -204,6 +204,12 @@ USE_I18N = True
 USE_TZ = True
 
 DATE_INPUT_FORMATS = ['%d/%m/%Y', '%d.%m.%Y', '%Y-%m-%d']
+TIME_INPUT_FORMATS = ['%H:%M', '%H:%M:%S']
+DATETIME_INPUT_FORMATS = [
+    '%Y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S',
+    '%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S',
+    '%d.%m.%Y %H:%M', '%d.%m.%Y %H:%M:%S',
+]
 
 LOGIN_URL = 'users:login'
 

@@ -18,9 +18,9 @@ class Attractions(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name='Уникальный ID')
     name = models.CharField(max_length=150, blank=False, verbose_name='Название')
     slug = models.SlugField(max_length=200, unique=True, blank=False, verbose_name='URL')
-    date = models.DateField(max_length=10, blank=False, verbose_name='Дата')
-    date_end = models.DateField(max_length=10, unique=False, blank=False, null=False, verbose_name='Дата окончания')
-    time_start = models.TimeField(blank=False, null=False, verbose_name='Время начала')
+    date = models.DateField(max_length=10, null=True, blank=True, verbose_name='Дата')
+    date_end = models.DateField(max_length=10, unique=False, blank=True, null=True, verbose_name='Дата окончания')
+    time_start = models.TimeField(blank=True, null=True, verbose_name='Время начала')
     time_end = models.TimeField(blank=True, null=True, verbose_name='Время окончания')
     description = models.TextField(blank=False, null=False, verbose_name='Описание')
     link = models.URLField(blank=False, verbose_name='Ссылка на достопримечательность')
@@ -47,7 +47,7 @@ class Attractions(models.Model):
     # Связанные мероприятия
     related_online_events = models.ManyToManyField('events_available.Events_online', blank=True, related_name='related_to_attractions', verbose_name='Связанные онлайн мероприятия')
     related_offline_events = models.ManyToManyField('events_available.Events_offline', blank=True, related_name='related_to_attractions', verbose_name='Связанные оффлайн мероприятия')
-    related_attractions = models.ManyToManyField('self', blank=True, related_name='related_to_attractions_self', verbose_name='Связанные достопримечательности')
+    related_attractions = models.ManyToManyField('Attractions', blank=True, related_name='related_to_attractions_self', verbose_name='Связанные достопримечательности')
     related_events_for_visiting = models.ManyToManyField('Events_for_visiting', blank=True, related_name='related_to_attractions', verbose_name='Связанные мероприятия для посещения')
 
 
@@ -63,8 +63,8 @@ class Attractions(models.Model):
             elif self.date == self.date_end:
                 if self.time_start > self.time_end:
                     raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
-        else:
-            raise ValidationError({'date': 'Проверьте корректность заполнения данных', 'date': ''})
+        # else:
+        #     raise ValidationError({'date': 'Проверьте корректность заполнения данных', 'date': ''})
                 
     def __str__(self):
         return self.name
@@ -73,12 +73,17 @@ class Attractions(models.Model):
         return f'{self.id:05}'
     
     def formatted_date_range(self):
-        if self.date_end and self.date != self.date_end:
-            start_str = self.date.strftime('%d.%m')
-            end_str = self.date_end.strftime('%d.%m')
-            return f'{start_str} - {end_str}'
-        else:
+        if self.date and self.date_end: 
+            if self.date != self.date_end:
+                start_str = self.date.strftime('%d.%m')
+                end_str = self.date_end.strftime('%d.%m')
+                return f'{start_str}-{end_str}'
+            else:
+                return self.date.strftime('%d.%m.%Y')
+        elif self.date and not self.date_end:
             return self.date.strftime('%d.%m.%Y')
+        else:
+            return
         
     def safe_description(self):
         from .utils import sanitize_html
@@ -112,11 +117,12 @@ class Attractions(models.Model):
             self.slug = f'att-{slugify(self.slug)}'
 
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
-        combined_start_datetime = datetime.combine(self.date, self.time_start)
-        self.start_datetime = make_aware(combined_start_datetime, timezone=get_default_timezone())
+        if self.date and self.time_start:
+            combined_start_datetime = datetime.combine(self.date, self.time_start)
+            self.start_datetime = make_aware(combined_start_datetime, timezone=get_default_timezone())
 
-        combined_end_datetime = datetime.combine(self.date, self.time_end)
-        self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
+            combined_end_datetime = datetime.combine(self.date, self.time_end)
+            self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         super(Attractions, self).save(*args, **kwargs)
 
@@ -214,7 +220,7 @@ class Events_for_visiting(models.Model):
     related_online_events = models.ManyToManyField('events_available.Events_online', blank=True, related_name='related_to_visiting', verbose_name='Связанные онлайн мероприятия')
     related_offline_events = models.ManyToManyField('events_available.Events_offline', blank=True, related_name='related_to_visiting', verbose_name='Связанные оффлайн мероприятия')
     related_attractions = models.ManyToManyField('Attractions', blank=True, related_name='related_to_visiting', verbose_name='Связанные достопримечательности')
-    related_events_for_visiting = models.ManyToManyField('self', blank=True, related_name='related_to_visiting_self', verbose_name='Связанные мероприятия для посещения')
+    related_events_for_visiting = models.ManyToManyField('Events_for_visiting', blank=True, related_name='related_to_visiting_self', verbose_name='Связанные мероприятия для посещения')
 
     class Meta:
         db_table = 'Events_for_visiting'
