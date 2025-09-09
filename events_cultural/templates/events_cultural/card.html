@@ -135,122 +135,126 @@
 
 {% block content_card %}
 {% if event.category == "Доступные к посещению" %}
-{% comment %} Спикеры {% endcomment %}
-{% if event.speakers %}
-{% if event.speakers.all %}
-<div class="info-block speaker">
-	<div class="title">Ответственный</div>
-	<div class="info-content">
-		{% for speaker in event.speakers.all %}
-		{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last%},{% endif %}{% endfor %}
-	</div>
-</div>
-{% endif %}
-{% endif %}
+	{% comment %} Спикеры {% endcomment %}
+	{% if event.speakers %}
+		{% if event.speakers.all %}
+			<div class="info-block speaker">
+				<div class="title">Ответственный</div>
+				<div class="info-content">
+					{% for speaker in event.speakers.all %}
+						{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last%},{% endif %}
+					{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+	{% endif %}
 
-{% comment %} Дата\Время {% endcomment %}
-<div class="info-block date-time">
-	<div class="title">Дата и время</div>
-	<div class="info-content">
-		<label for="date">{% if event.date_end and event.date_end == event.date %} {{ event.formatted_date_2 }} {% else
-			%} {{ event.date }} {% endif %}</label> <br />
-		<label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
+	{% comment %} Дата\Время {% endcomment %}
+	<div class="info-block date-time">
+		<div class="title">Дата и время</div>
+		<div class="info-content">
+			<label for="date">
+				{% if event.date_end and event.date_end == event.date %} 
+					{{ event.formatted_date_2 }} 
+				{% else %} 
+					{{ event.date }} 
+				{% endif %}
+			</label> <br/>
+			<label for="time">{{ event.time_start }} - {{ event.time_end }}</label>
+		</div>
 	</div>
-</div>
 
-{% comment %} Кол-во мест {% endcomment %}
-{% if event.place_free or event.place_limit %}
-<div class="info-block speaker">
-	<div class="title">Свободные места</div>
-	<div class="info-content">
-		<span id="free-places-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}
+	{% comment %} Кол-во мест {% endcomment %}
+	{% if event.place_free or event.place_limit %}
+	<div class="info-block speaker">
+		<div class="title">Свободные места</div>
+		<div class="info-content">
+			<span id="free-places-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}
+		</div>
 	</div>
-</div>
-{% endif %}
+	{% endif %}
 {% endif %}
 
 {% comment %} Место проведения\расположения {% endcomment %}
 {% if event.town or event.street %}
-<div class="info-block connection">
-	<div class="title">
-		{% if event.category == "Доступные к посещению" %}
-		Место проведения
-		{% else %}
-		Расположение
-		{% endif %}
+	<div class="info-block connection">
+		<div class="title">
+			{% if event.category == "Доступные к посещению" %}
+				Место проведения
+			{% else %}
+				Расположение
+			{% endif %}
+		</div>
+		<div class="info-content">
+			<label>{% if event.town %}г.{{ event.town }}{% endif %} {% if event.street %}ул.{{ event.street }}{% endif %} {% if event.house %} д.{{ event.house }}{% endif %}{% if event.cabinet %} кабинет {{ event.cabinet }}{% endif %}</label>
+		</div>
 	</div>
-	<div class="info-content">
-		<label>{% if event.town %}г.{{ event.town }}{% endif %} {% if event.street %}ул.{{ event.street }}{% endif %} {%
-			if event.house %} д.{{ event.house }}{% endif %}{% if event.cabinet %} кабинет {{ event.cabinet }}{% endif
-			%}</label>
-	</div>
-</div>
 {% endif %}
 
 {% comment %} Ссылка\QR {% endcomment %}
 {% if event.link or event.qr %}
-<div class="info-block connection">
-	<div class="title">
-		Подключение
+	<div class="info-block connection">
+		<div class="title">
+			Подключение
+		</div>
+		<div class="info-content">
+			{% if event.link %}
+				<label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
+			{% endif %}
+			{% if event.qr %}
+				<label><a href="" class="connection-link open-modal" id="openModal">QR-код</a></label>
+			{% endif %}
+		</div>
 	</div>
-	<div class="info-content">
-		{% if event.link %}
-		<label><a href="{{event.link}}" class="connection-link" target="_blank">Ссылка для подключения</a></label>
-		{% endif %}
-		{% if event.qr %}
-		<label><a href="" class="connection-link open-modal" id="openModal">QR-код</a></label>
-		{% endif %}
-	</div>
-</div>
 {% endif %}
 {% endblock content_card %}
 
 {% block content_card_mobile %}
 {% if event.category == "Доступные к посещению" %}
-{% if event.speakers.all %}
-<div class="info-slide">
-	<div class="info-column">
-		<img class="info-icon" src="{% static 'icons/speaker.png' %}" alt="">
-		<div class="info-title">Ответственный</div>
-		<div class="info-cell">
-			{% for speaker in event.speakers.all %}
-			{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-			{% endfor %}
+	{% if event.speakers.all %}
+		<div class="info-slide">
+			<div class="info-column">
+				<img class="info-icon" src="{% static 'icons/speaker.png' %}" alt="">
+				<div class="info-title">Ответственный</div>
+				<div class="info-cell">
+					{% for speaker in event.speakers.all %}
+						{{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+					{% endfor %}
+				</div>
+			</div>
 		</div>
-	</div>
-</div>
-{% endif %}
+	{% endif %}
 
-<div class="info-slide">
-	<div class="info-column">
-		<img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
-		<div class="info-title">Дата и время</div>
-		<div class="info-cell">
-			<label for="date">
-				{% if event.date_end and event.date_end == event.date %}
-				{{ event.formatted_date_2 }}
-				{% else %}
-				{{ event.date }}
-				{% endif %}
-			</label><br>
-			<label for="time">{{ event.time_start }} – {{ event.time_end }}</label>
+	<div class="info-slide">
+		<div class="info-column">
+			<img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
+			<div class="info-title">Дата и время</div>
+			<div class="info-cell">
+				<label for="date">
+					{% if event.date_end and event.date_end == event.date %}
+						{{ event.formatted_date_2 }}
+					{% else %}
+						{{ event.date }}
+					{% endif %}
+				</label><br>
+				<label for="time">{{ event.time_start }} – {{ event.time_end }}</label>
+			</div>
 		</div>
 	</div>
-</div>
 
-{% if event.place_free or event.place_limit %}
-<div class="info-slide">
-	<div class="info-column">
-		<img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
-		<div class="info-title">Свободные места</div>
-		<div class="info-cell">
-			<label for="places">
-				<span id="free-places-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}
-			</label>
+	{% if event.place_free or event.place_limit %}
+		<div class="info-slide">
+			<div class="info-column">
+				<img class="info-icon" src="{% static 'icons/datetime.png' %}" alt="">
+				<div class="info-title">Свободные места</div>
+				<div class="info-cell">
+					<label for="places">
+						<span id="free-places-{{event.slug}}"> {{event.place_free }} </span> / {{event.place_limit }}
+					</label>
+				</div>
+			</div>
 		</div>
-	</div>
-</div>
-{% endif %}
+	{% endif %}
 {% endif %}
 
 <div class="info-slide">
@@ -273,8 +277,9 @@
 		<div class="info-title">Подключение</div>
 		<div class="info-cell">
 			<a href="{{ event.link }}" class="connection-link">Ссылка</a><br>
-			<label><a href="" class="connection-link open-modal" id="openModal2">QR-код
-				</a></label>
+			<label>
+				<a href="" class="connection-link open-modal" id="openModal2">QR-код</a>
+			</label>
 		</div>
 	</div>
 </div>
