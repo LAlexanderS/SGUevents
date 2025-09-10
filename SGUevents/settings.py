@@ -22,7 +22,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4z
 
 # ALLOWED_HOSTS = ['*']
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['aikonti.ru', 'www.aikonti.ru', '127.0.0.1', 'localhost', 'aikonti.help', 'aikonti']
 
 
