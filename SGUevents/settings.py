@@ -232,6 +232,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Ограничение размера загружаемого файла (10 МБ на один файл)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
+# Лимит суммарного объёма изображений и файлов (галереи + поля qr/image/documents) в админке
+# 9.5 МБ, но не выше глобального лимита загрузки
+MAX_GALLERY_UPLOAD_BYTES = min(int(9.5 * 1024 * 1024), DATA_UPLOAD_MAX_MEMORY_SIZE)
+MAX_GALLERY_UPLOAD_MB = round(MAX_GALLERY_UPLOAD_BYTES / (1024 * 1024), 1)
+
 INTERNAL_IPS = [
     "127.0.0.1",
     # ...
