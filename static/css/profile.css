@@ -70,6 +70,10 @@
     box-shadow: 2px 4px 8px 0px rgba(0, 0, 0, 0.3), -2px 4px 8px 0px rgba(0, 0, 0, 0.3);
 }
 
+.logistic-btn {
+    width: 50%;
+}
+
 .photo-delete-btn {
     background: rgb(220, 53, 69);
     border: none;
@@ -186,8 +190,19 @@
 }
 
 
+.rights-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.rights-table td:first-child {
+    width: auto;
+    white-space: nowrap;
+}
+
 .rights-table td:nth-child(2) {
     text-align: right;
+    width: 100%;
 }
 
 .send_message {
@@ -272,6 +287,15 @@
 
 .group-info {
     text-align: right;
+}
+
+.group-info :left {
+    width: 30%;
+}
+
+.form-check {
+    padding-left: 0px;
+    padding-top: 5px;
 }
 
 @media(max-width: 1566px) {
@@ -362,4 +386,27 @@
     .movement {
         margin-top: 20px;
     }
+
+    .logistic-btn {
+        width: auto;
+    }
+
+    .modal-dialog-scrollable .modal-content {
+        overflow: auto;
+    }
+
+    .dop-info {
+        margin-top: 5px;
+    }
+
+    .info-block {
+        margin-top: 0.5rem;
+    }
+
+    /* .mb-3 .text-primary,
+    .mb-3 .text-success,
+    .mb-3 .text-info,
+    .form-label {
+        margin-bottom: 0px !important;
+    } */
 }

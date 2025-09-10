@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Выгрузка логистики</title>
+	<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body style="background-image: url({% static 'images/background.jpg' %});">
+	<div class="container mt-5">
+		<h1 class="mb-4">Выгрузка логистики (Excel)</h1>
+
+		{% if messages %}
+			<div class="mb-3">
+				{% for message in messages %}
+					<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		<form method="post" class="card p-3 shadow-sm bg-light mt-3">
+			{% csrf_token %}
+			<div class="mb-3">
+				<label for="id_event" class="form-label">{{ form.event.label }}</label>
+				{{ form.event }}
+			</div>
+			<div class="mb-3">
+				<span class="form-text">Участников: <strong id="participants-count">{{ participants_count }}</strong></span>
+			</div>
+			<button type="submit" class="btn btn-success btn-lg">Скачать Excel</button>
+			<a href="{% url 'bookmarks:send_message_to_participants' %}" class="btn btn-secondary ms-2">Назад</a>
+		</form>
+	</div>
+
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+	<script>
+		(function() {
+			const select = document.getElementById('id_event');
+			const counter = document.getElementById('participants-count');
+			function updateCount() {
+				const val = select.value;
+				if (!val) { counter.textContent = '0'; return; }
+				fetch(`/bookmarks/get_event_participants/?event_id=${val}&event_type=offline`)
+					.then(r => r.json())
+					.then(data => { counter.textContent = Array.isArray(data) ? data.length : 0; })
+					.catch(() => { counter.textContent = '0'; });
+			}
+			select && select.addEventListener('change', updateCount);
+			if (select) { updateCount(); }
+		})();
+	</script>
+</body>
+</html> 

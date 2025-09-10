@@ -68,6 +68,48 @@
 	</div>
 {% endblock content %} 
 
+{% block related_events %}	 	 
+	<!-- Связанные мероприятия -->
+	{% if event.get_related_events %}
+		<div class="row mt-4">
+			<div class="col-12 col-md-10 offset-md-1">
+				<h4 class="related-events-title">Связанные мероприятия</h4>
+				<div class="related-events-container {% if event.get_related_events|length < 4 %}is-fewer-than-4{% endif %}">
+					{% for related_event in event.get_related_events %}
+					<div class="related-event-card">
+						<div class="related-event-image">
+							{% if related_event.image %}
+								<img src="{{ related_event.image.url }}" alt="{{ related_event.name }}" class="img-fluid">
+							{% else %}
+								<div class="no-image-placeholder">
+									<i class="fas fa-calendar-alt"></i>
+								</div>
+							{% endif %}
+						</div>
+						<div class="related-event-content">
+							<h5 class="related-event-title">
+								<a href="{% if related_event.category == 'Онлайн' %}{% url 'events_available:online_card' event_slug=related_event.slug %}{% elif related_event.category == 'Оффлайн' %}{% url 'events_available:offline_card' event_slug=related_event.slug %}{% elif related_event.category == 'Достопримечательности' %}{% url 'events_cultural:attractions_card' event_slug=related_event.slug %}{% elif related_event.category == 'Доступные к посещению' %}{% url 'events_cultural:events_for_visiting_card' event_slug=related_event.slug %}{% endif %}">
+									{{ related_event.name }}
+								</a>
+							</h5>
+							<div class="related-event-meta">
+								<span class="event-category {{ related_event.category|lower }}">{{ related_event.category }}</span>
+								<span class="event-date">{{ related_event.formatted_date_range }}</span>
+							</div>
+							{% if related_event.description|length > 100 %}
+								<p class="related-event-description">{{ related_event.description|truncatechars:100 }}</p>
+							{% else %}
+								<p class="related-event-description">{{ related_event.description }}</p>
+							{% endif %}
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endblock related_events %}
+
 {% block content_card %} 
 	{% comment %} Спикеры {% endcomment %}
 	{% if event.speakers.all %}

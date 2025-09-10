@@ -204,6 +204,12 @@ USE_I18N = True
 USE_TZ = True
 
 DATE_INPUT_FORMATS = ['%d/%m/%Y', '%d.%m.%Y', '%Y-%m-%d']
+TIME_INPUT_FORMATS = ['%H:%M', '%H:%M:%S']
+DATETIME_INPUT_FORMATS = [
+    '%Y-%m-%d %H:%M', '%Y-%m-%d %H:%M:%S',
+    '%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S',
+    '%d.%m.%Y %H:%M', '%d.%m.%Y %H:%M:%S',
+]
 
 LOGIN_URL = 'users:login'
 
@@ -225,6 +231,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Ограничение размера загружаемого файла (10 МБ на один файл)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# Лимит суммарного объёма изображений и файлов (галереи + поля qr/image/documents) в админке
+# 9.5 МБ, но не выше глобального лимита загрузки
+MAX_GALLERY_UPLOAD_BYTES = min(int(9.5 * 1024 * 1024), DATA_UPLOAD_MAX_MEMORY_SIZE)
+MAX_GALLERY_UPLOAD_MB = round(MAX_GALLERY_UPLOAD_BYTES / (1024 * 1024), 1)
 
 INTERNAL_IPS = [
     "127.0.0.1",

@@ -1,0 +1,73 @@
+/* СТИЛИ ДЛЯ СТРАНИЦ ФОРМИРОВАНИЯ ОТЧЁТОВ И ОТПРАВКИ СООБЩЕНИЯ УЧАСТНИКАМ */
+/* Страница send_message */
+.text-lines label {
+    font-size: 18px;
+}
+
+.form-check label {
+    font-size: 16px;
+}
+
+.form-container {
+    margin-bottom: 2rem;
+}
+
+.form-container .card {
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.form-container h3 {
+    color: rgb(39, 66, 106);
+    font-family: 'Days One', sans-serif;
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+}
+
+.btn-outline-light {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgb(65, 61, 61);
+}
+
+.btn-outline-light.active {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.btn.send-message {
+
+    color: white;
+    border: none;
+    padding: 0px 20px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn.send-message:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-text {
+    color: black;
+}
+
+.alert-error {
+    color: white;
+    font-size: 32px;
+    font-weight: 700;
+    padding: 0px;
+}

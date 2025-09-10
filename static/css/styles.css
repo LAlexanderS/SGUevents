@@ -1039,7 +1039,7 @@ td {
 }
 
 .main-buttons {
-    margin-bottom: 100px;
+    margin-bottom: 50px;
 }
 
 .blocks,
@@ -1058,7 +1058,7 @@ td {
     justify-content: space-around;
     text-align: center;
     margin-top: 50px;
-    margin-bottom: 150px;
+    margin-bottom: 50px;
 }
 
 
@@ -3457,6 +3457,7 @@ td {
         width: 315px;
         padding-inline: 2px;
         text-indent: 0;
+        margin: 20px 0px 0px 0px;
     }
 
     .main-button {
@@ -3639,6 +3640,10 @@ td {
         z-index: 2;
     }
 
+    .half-stars input:checked~label svg {
+        fill: #BFE2FF;
+    }
+
     .admin-connect {
         text-indent: 0;
     }
@@ -3680,7 +3685,6 @@ td {
 
     .selection {
         width: fit-content;
-
     }
 
     .filter-message {
@@ -3737,7 +3741,7 @@ td {
     }
 
     .mob-row {
-        width: 100vw;
+        width: 100%;
     }
 
     .preview-event-id {
@@ -3849,7 +3853,6 @@ td {
     }
 
     .main-buttons {
-        margin-left: 0px;
         width: 70%;
     }
 
@@ -3944,7 +3947,6 @@ td {
     .main-image-mobile img {
         width: 290px;
         height: 210px;
-        box-shadow: 0px 0px 4px 2px #77748689;
     }
 
     .about-event {
@@ -4028,9 +4030,7 @@ td {
     }
 
     .main-buttons {
-        margin-bottom: 100px;
         width: 80%;
-        padding-left: 25px;
     }
 
     .review-container .prev-reviews,

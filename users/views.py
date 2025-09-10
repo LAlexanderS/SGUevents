@@ -290,6 +290,30 @@ def profile(request):
 
     open_logistics_modal = False  # <— флаг
 
+    # Локальные хелперы форматирования и отправки
+    def _fmt(field_name, value):
+        if field_name in ("arrival_datetime", "departure_datetime") and value:
+            return value.astimezone(timezone.get_current_timezone()).strftime("%d.%m.%Y %H:%M")
+        if field_name == "transfer_needed":
+            return "Нужен" if value else "Не нужен"
+        return value if (value not in (None, "")) else "—"
+    
+    def _notify_support_changes(event, changes, created=False):
+        try:
+            support_chat_id = getattr(event, 'support_chat_id', None)
+            if not support_chat_id:
+                return
+            from users.telegram_utils import send_text_to_chat
+            user_full = f"{user.last_name} {user.first_name}".strip()
+            intro = "добавил свою логистику" if created else "внёс изменения в свою логистику"
+            lines = [f"✈️ Пользователь {user_full} {intro} по мероприятию \"{event.name}\":"]
+            for field, old_v, new_v in changes:
+                lines.append(f"- {field}: {old_v} → {new_v}")
+            text = "\n".join(lines)
+            send_text_to_chat(support_chat_id, text, parse_html=False)
+        except Exception as e:
+            logger.error(f"Ошибка отправки уведомления об изменениях логистики: {e}")
+    
     if request.method == "POST" and request.POST.get("form_name") == "logistics":
         form = EventLogisticsForm(request.POST, user=user)
         if form.is_valid():
@@ -298,13 +322,42 @@ def profile(request):
                 messages.error(request, "Вы не зарегистрированы на выбранное мероприятие.")
                 return redirect("users:profile")
 
-            instance, _ = EventLogistics.objects.get_or_create(user=user, event=event)
-            for f in ["arrival_datetime","arrival_flight_number","arrival_airport",
-                      "departure_datetime","departure_flight_number","departure_airport",
-                      "transfer_needed","hotel_details","meeting_person"]:
+            # Снимем старые значения для diff
+            fields_list = [
+                "arrival_datetime","arrival_flight_number","arrival_airport",
+                "departure_datetime","departure_flight_number","departure_airport",
+                "transfer_needed","hotel_details","meeting_person"
+            ]
+            old = None
+            created_instance = False
+            instance = EventLogistics.objects.filter(user=user, event=event).first()
+            if instance:
+                old = {f: getattr(instance, f) for f in fields_list}
+            else:
+                instance = EventLogistics(user=user, event=event)
+                created_instance = True
+            
+            for f in fields_list:
                 setattr(instance, f, form.cleaned_data.get(f))
             instance.save()
             messages.success(request, "Логистика сохранена.")
+            
+            # Подготовим diff и уведомим чат поддержки
+            changes = []
+            if created_instance:
+                for f in fields_list:
+                    new_v = _fmt(f, getattr(instance, f))
+                    changes.append((instance._meta.get_field(f).verbose_name, "—", new_v))
+                _notify_support_changes(event, changes, created=True)
+            else:
+                for f in fields_list:
+                    old_v = old.get(f)
+                    new_v_raw = getattr(instance, f)
+                    if old_v != new_v_raw:
+                        changes.append((instance._meta.get_field(f).verbose_name, _fmt(f, old_v), _fmt(f, new_v_raw)))
+                if changes:
+                    _notify_support_changes(event, changes, created=False)
+            
             return redirect('users:profile')
         else:
             # Если ошибки — откроем модалку заново
@@ -354,6 +407,9 @@ def update_logistics_field(request, pk):
     if not logist:
         return HttpResponseForbidden("No access")
 
+    # Снимем старое значение
+    old_value = getattr(logist, field)
+
     # Преобразование типов
     value = raw_value
     if field in ("arrival_datetime", "departure_datetime"):
@@ -374,12 +430,34 @@ def update_logistics_field(request, pk):
         return HttpResponseBadRequest(str(e))
 
     # Ответ для отображения
-    pretty = value
-    if field in ("arrival_datetime", "departure_datetime"):
-        pretty = value.astimezone(timezone.get_current_timezone()).strftime("%d.%m.%Y %H:%M") if value else "—"
-    if field == "transfer_needed":
-        pretty = "Нужен" if value else "Не нужен"
-
+    def _fmt_field(fname, val):
+        if fname in ("arrival_datetime", "departure_datetime") and val:
+            return val.astimezone(timezone.get_current_timezone()).strftime("%d.%m.%Y %H:%M")
+        if fname == "transfer_needed":
+            return "Нужен" if val else "Не нужен"
+        return val if (val not in (None, "")) else "—"
+    
+    pretty = _fmt_field(field, value)
+    
+    # Уведомление в чат поддержки только если значение реально изменилось
+    if old_value != value:
+        try:
+            event = logist.event
+            support_chat_id = getattr(event, 'support_chat_id', None)
+            if support_chat_id:
+                from users.telegram_utils import send_text_to_chat
+                user_full = f"{request.user.last_name} {request.user.first_name}".strip()
+                old_fmt = _fmt_field(field, old_value)
+                new_fmt = _fmt_field(field, value)
+                field_verbose = logist._meta.get_field(field).verbose_name
+                text = (
+                    f"✈️ Пользователь {user_full} внёс изменения в свою логистику по мероприятию \"{event.name}\":\n"
+                    f"- {field_verbose}: {old_fmt} → {new_fmt}"
+                )
+                send_text_to_chat(support_chat_id, text, parse_html=False)
+        except Exception as e:
+            logger.error(f"Ошибка отправки уведомления об изменении логистики (AJAX): {e}")
+    
     return JsonResponse({"ok": True, "field": field, "value": pretty})
 
 @login_required
@@ -464,6 +542,54 @@ def telegram_login_callback(request):
             return JsonResponse({'success': False, 'error': 'Произошла ошибка при входе'})
     
     return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+
+@login_required
+def get_logistics_for_event(request):
+    """
+    Возвращает сохранённую логистику текущего пользователя по выбранному оффлайн‑мероприятию.
+    GET-параметры: event_id
+    Ответ JSON: {exists: bool, fields...}
+    Дата/время в формате для input[type=datetime-local]: YYYY-MM-DDTHH:MM
+    """
+    if request.method != 'GET':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+
+    event_id = request.GET.get('event_id')
+    if not event_id:
+        return JsonResponse({'success': False, 'error': 'Не указан event_id'}, status=400)
+
+    try:
+        event = Events_offline.objects.get(pk=event_id)
+    except Events_offline.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Мероприятие не найдено'}, status=404)
+
+    logist = EventLogistics.objects.filter(user=request.user, event=event).first()
+    if not logist:
+        return JsonResponse({'exists': False})
+
+    tz = timezone.get_current_timezone()
+
+    def fmt_dt(dt):
+        if not dt:
+            return ''
+        aware = dt if timezone.is_aware(dt) else timezone.make_aware(dt, timezone.get_default_timezone())
+        local_dt = aware.astimezone(tz)
+        return local_dt.strftime('%Y-%m-%dT%H:%M')
+
+    data = {
+        'exists': True,
+        'arrival_datetime': fmt_dt(logist.arrival_datetime),
+        'arrival_flight_number': logist.arrival_flight_number or '',
+        'arrival_airport': logist.arrival_airport or '',
+        'departure_datetime': fmt_dt(logist.departure_datetime),
+        'departure_flight_number': logist.departure_flight_number or '',
+        'departure_airport': logist.departure_airport or '',
+        'transfer_needed': bool(logist.transfer_needed),
+        'hotel_details': logist.hotel_details or '',
+        'meeting_person': logist.meeting_person or '',
+    }
+
+    return JsonResponse(data)
 
 @csrf_exempt
 @login_required

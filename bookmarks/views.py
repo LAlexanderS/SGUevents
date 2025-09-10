@@ -16,6 +16,21 @@ from bookmarks.models import Registered
 from django.utils.timezone import now
 import logging
 from django.db.models import Avg
+from django.conf import settings
+from io import BytesIO
+from django.utils.text import slugify
+try:
+    from docxtpl import DocxTemplate
+except Exception:
+    DocxTemplate = None
+import os
+from bookmarks.forms import ExportParticipantsForm
+from .forms import ExportLogisticsForm
+from events_available.models import EventLogistics
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
+from django.utils import timezone
 
 
 logger = logging.getLogger(__name__)
@@ -217,11 +232,21 @@ def events_registered(request, event_slug):
             
             message = f"✅ Вы зарегистрировались на мероприятие: {event_hyperlink}."
             
+            # Определяем ссылку на чат участников при наличии
+            chat_url = None
+            if event_type in ('online', 'offline'):
+                try:
+                    if getattr(event, 'users_chat_id', None) and getattr(event, 'users_chat_link', None):
+                        chat_url = event.users_chat_link
+                except AttributeError:
+                    chat_url = None
+            
             send_message_to_user_with_toggle_button(
                 request.user.telegram_id, 
                 message, 
                 registered.id, 
-                registered.notifications_enabled
+                registered.notifications_enabled,
+                chat_url=chat_url
             )
 
         event.member.add(request.user)
@@ -395,6 +420,181 @@ def get_event_choices(request):
     return JsonResponse(event_data, safe=False)
 
 @staff_member_required
+def reports(request):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "У вас нет прав для доступа к отчетам.")
+        return redirect('home')
+
+    # Обработка POST запросов для форм
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        
+        if form_type == 'export_participants':
+            event_type = request.POST.get('event_type')
+            form = ExportParticipantsForm(request.POST, event_type=event_type, user=request.user)
+            if form.is_valid():
+                event = form.cleaned_data['event']
+                export_all = form.cleaned_data['export_all']
+                selected_users = list(form.cleaned_data.get('selected_users', []))
+
+                if not request.user.is_superuser and request.user not in event.events_admin.all():
+                    messages.error(request, "У вас нет прав для выгрузки участников этого мероприятия.")
+                    return redirect('bookmarks:reports')
+
+                filter_kwargs = {f"{form.cleaned_data['event_type']}": event}
+                registrations = Registered.objects.filter(**filter_kwargs).select_related('user')
+
+                if not registrations.exists():
+                    messages.error(request, "Нет зарегистрированных участников для выбранного мероприятия.")
+                    return redirect('bookmarks:reports')
+
+                def user_full_name(u):
+                    parts = [u.last_name or '', u.first_name or '', u.middle_name or '']
+                    return ' '.join([p for p in parts if p]).strip()
+
+                # Преобразуем QuerySet в список для фильтрации и сортировки
+                registrations = list(registrations)
+
+                if not export_all and selected_users:
+                    user_ids = set(u.id for u in selected_users)
+                    registrations = [r for r in registrations if r.user_id in user_ids]
+
+                # Сортируем по фамилии, имени, отчеству в алфавитном порядке
+                registrations = sorted(registrations, key=lambda r: (
+                    (r.user.last_name or '').lower(),
+                    (r.user.first_name or '').lower(), 
+                    (r.user.middle_name or '').lower()
+                ))
+
+                participants = [
+                    {"idx": i + 1, "full_name": user_full_name(r.user)}
+                    for i, r in enumerate(registrations)
+                ]
+
+                if DocxTemplate is None:
+                    messages.error(request, "Сервер не поддерживает генерацию DOCX (docxtpl не установлен).")
+                    return redirect('bookmarks:reports')
+
+                template_path = os.path.join(settings.BASE_DIR, 'users', 'docx_forms', 'Заявка на проход на мероприятия.docx')
+                if not os.path.exists(template_path):
+                    messages.error(request, f"Шаблон не найден: {template_path}")
+                    return redirect('bookmarks:reports')
+
+                try:
+                    doc = DocxTemplate(template_path)
+                    context = {
+                        'event_name': getattr(event, 'name', ''),
+                        'event_category': getattr(event, 'category', ''),
+                        'event_date': getattr(event, 'formatted_date_range', lambda: '')() if hasattr(event, 'formatted_date_range') else '',
+                        'participants': participants,
+                    }
+                    doc.render(context)
+
+                    output = BytesIO()
+                    doc.save(output)
+                    output.seek(0)
+
+                    safe_event = slugify(getattr(event, 'name', 'event'))
+                    filename = f"spisok-uchastnikov-{safe_event}.docx"
+
+                    from django.http import HttpResponse
+                    response = HttpResponse(
+                        output.read(),
+                        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    )
+                    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                    return response
+                except Exception as e:
+                    messages.error(request, f"Ошибка при обработке шаблона: {str(e)}. Проверьте правильность тегов в DOCX файле.")
+                    return redirect('bookmarks:reports')
+            else:
+                messages.error(request, "Ошибка в форме экспорта участников")
+        
+        elif form_type == 'export_logistics':
+            form = ExportLogisticsForm(request.POST, user=request.user)
+            if form.is_valid():
+                event = form.cleaned_data['event']
+                if not request.user.is_superuser and request.user not in event.events_admin.all():
+                    messages.error(request, "У вас нет прав для выгрузки логистики этого мероприятия.")
+                    return redirect('bookmarks:reports')
+                
+                # Логика экспорта логистики (копируем из export_logistics)
+                from events_available.models import EventLogistics
+                from openpyxl import Workbook
+                from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+                from openpyxl.utils import get_column_letter
+                from django.utils import timezone
+                from django.http import HttpResponse
+                from django.utils.text import slugify as dj_slugify
+
+                def _build_xlsx_for_event(event):
+                    qs = EventLogistics.objects.filter(event=event).select_related('user').order_by('user__last_name', 'user__first_name')
+                    if not qs.exists():
+                        return None
+                    wb = Workbook(); ws = wb.active; ws.title = "Логистика"
+                    title = f"Логистика по мероприятию \"{event.name}\""
+                    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=9)
+                    cell = ws.cell(row=1, column=1, value=title); cell.font = Font(size=14, bold=True); cell.alignment = Alignment(horizontal='center')
+                    headers = ["ФИО","Дата/время прилёта","Рейс прилёта","Аэропорт прилёта","Дата/время отлёта","Рейс отлёта","Аэропорт отлёта","Нужен трансфер","Гостиница","Встречающий"]
+                    ws.append(headers)
+                    head_fill = PatternFill(start_color="FFEEF5FF", end_color="FFEEF5FF", fill_type="solid")
+                    thin = Side(style='thin', color='FFBBBBBB'); border = Border(left=thin, right=thin, top=thin, bottom=thin)
+                    for col_idx in range(1, len(headers)+1):
+                        c = ws.cell(row=2, column=col_idx); c.font = Font(bold=True); c.fill = head_fill; c.border = border; c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+                    row = 3
+                    for rec in qs:
+                        fio = ' '.join(filter(None, [rec.user.last_name, rec.user.first_name, getattr(rec.user, 'middle_name', '') or None]))
+                        arr_dt = rec.arrival_datetime.astimezone(timezone.get_current_timezone()).strftime('%d.%m.%Y %H:%M') if rec.arrival_datetime else ''
+                        dep_dt = rec.departure_datetime.astimezone(timezone.get_current_timezone()).strftime('%d.%m.%Y %H:%M') if rec.departure_datetime else ''
+                        row_values = [fio, arr_dt, rec.arrival_flight_number or '', rec.arrival_airport or '', dep_dt, rec.departure_flight_number or '', rec.departure_airport or '', "Да" if rec.transfer_needed else "Нет", rec.hotel_details or '', rec.meeting_person or '']
+                        ws.append(row_values)
+                        for col_idx in range(1, len(headers)+1):
+                            c = ws.cell(row=row, column=col_idx); c.border = border; c.alignment = Alignment(vertical='top', wrap_text=True)
+                        row += 1
+                    # Автофильтр по шапке
+                    ws.auto_filter.ref = f"A2:{get_column_letter(len(headers))}{ws.max_row if ws.max_row>2 else 2}"
+                    for col_idx in range(1, len(headers)+1):
+                        max_len = 0; col_letter = get_column_letter(col_idx)
+                        for r in range(2, ws.max_row+1):
+                            val = ws.cell(row=r, column=col_idx).value; max_len = max(max_len, len(str(val)) if val else 0)
+                        ws.column_dimensions[col_letter].width = min(max_len + 2, 60)
+                    filename = f"logistika-{dj_slugify(event.name)}.xlsx"
+                    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                    wb.save(response)
+                    return response
+
+                resp = _build_xlsx_for_event(event)
+                if resp is None:
+                    messages.warning(request, "Логистика отсутствует для выбранного мероприятия.")
+                    return redirect('bookmarks:reports')
+                return resp
+            else:
+                messages.error(request, "Ошибка в форме экспорта логистики")
+
+    # Инициализация форм для отображения
+    export_participants_form = ExportParticipantsForm(user=request.user)
+    export_logistics_form = ExportLogisticsForm(user=request.user)
+    
+    # Подсчет участников для логистики
+    selected_event = export_logistics_form['event'].value()
+    participants_count = 0
+    if selected_event:
+        try:
+            participants_count = Registered.objects.filter(offline_id=selected_event).count()
+        except Exception:
+            participants_count = 0
+
+    context = {
+        'export_participants_form': export_participants_form,
+        'export_logistics_form': export_logistics_form,
+        'participants_count': participants_count,
+    }
+    
+    return render(request, 'bookmarks/reports_page.html', context)
+
+
+@staff_member_required
 def send_message_to_participants(request):
     if not (request.user.is_superuser or request.user.is_staff):
         messages.error(request, "У вас нет прав для отправки сообщений.")
@@ -513,3 +713,4 @@ def get_event_participants(request):
         return JsonResponse(participants, safe=False)
     except model.DoesNotExist:
         return JsonResponse({'error': 'Event not found'}, status=404)
+

@@ -82,7 +82,7 @@ def send_message_to_user(telegram_id, message, event_id=None, reply_markup=None)
     else:
         print(f"Ошибка отправки сообщения пользователю: {response.text}")
 
-def send_message_to_user_with_toggle_button(telegram_id, message, event_id, notifications_enabled):
+def send_message_to_user_with_toggle_button(telegram_id, message, event_id, notifications_enabled, chat_url=None):
     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
     button_text = "\U0001F534 Отключить уведомления" if notifications_enabled else "\U0001F7E2 Включить уведомления"
     callback_data = f"toggle_{event_id}"
@@ -94,6 +94,16 @@ def send_message_to_user_with_toggle_button(telegram_id, message, event_id, noti
             }
         ]]
     }
+
+    # Добавляем ссылку на чат участников, если передан chat_url
+    if chat_url:
+        inline_keyboard["inline_keyboard"].append([
+            {
+                "text": "\U0001F4AC Чат участников",
+                "url": chat_url
+            }
+        ])
+
     data = {
         "chat_id": telegram_id,
         "text": message,
@@ -624,3 +634,23 @@ def create_event_hyperlink(event_name, event_url):
         return f'<a href="{event_url}">{event_name}</a>'
     else:
         return event_name
+
+def send_text_to_chat(chat_id: str, text: str, parse_html: bool = True):
+    """
+    Отправляет текстовое сообщение в указанный чат Telegram по chat_id.
+    """
+    try:
+        url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': str(chat_id),
+            'text': text,
+        }
+        if parse_html:
+            payload['parse_mode'] = 'HTML'
+        response = requests.post(url, json=payload)
+        if not response.ok:
+            logger.error(f"Ошибка отправки в чат {chat_id}: {response.status_code} {response.text}")
+        return response
+    except Exception as e:
+        logger.error(f"Исключение при отправке сообщения в чат {chat_id}: {e}")
+        return None

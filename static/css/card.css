@@ -263,7 +263,9 @@ h1 {
     min-height: 60px !important;
 }
 
-
+.mob-row {
+    margin: 0px 0px 20px 0px;
+}
 
 
 
@@ -408,6 +410,14 @@ h1 {
     display: none;
 }
 
+.hashtags {
+    text-align: center;
+    margin-top: 0;
+    font-weight: 500;
+    text-indent: 0;
+    margin-bottom: 20px;
+}
+
 
 @media (max-width: 1440px) {
     .review-container {
@@ -537,7 +547,9 @@ h1 {
         display: none;
     }
 
-
+    .hashtags {
+        margin-bottom: 10px;
+    }
 
     /* tr {
         margin-right: 10px;

@@ -13,6 +13,7 @@ from django.utils.text import slugify
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import m2m_changed
 
 import logging
 logger = logging.getLogger(__name__)
@@ -67,6 +68,10 @@ class Events_online(models.Model):
     users_chat_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на чат пользователей')
     support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
 
+    related_online_events = models.ManyToManyField('Events_online', blank=True, related_name='related_to_online', verbose_name='Связанные онлайн мероприятия')
+    related_offline_events = models.ManyToManyField('Events_offline', blank=True, related_name='related_to_offline', verbose_name='Связанные оффлайн мероприятия')
+    related_attractions = models.ManyToManyField('events_cultural.Attractions', blank=True, related_name='related_to_online', verbose_name='Связанные достопримечательности')
+    related_events_for_visiting = models.ManyToManyField('events_cultural.Events_for_visiting', blank=True, related_name='related_to_online', verbose_name='Связанные мероприятия для посещения')
 
     
     # admin_groups = models.ManyToManyField(Group, blank=True, related_name='event_admin_groups', verbose_name="Администраторы (группы)")
@@ -86,8 +91,9 @@ class Events_online(models.Model):
             if self.date > self.date_end:
                 raise ValidationError({'date_end': 'Дата окончания должна быть позже даты начала'})
             elif self.date == self.date_end:
-                if self.time_start > self.time_end:
-                    raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
+                if self.time_start and self.time_end:
+                    if self.time_start > self.time_end:
+                        raise ValidationError({'time_end': 'Время окончания должно быть позже времени начала'})
         else:
             raise ValidationError({'date': 'Проверьте корректность заполнения данных'})            
             
@@ -98,16 +104,40 @@ class Events_online(models.Model):
         return f'{self.id:05}'
     
     def formatted_date_range(self):
-        if self.date_end and self.date != self.date_end:
-            start_str = self.date.strftime('%d.%m')
-            end_str = self.date_end.strftime('%d.%m')
-            return f'{start_str}-{end_str}'
-        else:
+        if self.date and self.date_end: 
+            if self.date != self.date_end:
+                start_str = self.date.strftime('%d.%m')
+                end_str = self.date_end.strftime('%d.%m')
+                return f'{start_str}-{end_str}'
+            else:
+                return self.date.strftime('%d.%m.%Y')
+        elif self.date and not self.date_end:
             return self.date.strftime('%d.%m.%Y')
+        else:
+            return f''
+            
         
     def safe_description(self):
         from .utils import sanitize_html
         return sanitize_html(self.description)
+
+    #Получение связных мероприятий
+    def get_related_events(self):
+        related_events = []
+        
+        # Добавляем связанные онлайн мероприятия
+        related_events.extend(self.related_online_events.all())
+        
+        # Добавляем связанные оффлайн мероприятия
+        related_events.extend(self.related_offline_events.all())
+        
+        # Добавляем связанные достопримечательности
+        related_events.extend(self.related_attractions.all())
+        
+        # Добавляем связанные мероприятия для посещения
+        related_events.extend(self.related_events_for_visiting.all())
+        
+        return related_events
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -122,12 +152,62 @@ class Events_online(models.Model):
         self._current_user = kwargs.pop('user', None)  # Сохраняем пользователя для использования в сигнале
         combined_start_datetime = datetime.combine(self.date, self.time_start)
         self.start_datetime = make_aware(combined_start_datetime, timezone=get_default_timezone())
-
-        combined_end_datetime = datetime.combine(self.date, self.time_end)
-        self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
+        if self.date and self.time_end:
+            combined_end_datetime = datetime.combine(self.date, self.time_end)
+            self.end_datetime = make_aware(combined_end_datetime, timezone=get_default_timezone())
 
         # Сначала сохраняем мероприятие (нужно для того, чтобы иметь ID объекта)
         super().save(*args, **kwargs)
+
+
+# ====== Bidirectional sync for related fields of Events_online ======
+@receiver(m2m_changed, sender=Events_online.related_online_events.through)
+def sync_online_to_online(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    related_qs = Events_online.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_online_events.filter(pk=instance.pk).exists():
+            related.related_online_events.add(instance)
+
+@receiver(m2m_changed, sender=Events_online.related_offline_events.through)
+def sync_online_to_offline(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    related_qs = Events_offline.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_online_events.filter(pk=instance.pk).exists():
+            related.related_online_events.add(instance)
+
+@receiver(m2m_changed, sender=Events_online.related_attractions.through)
+def sync_online_to_attractions(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    # Import inside to avoid circular imports
+    from events_cultural.models import Attractions
+    related_qs = Attractions.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_online_events.filter(pk=instance.pk).exists():
+            related.related_online_events.add(instance)
+
+@receiver(m2m_changed, sender=Events_online.related_events_for_visiting.through)
+def sync_online_to_visiting(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    from events_cultural.models import Events_for_visiting
+    related_qs = Events_for_visiting.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_online_events.filter(pk=instance.pk).exists():
+            related.related_online_events.add(instance)
+
 
 class EventOnlineGallery(models.Model):
     event = models.ForeignKey('Events_online', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')
@@ -175,6 +255,13 @@ class Events_offline(models.Model):
     users_chat_link = models.URLField(unique=False, blank=True, null=True, verbose_name='Ссылка на чат пользователей')
     support_chat_id = models.CharField(max_length=100, unique=False, blank=True, null=True, verbose_name='ID чата поддержки')
 
+        # Связанные мероприятия
+    related_online_events = models.ManyToManyField('Events_online', blank=True, related_name='related_to_offline', verbose_name='Связанные онлайн мероприятия')
+    related_offline_events = models.ManyToManyField('Events_offline', blank=True, related_name='related_to_offline_self', verbose_name='Связанные оффлайн мероприятия')
+    related_attractions = models.ManyToManyField('events_cultural.Attractions', blank=True, related_name='related_to_offline', verbose_name='Связанные достопримечательности')
+    related_events_for_visiting = models.ManyToManyField('events_cultural.Events_for_visiting', blank=True, related_name='related_to_offline', verbose_name='Связанные мероприятия для посещения')
+
+
 
     class Meta:
         db_table = 'Events_offline'
@@ -216,6 +303,24 @@ class Events_offline(models.Model):
     def safe_description(self):
         from .utils import sanitize_html
         return sanitize_html(self.description)
+
+
+    def get_related_events(self):
+        related_events = []
+        
+        # Добавляем связанные онлайн мероприятия
+        related_events.extend(self.related_online_events.all())
+        
+        # Добавляем связанные оффлайн мероприятия
+        related_events.extend(self.related_offline_events.all())
+        
+        # Добавляем связанные достопримечательности
+        related_events.extend(self.related_attractions.all())
+        
+        # Добавляем связанные мероприятия для посещения
+        related_events.extend(self.related_events_for_visiting.all())
+        
+        return related_events
         
     def save(self, *args, **kwargs):
         self.clean()
@@ -238,6 +343,55 @@ class Events_offline(models.Model):
         
 
         super(Events_offline, self).save(*args, **kwargs)
+
+
+# ====== Bidirectional sync for related fields of Events_offline ======
+@receiver(m2m_changed, sender=Events_offline.related_offline_events.through)
+def sync_offline_to_offline(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    related_qs = Events_offline.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_offline_events.filter(pk=instance.pk).exists():
+            related.related_offline_events.add(instance)
+
+@receiver(m2m_changed, sender=Events_offline.related_online_events.through)
+def sync_offline_to_online(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    related_qs = Events_online.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_offline_events.filter(pk=instance.pk).exists():
+            related.related_offline_events.add(instance)
+
+@receiver(m2m_changed, sender=Events_offline.related_attractions.through)
+def sync_offline_to_attractions(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    from events_cultural.models import Attractions
+    related_qs = Attractions.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_offline_events.filter(pk=instance.pk).exists():
+            related.related_offline_events.add(instance)
+
+@receiver(m2m_changed, sender=Events_offline.related_events_for_visiting.through)
+def sync_offline_to_visiting(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action != 'post_add' or reverse:
+        return
+    if not pk_set:
+        return
+    from events_cultural.models import Events_for_visiting
+    related_qs = Events_for_visiting.objects.filter(pk__in=pk_set)
+    for related in related_qs:
+        if not related.related_offline_events.filter(pk=instance.pk).exists():
+            related.related_offline_events.add(instance)
+
 
 class EventOfflineGallery(models.Model):
     event = models.ForeignKey('Events_offline', on_delete=models.CASCADE, related_name='gallery', verbose_name='Мероприятие')
@@ -283,7 +437,7 @@ class EventOfflineCheckList(models.Model):
 
         def __str__(self):
             return f"{self.task_name} ({'✓' if self.completed else '—'})"
-        
+
 
 class DefaultTasks(models.Model):
     name = models.CharField(max_length=512, verbose_name="Задача")
@@ -406,3 +560,4 @@ class EventLogistics(models.Model):
 
     def __str__(self):
         return f"Логистика для {self.user} на {self.event.name}"
+
