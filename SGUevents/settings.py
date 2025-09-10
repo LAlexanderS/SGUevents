@@ -22,7 +22,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4z
 
 # ALLOWED_HOSTS = ['*']
 
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['aikonti.ru', 'www.aikonti.ru', '127.0.0.1', 'localhost', 'aikonti.help', 'aikonti']
 
 
@@ -232,8 +232,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Ограничение размера загружаемого файла (10 МБ на один файл)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
-# Лимит суммарного объёма изображений и файлов (галереи + поля qr/image/documents) в админке
-# 9.5 МБ, но не выше глобального лимита загрузки
+# Лимитобъёма изображений(галерея + поля qr image documents)
+# 9.5 МБ для запаса
 MAX_GALLERY_UPLOAD_BYTES = min(int(9.5 * 1024 * 1024), DATA_UPLOAD_MAX_MEMORY_SIZE)
 MAX_GALLERY_UPLOAD_MB = round(MAX_GALLERY_UPLOAD_BYTES / (1024 * 1024), 1)
 
