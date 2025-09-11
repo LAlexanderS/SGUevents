@@ -12,6 +12,26 @@
 	<link rel="stylesheet" href="{% static 'general/css/events_available.css' %}">
 	<link rel="stylesheet" href="{% static 'general/css/jquery-ui.css' %}">
 	<link rel="stylesheet" href="{% static 'scripts/select2.min.css' %}">
+    <style>
+        /* Simple page preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity .3s ease, visibility .3s ease;
+        }
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
     
     {% block style %}{% endblock style %}
 
@@ -19,6 +39,9 @@
 </head>
 
 <body>
+    <div id="preloader" aria-label="Загрузка страницы">
+        <div class="spinner-border text-secondary" role="status" aria-hidden="true"></div>
+    </div>
 	<header>
         <nav class="navbar navbar-expand-lg bg-dark text-white">
             <div class="container-fluid">
@@ -136,6 +159,18 @@
     <script src="{% static 'scripts/jquery-3.6.0.min.js' %}"></script>
 	<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 	<script src="{% static 'scripts/select2.min.js' %}"></script>
+    <script>
+        // Hide preloader once all resources are fully loaded
+        window.addEventListener('load', function () {
+            var preloader = document.getElementById('preloader')
+            if (preloader) {
+                preloader.classList.add('hidden')
+                setTimeout(function(){
+                    if (preloader && preloader.parentNode) preloader.parentNode.removeChild(preloader)
+                }, 400)
+            }
+        })
+    </script>
 
     {% comment %} Отправка сообщения участникам {% endcomment %}
     <script>
