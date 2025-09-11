@@ -22,7 +22,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4z
 
 # ALLOWED_HOSTS = ['*']
 
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '95.47.161.83', 'sguevents.help', 'www.sguevents.help']
 
 
@@ -183,10 +183,10 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://aikonti.ru',
-    'https://www.aikonti.ru',
-    'https://aikonti.help',
-    'https://www.aikonti.help',
+    'https://sguevents.ru',
+    'https://www.sguevents.ru',
+    'https://sguevents.help',
+    'https://www.sguevents.help',
     'http://127.0.0.1:8000',  # Для прямого доступа при разработке
     'http://localhost:8000',
 ]
