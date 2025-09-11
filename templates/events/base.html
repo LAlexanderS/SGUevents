@@ -10,6 +10,27 @@
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static "css/styles.css" %}">
     <link rel="stylesheet" href="{% static "css/notification.css" %}">
+    <style>
+        /* Simple page preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity .3s ease, visibility .3s ease;
+        }
+        #preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+
     <script src="{% static 'lib/js/popper.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     {% comment %} <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1014,6 +1035,19 @@
     <script src="{% static "js/sort_selected_script.js" %}"></script>
 
     <script src="{% static "js/content_load_script.js" %}"></script>
+
+    <script>
+        // Hide preloader once all resources are fully loaded
+        window.addEventListener('load', function () {
+            var preloader = document.getElementById('preloader')
+            if (preloader) {
+                preloader.classList.add('hidden')
+                setTimeout(function(){
+                    if (preloader && preloader.parentNode) preloader.parentNode.removeChild(preloader)
+                }, 400)
+            }
+        })
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
