@@ -3,17 +3,22 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    min-height: 90vh;
 }
 
 .error-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
-    text-indent: 0;
-    text-align: center;
 }
 
 .error-img {
     width: 35%;
-    margin-top: 5%;
 }
 
 .error-text {
@@ -23,6 +28,10 @@ body {
     color: white;
 }
 
+.error-text-type {
+    font-size: 54px;
+}
+
 @media (max-width: 480px) {
     .error-img {
         width: 90%;
@@ -30,8 +39,8 @@ body {
     }
 
     .error-text {
+        text-align: center;
         font-family: 'Onest';
         line-height: 110%;
-        font-size: 16px;
     }
 }

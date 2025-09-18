@@ -1,6 +1,7 @@
 from typing import Any
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django import forms
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
 from django.contrib.auth import get_user_model
@@ -225,6 +226,22 @@ class Events_onlineAdmin(RestrictedAdminMixin, admin.ModelAdmin):
 @admin.register(DefaultTasks)
 class DefaultTasksAdmin(admin.ModelAdmin):
     search_fields = ['name']
+
+    class DefaultTasksAdminForm(forms.ModelForm):
+        class Meta:
+            model = DefaultTasks
+            fields = '__all__'
+
+        def clean_name(self):
+            name = (self.cleaned_data.get('name') or '').strip()
+            qs = DefaultTasks.objects.all()
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if name and qs.filter(name__iexact=name).exists():
+                raise ValidationError('Задача с таким названием уже существует')
+            return name
+
+    form = DefaultTasksAdminForm
 
 class EventOfflineCheckListInline(admin.TabularInline):
     model = EventOfflineCheckList
