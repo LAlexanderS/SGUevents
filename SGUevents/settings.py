@@ -183,10 +183,10 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://aikonti.ru',
-    'https://www.aikonti.ru',
-    'https://aikonti.help',
-    'https://www.aikonti.help',
+    'https://sguevents.ru',
+    'https://www.sguevents.ru',
+    'https://sguevents.help',
+    'https://www.sguevents.help',
     'http://127.0.0.1:8000',  # Для прямого доступа при разработке
     'http://localhost:8000',
 ]
