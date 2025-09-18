@@ -263,6 +263,160 @@ h1 {
     min-height: 60px !important;
 }
 
+.mob-row {
+    margin: 0px 0px 20px 0px;
+}
+
+
+
+
+
+
+.rating-group {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-group input[type="radio"] {
+    display: none;
+}
+
+.rating-group label {
+    font-size: 2rem;
+    fill: #7d2222 !important;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.rating-group label svg {
+    fill: #BFE2FF !important;
+    transition: fill 0.2s;
+}
+
+
+.rating-group input[type="radio"]:checked~label svg,
+.rating-group label:hover svg,
+.rating-group label:hover~label svg {
+    fill: rgb(39, 66, 106) !important;
+}
+
+
+/* Контейнер для рейтинга */
+.rating-overlay-card {
+    position: static;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    pointer-events: auto;
+}
+
+.rating-group label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+
+.rating-group-static {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-group-static label.filled svg path {
+    fill: rgb(39, 66, 106);
+}
+
+
+
+/* .half-stars-static input:checked~label svg {
+    fill:green;
+} */
+
+.info-block {
+    display: inline-block;
+
+    width: 380px;
+    height: 150px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 25px;
+    box-shadow: -2px 2px 6px 0px rgba(0, 0, 0, 0.25), 2px 2px 6px 0px rgba(0, 0, 0, 0.25);
+    background: rgba(217, 217, 217, 0.8);
+    color: rgb(76, 79, 95);
+    font-family: 'Onest';
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 130%;
+    letter-spacing: 0%;
+    text-align: center;
+}
+
+.carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+}
+
+.carousel-btn-wrapper {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.carousel-wrapper {
+    overflow: hidden;
+    flex: 1;
+}
+
+.carousel-track {
+    display: flex;
+    /* justify-content: center; */
+    margin-left: 0;
+    transition: transform 0.4s ease;
+    gap: 20px;
+    padding: 0px 10px;
+}
+
+.carousel-track>.info-block {
+    flex: 0 0 calc((100% - 40px) / 3);
+    /* 2 * gap */
+    box-sizing: border-box;
+    min-width: 0;
+    margin: 10px 0px;
+}
+
+.carousel-btn {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    line-height: 34px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    user-select: none;
+}
+
+.carousel-container-mobile {
+    display: none;
+}
+
+.hashtags {
+    text-align: center;
+    margin-top: 0;
+    font-weight: 500;
+    text-indent: 0;
+    margin-bottom: 20px;
+}
 
 
 @media (max-width: 1440px) {
@@ -393,13 +547,11 @@ h1 {
         display: none;
     }
 
-    .mobile-blocks {
-        display: block;
-        padding-top: 10px;
-        margin-bottom: 5px;
+    .hashtags {
+        margin-bottom: 10px;
     }
 
-    tr {
+    /* tr {
         margin-right: 10px;
     }
 
@@ -429,7 +581,7 @@ h1 {
         color: rgb(39, 66, 106);
         line-height: 110%;
         text-shadow: 0px 1px 7px #686868ab;
-    }
+    } */
 
     .small-to-main-arrow {
         display: block;
@@ -581,66 +733,175 @@ h1 {
     .btn-support {
         min-height: 40px !important;
     }
+
+
+
+
+
+    /* КАРУСЕЛЬ ИНФО-БЛОКОВ */
+
+    .carousel-container-mobile {
+        display: block;
+    }
+
+    .info-block {
+        display: block;
+        width: 70%;
+        height: 90px;
+        margin-bottom: 0;
+        margin-top: 10px;
+        margin-left: 15%;
+    }
+
+    .carousel-track {
+        display: none;
+    }
+
+    .carousel-btn.left {
+        display: none;
+    }
+
+    .carousel-btn.right {
+        display: none;
+    }
+
+
+    .carousel-wrapper-mobile {
+        display: flex;
+        align-items: center;
+        /* Центровка стрелок по вертикали */
+        justify-content: center;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        gap: 8px;
+        padding: 0 15px;
+        box-sizing: border-box;
+    }
+
+    .carousel-btn-mobile {
+        background-color: white;
+        border: none;
+        border-radius: 50%;
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 2;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease;
+    }
+
+    .carousel-btn-mobile:hover {
+        background-color: #f0f0f0;
+    }
+
+    .carousel-track-mobile {
+        display: flex;
+        margin-left: 0;
+        transition: transform 0.4s ease;
+        /* padding: 0px 10px; */
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .carousel-track-mobile>.info-block {
+        flex: 0 0 calc((100% - 40px) / 3);
+        /* 2 * gap */
+        box-sizing: border-box;
+        min-width: 0;
+        margin: 10px 0px;
+    }
+
+    .info-slide {
+        flex: 0 0 33.3333%;
+        max-width: 33.3333%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        /* вот ключ к ширине 100% */
+        text-align: left;
+    }
+
+    .info-slide .info-icon,
+    .info-slide .info-title,
+    .info-slide .info-cell {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+
+    .carousel-btn-mobile.left {
+        display: block;
+    }
+
+    .carousel-btn-mobile.right {
+        display: block;
+    }
+
+
+    .mobile-blocks {
+        display: block;
+        padding-top: 10px;
+        margin-bottom: 5px;
+    }
+
+    .info-block-mobile {
+        display: flex;
+        width: 100%;
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    .info-column {
+        flex: 0 0 33.3333%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 0 4px;
+        /* можно убрать, если нужно без отступов совсем */
+    }
+
+    .info-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 6px;
+        object-fit: contain;
+    }
+
+    .info-title,
+    .info-cell {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+        margin: 0 auto;
+    }
+
+
+    .info-title {
+        font-weight: bold;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    .info-cell {
+        font-size: 13px;
+    }
+
+    /* КОНЕЦ СТИЛЕЙ ИНФО-БЛОКОВ */
+
+    .comment-title {
+        margin-top: 20px;
+    }
 }
-
-.rating-group {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-}
-
-.rating-group input[type="radio"] {
-    display: none;
-}
-
-.rating-group label {
-    font-size: 2rem;
-    fill: #7d2222 !important;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.rating-group label svg {
-    fill: #BFE2FF !important;
-    transition: fill 0.2s;
-}
-
-
-.rating-group input[type="radio"]:checked~label svg,
-.rating-group label:hover svg,
-.rating-group label:hover~label svg {
-    fill: rgb(39, 66, 106) !important;
-}
-
-
-/* Контейнер для рейтинга */
-.rating-overlay-card {
-    position: static;
-    width: auto;
-    height: auto;
-    opacity: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    pointer-events: auto;
-}
-
-.rating-group label.filled svg path {
-    fill: rgb(39, 66, 106);
-}
-
-
-.rating-group-static {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-}
-
-.rating-group-static label.filled svg path {
-    fill: rgb(39, 66, 106);
-}
-
-/* .half-stars-static input:checked~label svg {
-    fill:green;
-} */

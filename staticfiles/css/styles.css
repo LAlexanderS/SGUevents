@@ -968,9 +968,8 @@ td {
 
 .text-container {
     overflow: hidden;
-    /* Скрываем лишний контент */
     height: 260px;
-    /*  Установите нужную высоту блока */
+    white-space: pre-wrap;
 }
 
 .page {
@@ -1042,7 +1041,7 @@ td {
 }
 
 .main-buttons {
-    margin-bottom: 100px;
+    margin-bottom: 50px;
 }
 
 .blocks,
@@ -1061,26 +1060,10 @@ td {
     justify-content: space-around;
     text-align: center;
     margin-top: 50px;
-    margin-bottom: 150px;
+    margin-bottom: 50px;
 }
 
-.info-block {
-    display: inline-block;
-    margin: 30px;
-    width: 380px;
-    height: 150px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 25px;
-    box-shadow: -2px 2px 6px 0px rgba(0, 0, 0, 0.25), 2px 2px 6px 0px rgba(0, 0, 0, 0.25);
-    background: rgba(217, 217, 217, 0.8);
-    color: rgb(76, 79, 95);
-    font-family: 'Onest';
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 130%;
-    letter-spacing: 0%;
-    text-align: center;
-}
+
 
 .info-content {
     padding-top: 10px;
@@ -1311,11 +1294,16 @@ td {
     border-radius: 4px;
     font-family: 'Onest';
     font-size: 20px;
-    font-weight: 400;
     line-height: 130%;
     color: rgb(39, 66, 106);
     max-height: 150px;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 500;
+    text-indent: 0;
 }
+
 
 .item {
     display: inline-block;
@@ -1743,12 +1731,7 @@ td {
         font-size: 18px;
     }
 
-    .info-block {
-        display: inline-block;
-        margin: 25px;
-        width: 330px;
-        height: 130px;
-    }
+
 
     .title {
         height: 50.88px;
@@ -1915,13 +1898,6 @@ td {
 
     .hashtags {
         font-size: 16px;
-    }
-
-    .info-block {
-        display: inline-block;
-        margin: 25px;
-        width: 330px;
-        height: 130px;
     }
 
     .title {
@@ -2156,11 +2132,6 @@ td {
         font-size: 14px;
     }
 
-    .info-block {
-        margin: 20px;
-        width: 330px;
-        height: 130px;
-    }
 
     .title {
         height: 50.88px;
@@ -3371,14 +3342,7 @@ td {
         padding-bottom: 5px;
     }
 
-    .info-block {
-        display: block;
-        width: 70%;
-        height: 90px;
-        margin-bottom: 0;
-        margin-top: 10px;
-        margin-left: 15%;
-    }
+
 
     .title {
         height: 40px;
@@ -3495,6 +3459,7 @@ td {
         width: 315px;
         padding-inline: 2px;
         text-indent: 0;
+        margin: 20px 0px 0px 0px;
     }
 
     .main-button {
@@ -3677,6 +3642,10 @@ td {
         z-index: 2;
     }
 
+    .half-stars input:checked~label svg {
+        fill: #BFE2FF;
+    }
+
     .admin-connect {
         text-indent: 0;
     }
@@ -3718,7 +3687,6 @@ td {
 
     .selection {
         width: fit-content;
-
     }
 
     .filter-message {
@@ -3775,7 +3743,7 @@ td {
     }
 
     .mob-row {
-        width: 100vw;
+        width: 100%;
     }
 
     .preview-event-id {
@@ -3887,7 +3855,6 @@ td {
     }
 
     .main-buttons {
-        margin-left: 0px;
         width: 70%;
     }
 
@@ -3982,7 +3949,6 @@ td {
     .main-image-mobile img {
         width: 290px;
         height: 210px;
-        box-shadow: 0px 0px 4px 2px #77748689;
     }
 
     .about-event {
@@ -4066,9 +4032,7 @@ td {
     }
 
     .main-buttons {
-        margin-bottom: 100px;
         width: 80%;
-        padding-left: 25px;
     }
 
     .review-container .prev-reviews,
