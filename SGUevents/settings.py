@@ -18,12 +18,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# ALLOWED_HOSTS = ['*']
-
-DEBUG = False
-ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '95.47.161.83', 'sguevents.help', 'www.sguevents.help']
+# ALLOWED_HOSTS управляем через окружение, с безопасными дефолтами
+ALLOWED_HOSTS = os.environ.get(
+    'ALLOWED_HOSTS',
+    'sguevents.ru,www.sguevents.ru,95.47.161.83,event.larin.work'
+).split(',')
 
 
 
@@ -171,13 +172,14 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Security settings for HTTPS
+# Доверяем заголовку от внешнего прокси (nginx/caddy на VPS)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
+# Всегда работаем через HTTPS (локально тоже заходишь через домен с https)
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
-
-# Дополнительные настройки безопасности для SSL
 SECURE_HSTS_SECONDS = 31536000  # 1 год
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
@@ -185,8 +187,9 @@ SECURE_HSTS_PRELOAD = True
 CSRF_TRUSTED_ORIGINS = [
     'https://sguevents.ru',
     'https://www.sguevents.ru',
-    'https://sguevents.help',
-    'https://www.sguevents.help',
+    # 'https://sguevents.help',  # удалено: используем event.larin.work
+    # 'https://www.sguevents.help',
+    'https://event.larin.work',
     'http://127.0.0.1:8000',  # Для прямого доступа при разработке
     'http://localhost:8000',
 ]
