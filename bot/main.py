@@ -254,7 +254,7 @@ async def process_department_code(message: types.Message, state: FSMContext):
         await state.clear()
         
         # Формируем URL с токеном авторизации
-        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://sguevents.help"
+        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://event.larin.work"
         auth_url = f"{base_url}/users/auth/telegram/{auth_token.token}"
         
         # Создаем клавиатуру с кнопкой
@@ -989,7 +989,7 @@ async def portal_button(message: types.Message):
     user = await get_user_profile(message.from_user.id)
     if user:
         # Формируем URL портала
-        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://sguevents.help"
+        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://event.larin.work"
         
         # Создаем клавиатуру с кнопкой
         keyboard = types.InlineKeyboardMarkup(
