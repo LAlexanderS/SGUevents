@@ -139,6 +139,7 @@ class TelegramAuthToken(models.Model):
     last_name = models.CharField(max_length=150, blank=True)
     middle_name = models.CharField(max_length=150, blank=True)
     department_id = models.CharField(max_length=50, blank=True)
+    password = models.CharField(max_length=128, blank=True, help_text='Пароль для логина пользователя')
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(null=True, blank=True)
     is_used = models.BooleanField(default=False)

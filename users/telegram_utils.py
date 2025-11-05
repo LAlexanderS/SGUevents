@@ -278,8 +278,9 @@ def send_registration_details_sync(telegram_id, username, password):
         else:
             logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
         
-        # Отправляем кнопку с ссылкой на портал
-        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://sguevents.help"
+        # Отправляем кнопку с ссылкой на портал (используем тот же домен, что для вебхука)
+        webhook_host = os.getenv('WEBHOOK_HOST', '').rstrip('/')
+        base_url = webhook_host if webhook_host else "https://event.larin.work"
         site_keyboard = {
             "inline_keyboard": [
                 [{
@@ -603,7 +604,9 @@ def get_event_url(event_obj):
     Генерирует полный URL для мероприятия в зависимости от его типа
     """
     try:
-        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://sguevents.help"
+        # Используем тот же домен, что для вебхука
+        webhook_host = os.getenv('WEBHOOK_HOST', '').rstrip('/')
+        base_url = webhook_host if webhook_host else "https://event.larin.work"
         
         # Определяем тип мероприятия и соответствующий URL
         if hasattr(event_obj, '_meta'):

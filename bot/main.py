@@ -240,17 +240,22 @@ async def process_department_code(message: types.Message, state: FSMContext):
         # Проверяем существование отдела
         department = await sync_to_async(Department.objects.get)(department_id=department_code)
         
-        # Создаем токен авторизации
+        # Генерируем пароль ДО создания токена
+        from django.utils.crypto import get_random_string
+        password = get_random_string(8)
+        
+        # Создаем токен авторизации с паролем и данными пользователя
         from users.models import TelegramAuthToken
         auth_token = await sync_to_async(TelegramAuthToken.objects.create)(
             telegram_id=str(message.from_user.id),
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
-            middle_name=user_data.get('middle_name', ''),  # Гарантируем пустую строку по умолчанию
-            department_id=department_code
+            middle_name=user_data.get('middle_name', ''),
+            department_id=department_code,
+            password=password
         )
         
-        # Очищаем состояние
+        # Очищаем состояние формы
         await state.clear()
         
         # Формируем URL с токеном авторизации (используем тот же домен, что для вебхука)
@@ -268,7 +273,7 @@ async def process_department_code(message: types.Message, state: FSMContext):
         )
         
         await message.answer(
-            "Для завершения регистрации нажмите на кнопку ниже:",
+            "Нажми, чтобы завершить регистрацию. После перехода мы пришлём логин и пароль.",
             reply_markup=keyboard
         )
         

@@ -114,75 +114,78 @@ def login_view(request):
 @csrf_exempt
 def telegram_auth(request, token):
     """
-    Обработка авторизации через Telegram
+    Обработка авторизации через Telegram: автоматический логин и редирект
     """
     try:
         with transaction.atomic():
             auth_token = TelegramAuthToken.objects.select_for_update().get(token=token)
             
-            # Если токен уже использован, просто показываем страницу входа
+            # Если токен уже использован - редирект на главную (пользователь уже зарегистрирован)
             if auth_token.is_used:
-                return render(request, 'users/telegram_login.html', {
-                    'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-                })
+                logger.warning(f"Токен уже использован: {token}")
+                return redirect('main:index')
             
             if not auth_token.is_valid():
                 logger.warning(f"Токен недействителен: is_used={auth_token.is_used}, expires_at={auth_token.expires_at}")
-                return render(request, 'users/telegram_login.html', {
-                    'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-                })
+                messages.error(request, "Ссылка недействительна или истекла срок действия.")
+                return redirect('users:login')
 
-            # Создаем отдел если не существует
-            department, _ = Department.objects.get_or_create(
-                department_id=auth_token.department_id,
-                defaults={'department_name': f'Отдел {auth_token.department_id}'}
-            )
+            # Проверяем, существует ли уже пользователь с таким telegram_id
+            user = User.objects.filter(telegram_id=auth_token.telegram_id).first()
             
-            # Генерируем пароль до создания пользователя
-            password = get_random_string(8)
+            # Получаем пароль из токена (сгенерирован в боте)
+            password = auth_token.password
             
-            # Создаем пользователя используя CustomUserManager
-            user_kwargs = {
-                'first_name': auth_token.first_name,
-                'last_name': auth_token.last_name,
-                'middle_name': auth_token.middle_name,
-                'department': department,
-                'telegram_id': auth_token.telegram_id,
-                'password': password
-            }
+            if not user:
+                # Создаем отдел если не существует
+                department, _ = Department.objects.get_or_create(
+                    department_id=auth_token.department_id,
+                    defaults={'department_name': f'Отдел {auth_token.department_id}'}
+                )
+                
+                # Создаем пользователя используя пароль из токена
+                user_kwargs = {
+                    'first_name': auth_token.first_name,
+                    'last_name': auth_token.last_name,
+                    'middle_name': auth_token.middle_name,
+                    'department': department,
+                    'telegram_id': auth_token.telegram_id,
+                    'password': password  # Используем пароль из токена
+                }
+                
+                user = User.objects.create_user(**user_kwargs)
+                logger.info(f"Создан новый пользователь: {user.username}")
+            else:
+                # Если пользователь уже существует, обновляем пароль на пароль из токена (чтобы логин сработал)
+                user.set_password(password)
+                user.save()
+                logger.info(f"Пароль обновлен для существующего пользователя {user.username}")
             
-            user = User.objects.create_user(**user_kwargs)
-            logger.info(f"Создан новый пользователь: {user.username}")
-            
-            # Автоматическая загрузка аватара из Telegram отключена
-            
-            # Отправляем данные для входа в Telegram
-            try:
-                send_registration_details_sync(auth_token.telegram_id, user.username, password)
-                logger.info(f"Данные для входа отправлены пользователю {user.username}")
-            except Exception as e:
-                logger.error(f"Ошибка при отправке данных для входа: {str(e)}")
-            
-            # Помечаем токен как использованный
+            # Помечаем токен как использованный (одноразовая ссылка) ПЕРЕД логином
             auth_token.is_used = True
             auth_token.save()
             logger.info(f"Токен помечен как использованный")
             
-            # После успешной регистрации показываем страницу входа
-            return render(request, 'users/telegram_login.html', {
-                'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-            })
+            # Логиним пользователя напрямую (без промежуточных страниц)
+            auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            request.session['login_method'] = 'Через Telegram (по логину/паролю)'
+            logger.info(f"Пользователь {user.username} успешно авторизован")
+            
+            # Отправляем итоговые учетные данные пользователю в Telegram
+            send_registration_details_sync(auth_token.telegram_id, user.username, password)
+            logger.info(f"Итоговые данные для входа отправлены пользователю {user.username}")
+
+            # Редирект на главную (без промежуточной страницы)
+            return redirect('main:index')
             
     except TelegramAuthToken.DoesNotExist:
         logger.error(f"Токен не найден в базе: {token}")
-        return render(request, 'users/telegram_login.html', {
-            'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-        })
+        messages.error(request, "Неверная ссылка регистрации.")
+        return redirect('users:login')
     except Exception as e:
         logger.error(f"Ошибка при авторизации: {str(e)}")
-        return render(request, 'users/telegram_login.html', {
-            'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-        })
+        messages.error(request, "Произошла ошибка при регистрации. Попробуйте позже.")
+        return redirect('users:login')
 
 @csrf_exempt
 @login_required
