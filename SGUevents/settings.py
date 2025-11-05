@@ -23,7 +23,16 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4z
 # ALLOWED_HOSTS = ['*']
 
 DEBUG = False
-ALLOWED_HOSTS = ['sguevents.ru', 'www.sguevents.ru', '95.47.161.83', 'sguevents.help', 'www.sguevents.help']
+ALLOWED_HOSTS = [
+    'sguevents.ru',
+    'www.sguevents.ru',
+    '95.47.161.83',
+    'sguevents.help',
+    'www.sguevents.help',
+    'event.larin.work',
+    '127.0.0.1',
+    'localhost',
+]
 
 
 
