@@ -255,11 +255,20 @@ def send_registration_details_sync(telegram_id, username, password):
     Отправляет учетные данные новому пользователю через Telegram
     """
     try:
+        # Получаем базовый URL для ссылки на профиль
+        webhook_host = os.getenv('WEBHOOK_HOST', '').rstrip('/')
+        base_url = webhook_host if webhook_host else "https://event.larin.work"
+        profile_url = f"{base_url}{reverse('users:profile')}"
+        
         message = (
-            f"\U0001F44B Добро пожаловать!\n"
-            f"Ваши учетные данные:\n"
-            f"Username: {username}\nПароль: {password}\n"
-            f"Вы можете войти через Telegram без логина и пароля."
+            f"👋 <b>Добро пожаловать!</b>\n\n"
+            f"🔐 <b>Ваши учетные данные:</b>\n\n"
+            f"👤 <b>Логин:</b> <code>{username}</code>\n"
+            f"🔑 <b>Пароль:</b> <code>{password}</code>\n\n"
+            f"💡 <b>Способы входа на портал:</b>\n"
+            f"• По логину и паролю\n"
+            f"• Через ваш аккаунт Telegram\n\n"
+            f"⚙️ Пароль можно изменить в <a href=\"{profile_url}\">профиле пользователя</a> на портале."
         )
         
         url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -279,8 +288,6 @@ def send_registration_details_sync(telegram_id, username, password):
             logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
         
         # Отправляем кнопку с ссылкой на портал (используем тот же домен, что для вебхука)
-        webhook_host = os.getenv('WEBHOOK_HOST', '').rstrip('/')
-        base_url = webhook_host if webhook_host else "https://event.larin.work"
         site_keyboard = {
             "inline_keyboard": [
                 [{
