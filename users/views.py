@@ -28,9 +28,10 @@ from django.utils.dateparse import parse_datetime
 
 
 from .forms import RegistrationForm, UserPasswordChangeForm
-from .models import Department, AdminRightRequest, TelegramAuthToken
+from .models import Department, AdminRightRequest, TelegramAuthToken, PasswordResetCode
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
 from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
+from .telegram_utils import send_password_reset_warning, send_password_reset_code
 from events_available.models import EventLogistics, Events_offline
 from bookmarks.models import Registered
 from users.forms import EventLogisticsForm
@@ -114,75 +115,78 @@ def login_view(request):
 @csrf_exempt
 def telegram_auth(request, token):
     """
-    Обработка авторизации через Telegram
+    Обработка авторизации через Telegram: автоматический логин и редирект
     """
     try:
         with transaction.atomic():
             auth_token = TelegramAuthToken.objects.select_for_update().get(token=token)
             
-            # Если токен уже использован, просто показываем страницу входа
+            # Если токен уже использован - редирект на главную (пользователь уже зарегистрирован)
             if auth_token.is_used:
-                return render(request, 'users/telegram_login.html', {
-                    'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-                })
+                logger.warning(f"Токен уже использован: {token}")
+                return redirect('main:index')
             
             if not auth_token.is_valid():
                 logger.warning(f"Токен недействителен: is_used={auth_token.is_used}, expires_at={auth_token.expires_at}")
-                return render(request, 'users/telegram_login.html', {
-                    'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-                })
+                messages.error(request, "Ссылка недействительна или истекла срок действия.")
+                return redirect('users:login')
 
-            # Создаем отдел если не существует
-            department, _ = Department.objects.get_or_create(
-                department_id=auth_token.department_id,
-                defaults={'department_name': f'Отдел {auth_token.department_id}'}
-            )
+            # Проверяем, существует ли уже пользователь с таким telegram_id
+            user = User.objects.filter(telegram_id=auth_token.telegram_id).first()
             
-            # Генерируем пароль до создания пользователя
-            password = get_random_string(8)
+            # Получаем пароль из токена (сгенерирован в боте)
+            password = auth_token.password
             
-            # Создаем пользователя используя CustomUserManager
-            user_kwargs = {
-                'first_name': auth_token.first_name,
-                'last_name': auth_token.last_name,
-                'middle_name': auth_token.middle_name,
-                'department': department,
-                'telegram_id': auth_token.telegram_id,
-                'password': password
-            }
+            if not user:
+                # Создаем отдел если не существует
+                department, _ = Department.objects.get_or_create(
+                    department_id=auth_token.department_id,
+                    defaults={'department_name': f'Отдел {auth_token.department_id}'}
+                )
+                
+                # Создаем пользователя используя пароль из токена
+                user_kwargs = {
+                    'first_name': auth_token.first_name,
+                    'last_name': auth_token.last_name,
+                    'middle_name': auth_token.middle_name,
+                    'department': department,
+                    'telegram_id': auth_token.telegram_id,
+                    'password': password  # Используем пароль из токена
+                }
+                
+                user = User.objects.create_user(**user_kwargs)
+                logger.info(f"Создан новый пользователь: {user.username}")
+            else:
+                # Если пользователь уже существует, обновляем пароль на пароль из токена (чтобы логин сработал)
+                user.set_password(password)
+                user.save()
+                logger.info(f"Пароль обновлен для существующего пользователя {user.username}")
             
-            user = User.objects.create_user(**user_kwargs)
-            logger.info(f"Создан новый пользователь: {user.username}")
-            
-            # Автоматическая загрузка аватара из Telegram отключена
-            
-            # Отправляем данные для входа в Telegram
-            try:
-                send_registration_details_sync(auth_token.telegram_id, user.username, password)
-                logger.info(f"Данные для входа отправлены пользователю {user.username}")
-            except Exception as e:
-                logger.error(f"Ошибка при отправке данных для входа: {str(e)}")
-            
-            # Помечаем токен как использованный
+            # Помечаем токен как использованный (одноразовая ссылка) ПЕРЕД логином
             auth_token.is_used = True
             auth_token.save()
             logger.info(f"Токен помечен как использованный")
             
-            # После успешной регистрации показываем страницу входа
-            return render(request, 'users/telegram_login.html', {
-                'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-            })
+            # Логиним пользователя напрямую (без промежуточных страниц)
+            auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            request.session['login_method'] = 'Через Telegram (по логину/паролю)'
+            logger.info(f"Пользователь {user.username} успешно авторизован")
+            
+            # Отправляем итоговые учетные данные пользователю в Telegram
+            send_registration_details_sync(auth_token.telegram_id, user.username, password)
+            logger.info(f"Итоговые данные для входа отправлены пользователю {user.username}")
+
+            # Редирект на главную (без промежуточной страницы)
+            return redirect('main:index')
             
     except TelegramAuthToken.DoesNotExist:
         logger.error(f"Токен не найден в базе: {token}")
-        return render(request, 'users/telegram_login.html', {
-            'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-        })
+        messages.error(request, "Неверная ссылка регистрации.")
+        return redirect('users:login')
     except Exception as e:
         logger.error(f"Ошибка при авторизации: {str(e)}")
-        return render(request, 'users/telegram_login.html', {
-            'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME
-        })
+        messages.error(request, "Произошла ошибка при регистрации. Попробуйте позже.")
+        return redirect('users:login')
 
 @csrf_exempt
 @login_required
@@ -747,3 +751,219 @@ def fetch_telegram_photo(request):
             return JsonResponse({'success': False, 'error': 'Произошла ошибка при загрузке фото из Telegram'})
 
     return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+
+def password_reset_request(request):
+    """
+    Обработка запроса на восстановление пароля
+    """
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        
+        if not username:
+            messages.error(request, 'Пожалуйста, введите логин')
+            return render(request, 'users/password_reset.html', {'step': 'username'})
+        
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            # Не показываем, что пользователь не найден (безопасность)
+            messages.success(request, 'Если пользователь с таким логином существует и к нему привязан Telegram, код восстановления будет отправлен.')
+            return render(request, 'users/password_reset.html', {'step': 'username'})
+        
+        # Проверяем наличие telegram_id
+        if not user.telegram_id:
+            messages.error(request, 'К данному аккаунту не привязан Telegram. Восстановление пароля невозможно.')
+            return render(request, 'users/password_reset.html', {'step': 'username'})
+        
+        # Проверяем существующие активные коды
+        existing_code = PasswordResetCode.objects.filter(
+            user=user,
+            is_used=False,
+            expires_at__gt=timezone.now()
+        ).first()
+        
+        if existing_code:
+            # Если код уже существует и можно отправить повторно
+            if existing_code.can_resend():
+                # Генерируем новый код
+                new_code = ''.join([str(get_random_string(1, allowed_chars='0123456789')) for _ in range(6)])
+                existing_code.code = new_code
+                existing_code.last_resend_at = timezone.now()
+                existing_code.resend_count += 1
+                existing_code.save()
+                
+                # Отправляем предупреждение и код
+                send_password_reset_warning(user.telegram_id, user.username)
+                send_password_reset_code(user.telegram_id, new_code)
+                
+                messages.success(request, 'Код восстановления отправлен повторно в Telegram.')
+            else:
+                # Нельзя отправить повторно - показываем форму ввода кода
+                if existing_code.resend_count >= 3:
+                    messages.error(request, 'Превышено максимальное количество попыток отправки. Попробуйте позже.')
+                    return render(request, 'users/password_reset.html', {'step': 'username'})
+                
+                # Вычисляем время до следующей отправки
+                time_since_last = timezone.now() - existing_code.last_resend_at if existing_code.last_resend_at else timezone.timedelta(seconds=0)
+                seconds_remaining = max(0, 30 - int(time_since_last.total_seconds()))
+                
+                messages.info(request, f'Код уже отправлен. Повторная отправка возможна через {seconds_remaining} секунд.')
+            
+            return render(request, 'users/password_reset.html', {
+                'step': 'code',
+                'username': username,
+                'reset_code_id': existing_code.id
+            })
+        
+        # Создаем новый код
+        reset_code = ''.join([str(get_random_string(1, allowed_chars='0123456789')) for _ in range(6)])
+        password_reset_code = PasswordResetCode.objects.create(
+            user=user,
+            code=reset_code,
+            last_resend_at=timezone.now(),
+            resend_count=1
+        )
+        
+        # Отправляем предупреждение и код
+        send_password_reset_warning(user.telegram_id, user.username)
+        send_password_reset_code(user.telegram_id, reset_code)
+        
+        messages.success(request, 'Код восстановления отправлен в Telegram.')
+        return render(request, 'users/password_reset.html', {
+            'step': 'code',
+            'username': username,
+            'reset_code_id': password_reset_code.id
+        })
+    
+    return render(request, 'users/password_reset.html', {'step': 'username'})
+
+@csrf_exempt
+def password_reset_verify(request):
+    """
+    Проверка кода восстановления и смена пароля
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+    
+    try:
+        data = json.loads(request.body) if request.body else {}
+        code = data.get('code', '').strip()
+        reset_code_id = data.get('reset_code_id')
+        username = data.get('username', '').strip()
+        
+        if not code or not reset_code_id or not username:
+            return JsonResponse({'success': False, 'error': 'Не все данные предоставлены'})
+        
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Пользователь не найден'})
+        
+        try:
+            reset_code_obj = PasswordResetCode.objects.get(id=reset_code_id, user=user)
+        except PasswordResetCode.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Код восстановления не найден'})
+        
+        # Проверяем валидность кода
+        if not reset_code_obj.is_valid():
+            return JsonResponse({'success': False, 'error': 'Код истек или уже использован'})
+        
+        # Проверяем код
+        if reset_code_obj.code != code:
+            reset_code_obj.increment_attempts()
+            attempts_left = 3 - reset_code_obj.attempts
+            if attempts_left > 0:
+                return JsonResponse({'success': False, 'error': f'Неверный код. Осталось попыток: {attempts_left}'})
+            else:
+                return JsonResponse({'success': False, 'error': 'Превышено максимальное количество попыток ввода кода'})
+        
+        # Код верный - генерируем новый пароль
+        new_password = get_random_string(12)
+        user.set_password(new_password)
+        user.save()
+        
+        # Помечаем код как использованный
+        reset_code_obj.is_used = True
+        reset_code_obj.save()
+        
+        # Отправляем новые данные в Telegram
+        if user.telegram_id:
+            send_registration_details_sync(user.telegram_id, user.username, new_password)
+        
+        logger.info(f"Пароль успешно изменен для пользователя {user.username}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Пароль успешно изменен. Новые данные отправлены в Telegram.',
+            'redirect_url': reverse('users:login')
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Неверный формат данных'})
+    except Exception as e:
+        logger.error(f"Ошибка при проверке кода восстановления: {str(e)}")
+        return JsonResponse({'success': False, 'error': 'Произошла ошибка при обработке запроса'})
+
+@csrf_exempt
+def password_reset_resend(request):
+    """
+    Повторная отправка кода восстановления
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+    
+    try:
+        data = json.loads(request.body) if request.body else {}
+        reset_code_id = data.get('reset_code_id')
+        username = data.get('username', '').strip()
+        
+        if not reset_code_id or not username:
+            return JsonResponse({'success': False, 'error': 'Не все данные предоставлены'})
+        
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Пользователь не найден'})
+        
+        try:
+            reset_code_obj = PasswordResetCode.objects.get(id=reset_code_id, user=user)
+        except PasswordResetCode.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Код восстановления не найден'})
+        
+        # Проверяем возможность повторной отправки
+        if not reset_code_obj.can_resend():
+            if reset_code_obj.resend_count >= 3:
+                return JsonResponse({'success': False, 'error': 'Превышено максимальное количество попыток отправки кода'})
+            
+            # Вычисляем время до следующей отправки
+            time_since_last = timezone.now() - reset_code_obj.last_resend_at if reset_code_obj.last_resend_at else timezone.timedelta(seconds=0)
+            seconds_remaining = max(0, 30 - int(time_since_last.total_seconds()))
+            
+            return JsonResponse({
+                'success': False,
+                'error': f'Повторная отправка возможна через {seconds_remaining} секунд',
+                'seconds_remaining': seconds_remaining
+            })
+        
+        # Генерируем новый код
+        new_code = ''.join([str(get_random_string(1, allowed_chars='0123456789')) for _ in range(6)])
+        reset_code_obj.code = new_code
+        reset_code_obj.last_resend_at = timezone.now()
+        reset_code_obj.resend_count += 1
+        reset_code_obj.save()
+        
+        # Отправляем код в Telegram
+        send_password_reset_code(user.telegram_id, new_code)
+        
+        logger.info(f"Код восстановления отправлен повторно для пользователя {user.username}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Код восстановления отправлен повторно в Telegram.'
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Неверный формат данных'})
+    except Exception as e:
+        logger.error(f"Ошибка при повторной отправке кода: {str(e)}")
+        return JsonResponse({'success': False, 'error': 'Произошла ошибка при отправке кода'})

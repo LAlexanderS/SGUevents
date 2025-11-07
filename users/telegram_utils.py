@@ -255,11 +255,20 @@ def send_registration_details_sync(telegram_id, username, password):
     Отправляет учетные данные новому пользователю через Telegram
     """
     try:
+        # Получаем базовый URL для ссылки на профиль
+        webhook_host = os.getenv('WEBHOOK_HOST', '').rstrip('/')
+        base_url = webhook_host if webhook_host else "https://event.larin.work"
+        profile_url = f"{base_url}{reverse('users:profile')}"
+        
         message = (
-            f"\U0001F44B Добро пожаловать!\n"
-            f"Ваши учетные данные:\n"
-            f"Username: {username}\nПароль: {password}\n"
-            f"Вы можете войти через Telegram без логина и пароля."
+            f"👋 <b>Добро пожаловать!</b>\n\n"
+            f"🔐 <b>Ваши учетные данные:</b>\n\n"
+            f"👤 <b>Логин:</b> <code>{username}</code>\n"
+            f"🔑 <b>Пароль:</b> <code>{password}</code>\n\n"
+            f"💡 <b>Способы входа на портал:</b>\n"
+            f"• По логину и паролю\n"
+            f"• Через ваш аккаунт Telegram\n\n"
+            f"⚙️ Пароль можно изменить в <a href=\"{profile_url}\">профиле пользователя</a> на портале."
         )
         
         url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -278,8 +287,7 @@ def send_registration_details_sync(telegram_id, username, password):
         else:
             logger.error(f"Ошибка при отправке сообщения: {response.status_code}, {response.text}")
         
-        # Отправляем кнопку с ссылкой на портал
-        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://event.larin.work"
+        # Отправляем кнопку с ссылкой на портал (используем тот же домен, что для вебхука)
         site_keyboard = {
             "inline_keyboard": [
                 [{
@@ -603,7 +611,9 @@ def get_event_url(event_obj):
     Генерирует полный URL для мероприятия в зависимости от его типа
     """
     try:
-        base_url = "https://sguevents.ru" if os.getenv('DJANGO_ENV') == 'production' else "https://event.larin.work"
+        # Используем тот же домен, что для вебхука
+        webhook_host = os.getenv('WEBHOOK_HOST', '').rstrip('/')
+        base_url = webhook_host if webhook_host else "https://event.larin.work"
         
         # Определяем тип мероприятия и соответствующий URL
         if hasattr(event_obj, '_meta'):
@@ -654,3 +664,33 @@ def send_text_to_chat(chat_id: str, text: str, parse_html: bool = True):
     except Exception as e:
         logger.error(f"Исключение при отправке сообщения в чат {chat_id}: {e}")
         return None
+
+def send_password_reset_warning(telegram_id: str, username: str):
+    """
+    Отправляет предупреждающее сообщение о попытке восстановления пароля
+    """
+    try:
+        message = (
+            f"⚠️ <b>Внимание!</b>\n\n"
+            f"Кто-то пытается восстановить пароль для аккаунта <code>{username}</code>.\n\n"
+            f"Если это были не вы — не предпринимайте ничего."
+        )
+        send_message_to_telegram(telegram_id, message)
+        logger.info(f"Отправлено предупреждение о восстановлении пароля пользователю {username}")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке предупреждения о восстановлении пароля: {e}")
+
+def send_password_reset_code(telegram_id: str, code: str):
+    """
+    Отправляет 6-значный код восстановления пароля в Telegram
+    """
+    try:
+        message = (
+            f"🔐 <b>Код восстановления пароля</b>\n\n"
+            f"Ваш код: <code>{code}</code>\n\n"
+            f"Код действителен в течение 15 минут."
+        )
+        send_message_to_telegram(telegram_id, message)
+        logger.info(f"Отправлен код восстановления пароля пользователю {telegram_id}")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке кода восстановления пароля: {e}")

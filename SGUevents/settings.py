@@ -18,12 +18,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
 
 DEBUG = False
-
-# ALLOWED_HOSTS управляем через окружение, с безопасными дефолтами
-ALLOWED_HOSTS = os.environ.get(
-    'ALLOWED_HOSTS',
-    'sguevents.ru,www.sguevents.ru,95.47.161.83,event.larin.work'
-).split(',')
+ALLOWED_HOSTS = [
+    'sguevents.ru',
+    'www.sguevents.ru',
+    '95.47.161.83',
+    'sguevents.help',
+    'www.sguevents.help',
+    'event.larin.work',
+    '127.0.0.1',
+    'localhost',
+]
 
 
 

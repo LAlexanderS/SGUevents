@@ -18,4 +18,7 @@ urlpatterns = [
     path('logistics/<int:pk>/update-field/', views.update_logistics_field, name='update_logistics_field'),
     re_path(r'^auth/telegram/(?P<token>[0-9a-f-]+)/?$', views.telegram_auth, name='telegram_auth'),
     path('telegram-auth/', views.telegram_login_callback, name='telegram_login_callback'),
+    path('password-reset/', views.password_reset_request, name='password_reset'),
+    path('password-reset/verify/', views.password_reset_verify, name='password_reset_verify'),
+    path('password-reset/resend/', views.password_reset_resend, name='password_reset_resend'),
 ]
