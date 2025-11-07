@@ -159,3 +159,45 @@ class TelegramAuthToken(models.Model):
         verbose_name = "Токен авторизации Telegram"
         verbose_name_plural = "Токены авторизации Telegram"
 
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
+    code = models.CharField(max_length=6, verbose_name="Код восстановления")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    expires_at = models.DateTimeField(verbose_name="Срок действия")
+    attempts = models.IntegerField(default=0, verbose_name="Количество попыток ввода")
+    last_attempt_at = models.DateTimeField(null=True, blank=True, verbose_name="Последняя попытка ввода")
+    is_used = models.BooleanField(default=False, verbose_name="Использован")
+    last_resend_at = models.DateTimeField(null=True, blank=True, verbose_name="Последняя повторная отправка")
+    resend_count = models.IntegerField(default=0, verbose_name="Количество отправок")
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timezone.timedelta(minutes=15)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        """Проверка действительности кода"""
+        return not self.is_used and self.expires_at > timezone.now()
+
+    def can_resend(self):
+        """Проверка возможности повторной отправки (интервал 30 секунд, максимум 3 попытки)"""
+        if self.resend_count >= 3:
+            return False
+        if self.last_resend_at:
+            time_since_last = timezone.now() - self.last_resend_at
+            return time_since_last.total_seconds() >= 30
+        return True
+
+    def increment_attempts(self):
+        """Увеличение счетчика попыток"""
+        self.attempts += 1
+        self.last_attempt_at = timezone.now()
+        self.save()
+
+    def __str__(self):
+        return f"Код для {self.user.username} ({'использован' if self.is_used else 'активен'})"
+
+    class Meta:
+        verbose_name = "Код восстановления пароля"
+        verbose_name_plural = "Коды восстановления пароля"
+

@@ -47,6 +47,10 @@ iframe {
     max-width: 110px;
     text-align: center;
     font-size: 16px;
+    padding: 8px 16px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    word-wrap: normal;
 }
 
 .btn-primary:hover {
@@ -106,10 +110,28 @@ a:hover {
 @media (max-width: 480px) {
     .container {
         width: 90%;
+        padding: 20px;
     }
 
     h2 {
         margin-top: 10px;
         margin-bottom: 10px;
+        font-size: 20px;
+    }
+
+    .enter {
+        max-width: none !important;
+        width: 100% !important;
+        font-size: 15px;
+        padding: 12px 20px !important;
+        white-space: nowrap !important;
+        overflow: visible !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    button.enter {
+        max-width: 100% !important;
+        width: 100% !important;
     }
 }
