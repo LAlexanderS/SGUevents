@@ -32,6 +32,7 @@ from .models import Department, AdminRightRequest, TelegramAuthToken, PasswordRe
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
 from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
 from .telegram_utils import send_password_reset_warning, send_password_reset_code
+from .telegram_utils import validate_telegram_webapp_init_data, login_or_register_from_webapp
 from events_available.models import EventLogistics, Events_offline
 from bookmarks.models import Registered
 from users.forms import EventLogisticsForm
@@ -111,6 +112,26 @@ def login_view(request):
         'next': request.GET.get('next', '')
     }
     return render(request, 'users/login.html', context)
+
+@csrf_exempt
+def telegram_webapp_auth(request):
+    """
+    Принимает initData из Telegram Mini Apps, валидирует и логинит пользователя по telegram_id.
+    Возвращает JSON с redirect_url (по next или на главную).
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+    try:
+        # initData может прийти как raw body (text/plain) или как поле
+        raw_body = request.body.decode(errors='ignore') if request.body else ''
+        init_data = request.POST.get('initData') or raw_body
+        payload = validate_telegram_webapp_init_data(init_data)
+        user = login_or_register_from_webapp(request, payload)
+        next_url = request.GET.get('next') or '/'
+        return JsonResponse({'success': True, 'redirect_url': next_url})
+    except Exception as e:
+        logger.error(f"WebApp auth error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 @csrf_exempt
 def telegram_auth(request, token):

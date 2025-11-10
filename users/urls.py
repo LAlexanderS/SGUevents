@@ -21,4 +21,5 @@ urlpatterns = [
     path('password-reset/', views.password_reset_request, name='password_reset'),
     path('password-reset/verify/', views.password_reset_verify, name='password_reset_verify'),
     path('password-reset/resend/', views.password_reset_resend, name='password_reset_resend'),
+    path('webapp-auth/', views.telegram_webapp_auth, name='telegram_webapp_auth'),
 ]

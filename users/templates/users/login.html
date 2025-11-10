@@ -53,6 +53,34 @@
 </div>
 
 <script>
+// Авто-авторизация в Mini App: если страница открыта внутри Telegram WebApp, отправляем initData
+document.addEventListener('DOMContentLoaded', function () {
+    try {
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+            const initData = window.Telegram.WebApp.initData;
+            // next из query
+            const urlParams = new URLSearchParams(window.location.search);
+            const nextUrl = urlParams.get('next') || '/';
+            fetch(`/users/webapp-auth/?next=${encodeURIComponent(nextUrl)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=UTF-8'
+                },
+                body: initData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.success && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                }
+            })
+            .catch(() => {});
+        }
+    } catch (e) {
+        // ignore
+    }
+});
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
