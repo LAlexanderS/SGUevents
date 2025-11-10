@@ -27,6 +27,8 @@ ALLOWED_HOSTS = [
     'event.larin.work',
     '127.0.0.1',
     'localhost',
+    'aikonti.ru',
+    'www.aikonti.ru'
 ]
 
 
@@ -195,6 +197,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://event.larin.work',
     'http://127.0.0.1:8000',  # Для прямого доступа при разработке
     'http://localhost:8000',
+    'https://aikonti.ru',
+    'https://www.aikonti.ru',
 ]
 
 
