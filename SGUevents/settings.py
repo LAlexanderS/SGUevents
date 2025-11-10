@@ -197,7 +197,6 @@ CSRF_TRUSTED_ORIGINS = [
 #    'http://localhost:8000',
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
