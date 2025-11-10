@@ -21,7 +21,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'sguevents.ru',
     'www.sguevents.ru',
-#    '95.47.161.83',
+    '95.47.161.83',
 #    'sguevents.help',
 #    'www.sguevents.help',
 #    'event.larin.work',
