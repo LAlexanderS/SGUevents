@@ -17,11 +17,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = [
-    'sguevents.ru',
-    'www.sguevents.ru',
-    '95.47.161.83',
+    '*'
+#    'sguevents.ru',
+#    'www.sguevents.ru',
+#    '95.47.161.83',
 #    'sguevents.help',
 #    'www.sguevents.help',
 #    'event.larin.work',
@@ -180,7 +181,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 # Всегда работаем через HTTPS (локально тоже заходишь через домен с https)
-SECURE_SSL_REDIRECT = True
+#SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 31536000  # 1 год
