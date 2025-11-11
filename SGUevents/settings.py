@@ -24,7 +24,7 @@ ALLOWED_HOSTS = [
     '95.47.161.83',
 #    'sguevents.help',
 #    'www.sguevents.help',
-#    'event.larin.work',
+    'event.larin.work',
 #    '127.0.0.1',
 #    'localhost',
 ]
@@ -80,6 +80,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'users.middleware.CurrentUserMiddleware',
     'users.middleware.NoCacheMiddleware',
+    'users.middleware.MiniAppAuthMiddleware',
 ]
 
 ROOT_URLCONF = 'SGUevents.urls'
@@ -115,6 +116,15 @@ ACTIVE_TELEGRAM_SUPPORT_CHAT_ID = DEV_SUPPORT_CHAT_ID if DJANGO_ENV == 'developm
 
 # Telegram Bot settings
 TELEGRAM_BOT_USERNAME = os.getenv('DEV_BOT_NAME') if os.getenv('DJANGO_ENV') == 'development' else os.getenv('BOT_NAME')
+
+# Telegram Mini App settings
+TELEGRAM_BOT_SECRET = os.getenv('TELEGRAM_BOT_SECRET', '')
+WEBHOOK_HOST = os.getenv('WEBHOOK_HOST', '').rstrip('/')
+TELEGRAM_MINIAPP_BASE_URL = WEBHOOK_HOST if WEBHOOK_HOST else 'https://event.larin.work'
+
+# Feature flags для способов авторизации
+ENABLE_MINIAPP_AUTH = os.getenv('ENABLE_MINIAPP_AUTH', 'True').lower() == 'true'
+ENABLE_LOGIN_WIDGET_AUTH = os.getenv('ENABLE_LOGIN_WIDGET_AUTH', 'True').lower() == 'true'
 
 # Yandex Disk settings
 YANDEX_DISK_CLIENT_ID = os.getenv('YANDEX_DISK_CLIENT_ID')
@@ -183,6 +193,13 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+# Настройки для работы с Telegram Web App (нужно разрешить куки в iframe)
+# Для Telegram Web App нужен SameSite=None и Secure=True
+SESSION_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
+CSRF_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
+# Убеждаемся, что куки доступны для чтения JavaScript (если нужно)
+SESSION_COOKIE_HTTPONLY = True  # Безопасность - только HTTP
+SESSION_COOKIE_AGE = 1209600  # 2 недели
 SECURE_HSTS_SECONDS = 31536000  # 1 год
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
