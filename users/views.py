@@ -107,9 +107,11 @@ def login_view(request):
             return redirect('main:index')
         else:
             messages.error(request, "Неверный логин или пароль.")
+    from django.conf import settings
     context = {
         'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME,
-        'next': request.GET.get('next', '')
+        'next': request.GET.get('next', ''),
+        'enable_login_widget_auth': settings.ENABLE_LOGIN_WIDGET_AUTH,
     }
     return render(request, 'users/login.html', context)
 
@@ -518,13 +520,148 @@ def telegram_webhook(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
+def miniapp_auth_view(request):
+    """
+    Обработка авторизации через Telegram Mini App.
+    Автоматически логинит пользователя если он существует в базе.
+    """
+    from django.conf import settings
+    from django.shortcuts import redirect
+    from .miniapp_utils import extract_telegram_id, get_init_data_from_request, validate_init_data
+    
+    # Проверяем feature flag
+    if not settings.ENABLE_MINIAPP_AUTH:
+        from django.http import Http404
+        raise Http404("Mini App авторизация отключена")
+    
+    # Если это GET запрос (редирект после авторизации), проверяем сессию
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            return redirect('main:index')
+        else:
+            return redirect('users:login')
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+    
+    try:
+        # Получаем initData из тела запроса или query параметров
+        data = json.loads(request.body) if request.body else {}
+        init_data = data.get('initData') or get_init_data_from_request(request)
+        
+        if not init_data:
+            logger.error("initData отсутствует в запросе")
+            return JsonResponse({'success': False, 'error': 'initData не предоставлен'})
+        
+        # Проверяем валидность initData
+        if not validate_init_data(init_data):
+            logger.error("initData не прошел проверку валидности")
+            return JsonResponse({'success': False, 'error': 'Неверный initData'})
+        
+        # Извлекаем telegram_id
+        telegram_id = extract_telegram_id(init_data)
+        if not telegram_id:
+            logger.error("Не удалось извлечь telegram_id из initData")
+            return JsonResponse({'success': False, 'error': 'Не удалось извлечь данные пользователя'})
+        
+        logger.info(f"Поиск пользователя с telegram_id: {telegram_id}")
+        user = User.objects.filter(telegram_id=telegram_id).first()
+        
+        if not user:
+            logger.warning(f"Пользователь с telegram_id {telegram_id} не найден")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Пользователь не найден',
+                'needs_registration': True
+            })
+        
+        logger.info(f"Пользователь найден: {user.username}")
+        
+        # Используем authenticate для проверки пользователя
+        authenticated_user = authenticate(request, telegram_id=telegram_id)
+        if authenticated_user is None:
+            logger.error(f"Ошибка аутентификации пользователя с telegram_id {telegram_id}")
+            return JsonResponse({'success': False, 'error': 'Ошибка аутентификации'})
+        
+        # Логиним пользователя
+        auth_login(request, authenticated_user)
+        request.session['login_method'] = 'Через Telegram Mini App'
+        # Явно сохраняем сессию
+        request.session.save()
+        
+        logger.info(f"Пользователь {user.username} успешно авторизован через Mini App. Сессия сохранена. Session key: {request.session.session_key}")
+        
+        # Проверяем, это AJAX запрос или обычный
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json'
+        
+        if is_ajax:
+            # Для AJAX запросов возвращаем JSON с редиректом
+            redirect_url = request.build_absolute_uri(reverse('main:index'))
+            logger.info(f"AJAX запрос, возвращаю JSON с редиректом: {redirect_url}")
+            
+            response = JsonResponse({
+                'success': True, 
+                'redirect_url': redirect_url,
+                'session_key': request.session.session_key  # Для отладки
+            })
+            
+            # Убеждаемся, что куки сессии установлены правильно
+            if request.session.session_key:
+                cookie_age = getattr(settings, 'SESSION_COOKIE_AGE', 1209600)
+                samesite_value = getattr(settings, 'SESSION_COOKIE_SAMESITE', 'Lax')
+                response.set_cookie(
+                    'sessionid', 
+                    request.session.session_key,
+                    max_age=cookie_age,
+                    domain=None,
+                    samesite=samesite_value,
+                    secure=settings.SESSION_COOKIE_SECURE,
+                    httponly=getattr(settings, 'SESSION_COOKIE_HTTPONLY', True)
+                )
+                logger.info(f"Куки сессии установлены в JSON ответе")
+            
+            return response
+        else:
+            # Для обычных запросов делаем HTTP редирект
+            logger.info("Обычный запрос, выполняю HTTP редирект")
+            return redirect('main:index')
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"Ошибка декодирования JSON: {str(e)}")
+        return JsonResponse({'success': False, 'error': 'Неверный формат данных'})
+    except Exception as e:
+        logger.error(f"Ошибка при входе через Mini App: {str(e)}")
+        return JsonResponse({'success': False, 'error': 'Произошла ошибка при входе'})
+
+@csrf_exempt
 def telegram_login_callback(request):
     """
     Обработка входа через Telegram после нажатия на виджет
     """
+    from django.conf import settings
+    
+    # Проверяем feature flag
+    if not settings.ENABLE_LOGIN_WIDGET_AUTH:
+        from django.http import Http404
+        raise Http404("Login Widget авторизация отключена")
+    
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            # Проверяем, что body не пустой
+            if not request.body:
+                logger.error("Пустое тело запроса")
+                return JsonResponse({'success': False, 'error': 'Пустое тело запроса'})
+            
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                # Если не JSON, пробуем получить из POST данных
+                data = {
+                    'id': request.POST.get('id') or request.POST.get('telegram_id'),
+                    'telegram_id': request.POST.get('telegram_id') or request.POST.get('id'),
+                    'next': request.POST.get('next')
+                }
+            
             logger.info(f"Получены данные от виджета Telegram: {data}")
             
             # Telegram виджет может отправить id в разных форматах
@@ -554,10 +691,36 @@ def telegram_login_callback(request):
             
             auth_login(request, authenticated_user)
             request.session['login_method'] = 'Через Telegram'
+            # Явно сохраняем сессию
+            request.session.save()
+            
+            logger.info(f"Пользователь {user.username} успешно авторизован через Login Widget. Сессия сохранена. Session key: {request.session.session_key}")
             
             # Перенаправляем на next URL если он есть, иначе на главную
             redirect_url = next_url if next_url else reverse('main:index')
-            return JsonResponse({'success': True, 'redirect_url': redirect_url})
+            
+            response = JsonResponse({
+                'success': True, 
+                'redirect_url': redirect_url,
+                'session_key': request.session.session_key  # Для отладки
+            })
+            
+            # Убеждаемся, что куки сессии установлены
+            if request.session.session_key:
+                cookie_age = getattr(settings, 'SESSION_COOKIE_AGE', 1209600)
+                samesite_value = getattr(settings, 'SESSION_COOKIE_SAMESITE', 'Lax')
+                response.set_cookie(
+                    'sessionid',
+                    request.session.session_key,
+                    max_age=cookie_age,
+                    domain=None,
+                    samesite=samesite_value,
+                    secure=settings.SESSION_COOKIE_SECURE,
+                    httponly=getattr(settings, 'SESSION_COOKIE_HTTPONLY', True)
+                )
+                logger.info(f"Куки сессии установлены для Login Widget")
+            
+            return response
             
         except json.JSONDecodeError as e:
             logger.error(f"Ошибка декодирования JSON: {str(e)}")

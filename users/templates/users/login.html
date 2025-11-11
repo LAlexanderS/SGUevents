@@ -41,16 +41,21 @@
         <a href="{% url 'users:password_reset' %}" style="color: #0088BB;">Забыли пароль?</a>
     </div>
 
+    {% if enable_login_widget_auth %}
     <div class="divider" style="text-indent: 0;">или</div>
 
     <div class="text-center" style="text-indent: 0;">
         <p style="margin-top: 0; margin-bottom: 0">Войдите через Telegram:</p>
         <script async src="https://telegram.org/js/telegram-widget.js?7" data-telegram-login="{{ telegram_bot_username }}" data-size="large" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
     </div>
+    {% endif %}
     <div class="mt-3 text-center">
         Нет аккаунта? <a href="{% url 'users:register' %}">Регистрация</a>
     </div>
 </div>
+
+<!-- Telegram Web App SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
 // Авто-авторизация в Mini App: если страница открыта внутри Telegram WebApp, отправляем initData
@@ -95,6 +100,91 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// Авто-вход через Mini App
+(function() {
+    if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        
+        const initData = tg.initData;
+        if (initData) {
+            console.log('Найден initData в Mini App, выполняю авто-вход...');
+            fetch('{% url "users:miniapp_auth" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                credentials: 'include',  // Важно: отправляем куки с запросом
+                body: JSON.stringify({
+                    initData: initData
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    console.log('Авторизация успешна, редирект на:', data.redirect_url);
+                    console.log('Session key:', data.session_key);
+                    console.log('Cookies перед редиректом:', document.cookie);
+                    
+                    // Небольшая задержка для сохранения сессии и установки кук
+                    setTimeout(() => {
+                        // Проверяем, что куки установлены
+                        const sessionCookie = getCookie('sessionid');
+                        console.log('Session cookie после задержки:', sessionCookie ? 'установлен (' + sessionCookie.substring(0, 20) + '...)' : 'не установлен');
+                        console.log('Все cookies:', document.cookie);
+                        
+                        if (data.redirect_url) {
+                            console.log('Выполняю редирект на:', data.redirect_url);
+                            // Используем window.location.replace для избежания проблем с историей
+                            // и принудительной перезагрузки страницы
+                            try {
+                                window.location.replace(data.redirect_url);
+                            } catch (e) {
+                                console.error('Ошибка при редиректе:', e);
+                                // Fallback на href
+                                window.location.href = data.redirect_url;
+                            }
+                        } else {
+                            console.log('Выполняю редирект на главную');
+                            try {
+                                window.location.replace('/');
+                            } catch (e) {
+                                window.location.href = '/';
+                            }
+                        }
+                    }, 500);  // Увеличил задержку до 500ms для надежности
+                } else {
+                    console.log('Авторизация не удалась:', data.error);
+                    const messageArea = document.getElementById('messageArea');
+                    if (messageArea) {
+                        messageArea.style.display = 'block';
+                        messageArea.className = 'alert alert-danger';
+                        messageArea.textContent = data.error || 'Произошла ошибка при входе';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при авторизации через Mini App:', error);
+                const messageArea = document.getElementById('messageArea');
+                if (messageArea) {
+                    messageArea.style.display = 'block';
+                    messageArea.className = 'alert alert-danger';
+                    messageArea.textContent = 'Произошла ошибка при входе: ' + error.message;
+                }
+            });
+        }
+    }
+})();
+
 function onTelegramAuth(user) {
     console.log('Telegram auth data:', user);
     // Получаем параметр next из URL
@@ -107,6 +197,7 @@ function onTelegramAuth(user) {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
         },
+        credentials: 'include',  // Важно: отправляем куки с запросом
         body: JSON.stringify({
             telegram_id: user.id.toString(),
             next: nextUrl
@@ -114,25 +205,49 @@ function onTelegramAuth(user) {
     })
     .then(response => {
         console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         return response.json();
     })
     .then(data => {
         console.log('Response data:', data);
         if (data.success) {
-            window.location.href = data.redirect_url;
+            console.log('Login Widget: Авторизация успешна, редирект на:', data.redirect_url);
+            console.log('Session key:', data.session_key);
+            console.log('Cookies перед редиректом:', document.cookie);
+            
+            // Небольшая задержка для сохранения сессии
+            setTimeout(() => {
+                const sessionCookie = getCookie('sessionid');
+                console.log('Session cookie после задержки:', sessionCookie ? 'установлен' : 'не установлен');
+                
+                if (data.redirect_url) {
+                    console.log('Выполняю редирект на:', data.redirect_url);
+                    window.location.href = data.redirect_url;
+                } else {
+                    console.log('Выполняю редирект на главную');
+                    window.location.href = '/';
+                }
+            }, 300);
         } else {
+            console.error('Login Widget: Авторизация не удалась:', data.error);
             const messageArea = document.getElementById('messageArea');
-            messageArea.style.display = 'block';
-            messageArea.className = 'alert alert-danger';
-            messageArea.textContent = data.error || 'Произошла ошибка при входе';
+            if (messageArea) {
+                messageArea.style.display = 'block';
+                messageArea.className = 'alert alert-danger';
+                messageArea.textContent = data.error || 'Произошла ошибка при входе';
+            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
         const messageArea = document.getElementById('messageArea');
-        messageArea.style.display = 'block';
-        messageArea.className = 'alert alert-danger';
-        messageArea.textContent = 'Произошла ошибка при входе';
+        if (messageArea) {
+            messageArea.style.display = 'block';
+            messageArea.className = 'alert alert-danger';
+            messageArea.textContent = 'Произошла ошибка при входе: ' + error.message;
+        }
     });
 }
 </script>
