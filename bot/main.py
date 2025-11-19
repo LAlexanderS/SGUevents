@@ -995,21 +995,21 @@ async def portal_button(message: types.Message):
     if user:
         # Формируем URL портала (используем тот же домен, что для вебхука)
         base_url = WEBHOOK_HOST.rstrip('/') if WEBHOOK_HOST else "https://event.larin.work"
+        miniapp_url = f"{base_url}/"
         
-        # Создаем клавиатуру с кнопкой
+        # Создаем клавиатуру с кнопкой Mini App
         keyboard = types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [types.InlineKeyboardButton(
-                    text="🌐 Перейти на портал",
-                    url=base_url
+                    text="🌐 Открыть портал",
+                    web_app=types.WebAppInfo(url=miniapp_url)
                 )]
             ]
         )
         
         await message.answer(
-            f"🌐 Портал мероприятий СГУ: <a href='{base_url}'>{base_url}</a>",
-            reply_markup=keyboard,
-            parse_mode='HTML'
+            f"🌐 Портал мероприятий СГУ\n\nНажмите кнопку ниже, чтобы открыть портал:",
+            reply_markup=keyboard
         )
     else:
         await message.answer("Вы не зарегистрированы на портале.")
