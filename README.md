@@ -59,6 +59,18 @@
 - В одном окне из venv `celery -A SGUevents worker -l info -P solo` (-P solo - костыль для Windows)
 - В другом окне аналогично `celery -A SGUevents beat -l info`
 
+## Документация `/docs`
+
+- Исходники находятся в `docs_src/`, конфигурация — `mkdocs.yml`, тема — Material.
+- Доступные переменные окружения для контента: `SITE_DOMAIN`, `TG_BOT_URL`, `SUPPORT_EMAIL` (см. `docs_macros.py`). Добавляйте их в корневой `.env`, который уже подключён в `docker-compose.yml`.
+- Локальный просмотр с хот-релоадом: `python -m mkdocs serve -f mkdocs.yml -a localhost:8088`.
+- Для `site_url` можно задать `DOCS_SITE_URL` в `.env` (иначе берётся `https://events.sgu.ru/docs/`).
+- Продакшн-сборка (итерируется в `static/docs`, откуда Django отдаёт `/docs`):
+  - Linux/macOS: `scripts/build_docs.sh`
+  - Windows: `powershell -ExecutionPolicy Bypass -File scripts/build_docs.ps1`
+- Оба скрипта автоматически подхватывают переменные из `.env`, так что значения `SITE_DOMAIN`/`TG_BOT_URL`/`SUPPORT_EMAIL` не нужно экспортировать вручную.
+- Перед деплоем убедитесь, что `scripts/build_docs.*` выполнены и обновлённый `static/docs` попал в репозиторий/артефакт, либо добавьте шаг `mkdocs build` в CI перед `collectstatic`.
+
 ## Заполнение БД:
 
 - На windows вместо `python3` записывается просто `python`, вместо `/` используется `\`. При первой установке лучше удалить файл db.sqlite3 и все миграции в проекте (Пример: events_available/migrations/0001_initial.py)

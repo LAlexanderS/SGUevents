@@ -19,7 +19,11 @@ services:
 
   backend:
     image: lalexanders/events:latest
-    command: gunicorn SGUevents.wsgi:application --bind 0.0.0.0:8887
+    command: >
+      bash -c "
+      python -m mkdocs build -f mkdocs.yml -d static/docs &&
+      gunicorn SGUevents.wsgi:application --bind 0.0.0.0:8887
+      "
     restart: always
     volumes:
       - static_value:/code/staticfiles/

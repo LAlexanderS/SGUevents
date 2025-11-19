@@ -1,0 +1,83 @@
+site_name: SGU.Events Docs
+site_description: Документация платформы SGUEvents
+site_author: SGU.Events Team
+site_url: !ENV [DOCS_SITE_URL, "https://sguevents.ru/docs/"]
+
+docs_dir: docs_src
+site_dir: static/docs
+use_directory_urls: true
+
+theme:
+  name: material
+  language: ru
+  custom_dir: docs_src/overrides
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Тёмная тема
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Светлая тема
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tracking
+    - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+    - search.highlight
+    - search.suggest
+
+plugins:
+  - search
+  - macros:
+      module_name: docs_macros
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/telegram
+      link: !ENV [TG_BOT_URL, "https://t.me/EventsSGUbot"]
+      name: Телеграм-бот
+    - icon: fontawesome/solid/globe
+      link: !ENV [SITE_DOMAIN, "https://sguevents.ru"]
+      name: Сайт SGU.Events
+
+nav:
+  - Описание: index.md
+  - Регистрация: registration.md
+  - Телеграм бот: telegram_bot.md
+  - Основные функции: features.md
+  - Организаторам: organizers.md
+  - Администраторам: admins.md
+
