@@ -19,14 +19,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4z
 
 DEBUG = True
 ALLOWED_HOSTS = [
-    '*'
+    '*',
 #    'sguevents.ru',
 #    'www.sguevents.ru',
 #    '95.47.161.83',
 #    'sguevents.help',
 #    'www.sguevents.help',
-    'event.larin.work',
-#    '127.0.0.1',
+#    'event.larin.work',
+    '127.0.0.1',
 #    'localhost',
 ]
 
@@ -196,10 +196,10 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 # Настройки для работы с Telegram Web App (нужно разрешить куки в iframe)
 # Для Telegram Web App нужен SameSite=None и Secure=True
-SESSION_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
-CSRF_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
+##SESSION_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
+##CSRF_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
 # Убеждаемся, что куки доступны для чтения JavaScript (если нужно)
-SESSION_COOKIE_HTTPONLY = True  # Безопасность - только HTTP
+##SESSION_COOKIE_HTTPONLY = True  # Безопасность - только HTTP
 SESSION_COOKIE_AGE = 1209600  # 2 недели
 SECURE_HSTS_SECONDS = 31536000  # 1 год
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True

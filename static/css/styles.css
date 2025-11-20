@@ -609,6 +609,22 @@ button {
     letter-spacing: 0%;
     text-align: left;
     text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
+    width: fit-content;
+    background: #c0c1c3;
+    border-radius: 15px;
+    padding: 1px 8px;
+    box-shadow: 0px 2px 5px 4px rgb(157, 163, 168);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color .2s;
+
+}
+
+.event-title-preview:hover {
+    color: #4077c8;
 }
 
 .event-preview-time,
@@ -2706,10 +2722,15 @@ td {
         border-radius: 15px;
     }
 
+
     .event-preview-text {
-        padding-inline: 10px;
+        padding-inline: 0px;
         padding-right: 20px;
         width: 60%;
+    }
+
+    .content-info {
+        padding-inline: 8px;
     }
 
     .reviews-link {
@@ -2946,6 +2967,8 @@ td {
 
     .event-title-preview {
         font-size: 20px;
+        margin: 3px 0px 10px 0px;
+
     }
 
     .preview-about {
