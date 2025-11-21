@@ -703,6 +703,7 @@
                                             <div class="row">
                                                 <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
                                                     <div class="preview-date">
+                                                        <img src="{% static 'icons/calendar.png' %}" alt=""> 
                                                         {% if events.category  != 'Достопримечательности' %}
                                                             <div class="date-time-row">
                                                                 <span class="card-date">Дата: {{ events.formatted_date_range }}</span>
@@ -714,18 +715,17 @@
                                                                     {% endif %}
                                                                 </span>
                                                             </div>
-                                                            
-                                                        
                                                         {% endif %}
                                                     </div>
                                                 </div>
 
                                                 <div class="event-preview-speaker">
                                                     {% if events.category != "Доступные к посещению" and events.category != "Достопримечательности"%}
-                                                    <label for="speaker" class="preview-speaker">Спикеры:</label>
+                                                     
+                                                    {% comment %} <label for="speaker" class="preview-speaker">Спикеры:</label>
                                                         {% for speaker in events.speakers.all %}
                                                             {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
+                                                        {% endfor %} {% endcomment %}
                                                     {% else %}
                                                         {% if events.place_limit and events.date >= now %}
                                                             {% if events.place_free > 0 %}

@@ -106,8 +106,8 @@ class Events_online(models.Model):
     def formatted_date_range(self):
         if self.date and self.date_end: 
             if self.date != self.date_end:
-                start_str = self.date.strftime('%d.%m')
-                end_str = self.date_end.strftime('%d.%m')
+                start_str = self.date.strftime('%d.%m.%Y')
+                end_str = self.date_end.strftime('%d.%m.%Y')
                 return f'{start_str}-{end_str}'
             else:
                 return self.date.strftime('%d.%m.%Y')
@@ -286,8 +286,8 @@ class Events_offline(models.Model):
 
     def formatted_date_range(self):
         if self.date_end and self.date != self.date_end:
-            start_str = self.date.strftime('%d.%m')
-            end_str = self.date_end.strftime('%d.%m')
+            start_str = self.date.strftime('%d.%m.%Y')
+            end_str = self.date_end.strftime('%d.%m.%Y')
             return f'{start_str} - {end_str}'
         else:
             return self.date.strftime('%d.%m.%Y')
