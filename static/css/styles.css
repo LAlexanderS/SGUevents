@@ -621,6 +621,7 @@ button {
 
 .event-title-preview:hover {
     color: #4077c8;
+    background-color: #cacdd0;
 }
 
 .event-preview-time,
@@ -794,6 +795,10 @@ button {
     border-radius: 15px;
     padding: 1px 8px;
     box-shadow: 0px 2px 5px 3px rgb(157, 163, 168);
+}
+
+.event-reviews-link:hover {
+    background-color: #cacdd0;
 }
 
 .event-reviews-link a:hover {
