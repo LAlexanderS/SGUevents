@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.utils.html import escape
 from django.db import transaction
 from django.conf import settings
 from transliterate import translit
@@ -28,9 +29,19 @@ from django.utils.dateparse import parse_datetime
 
 
 from .forms import RegistrationForm, UserPasswordChangeForm
-from .models import Department, AdminRightRequest, TelegramAuthToken, PasswordResetCode
+from .models import (
+    Department,
+    AdminRightRequest,
+    TelegramAuthToken,
+    PasswordResetCode,
+    SupportRequest,
+)
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
-from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
+from .telegram_utils import (
+    send_confirmation_to_user,
+    send_message_to_support_chat,
+    send_message_to_telegram,
+)
 from .telegram_utils import send_password_reset_warning, send_password_reset_code
 from .telegram_utils import validate_telegram_webapp_init_data, login_or_register_from_webapp
 from events_available.models import EventLogistics, Events_offline
@@ -778,6 +789,71 @@ def get_logistics_for_event(request):
     }
 
     return JsonResponse(data)
+
+
+@csrf_exempt
+@login_required
+def support_request(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        data = request.POST
+
+    question = (data.get('question') or '').strip()
+    if not question:
+        return JsonResponse({'success': False, 'error': 'Опишите ваш вопрос'}, status=400)
+
+    try:
+        support_request_obj = SupportRequest.objects.create(user=request.user, question=question)
+    except Exception as exc:
+        logger.error(f"Не удалось сохранить обращение в техподдержку: {exc}")
+        return JsonResponse({'success': False, 'error': 'Не удалось сохранить запрос'}, status=500)
+
+    full_name_parts = [request.user.last_name, request.user.first_name, request.user.middle_name]
+    full_name = " ".join(part for part in full_name_parts if part).strip() or request.user.username
+    full_name_html = escape(full_name)
+    question_html = escape(question)
+    vip_prefix = "\U0001F451 " if request.user.vip else ""
+
+    if request.user.telegram_id:
+        profile_reference = f'<a href="tg://user?id={request.user.telegram_id}">{full_name_html}</a>'
+    else:
+        profile_reference = full_name_html
+
+    support_message_lines = [
+        f"Новый запрос в техподдержку от {vip_prefix}{full_name_html}:",
+        "",
+        f"<pre>{question_html}</pre>",
+        "",
+    ]
+    if request.user.telegram_id:
+        support_message_lines.append(f"Профиль пользователя: {profile_reference}")
+    else:
+        support_message_lines.append("Пользователь не привязан к Telegram.")
+
+    support_message = "\n".join(support_message_lines)
+
+    try:
+        send_message_to_support_chat(support_message, parse_mode='HTML')
+    except Exception as exc:
+        logger.error(f"Ошибка отправки сообщения в чат поддержки: {exc}")
+        support_request_obj.delete()
+        return JsonResponse({'success': False, 'error': 'Не удалось отправить сообщение в поддержку'}, status=502)
+
+    if request.user.telegram_id:
+        try:
+            send_message_to_telegram(
+                request.user.telegram_id,
+                "Ваш запрос принят, с вами свяжется техническая поддержка портала."
+            )
+        except Exception as exc:
+            logger.warning(f"Не удалось отправить подтверждение пользователю {request.user.username}: {exc}")
+
+    return JsonResponse({'success': True})
+
 
 @csrf_exempt
 @login_required
