@@ -29,12 +29,17 @@ logger = logging.getLogger('my_debug_logger')
 ADMIN_TG_NAME = os.getenv("ADMIN_TG_NAME")
 
 
-def send_message_to_support_chat(message):
+def send_message_to_support_chat(message, parse_mode=None):
     from aiogram import Bot
     bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
     support_chat_id = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
     try:
-        async_to_sync(bot.send_message)(chat_id=support_chat_id, text=message)
+        async_to_sync(bot.send_message)(
+            chat_id=support_chat_id,
+            text=message,
+            parse_mode=parse_mode,
+            disable_web_page_preview=True
+        )
         logger.info(f"Сообщение успешно отправлено в чат поддержки: {message}")
     except Exception as e:
         logger.error(f"Ошибка при отправке сообщения в чат поддержки: {e}")
