@@ -703,8 +703,9 @@
                                             <div class="row">
                                                 <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
                                                     <div class="preview-date">
-                                                        <img src="{% static 'icons/calendar.png' %}" alt=""> 
                                                         {% if events.category  != 'Достопримечательности' %}
+                                                            <img src="{% static 'icons/calendar.png' %}" alt=""> 
+                                                            
                                                             <div class="date-time-row">
                                                                 <span class="card-date">Дата: {{ events.formatted_date_range }}</span>
                                                                 <span class="card-time">
