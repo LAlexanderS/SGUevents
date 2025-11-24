@@ -515,11 +515,11 @@
                 {% block favorites %}{% endblock favorites %}
                 {% block register %}{% endblock register %}
 
-                {% if name_page == "Онлайн" and not event_card_views.object_list %}
+                {% if name_page != "Достопримечательности" and not event_card_views.object_list %}
                     <div class="row">
                         <div class="col-lg-1 feed-left-column"></div>
                         <div class="col-lg-10">
-                            <div class="alert alert-info text-center no-events-message" role="alert">
+                            <div class="no-events-message">
                                 Нет запланированных мероприятий
                             </div>
                         </div>
