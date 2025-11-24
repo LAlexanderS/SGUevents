@@ -14,7 +14,6 @@ from django.db.models import Q
 from django.db.models import CharField, Value, F
 from django.db.models.functions import Concat
 from django.utils.timezone import now
-from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db.models import Avg
 
 
@@ -35,6 +34,9 @@ def online(request):
     query = request.GET.get('q', None)  # Поиск через навигационную панель
     name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     user = request.user
+    show_all_param = request.GET.get('show_all', '0')
+    show_all = str(show_all_param).lower() in ['1', 'true', 'on']
+    today = now().date()
 
     all_info = Events_online.objects.all()
     # Получаем всех спикеров через отношение ManyToMany
@@ -69,6 +71,10 @@ def online(request):
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
         events_available = Events_online.objects.all()
+
+    # Показываем только мероприятия, которые еще не завершились по дате
+    if not show_all:
+        events_available = events_available.filter(date__gte=today)
 
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -142,14 +148,7 @@ def online(request):
         events_available = events_available.filter(time_end__lte=time_end_formatted)
 
     paginator = Paginator(events_available, 5)
-    try:
-        current_page = paginator.page(int(page))
-    except PageNotAnInteger:
-        # Если страница не является целым числом, возвращаем первую страницу
-        current_page = paginator.page(1)
-    except EmptyPage:
-        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
-        current_page = paginator.page(paginator.num_pages)
+    current_page = paginator.get_page(page)
 
     favorites = Favorite.objects.filter(user=request.user, online__in=current_page)
     favorites_dict = {favorite.online.slug: favorite.id for favorite in favorites}
@@ -201,6 +200,7 @@ def online(request):
         "date_start": date_start,
         "date_end": date_end,
         'filters_applied': filters_applied,
+        'show_all': show_all,
         'now': now().date(),
         'liked': liked_slugs,
         'reviews_avg': reviews_avg,
@@ -279,6 +279,8 @@ def offline(request):
     time_to_end = request.GET.get('time_to_end', None)
     name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     user = request.user
+    show_all_param = request.GET.get('show_all', '0')
+    show_all = str(show_all_param).lower() in ['1', 'true', 'on']
 
     today = now().date()
     
@@ -314,6 +316,10 @@ def offline(request):
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
         events_available = Events_offline.objects.all()
+
+    # Показываем только предстоящие оффлайн-мероприятия
+    if not show_all:
+        events_available = events_available.filter(date__gte=today)
 
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -398,14 +404,7 @@ def offline(request):
         ).filter(full_place__icontains=f_place)
 
     paginator = Paginator(events_available, 5)
-    try:
-        current_page = paginator.page(int(page))
-    except PageNotAnInteger:
-        # Если страница не является целым числом, возвращаем первую страницу
-        current_page = paginator.page(1)
-    except EmptyPage:
-        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
-        current_page = paginator.page(paginator.num_pages)
+    current_page = paginator.get_page(page)
 
     favorites = Favorite.objects.filter(user=request.user, offline__in=current_page)
     favorites_dict = {favorite.offline.slug: favorite.id for favorite in favorites}
@@ -462,6 +461,7 @@ def offline(request):
         "date_start": date_start,
         "date_end": date_end,
         'filters_applied': filters_applied,
+        'show_all': show_all,
         'now': now().date(),
         'liked': liked_slugs,
         'reviews_avg': reviews_avg,

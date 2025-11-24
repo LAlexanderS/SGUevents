@@ -172,6 +172,20 @@
                                 <img src="{% static "icons/sort.png" %}"  alt="" class="selection-icon">
                             </button>
 
+                            {% if name_page != "Достопримечательности" %}
+                                {% if show_all %}
+                                    <a class="btn btn-outline-light ms-2 show-all-button" href="?{% change_params show_all='' page=1 %}">
+                                        <span class="show-all-label-desktop">Скрыть прошедшие мероприятия</span>
+                                        <span class="show-all-label-mobile">Скрыть</span>
+                                    </a>
+                                {% else %}
+                                    <a class="btn btn-outline-light ms-2 show-all-button" href="?{% change_params show_all='1' page=1 %}">
+                                        <span class="show-all-label-desktop">Показать все мероприятия</span>
+                                        <span class="show-all-label-mobile">Показать</span>
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+
 
                         </div>
                     {% endif %}
@@ -500,6 +514,17 @@
                 {% block form_events %}{% endblock form_events %}
                 {% block favorites %}{% endblock favorites %}
                 {% block register %}{% endblock register %}
+
+                {% if name_page == "Онлайн" and not event_card_views.object_list %}
+                    <div class="row">
+                        <div class="col-lg-1 feed-left-column"></div>
+                        <div class="col-lg-10">
+                            <div class="alert alert-info text-center no-events-message" role="alert">
+                                Нет запланированных мероприятий
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
                 
                 <!-- в строке ниже убран mt-3 из класса-->
                 {% for events in event_card_views %}

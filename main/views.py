@@ -82,6 +82,10 @@ def index(request):
     name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     time_to_start = request.GET.get('time_to_start', None)
     time_to_end = request.GET.get('time_to_end', None)
+    show_all_param = request.GET.get('show_all', '0')
+    show_all = str(show_all_param).lower() in ['1', 'true', 'on']
+    today = now().date()
+
     available = Events_online.objects.order_by('date')
     available1 = Events_offline.objects.order_by('date')
     cultural = Attractions.objects.order_by('date')
@@ -104,6 +108,12 @@ def index(request):
             speakers_set.add(full_name)
 
     speakers = list(speakers_set)
+
+    if not show_all:
+        available = available.filter(date__gte=today)
+        available1 = available1.filter(date__gte=today)
+        cultural = cultural.filter(date__gte=today)
+        cultural1 = cultural1.filter(date__gte=today)
 
     # СКРЫТЫЕ
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -138,6 +148,11 @@ def index(request):
         available1 = Events_offline.objects.filter(name__icontains=name_search).order_by('-date_add')
         cultural = Attractions.objects.filter(name__icontains=name_search).order_by('-date_add')
         cultural1 = Events_for_visiting.objects.filter(name__icontains=name_search).order_by('-date_add')
+        if not show_all:
+            available = available.filter(date__gte=today)
+            available1 = available1.filter(date__gte=today)
+            cultural = cultural.filter(date__gte=today)
+            cultural1 = cultural1.filter(date__gte=today)
         events_all = list(chain(available, available1, cultural, cultural1))
         filters_applied = True
     elif query:
@@ -146,6 +161,11 @@ def index(request):
         available1 = q_search_offline(query)
         cultural = q_search_attractions(query)
         cultural1 = q_search_events_for_visiting(query)
+        if not show_all:
+            available = available.filter(date__gte=today)
+            available1 = available1.filter(date__gte=today)
+            cultural = cultural.filter(date__gte=today)
+            cultural1 = cultural1.filter(date__gte=today)
         filters_applied = True
         events_all = list(chain(available, available1, cultural, cultural1))
     else:
@@ -154,6 +174,11 @@ def index(request):
         available1 = Events_offline.objects.order_by('-date_add')
         cultural = Attractions.objects.order_by('-date_add')
         cultural1 = Events_for_visiting.objects.order_by('-date_add')
+        if not show_all:
+            available = available.filter(date__gte=today)
+            available1 = available1.filter(date__gte=today)
+            cultural = cultural.filter(date__gte=today)
+            cultural1 = cultural1.filter(date__gte=today)
         events_all = sorted(list(chain(available, available1, cultural, cultural1)), key=lambda x: x.date_add, reverse=True)
 
 
@@ -326,6 +351,7 @@ def index(request):
     "date_start": date_start,
     "date_end": date_end,
     'now': now().date(),
+    'show_all': show_all,
     'reviews_avg': reviews_avg,
 
 }

@@ -15,7 +15,11 @@ def tag_offline():
 @register.simple_tag(takes_context=True)
 def change_params(context, **kwargs):
     query = context['request'].GET.dict()
-    query.update(kwargs)
+    for key, value in kwargs.items():
+        if value in [None, '']:
+            query.pop(key, None)
+        else:
+            query[key] = value
     return urlencode(query)
 
 @register.filter
