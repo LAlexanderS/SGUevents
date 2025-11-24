@@ -17,16 +17,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
 
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = [
-    '*',
-#    'sguevents.ru',
-#    'www.sguevents.ru',
-#    '95.47.161.83',
+    'sguevents.ru',
+    'www.sguevents.ru',
+    '95.47.161.83',
 #    'sguevents.help',
 #    'www.sguevents.help',
-#    'event.larin.work',
-    '127.0.0.1',
+    'event.larin.work',
+#    '127.0.0.1',
 #    'localhost',
 ]
 
@@ -191,15 +190,15 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 # Всегда работаем через HTTPS (локально тоже заходишь через домен с https)
-#SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 # Настройки для работы с Telegram Web App (нужно разрешить куки в iframe)
 # Для Telegram Web App нужен SameSite=None и Secure=True
-##SESSION_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
-##CSRF_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
+SESSION_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
+CSRF_COOKIE_SAMESITE = 'None' if SECURE_SSL_REDIRECT else 'Lax'
 # Убеждаемся, что куки доступны для чтения JavaScript (если нужно)
-##SESSION_COOKIE_HTTPONLY = True  # Безопасность - только HTTP
+SESSION_COOKIE_HTTPONLY = True  # Безопасность - только HTTP
 SESSION_COOKIE_AGE = 1209600  # 2 недели
 SECURE_HSTS_SECONDS = 31536000  # 1 год
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -338,4 +337,3 @@ LOGGING = {
         },
     },
 }
-
