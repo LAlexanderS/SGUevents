@@ -1631,6 +1631,13 @@ td {
     margin-top: 5px;
 }
 
+.no-events-message {
+    text-align: center;
+    color: white;
+    font-size: 30px;
+    padding: 50px 0px;
+
+}
 
 
 
