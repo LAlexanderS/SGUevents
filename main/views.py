@@ -5,6 +5,7 @@ from events_available.models import Events_offline, Events_online
 from events_cultural.models import Attractions, Events_for_visiting
 from itertools import chain
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from datetime import datetime
@@ -18,10 +19,57 @@ from django.core.paginator import EmptyPage, PageNotAnInteger
 from main.utils import q_search_all
 from users.models import User
 from django.db.models import Avg
+from django.conf import settings
 
 
-@login_required
 def index(request):
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Проверяем авторизацию через Mini App перед обычной проверкой
+    if not request.user.is_authenticated:
+        from users.miniapp_utils import validate_init_data, extract_telegram_id, get_init_data_from_request
+        
+        # Получаем initData из запроса (query параметры или заголовки)
+        init_data = get_init_data_from_request(request)
+        
+        logger.info(f"Проверка Mini App авторизации. initData найден: {init_data is not None}")
+        
+        # Если initData есть, проверяем и авторизуем
+        if init_data:
+            logger.info(f"Проверка валидности initData...")
+            if validate_init_data(init_data):
+                logger.info("initData валиден, извлекаем telegram_id...")
+                # Извлекаем telegram_id
+                telegram_id = extract_telegram_id(init_data)
+                logger.info(f"Извлечен telegram_id: {telegram_id}")
+                if telegram_id:
+                    # Ищем пользователя
+                    try:
+                        user = User.objects.get(telegram_id=telegram_id)
+                        logger.info(f"Пользователь найден: {user.username}")
+                        # Авторизуем пользователя
+                        authenticated_user = authenticate(request, telegram_id=telegram_id)
+                        if authenticated_user:
+                            auth_login(request, authenticated_user)
+                            request.session['login_method'] = 'Через Telegram Mini App'
+                            # Явно сохраняем сессию
+                            request.session.save()
+                            logger.info(f"Пользователь {user.username} успешно авторизован через Mini App. Сессия сохранена.")
+                    except User.DoesNotExist:
+                        logger.warning(f"Пользователь с telegram_id {telegram_id} не найден")
+                    except Exception as e:
+                        logger.error(f"Ошибка при авторизации через Mini App: {str(e)}")
+            else:
+                logger.warning("initData не прошел проверку валидности")
+    
+    # Если пользователь все еще не авторизован, редиректим на страницу входа
+    if not request.user.is_authenticated:
+        logger.warning("Пользователь не авторизован после проверки Mini App. Редирект на страницу входа.")
+        logger.warning(f"Session key в запросе: {request.session.session_key}")
+        logger.warning(f"Cookies в запросе: {request.COOKIES}")
+        from django.shortcuts import redirect
+        return redirect('users:login')
     page = request.GET.get('page', 1)
     f_all = request.GET.get('f_all', None)
     f_speakers = request.GET.getlist('f_speakers', None)
@@ -34,6 +82,10 @@ def index(request):
     name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     time_to_start = request.GET.get('time_to_start', None)
     time_to_end = request.GET.get('time_to_end', None)
+    show_all_param = request.GET.get('show_all', '0')
+    show_all = str(show_all_param).lower() in ['1', 'true', 'on']
+    today = now().date()
+
     available = Events_online.objects.order_by('date')
     available1 = Events_offline.objects.order_by('date')
     cultural = Attractions.objects.order_by('date')
@@ -56,6 +108,12 @@ def index(request):
             speakers_set.add(full_name)
 
     speakers = list(speakers_set)
+
+    if not show_all:
+        available = available.filter(date__gte=today)
+        available1 = available1.filter(date__gte=today)
+        cultural = cultural.filter(date__gte=today)
+        cultural1 = cultural1.filter(date__gte=today)
 
     # СКРЫТЫЕ
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -90,6 +148,11 @@ def index(request):
         available1 = Events_offline.objects.filter(name__icontains=name_search).order_by('-date_add')
         cultural = Attractions.objects.filter(name__icontains=name_search).order_by('-date_add')
         cultural1 = Events_for_visiting.objects.filter(name__icontains=name_search).order_by('-date_add')
+        if not show_all:
+            available = available.filter(date__gte=today)
+            available1 = available1.filter(date__gte=today)
+            cultural = cultural.filter(date__gte=today)
+            cultural1 = cultural1.filter(date__gte=today)
         events_all = list(chain(available, available1, cultural, cultural1))
         filters_applied = True
     elif query:
@@ -98,6 +161,11 @@ def index(request):
         available1 = q_search_offline(query)
         cultural = q_search_attractions(query)
         cultural1 = q_search_events_for_visiting(query)
+        if not show_all:
+            available = available.filter(date__gte=today)
+            available1 = available1.filter(date__gte=today)
+            cultural = cultural.filter(date__gte=today)
+            cultural1 = cultural1.filter(date__gte=today)
         filters_applied = True
         events_all = list(chain(available, available1, cultural, cultural1))
     else:
@@ -106,6 +174,11 @@ def index(request):
         available1 = Events_offline.objects.order_by('-date_add')
         cultural = Attractions.objects.order_by('-date_add')
         cultural1 = Events_for_visiting.objects.order_by('-date_add')
+        if not show_all:
+            available = available.filter(date__gte=today)
+            available1 = available1.filter(date__gte=today)
+            cultural = cultural.filter(date__gte=today)
+            cultural1 = cultural1.filter(date__gte=today)
         events_all = sorted(list(chain(available, available1, cultural, cultural1)), key=lambda x: x.date_add, reverse=True)
 
 
@@ -278,6 +351,7 @@ def index(request):
     "date_start": date_start,
     "date_end": date_end,
     'now': now().date(),
+    'show_all': show_all,
     'reviews_avg': reviews_avg,
 
 }

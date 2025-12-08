@@ -194,31 +194,49 @@
 
                                     <div class="row">
                                         <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
-                                            <p class="preview-date">
+                                            <div class="preview-date">
                                                 {% if item.category  != 'Достопримечательности' %}
-                                                <h6 class="card-date"> 
-                                                    {% if item.date != item.date_end %}
-                                                        <split class="card-day"><b>{{ item.date }} - {{ item.date_end }}</b></split> 
-                                                    {% else %}
-                                                        <split class="card-day"><b>{{ item.date }}</b></split> 
-                                                    {% endif %}
-                                                </h6> 
-                                            {% endif %}
-                                            </p>
-                                            <p class="preview-time">
-                                                {% if item.time_start != item.time_end %}
-                                                    <split class="card-time">{{ item.time_start }} - {{ item.time_end }}</split> 
-                                                {% else %}
-                                                    <split class="card-time">{{ item.time_start }}</split> 
+                                                    <img src="{% static 'icons/calendar.png' %}" alt=""> 
+                                                    
+                                                    <div class="date-time-row">
+                                                        <span class="card-date">Дата: {{ item.formatted_date_range }}</span>
+                                                        <span class="card-time">
+                                                            {% if item.time_start != item.time_end %}
+                                                                Время: {{ item.time_start }} – {{ item.time_end }}
+                                                            {% else %}
+                                                                Время: {{ item.time_start }}
+                                                            {% endif %}
+                                                        </span>
+                                                    </div>
                                                 {% endif %}
-                                            </p>
+                                            </div>
                                         </div>
-                                        <div class="col-lg-6 col-md-5 col-sm-5 event-preview-speaker">
-                                            <label for="speaker" class="preview-speaker">Спикеры:</label>
-                                            {% for speaker in item.speakers.all %}
-                                                {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                            {% endfor %}
+
+                                        <div class="event-preview-speaker">
+                                            {% if item.category != "Доступные к посещению" and item.category != "Достопримечательности"%}
+                                             
+                                            {% comment %} <label for="speaker" class="preview-speaker">Спикеры:</label>
+                                                {% for speaker in events.speakers.all %}
+                                                    {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %} {% endcomment %}
+                                            {% else %}
+                                                {% if item.place_limit and item.date >= now %}
+                                                    {% if item.place_free > 0 %}
+                                                        Свободных мест: <span id="free-places-{{item.slug}}"> {{item.place_free }} </span> / {{item.place_limit }}
+                                                    {% else %}
+                                                        Нет свободных мест
+                                                    {% endif %}
+                                                {% endif %}  
+                                            {% endif %}
+                                            
                                         </div>
+
+                                        {% if item.town or item.street %}
+                                            <div class="col-lg-12 col-md-12 col-sm-5 event-preview-adress">
+                                                <label for="adress" class="preview-speaker">Адрес:</label>
+                                                {% if item.town %}г.{{ item.town }}{% endif %} {% if item.street %}ул.{{ item.street }}{% endif %} {% if item.house %} д.{{ item.house }}{% endif %}{% if item.cabinet %} кабинет {{ item.cabinet }}{% endif %}
+                                            </div>
+                                        {% endif %}
                                     </div>
 
                                     <div class="event-preview-description">

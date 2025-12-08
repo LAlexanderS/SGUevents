@@ -5,7 +5,7 @@ import os
 import uuid
 import os.path
 import yadisk
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from django.utils import timezone
 
 import requests
@@ -124,6 +124,101 @@ async def get_user_profile(telegram_id):
         return await sync_to_async(User.objects.get)(telegram_id=telegram_id)
     except User.DoesNotExist:
         return None
+
+async def cancel_support_request_handler(message_or_callback, state: FSMContext, is_callback=False):
+    """
+    Обрабатывает отмену запроса в техподдержку и возвращает пользователя в главное меню.
+    
+    Args:
+        message_or_callback: объект Message или CallbackQuery
+        state: FSMContext для очистки состояния
+        is_callback: True, если это callback_query, False если message
+    """
+    # Очищаем состояние
+    await state.clear()
+    
+    # Формируем сообщение об отмене
+    cancel_text = (
+        "❌ <b>Запрос отменён</b>\n\n"
+        "Вы вернулись в главное меню. Если у вас возникнут вопросы, "
+        "вы всегда можете обратиться в техподдержку через кнопку «Помощь»."
+    )
+    
+    # Создаем главное меню
+    kb = [
+        [
+            types.KeyboardButton(text="\U0001F464 Мой профиль"),
+            types.KeyboardButton(text="📓 Мои мероприятия")
+        ],
+        [
+            types.KeyboardButton(text="\U00002754 Помощь"),
+            types.KeyboardButton(text="🌐 Портал")
+        ],
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        input_field_placeholder="Выберите пункт меню"
+    )
+    
+    if is_callback:
+        try:
+            await message_or_callback.message.edit_text(cancel_text, parse_mode='HTML')
+            await message_or_callback.message.answer(
+                "Главное меню:",
+                reply_markup=keyboard
+            )
+            await message_or_callback.answer("Запрос отменён")
+        except Exception:
+            await message_or_callback.message.answer(cancel_text, reply_markup=keyboard, parse_mode='HTML')
+            await message_or_callback.answer("Запрос отменён")
+    else:
+        await message_or_callback.answer(cancel_text, reply_markup=keyboard, parse_mode='HTML')
+
+async def send_not_registered_message(message_or_callback, is_callback=False):
+    """
+    Отправляет расширенное сообщение о том, что пользователь не зарегистрирован,
+    с кнопкой перехода на портал.
+    
+    Args:
+        message_or_callback: объект Message или CallbackQuery
+        is_callback: True, если это callback_query, False если message
+    """
+    # Формируем URL портала
+    base_url = WEBHOOK_HOST.rstrip('/') if WEBHOOK_HOST else "https://event.larin.work"
+    portal_url = f"{base_url}/"
+    
+    # Текст сообщения
+    text = (
+        "❌ Вы не зарегистрированы на портале.\n\n"
+        "📋 <b>Что даёт регистрация:</b>\n"
+        "• Доступ к порталу мероприятий\n"
+        "• Регистрация на мероприятия\n"
+        "• Просмотр ваших задач и логистики\n"
+        "• Получение поддержки по мероприятиям\n\n"
+        "🌐 Нажмите кнопку ниже, чтобы открыть портал и зарегистрироваться."
+    )
+    
+    # Создаем клавиатуру с кнопкой
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(
+                text="🌐 Открыть портал",
+                web_app=types.WebAppInfo(url=portal_url)
+            )]
+        ]
+    )
+    
+    if is_callback:
+        # Для callback_query используем answer с show_alert или отправляем новое сообщение
+        try:
+            await message_or_callback.message.answer(text, reply_markup=keyboard, parse_mode='HTML')
+            await message_or_callback.answer()
+        except Exception:
+            await message_or_callback.answer("Вы не зарегистрированы на портале. Откройте портал через меню.", show_alert=True)
+    else:
+        # Для обычного сообщения
+        await message_or_callback.answer(text, reply_markup=keyboard, parse_mode='HTML')
 
 async def get_user_events(user):
     from django.utils.timezone import localtime
@@ -310,8 +405,7 @@ async def profile(message: types.Message):
             reply_markup = kb
         await message.answer(response_text, reply_markup=reply_markup)
     else:
-        response_text = "Вы не зарегистрированы на портале."
-        await message.answer(response_text)
+        await send_not_registered_message(message, is_callback=False)
 
 def get_department_name(user):
     from users.models import Department
@@ -328,9 +422,42 @@ async def my_events(message: types.Message):
     if user:
         event_details = await get_user_events(user)
         if event_details:
+            # Сортируем мероприятия по дате (сначала ближайшие будущие, потом прошедшие)
+            today = timezone.localdate()
+            tomorrow = today + timedelta(days=1)
+            
+            def get_event_date(event_info):
+                """Возвращает дату события для сортировки"""
+                if event_info['start_datetime']:
+                    return localtime(event_info['start_datetime']).date()
+                return date.max  # События без даты в конец
+            
+            def get_event_group(event_info):
+                """Определяет группу события для метки"""
+                if not event_info['start_datetime']:
+                    return "⚪ Будущее"
+                event_date = localtime(event_info['start_datetime']).date()
+                if event_date < today:
+                    return "⚫ Прошедшее"
+                elif event_date == today:
+                    return "🟢 Сегодня"
+                elif event_date == tomorrow:
+                    return "🟡 Завтра"
+                else:
+                    return "⚪ Будущее"
+            
+            # Сортируем: сначала будущие (по возрастанию даты), потом прошедшие (по убыванию)
+            future_events = [e for e in event_details if e['start_datetime'] and localtime(e['start_datetime']).date() >= today]
+            past_events = [e for e in event_details if not e['start_datetime'] or localtime(e['start_datetime']).date() < today]
+            
+            future_events.sort(key=get_event_date)
+            past_events.sort(key=get_event_date, reverse=True)
+            
+            sorted_event_details = future_events + past_events
+            
             await message.answer("📓 Ваши мероприятия:")
             
-            for event_info in event_details:
+            for event_info in sorted_event_details:
                 from users.telegram_utils import get_event_url, create_event_hyperlink
                 
                 # Получаем объект мероприятия для создания URL
@@ -364,8 +491,11 @@ async def my_events(message: types.Message):
                 event_url = await sync_to_async(get_event_url)(event_obj) if event_obj else None
                 event_hyperlink = await sync_to_async(create_event_hyperlink)(event_info['name'], event_url)
                 
-                # Формируем текст мероприятия с гиперссылкой
-                event_text = f"🎯 <b>{event_hyperlink}</b>\n"
+                # Определяем группу события для метки
+                event_group = get_event_group(event_info)
+                
+                # Формируем текст мероприятия с гиперссылкой и меткой группы
+                event_text = f"{event_group}\n🎯 <b>{event_hyperlink}</b>\n"
                 if event_info['start_datetime']:
                     start_datetime_local = localtime(event_info['start_datetime'])
                     event_text += f"🕐 {start_datetime_local.strftime('%d.%m.%Y %H:%M')}"
@@ -403,7 +533,7 @@ async def my_events(message: types.Message):
         else:
             await message.answer("Вы не зарегистрированы на какие-либо мероприятия.")
     else:
-        await message.answer("Вы не зарегистрированы на портале.")
+        await send_not_registered_message(message, is_callback=False)
 
 @router.message(Command("help"))
 async def help_request(message: types.Message, state: FSMContext):
@@ -413,7 +543,7 @@ async def help_request(message: types.Message, state: FSMContext):
         
     user = await get_user_profile(message.from_user.id)
     if not user:
-        await message.answer("Вы не зарегистрированы на портале.")
+        await send_not_registered_message(message, is_callback=False)
         return
 
     # Проверяем, является ли чат чатом поддержки для любого мероприятия
@@ -499,11 +629,34 @@ async def get_chat_id(message: types.Message):
         await message.answer("Эта команда работает только в групповых чатах")
 
 # В обработчике бота
+@router.callback_query(F.data == "cancel_support_request")
+async def cancel_support_request_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    """Обработчик кнопки 'Назад' для отмены запроса в техподдержку"""
+    await cancel_support_request_handler(callback_query, state, is_callback=True)
+
 @router.message(SupportRequestForm.waiting_for_question)
 async def receive_question(message: types.Message, state: FSMContext):
+    # Проверяем, не хочет ли пользователь отменить запрос
+    if message.text.lower() in ['назад', 'отмена', 'отменить', 'cancel', '⬅️ назад']:
+        await cancel_support_request_handler(message, state, is_callback=False)
+        return
+    
     from users.models import SupportRequest
     user = await get_user_profile(message.from_user.id)
     if user:
+        # Проверяем минимальную длину вопроса
+        if len(message.text.strip()) < 5:
+            await message.answer(
+                "❌ Вопрос слишком короткий. Пожалуйста, опишите вашу проблему подробнее (минимум 5 символов).\n\n"
+                "💡 Вы можете отменить запрос, нажав кнопку «Назад» или написав «Отмена».",
+                reply_markup=InlineKeyboardMarkup(
+                    inline_keyboard=[
+                        [InlineKeyboardButton(text="⬅️ Назад", callback_data="cancel_support_request")]
+                    ]
+                )
+            )
+            return
+        
         # Сохраняем вопрос в базе данных
         support_request = await sync_to_async(SupportRequest.objects.create)(
             user=user,
@@ -517,9 +670,16 @@ async def receive_question(message: types.Message, state: FSMContext):
 
         # Отправляем сообщение в чат поддержки
         send_message_to_support_chat(support_message)
-        await message.answer("Ваш вопрос отправлен в техподдержку. Спасибо!")
+        
+        # Отправляем подтверждение пользователю
+        confirmation_text = (
+            "✅ <b>Ваш вопрос отправлен в техподдержку!</b>\n\n"
+            "📧 Мы получили ваш запрос и обязательно ответим в ближайшее время.\n\n"
+            "💬 Если у вас есть ещё вопросы, вы можете задать их через кнопку «Помощь» в главном меню."
+        )
+        await message.answer(confirmation_text, parse_mode='HTML')
     else:
-        await message.answer("Вы не зарегистрированы на портале.")
+        await send_not_registered_message(message, is_callback=False)
     await state.clear()
 
 
@@ -561,7 +721,7 @@ async def toggle_notification(callback_query: types.CallbackQuery):
             await callback_query.message.edit_reply_markup(reply_markup=inline_keyboard)
             await callback_query.answer(f"Уведомления {'включены' if registration.notifications_enabled else 'отключены'}.")
         else:
-            await callback_query.answer("Вы не зарегистрированы на портале.")
+            await send_not_registered_message(callback_query, is_callback=True)
     except Exception as e:
         logger.error(f"Ошибка в обработчике toggle_notification: {e}")
         await callback_query.answer("Произошла ошибка.")
@@ -660,7 +820,7 @@ async def handle_leave_review(callback_query: types.CallbackQuery, state: FSMCon
             await state.set_state(ReviewForm.waiting_for_review)
             await state.update_data(event_id=str(uuid_obj), event_type=event_type)
         else:
-            await callback_query.answer("Вы не зарегистрированы на портале.")
+            await send_not_registered_message(callback_query, is_callback=True)
     except Exception as e:
         logger.error(f"Ошибка в обработчике handle_leave_review: {e}")
         await callback_query.answer(f"Произошла ошибка: {e}")
@@ -737,7 +897,7 @@ async def toggle_event_notification(callback_query: types.CallbackQuery):
             await callback_query.message.edit_reply_markup(reply_markup=inline_keyboard)
             await callback_query.answer(f"Уведомления {'включены' if registration.notifications_enabled else 'отключены'}.")
         else:
-            await callback_query.answer("Вы не зарегистрированы на портале.")
+            await send_not_registered_message(callback_query, is_callback=True)
     except Exception as e:
         logger.error(f"Ошибка в обработчике toggle_event_notification: {e}")
         await callback_query.answer("Произошла ошибка.")
@@ -980,10 +1140,37 @@ async def help_request_button(message: types.Message, state: FSMContext):
         
     user = await get_user_profile(message.from_user.id)
     if user:
-        await message.answer("\U00002754 Пожалуйста, введите ваш вопрос:")
+        # Формируем расширенное сообщение с пояснениями
+        help_text = (
+            "\U00002754 <b>Техподдержка</b>\n\n"
+            "📝 <b>Вы можете задать вопрос по:</b>\n"
+            "• Регистрации на мероприятия\n"
+            "• Логистике и трансферам\n"
+            "• Расписанию мероприятий\n"
+            "• Техническим проблемам\n"
+            "• Другим вопросам по платформе\n\n"
+            "💡 <b>Примеры вопросов:</b>\n"
+            "• Как отменить регистрацию на мероприятие?\n"
+            "• Где найти информацию о логистике?\n"
+            "• Как изменить данные профиля?\n\n"
+            "✍️ <b>Напишите ваш вопрос ниже</b>, и мы обязательно вам поможем!\n\n"
+            "💬 Вы также можете отменить запрос, нажав кнопку «Назад»."
+        )
+        
+        # Создаем клавиатуру с кнопкой "Назад"
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(
+                    text="⬅️ Назад",
+                    callback_data="cancel_support_request"
+                )]
+            ]
+        )
+        
+        await message.answer(help_text, reply_markup=keyboard, parse_mode='HTML')
         await state.set_state(SupportRequestForm.waiting_for_question)
     else:
-        await message.answer("Вы не зарегистрированы на портале.")
+        await send_not_registered_message(message, is_callback=False)
 
 @router.message(F.text == "🌐 Портал")
 async def portal_button(message: types.Message):
@@ -995,24 +1182,24 @@ async def portal_button(message: types.Message):
     if user:
         # Формируем URL портала (используем тот же домен, что для вебхука)
         base_url = WEBHOOK_HOST.rstrip('/') if WEBHOOK_HOST else "https://event.larin.work"
+        miniapp_url = f"{base_url}/"
         
-        # Создаем клавиатуру с кнопкой
+        # Создаем клавиатуру с кнопкой Mini App
         keyboard = types.InlineKeyboardMarkup(
             inline_keyboard=[
                 [types.InlineKeyboardButton(
-                    text="🌐 Перейти на портал",
-                    url=base_url
+                    text="🌐 Открыть портал",
+                    web_app=types.WebAppInfo(url=miniapp_url)
                 )]
             ]
         )
         
         await message.answer(
-            f"🌐 Портал мероприятий СГУ: <a href='{base_url}'>{base_url}</a>",
-            reply_markup=keyboard,
-            parse_mode='HTML'
+            f"🌐 Портал мероприятий СГУ\n\nНажмите кнопку ниже, чтобы открыть портал:",
+            reply_markup=keyboard
         )
     else:
-        await message.answer("Вы не зарегистрированы на портале.")
+        await send_not_registered_message(message, is_callback=False)
 
 @router.callback_query(F.data.startswith("logistics_"))
 async def show_logistics_info(callback_query: types.CallbackQuery):
@@ -1027,17 +1214,27 @@ async def show_logistics_info(callback_query: types.CallbackQuery):
         # Получаем пользователя
         user = await get_user_profile(callback_query.from_user.id)
         if not user:
-            await callback_query.answer("Вы не зарегистрированы на портале.")
+            await send_not_registered_message(callback_query, is_callback=True)
             return
         
         # Получаем информацию о логистике
-        logistics = await sync_to_async(EventLogistics.objects.get)(
+        logistics = await sync_to_async(EventLogistics.objects.select_related('event').get)(
             user=user, 
             event_id=event_id
         )
         
+        # Получаем название и ссылку мероприятия
+        event_link = None
+        if logistics.event:
+            from users.telegram_utils import get_event_url, create_event_hyperlink
+            event_url = await sync_to_async(get_event_url)(logistics.event)
+            event_link = await sync_to_async(create_event_hyperlink)(logistics.event.name, event_url)
+        
         # Формируем красивый текст с информацией о логистике
-        logistics_text = "✈️ <b>Информация о логистике</b>\n\n"
+        logistics_text = ""
+        if event_link:
+            logistics_text = f"🎯 <b>{event_link}</b>\n\n"
+        logistics_text += "✈️ <b>Информация о логистике</b>\n\n"
         
         # Информация о прилете
         if logistics.arrival_datetime:
@@ -1081,6 +1278,10 @@ async def show_logistics_info(callback_query: types.CallbackQuery):
         if not any([logistics.arrival_datetime, logistics.departure_datetime, logistics.hotel_details]):
             logistics_text += "ℹ️ Подробная информация о логистике пока не заполнена."
         
+        # Добавляем указание часового пояса
+        if logistics.arrival_datetime or logistics.departure_datetime:
+            logistics_text += "\n\n⌚ Время указано по местному времени."
+        
         # Отправляем информацию
         await callback_query.message.answer(
             logistics_text,
@@ -1098,7 +1299,7 @@ async def show_logistics_info(callback_query: types.CallbackQuery):
 async def list_task_events(callback_query: types.CallbackQuery):
     user = await get_user_profile(callback_query.from_user.id)
     if not user:
-        await callback_query.answer("Вы не зарегистрированы на портале.", show_alert=True)
+        await send_not_registered_message(callback_query, is_callback=True)
         return
 
     from events_available.models import EventOfflineCheckList, Events_offline
@@ -1133,7 +1334,7 @@ async def list_task_events(callback_query: types.CallbackQuery):
 async def show_event_tasks(callback_query: types.CallbackQuery):
     user = await get_user_profile(callback_query.from_user.id)
     if not user:
-        await callback_query.answer("Вы не зарегистрированы на портале.", show_alert=True)
+        await send_not_registered_message(callback_query, is_callback=True)
         return
     try:
         _, _, event_id_str = callback_query.data.partition("mytasks_event_")
@@ -1166,7 +1367,7 @@ async def show_event_tasks(callback_query: types.CallbackQuery):
 async def mark_task_done(callback_query: types.CallbackQuery):
     user = await get_user_profile(callback_query.from_user.id)
     if not user:
-        await callback_query.answer("Вы не зарегистрированы на портале.", show_alert=True)
+        await send_not_registered_message(callback_query, is_callback=True)
         return
 
     try:

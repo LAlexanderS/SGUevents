@@ -199,6 +199,21 @@ button {
     box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.25), -1px 1px 3px 0px rgba(0, 0, 0, 0.25);
 }
 
+.btn.show-all-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.show-all-label-mobile {
+    display: none;
+}
+
+
 .event {
     margin-top: 1rem;
     margin-bottom: 1rem;
@@ -224,7 +239,6 @@ button {
 
 .button-substrate {
     text-indent: 0;
-    /* height: 56.95px; */
     bottom: 0;
     position: absolute;
     background-color: rgba(217, 217, 217, 0.8);
@@ -233,6 +247,7 @@ button {
     text-align: center;
     border-bottom-left-radius: 25px;
     border-top-right-radius: 25px;
+    padding: 5px 2px;
 
 }
 
@@ -412,10 +427,6 @@ button {
 .overlay-popup.active {
     opacity: 1;
     visibility: visible;
-}
-
-.reviews-link {
-    text-indent: 0;
 }
 
 .popup-content {
@@ -609,6 +620,23 @@ button {
     letter-spacing: 0%;
     text-align: left;
     text-shadow: -0px 4px 4px rgba(0, 0, 0, 0.25);
+    width: fit-content;
+    background: #c0c1c3;
+    border-radius: 15px;
+    padding: 1px 8px;
+    box-shadow: 0px 2px 5px 3px rgb(157, 163, 168);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color .2s;
+
+}
+
+.event-title-preview:hover {
+    color: #4077c8;
+    background-color: #cacdd0;
 }
 
 .event-preview-time,
@@ -629,7 +657,12 @@ button {
 }
 
 .preview-date {
-    margin: 0;
+    display: flex;
+    gap: 15px;
+}
+
+.preview-date img {
+    width: 50px;
 }
 
 .date-time {
@@ -689,16 +722,13 @@ button {
 .event-preview-photo {
     text-indent: 20px;
     position: relative;
-    /* Родительский элемент для позиционирования */
     border-radius: 25px;
     overflow: hidden;
-    /* Скрывает элементы, выходящие за пределы */
     height: 100%;
 }
 
 .preview-photo {
     width: 100%;
-    /* Заполняет родительский элемент */
     border-radius: 25px;
     height: 100%;
 }
@@ -706,11 +736,8 @@ button {
 .button-substrate {
     position: absolute;
     bottom: 0px;
-    /* Отступ от низа */
     left: 30px;
-    /* Отступ от левого края */
     background-color: rgba(217, 217, 217, 0.8);
-    padding-left: 0;
     border-bottom-left-radius: 25px;
     border-top-right-radius: 25px;
 }
@@ -718,9 +745,7 @@ button {
 .type-substrate {
     position: absolute;
     top: 0px;
-    /* Отступ от верха */
     right: 0px;
-    /* Отступ от правого края */
     padding: 10px;
     padding-right: 1px;
     padding-top: 1px;
@@ -740,15 +765,14 @@ button {
     display: block;
     position: absolute;
     width: 55%;
-    right: 40px;
     bottom: 25px;
-    text-align: right;
     color: rgb(35, 62, 102);
     font-family: 'Days One';
     font-size: 20px;
     font-weight: 400;
     line-height: 130%;
     letter-spacing: 0%;
+    margin-top: 20px;
 }
 
 .event-tags {
@@ -770,8 +794,7 @@ button {
 }
 
 .event-reviews-link {
-    display: block;
-    position: absolute;
+    display: inline;
     text-align: right;
     bottom: 0;
     left: 0;
@@ -782,16 +805,29 @@ button {
     line-height: 130%;
     letter-spacing: 0%;
     text-indent: 20px;
+    width: fit-content;
+    background: #c0c1c3;
+    border-radius: 15px;
+    padding: 1px 8px;
+    box-shadow: 0px 2px 5px 3px rgb(157, 163, 168);
+}
+
+.event-reviews-link:hover {
+    background-color: #cacdd0;
+}
+
+.event-reviews-link a:hover {
+    color: #4077c8;
 }
 
 .reviews-link {
+    text-indent: 0;
     text-decoration: none;
     color: rgb(39, 66, 106);
 }
 
 
-.event-tags,
-.event-reviews-link {
+.event-tags {
     display: inline;
 }
 
@@ -1585,17 +1621,23 @@ td {
 }
 
 
-.preview-event-id {
-    margin-top: 20px;
-}
-
 .card-date,
 .card-time {
     font-size: 20px;
     white-space: nowrap;
 }
 
+.event-preview-adress {
+    margin-top: 5px;
+}
 
+.no-events-message {
+    text-align: center;
+    color: white;
+    font-size: 30px;
+    padding: 50px 0px;
+
+}
 
 
 
@@ -1750,6 +1792,10 @@ td {
         line-height: 160%;
         text-align: center;
         text-transform: uppercase;
+    }
+
+    .preview-date img {
+        width: 30px;
     }
 }
 
@@ -2237,10 +2283,6 @@ td {
         margin: 0;
     }
 
-    .button-substrate {
-        padding-top: 7px;
-    }
-
     table {
         width: 100%;
     }
@@ -2274,6 +2316,7 @@ td {
         padding-inline: 8px;
         box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.25), -1px 1px 3px 0px rgba(0, 0, 0, 0.25);
         margin: 0;
+        align-content: center;
     }
 
     .btn-primary {
@@ -2376,10 +2419,6 @@ td {
     .card-button {
         padding-inline: 6px;
         font-size: 16px;
-    }
-
-    .preview-event-id {
-        margin-top: 20px;
     }
 }
 
@@ -2581,10 +2620,6 @@ td {
         margin-bottom: 0px;
     }
 
-    .preview-event-id {
-        margin-top: 20px;
-    }
-
     .card-date,
     .card-time {
         font-size: 14px;
@@ -2662,7 +2697,6 @@ td {
         position: absolute;
         right: 20px;
         bottom: 25px;
-        text-align: right;
         color: rgb(35, 62, 102);
         font-family: 'Days One';
         font-size: 10px;
@@ -2671,17 +2705,8 @@ td {
         letter-spacing: 0%;
     }
 
-    .button-substrate {
-        padding-right: 5px;
-        border-radius: 0px 20px 0px 25px;
-    }
-
     .hidden {
         display: none;
-    }
-
-    .preview-event-id {
-        margin-top: 20px;
     }
 
     .arrow-nav-right {
@@ -2706,10 +2731,15 @@ td {
         border-radius: 15px;
     }
 
+
     .event-preview-text {
-        padding-inline: 10px;
+        padding-inline: 0px;
         padding-right: 20px;
         width: 60%;
+    }
+
+    .content-info {
+        padding-inline: 8px;
     }
 
     .reviews-link {
@@ -2751,12 +2781,6 @@ td {
 
     .event-preview-adress {
         width: 100%;
-    }
-
-    .button-substrate {
-        /* width: 119px; */
-        /* height: 27px; */
-        padding-right: 5px;
     }
 
     .event-preview-photo {
@@ -2814,12 +2838,6 @@ td {
         padding-left: 70px;
     } */
 
-
-
-    .preview-event-id {
-        margin-top: 20px;
-    }
-
     .arrow-nav-right {
         right: 5%;
     }
@@ -2833,10 +2851,6 @@ td {
         height: 30px;
         padding-inline: 3px;
         margin: 0;
-    }
-
-    .preview-event-id {
-        margin-top: 20px;
     }
 }
 
@@ -2874,11 +2888,6 @@ td {
         margin-left: 5px;
         margin-top: 0;
     }
-
-    .preview-event-id {
-        margin-top: 20px;
-    }
-
 }
 
 
@@ -2893,10 +2902,6 @@ td {
 
     .text-container {
         height: 189px;
-    }
-
-    .preview-event-id {
-        margin-top: 20px;
     }
 }
 
@@ -2946,6 +2951,8 @@ td {
 
     .event-title-preview {
         font-size: 20px;
+        margin: 3px 0px 10px 0px;
+
     }
 
     .preview-about {
@@ -2969,16 +2976,13 @@ td {
     }
 
     .preview-event-id {
-        margin-top: 20px;
-    }
-
-    .preview-event-id {
         width: 100%;
         display: block;
         position: relative;
         bottom: 0;
         right: 0;
     }
+
 
 }
 
@@ -3002,6 +3006,16 @@ td {
         margin: 0;
         height: 34px;
         width: 34px;
+    }
+
+    .show-all-label-desktop {
+        display: none;
+    }
+    .show-all-label-mobile {
+        display: inline;    
+    }
+    .btn.show-all-button {
+        height: 34px;
     }
 
 }
@@ -3086,8 +3100,7 @@ td {
     .button-substrate {
         width: auto;
         /* height: 27px; */
-        padding: 0;
-        padding-right: 5px;
+        padding: 3px 2px;
         border-radius: 0px 13px 0px 10px;
     }
 
@@ -3743,10 +3756,6 @@ td {
     .mob-row {
         width: 100%;
     }
-
-    .preview-event-id {
-        margin-top: 20px;
-    }
 }
 
 @media (max-width: 428px) {
@@ -3777,11 +3786,6 @@ td {
     .main-header {
         padding-inline: 10px;
     }
-
-    .preview-event-id {
-        margin-top: 20px;
-    }
-
 }
 
 
@@ -3818,22 +3822,12 @@ td {
     .arrow-nav-left {
         left: 2px;
     }
-
-    .preview-event-id {
-        margin-top: 20px;
-    }
-
 }
 
 @media (max-width: 412px) {
     .arrow-nav-left {
         left: 5px;
     }
-
-    .preview-event-id {
-        margin-top: 20px;
-    }
-
 }
 
 
@@ -3877,11 +3871,6 @@ td {
     .img-mobile {
         display: block;
     }
-
-    .preview-event-id {
-        margin-top: 20px;
-    }
-
 }
 
 @media (max-width: 384px) {
@@ -4378,10 +4367,9 @@ td {
 
 .date-time-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: self-start;
     width: 100%;
-    gap: 10px;
 }
 
 

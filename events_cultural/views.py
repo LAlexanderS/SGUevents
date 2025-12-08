@@ -247,8 +247,10 @@ def events_for_visiting(request):
     name_search = request.GET.get('name_search', None)  # Поиск только по названию через фильтр
     f_date = request.GET.get('f_date', None)
     user = request.user
+    today = now().date()
     
-    
+    show_all_param = request.GET.get('show_all', '0')
+    show_all = str(show_all_param).lower() in ['1', 'true', 'on']
 
 
     all_info = Events_for_visiting.objects.all()
@@ -274,6 +276,11 @@ def events_for_visiting(request):
     else:
         # Если ни одного запроса нет, выводим все мероприятия, отсортированные по дате
         events_cultural = Events_for_visiting.objects.all()
+
+    
+    # Показываем только мероприятия, которые еще не завершились по дате
+    if not show_all:
+        events_cultural = events_cultural.filter(date__gte=today)
     
     #Фильтрация по скрытым мероприятиям
     if user.is_superuser or user.department.department_name in ['Administration', 'Superuser']:
@@ -324,14 +331,8 @@ def events_for_visiting(request):
         events_cultural = events_cultural.order_by('-date_add')
         
     paginator = Paginator(events_cultural, 5)
-    try:
-        current_page = paginator.page(int(page))
-    except PageNotAnInteger:
-        # Если страница не является целым числом, возвращаем первую страницу
-        current_page = paginator.page(1)
-    except EmptyPage:
-        # Если страница пуста (например, второй страницы не существует), возвращаем последнюю страницу
-        current_page = paginator.page(paginator.num_pages)
+    current_page = paginator.get_page(page)
+
 
     favorites = Favorite.objects.filter(user=request.user, for_visiting__in=current_page)
     favorites_dict = {favorite.for_visiting.slug: favorite.id for favorite in favorites}
@@ -385,6 +386,7 @@ def events_for_visiting(request):
         'now': now().date(),
         'liked': liked_slugs,
         'reviews_avg': reviews_avg,
+        'show_all': show_all,
 
     }
     return render(request, 'events_cultural/events_for_visiting.html', context)

@@ -172,6 +172,20 @@
                                 <img src="{% static "icons/sort.png" %}"  alt="" class="selection-icon">
                             </button>
 
+                            {% if name_page != "Достопримечательности" %}
+                                {% if show_all %}
+                                    <a class="btn btn-outline-light ms-2 show-all-button" href="?{% change_params show_all='' page=1 %}">
+                                        <span class="show-all-label-desktop">Скрыть прошедшие мероприятия</span>
+                                        <span class="show-all-label-mobile">Скрыть</span>
+                                    </a>
+                                {% else %}
+                                    <a class="btn btn-outline-light ms-2 show-all-button" href="?{% change_params show_all='1' page=1 %}">
+                                        <span class="show-all-label-desktop">Показать все мероприятия</span>
+                                        <span class="show-all-label-mobile">Показать</span>
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+
 
                         </div>
                     {% endif %}
@@ -500,6 +514,17 @@
                 {% block form_events %}{% endblock form_events %}
                 {% block favorites %}{% endblock favorites %}
                 {% block register %}{% endblock register %}
+
+                {% if name_page != "Достопримечательности" and not event_card_views.object_list %}
+                    <div class="row">
+                        <div class="col-lg-1 feed-left-column"></div>
+                        <div class="col-lg-10">
+                            <div class="no-events-message">
+                                Нет запланированных мероприятий
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
                 
                 <!-- в строке ниже убран mt-3 из класса-->
                 {% for events in event_card_views %}
@@ -693,94 +718,96 @@
                                                     {% url "events_cultural:events_for_visiting_card" events.slug %}
                                                 {% endif %}" class="show-more">
                                             {% if events.headline_name %}
-                                                <h4 class="event-title-preview">{{ events.headline_name|truncatechars:65|safe }}</h4>
+                                                <h4 class="event-title-preview">{{ events.headline_name }}</h4>
                                             {% else %}
-                                                <h4 class="event-title-preview">{{ events.name|truncatechars:65 }}</h4>
+                                                <h4 class="event-title-preview">{{ events.name }}</h4>
                                             {% endif %}
                                         </a>
 
-                                        <div class="row">
-                                            <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
-                                                <div class="preview-date">
-                                                    {% if events.category  != 'Достопримечательности' %}
-                                                        <div class="date-time-row">
-                                                            <span class="card-date">Дата: {{ events.formatted_date_range }}</span>
-                                                            <span class="card-time">
-                                                                {% if events.time_start != events.time_end %}
-                                                                    Время: {{ events.time_start }} – {{ events.time_end }}
-                                                                {% else %}
-                                                                    Время: {{ events.time_start }}
-                                                                {% endif %}
-                                                            </span>
-                                                        </div>
-                                                        
-                                                    
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-
-                                            <div class="event-preview-speaker">
-                                                {% if events.category != "Доступные к посещению" and events.category != "Достопримечательности"%}
-                                                <label for="speaker" class="preview-speaker">Спикеры:</label>
-                                                    {% for speaker in events.speakers.all %}
-                                                        {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                                                {% else %}
-                                                    {% if events.place_limit and events.date >= now %}
-                                                        {% if events.place_free > 0 %}
-                                                            Свободных мест: <span id="free-places-{{events.slug}}"> {{events.place_free }} </span> / {{events.place_limit }}
-                                                        {% else %}
-                                                            Нет свободных мест
+                                        <div class="content-info">
+                                            <div class="row">
+                                                <div class="col-lg-6 col-md-5 col-sm-5 event-preview-time">
+                                                    <div class="preview-date">
+                                                        {% if events.category  != 'Достопримечательности' %}
+                                                            <img src="{% static 'icons/calendar.png' %}" alt=""> 
+                                                            
+                                                            <div class="date-time-row">
+                                                                <span class="card-date">Дата: {{ events.formatted_date_range }}</span>
+                                                                <span class="card-time">
+                                                                    {% if events.time_start != events.time_end %}
+                                                                        Время: {{ events.time_start }} – {{ events.time_end }}
+                                                                    {% else %}
+                                                                        Время: {{ events.time_start }}
+                                                                    {% endif %}
+                                                                </span>
+                                                            </div>
                                                         {% endif %}
-                                                    {% endif %}  
-                                                {% endif %}
-                                                
-                                            </div>
+                                                    </div>
+                                                </div>
 
-                                            {% if events.town or events.street %}
-                                                <div class="col-lg-12 col-md-12 col-sm-5 event-preview-adress">
-                                                    <label for="adress" class="preview-speaker">Адрес:</label>
-                                                    {% if events.town %}г.{{ events.town }}{% endif %} {% if events.street %}ул.{{ events.street }}{% endif %} {% if events.house %} д.{{ events.house }}{% endif %}{% if events.cabinet %} кабинет {{ events.cabinet }}{% endif %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="event-preview-description">
-                                            <label for="" class="preview-about">О мероприятии:</label>
-                                            <p class="preview-description">
-                                                {% autoescape off %}
-                                                    {% if events.headline_description %}
-                                                        {{ events.headline_description|truncatechars:200 }}
+                                                <div class="event-preview-speaker">
+                                                    {% if events.category != "Доступные к посещению" and events.category != "Достопримечательности"%}
+                                                     
+                                                    {% comment %} <label for="speaker" class="preview-speaker">Спикеры:</label>
+                                                        {% for speaker in events.speakers.all %}
+                                                            {{ speaker.last_name }} {{ speaker.first_name }}{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %} {% endcomment %}
                                                     {% else %}
-                                                        {{ events.description|truncatechars:200 }}
+                                                        {% if events.place_limit and events.date >= now %}
+                                                            {% if events.place_free > 0 %}
+                                                                Свободных мест: <span id="free-places-{{events.slug}}"> {{events.place_free }} </span> / {{events.place_limit }}
+                                                            {% else %}
+                                                                Нет свободных мест
+                                                            {% endif %}
+                                                        {% endif %}  
                                                     {% endif %}
-                                                {% endautoescape %}
-                                                <a href="{% if events.category  == 'Онлайн' %}
-                                                    {% url "events_available:online_card" events.slug %}
-                                                {% elif events.category  == 'Оффлайн' %}
-                                                    {% url "events_available:offline_card" events.slug %}
-                                                {% elif events.category  == 'Достопримечательности' %}
-                                                    {% url "events_cultural:attractions_card" events.slug %}
-                                                {% elif events.category  == 'Доступные к посещению' %}
-                                                    {% url "events_cultural:events_for_visiting_card" events.slug %}
-                                                {% endif %}"  class="show-more">Подробнее</a>
-                                            </p>
-                                        </div>
-                                        <div class="preview-event-id">
-                                            <div class="event-content-row">
-                                                <div class="event-reviews-link">
-                                                    <a href="#" class="reviews-link" type="button" data-bs-toggle="modal"
-                                                        data-bs-target="#modal-{{ events.unique_id }}">Посмотреть отзывы</a>
+                                                    
                                                 </div>
-                                                <div class="event-tags">
-                                                    {% if events.tags %} 
-                                                        {{ events.tags }}
-                                                    {% endif %}
+
+                                                {% if events.town or events.street %}
+                                                    <div class="col-lg-12 col-md-12 col-sm-5 event-preview-adress">
+                                                        <label for="adress" class="preview-speaker">Адрес:</label>
+                                                        {% if events.town %}г.{{ events.town }}{% endif %} {% if events.street %}ул.{{ events.street }}{% endif %} {% if events.house %} д.{{ events.house }}{% endif %}{% if events.cabinet %} кабинет {{ events.cabinet }}{% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="event-preview-description">
+                                                <label for="" class="preview-about">О мероприятии:</label>
+                                                <p class="preview-description">
+                                                    {% autoescape off %}
+                                                        {% if events.headline_description %}
+                                                            {{ events.headline_description|truncatechars:200 }}
+                                                        {% else %}
+                                                            {{ events.description|truncatechars:200 }}
+                                                        {% endif %}
+                                                    {% endautoescape %}
+                                                    <a href="{% if events.category  == 'Онлайн' %}
+                                                        {% url "events_available:online_card" events.slug %}
+                                                    {% elif events.category  == 'Оффлайн' %}
+                                                        {% url "events_available:offline_card" events.slug %}
+                                                    {% elif events.category  == 'Достопримечательности' %}
+                                                        {% url "events_cultural:attractions_card" events.slug %}
+                                                    {% elif events.category  == 'Доступные к посещению' %}
+                                                        {% url "events_cultural:events_for_visiting_card" events.slug %}
+                                                    {% endif %}"  class="show-more">Подробнее</a>
+                                                </p>
+                                            </div>
+                                            <div class="preview-event-id">
+                                                <div class="event-content-row">
+                                                    <div class="event-reviews-link">
+                                                        <a href="#" class="reviews-link" type="button" data-bs-toggle="modal"
+                                                            data-bs-target="#modal-{{ events.unique_id }}">Посмотреть отзывы</a>
+                                                    </div>
+                                                    <div class="event-tags">
+                                                        {% if events.tags %} 
+                                                            {{ events.tags }}
+                                                        {% endif %}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                         
                                     </div>
-
                                     
                                 </div>
                             </div>
@@ -1035,6 +1062,107 @@
     <script src="{% static "js/sort_selected_script.js" %}"></script>
 
     <script src="{% static "js/content_load_script.js" %}"></script>
+
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Mini App Auto-login -->
+    <script>
+        (function() {
+            // Проверяем, что мы в Telegram Mini App
+            if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                
+                // Проверяем, что пользователь не авторизован
+                {% if not user.is_authenticated %}
+                    // Получаем initData (в Telegram Web App API это строка в формате query string)
+                    const initData = tg.initData;
+                    
+                    if (initData) {
+                        // Отправляем initData на сервер для авторизации
+                        fetch('{% url "users:miniapp_auth" %}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            credentials: 'include',  // Важно: отправляем куки с запросом
+                            body: JSON.stringify({
+                                initData: initData
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Response data:', data);
+                            if (data.success) {
+                                // Редирект на указанный URL
+                                console.log('Авторизация успешна через Mini App, редирект на:', data.redirect_url);
+                                console.log('Session key:', data.session_key);
+                                console.log('Cookies перед редиректом:', document.cookie);
+                                
+                                // Небольшая задержка для сохранения сессии
+                                setTimeout(() => {
+                                    const sessionCookie = getCookie('sessionid');
+                                    console.log('Session cookie после задержки:', sessionCookie ? 'установлен (' + sessionCookie.substring(0, 20) + '...)' : 'не установлен');
+                                    console.log('Все cookies:', document.cookie);
+                                    
+                                    if (data.redirect_url) {
+                                        console.log('Выполняю редирект на:', data.redirect_url);
+                                        try {
+                                            window.location.replace(data.redirect_url);
+                                        } catch (e) {
+                                            console.error('Ошибка при редиректе:', e);
+                                            window.location.href = data.redirect_url;
+                                        }
+                                    } else {
+                                        console.log('Выполняю редирект на главную');
+                                        try {
+                                            window.location.replace('/');
+                                        } catch (e) {
+                                            window.location.href = '/';
+                                        }
+                                    }
+                                }, 500);
+                            } else {
+                                // Если пользователь не найден, показываем сообщение или редирект на регистрацию
+                                if (data.needs_registration) {
+                                    console.log('Пользователь не найден. Требуется регистрация.');
+                                    // Можно показать уведомление или редирект на регистрацию
+                                } else {
+                                    console.error('Ошибка авторизации:', data.error);
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Ошибка при авторизации через Mini App:', error);
+                        });
+                    }
+                {% endif %}
+            }
+            
+            // Функция для получения CSRF токена
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        })();
+    </script>
 
     <script>
         // Hide preloader once all resources are fully loaded

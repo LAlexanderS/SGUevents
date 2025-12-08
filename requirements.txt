@@ -68,3 +68,6 @@ yadisk==3.2.0
 yarl==1.9.4
 python-docx==1.1.2
 docxtpl==0.16.7
+mkdocs==1.6.1
+mkdocs-material==9.5.28
+mkdocs-macros-plugin==1.0.5

@@ -3,6 +3,7 @@ from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
+from SGUevents.views_docs import docs_serve
 from users.views import telegram_webhook
 from django.conf.urls import handler404, handler500, handler403, handler400
 
@@ -18,6 +19,7 @@ urlpatterns = [
     path('select2/', include('django_select2.urls')),
     path('bookmarks/', include('bookmarks.urls', namespace='bookmarks')),
     path('webhook/', telegram_webhook, name='telegram_webhook'),
+    re_path(r'^docs(?:/(?P<resource>.*))?$', docs_serve, name='docs'),
     path('', include('main.urls', namespace='main')),
 ]
 

@@ -183,6 +183,12 @@
                                     <button id="openPasswordModalBtn" class="btn photo-upload-btn" style="margin-bottom:10px;" data-bs-toggle="modal" data-bs-target="#passwordModal">
                                         <i class="password-icon">🔒</i> Сменить пароль
                                     </button>
+                                    <button class="btn photo-upload-btn" style="margin-bottom:10px;" data-bs-toggle="modal" data-bs-target="#supportModal">
+                                        <i class="password-icon">🆘</i> Связь с техподдержкой
+                                    </button>
+                                    <div class="alert alert-success mt-2 d-none" id="supportSuccessAlert" role="alert" style="background:#1f2a1f; border:1px solid #2d6930; color:#bff2c1;">
+                                        Запрос отправлен. С вами свяжется техподдержка.
+                                    </div>
                                 </div>
                                 <div class="col-lg-1 d-none d-lg-block"></div>                                
                             </div>
@@ -439,6 +445,32 @@
                                         });
                                         </script>
                                         
+                                        <!-- Модальное окно связи с техподдержкой -->
+                                        <div class="modal fade" id="supportModal" tabindex="-1" aria-labelledby="supportModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content" style="background:#1b1f2a; border:1px solid #2b3244;">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="supportModalLabel">Связь с техподдержкой</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" style="color:#cbd2e1;">Опишите ваш вопрос</label>
+                                                        <textarea id="supportQuestion" class="form-control" rows="5" placeholder="Например: не отображаются мероприятия, не могу войти..." oninput="clearSupportError()"></textarea>
+                                                        <div id="supportQuestionError" class="invalid-feedback" style="display:block; color:#ff7676; min-height: 1em;"></div>
+                                                    </div>
+                                                    <div style="color:#9aa4ba; font-size:0.9rem; margin-top:6px;">
+                                                        Сообщение отправится напрямую в чат техподдержки портала.
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer d-flex justify-content-end align-items-center gap-2">
+                                                    <button type="button" class="modal-action-btn modal-action-btn--secondary" data-bs-dismiss="modal">Отмена</button>
+                                                    <button type="button" class="modal-action-btn modal-action-btn--primary" id="supportSubmitBtn" onclick="sendSupportRequest()">Отправить</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+
                                         <!-- Модальное окно смены пароля -->
                                         <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
@@ -583,6 +615,87 @@
         if (/(.)\1{2,}/.test(pwd)) score -= 1;
         return score;
     }
+
+    function clearSupportError() {
+        const errorEl = document.getElementById('supportQuestionError');
+        if (errorEl) {
+            errorEl.textContent = '';
+        }
+    }
+
+    function resetSupportModal() {
+        const textarea = document.getElementById('supportQuestion');
+        if (textarea) {
+            textarea.value = '';
+        }
+        clearSupportError();
+        const submitBtn = document.getElementById('supportSubmitBtn');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+        }
+    }
+
+    function sendSupportRequest() {
+        const textarea = document.getElementById('supportQuestion');
+        const errorEl = document.getElementById('supportQuestionError');
+        const submitBtn = document.getElementById('supportSubmitBtn');
+        if (!textarea || !errorEl) {
+            return;
+        }
+
+        const question = textarea.value.trim();
+        clearSupportError();
+        if (!question) {
+            errorEl.textContent = 'Опишите ваш вопрос';
+            return;
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+        }
+
+        fetch('{% url "users:support_request" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ question })
+        })
+        .then(async response => {
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data.success) {
+                throw data;
+            }
+            return data;
+        })
+        .then(() => {
+            textarea.value = '';
+            const modalEl = document.getElementById('supportModal');
+            if (modalEl) {
+                const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modalInstance.hide();
+            }
+            const alertEl = document.getElementById('supportSuccessAlert');
+            if (alertEl) {
+                alertEl.classList.remove('d-none');
+                alertEl.classList.add('show');
+                setTimeout(() => {
+                    alertEl.classList.add('d-none');
+                    alertEl.classList.remove('show');
+                }, 6000);
+            }
+        })
+        .catch(err => {
+            const message = err && err.error ? err.error : 'Не удалось отправить запрос. Попробуйте позже.';
+            errorEl.textContent = message;
+        })
+        .finally(() => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
+        });
+    }
     
     function requestAdminRights() {
         const reason = document.getElementById('reason').value;
@@ -694,6 +807,19 @@
     document.addEventListener('DOMContentLoaded', function () {
         const modalEl = document.getElementById('logisticsModal');
         const eventSelect = document.getElementById('id_event');
+        const supportModalEl = document.getElementById('supportModal');
+
+        if (supportModalEl) {
+            supportModalEl.addEventListener('shown.bs.modal', function () {
+                const textarea = document.getElementById('supportQuestion');
+                if (textarea) {
+                    setTimeout(() => textarea.focus(), 150);
+                }
+            });
+            supportModalEl.addEventListener('hidden.bs.modal', function () {
+                resetSupportModal();
+            });
+        }
 
         const fld = {
             arrival_datetime: document.getElementById('id_arrival_datetime'),

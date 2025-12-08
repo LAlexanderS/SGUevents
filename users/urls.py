@@ -9,6 +9,7 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('profile/', views.profile, name='profile'),
     path('change_password/', views.change_password, name='change_password'),
+    path('support-request/', views.support_request, name='support_request'),
     path('request_admin_rights/', views.request_admin_rights, name='request_admin_rights'),
     path('event_support_request/', views.event_support_request, name='event_support_request'),
     path('upload-photo/', views.upload_photo, name='upload_photo'),
@@ -18,7 +19,9 @@ urlpatterns = [
     path('logistics/<int:pk>/update-field/', views.update_logistics_field, name='update_logistics_field'),
     re_path(r'^auth/telegram/(?P<token>[0-9a-f-]+)/?$', views.telegram_auth, name='telegram_auth'),
     path('telegram-auth/', views.telegram_login_callback, name='telegram_login_callback'),
+    path('miniapp-auth/', views.miniapp_auth_view, name='miniapp_auth'),
     path('password-reset/', views.password_reset_request, name='password_reset'),
     path('password-reset/verify/', views.password_reset_verify, name='password_reset_verify'),
     path('password-reset/resend/', views.password_reset_resend, name='password_reset_resend'),
+    path('webapp-auth/', views.telegram_webapp_auth, name='telegram_webapp_auth'),
 ]

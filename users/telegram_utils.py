@@ -17,6 +17,10 @@ from asgiref.sync import async_to_sync
 import aiohttp
 import asyncio
 from django.urls import reverse
+import hmac
+import hashlib
+import urllib.parse
+from django.contrib.auth import get_user_model, login as django_login
 
 
 logger = logging.getLogger('my_debug_logger')
@@ -25,12 +29,17 @@ logger = logging.getLogger('my_debug_logger')
 ADMIN_TG_NAME = os.getenv("ADMIN_TG_NAME")
 
 
-def send_message_to_support_chat(message):
+def send_message_to_support_chat(message, parse_mode=None):
     from aiogram import Bot
     bot = Bot(token=settings.ACTIVE_TELEGRAM_BOT_TOKEN)
     support_chat_id = settings.ACTIVE_TELEGRAM_SUPPORT_CHAT_ID
     try:
-        async_to_sync(bot.send_message)(chat_id=support_chat_id, text=message)
+        async_to_sync(bot.send_message)(
+            chat_id=support_chat_id,
+            text=message,
+            parse_mode=parse_mode,
+            disable_web_page_preview=True
+        )
         logger.info(f"Сообщение успешно отправлено в чат поддержки: {message}")
     except Exception as e:
         logger.error(f"Ошибка при отправке сообщения в чат поддержки: {e}")
@@ -124,6 +133,68 @@ import json
 
 
 logger = logging.getLogger('my_debug_logger')
+
+def _get_webapp_secret_key():
+    """
+    Возвращает секрет для подписи Telegram WebApp: sha256(bot_token)
+    """
+    return hashlib.sha256(settings.ACTIVE_TELEGRAM_BOT_TOKEN.encode()).digest()
+
+def validate_telegram_webapp_init_data(init_data_raw: str) -> dict:
+    """
+    Валидация initData из Telegram Mini Apps (window.Telegram.WebApp.initData).
+    Возвращает dict с user-объектом при валидной подписи, иначе бросает ValueError.
+    """
+    if not init_data_raw:
+        raise ValueError("Empty initData")
+
+    parsed = urllib.parse.parse_qs(init_data_raw, strict_parsing=True)
+    if 'hash' not in parsed:
+        raise ValueError("Missing hash")
+    received_hash = parsed['hash'][0]
+
+    # формируем check_string без hash, ключи по алфавиту
+    data_check_items = []
+    for k, v in parsed.items():
+        if k == 'hash':
+            continue
+        data_check_items.append(f"{k}={v[0]}")
+    check_string = "\n".join(sorted(data_check_items))
+
+    secret = _get_webapp_secret_key()
+    computed_hash = hmac.new(secret, msg=check_string.encode(), digestmod=hashlib.sha256).hexdigest()
+    if computed_hash != received_hash:
+        raise ValueError("Bad hash")
+
+    user_json = parsed.get('user', [None])[0]
+    if not user_json:
+        raise ValueError("Missing user")
+    user = json.loads(user_json)
+    return user  # {'id': ..., 'first_name': ..., 'last_name': ..., 'username': ...}
+
+def login_or_register_from_webapp(request, user_payload: dict):
+    """
+    Логинит или создаёт пользователя по telegram_id из payload Mini App и авторизует в Django-сессии.
+    """
+    User = get_user_model()
+    telegram_id = str(user_payload.get('id') or '')
+    if not telegram_id:
+        raise ValueError("Missing telegram id")
+
+    user = User.objects.filter(telegram_id=telegram_id).first()
+    if not user:
+        username = user_payload.get('username') or f"tg_{telegram_id}"
+        first_name = user_payload.get('first_name') or ''
+        last_name = user_payload.get('last_name') or ''
+        user = User.objects.create_user(
+            email=None,
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            telegram_id=telegram_id,
+        )
+    django_login(request, user)
+    return user
 
 def send_message_to_user_with_review_buttons(telegram_id, message, event_unique_id, event_type):
     send_url = f"https://api.telegram.org/bot{settings.ACTIVE_TELEGRAM_BOT_TOKEN}/sendMessage"

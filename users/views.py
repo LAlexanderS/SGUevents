@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.utils.html import escape
 from django.db import transaction
 from django.conf import settings
 from transliterate import translit
@@ -28,10 +29,21 @@ from django.utils.dateparse import parse_datetime
 
 
 from .forms import RegistrationForm, UserPasswordChangeForm
-from .models import Department, AdminRightRequest, TelegramAuthToken, PasswordResetCode
+from .models import (
+    Department,
+    AdminRightRequest,
+    TelegramAuthToken,
+    PasswordResetCode,
+    SupportRequest,
+)
 from .telegram_utils import send_registration_details_sync, send_password_change_details_sync
-from .telegram_utils import send_confirmation_to_user, send_message_to_support_chat
+from .telegram_utils import (
+    send_confirmation_to_user,
+    send_message_to_support_chat,
+    send_message_to_telegram,
+)
 from .telegram_utils import send_password_reset_warning, send_password_reset_code
+from .telegram_utils import validate_telegram_webapp_init_data, login_or_register_from_webapp
 from events_available.models import EventLogistics, Events_offline
 from bookmarks.models import Registered
 from users.forms import EventLogisticsForm
@@ -106,11 +118,33 @@ def login_view(request):
             return redirect('main:index')
         else:
             messages.error(request, "Неверный логин или пароль.")
+    from django.conf import settings
     context = {
         'telegram_bot_username': DEV_BOT_NAME if os.getenv('DJANGO_ENV') == 'development' else BOT_NAME,
-        'next': request.GET.get('next', '')
+        'next': request.GET.get('next', ''),
+        'enable_login_widget_auth': settings.ENABLE_LOGIN_WIDGET_AUTH,
     }
     return render(request, 'users/login.html', context)
+
+@csrf_exempt
+def telegram_webapp_auth(request):
+    """
+    Принимает initData из Telegram Mini Apps, валидирует и логинит пользователя по telegram_id.
+    Возвращает JSON с redirect_url (по next или на главную).
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+    try:
+        # initData может прийти как raw body (text/plain) или как поле
+        raw_body = request.body.decode(errors='ignore') if request.body else ''
+        init_data = request.POST.get('initData') or raw_body
+        payload = validate_telegram_webapp_init_data(init_data)
+        user = login_or_register_from_webapp(request, payload)
+        next_url = request.GET.get('next') or '/'
+        return JsonResponse({'success': True, 'redirect_url': next_url})
+    except Exception as e:
+        logger.error(f"WebApp auth error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 @csrf_exempt
 def telegram_auth(request, token):
@@ -497,13 +531,148 @@ def telegram_webhook(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
+def miniapp_auth_view(request):
+    """
+    Обработка авторизации через Telegram Mini App.
+    Автоматически логинит пользователя если он существует в базе.
+    """
+    from django.conf import settings
+    from django.shortcuts import redirect
+    from .miniapp_utils import extract_telegram_id, get_init_data_from_request, validate_init_data
+    
+    # Проверяем feature flag
+    if not settings.ENABLE_MINIAPP_AUTH:
+        from django.http import Http404
+        raise Http404("Mini App авторизация отключена")
+    
+    # Если это GET запрос (редирект после авторизации), проверяем сессию
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            return redirect('main:index')
+        else:
+            return redirect('users:login')
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+    
+    try:
+        # Получаем initData из тела запроса или query параметров
+        data = json.loads(request.body) if request.body else {}
+        init_data = data.get('initData') or get_init_data_from_request(request)
+        
+        if not init_data:
+            logger.error("initData отсутствует в запросе")
+            return JsonResponse({'success': False, 'error': 'initData не предоставлен'})
+        
+        # Проверяем валидность initData
+        if not validate_init_data(init_data):
+            logger.error("initData не прошел проверку валидности")
+            return JsonResponse({'success': False, 'error': 'Неверный initData'})
+        
+        # Извлекаем telegram_id
+        telegram_id = extract_telegram_id(init_data)
+        if not telegram_id:
+            logger.error("Не удалось извлечь telegram_id из initData")
+            return JsonResponse({'success': False, 'error': 'Не удалось извлечь данные пользователя'})
+        
+        logger.info(f"Поиск пользователя с telegram_id: {telegram_id}")
+        user = User.objects.filter(telegram_id=telegram_id).first()
+        
+        if not user:
+            logger.warning(f"Пользователь с telegram_id {telegram_id} не найден")
+            return JsonResponse({
+                'success': False, 
+                'error': 'Пользователь не найден',
+                'needs_registration': True
+            })
+        
+        logger.info(f"Пользователь найден: {user.username}")
+        
+        # Используем authenticate для проверки пользователя
+        authenticated_user = authenticate(request, telegram_id=telegram_id)
+        if authenticated_user is None:
+            logger.error(f"Ошибка аутентификации пользователя с telegram_id {telegram_id}")
+            return JsonResponse({'success': False, 'error': 'Ошибка аутентификации'})
+        
+        # Логиним пользователя
+        auth_login(request, authenticated_user)
+        request.session['login_method'] = 'Через Telegram Mini App'
+        # Явно сохраняем сессию
+        request.session.save()
+        
+        logger.info(f"Пользователь {user.username} успешно авторизован через Mini App. Сессия сохранена. Session key: {request.session.session_key}")
+        
+        # Проверяем, это AJAX запрос или обычный
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json'
+        
+        if is_ajax:
+            # Для AJAX запросов возвращаем JSON с редиректом
+            redirect_url = request.build_absolute_uri(reverse('main:index'))
+            logger.info(f"AJAX запрос, возвращаю JSON с редиректом: {redirect_url}")
+            
+            response = JsonResponse({
+                'success': True, 
+                'redirect_url': redirect_url,
+                'session_key': request.session.session_key  # Для отладки
+            })
+            
+            # Убеждаемся, что куки сессии установлены правильно
+            if request.session.session_key:
+                cookie_age = getattr(settings, 'SESSION_COOKIE_AGE', 1209600)
+                samesite_value = getattr(settings, 'SESSION_COOKIE_SAMESITE', 'Lax')
+                response.set_cookie(
+                    'sessionid', 
+                    request.session.session_key,
+                    max_age=cookie_age,
+                    domain=None,
+                    samesite=samesite_value,
+                    secure=settings.SESSION_COOKIE_SECURE,
+                    httponly=getattr(settings, 'SESSION_COOKIE_HTTPONLY', True)
+                )
+                logger.info(f"Куки сессии установлены в JSON ответе")
+            
+            return response
+        else:
+            # Для обычных запросов делаем HTTP редирект
+            logger.info("Обычный запрос, выполняю HTTP редирект")
+            return redirect('main:index')
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"Ошибка декодирования JSON: {str(e)}")
+        return JsonResponse({'success': False, 'error': 'Неверный формат данных'})
+    except Exception as e:
+        logger.error(f"Ошибка при входе через Mini App: {str(e)}")
+        return JsonResponse({'success': False, 'error': 'Произошла ошибка при входе'})
+
+@csrf_exempt
 def telegram_login_callback(request):
     """
     Обработка входа через Telegram после нажатия на виджет
     """
+    from django.conf import settings
+    
+    # Проверяем feature flag
+    if not settings.ENABLE_LOGIN_WIDGET_AUTH:
+        from django.http import Http404
+        raise Http404("Login Widget авторизация отключена")
+    
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            # Проверяем, что body не пустой
+            if not request.body:
+                logger.error("Пустое тело запроса")
+                return JsonResponse({'success': False, 'error': 'Пустое тело запроса'})
+            
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                # Если не JSON, пробуем получить из POST данных
+                data = {
+                    'id': request.POST.get('id') or request.POST.get('telegram_id'),
+                    'telegram_id': request.POST.get('telegram_id') or request.POST.get('id'),
+                    'next': request.POST.get('next')
+                }
+            
             logger.info(f"Получены данные от виджета Telegram: {data}")
             
             # Telegram виджет может отправить id в разных форматах
@@ -533,10 +702,36 @@ def telegram_login_callback(request):
             
             auth_login(request, authenticated_user)
             request.session['login_method'] = 'Через Telegram'
+            # Явно сохраняем сессию
+            request.session.save()
+            
+            logger.info(f"Пользователь {user.username} успешно авторизован через Login Widget. Сессия сохранена. Session key: {request.session.session_key}")
             
             # Перенаправляем на next URL если он есть, иначе на главную
             redirect_url = next_url if next_url else reverse('main:index')
-            return JsonResponse({'success': True, 'redirect_url': redirect_url})
+            
+            response = JsonResponse({
+                'success': True, 
+                'redirect_url': redirect_url,
+                'session_key': request.session.session_key  # Для отладки
+            })
+            
+            # Убеждаемся, что куки сессии установлены
+            if request.session.session_key:
+                cookie_age = getattr(settings, 'SESSION_COOKIE_AGE', 1209600)
+                samesite_value = getattr(settings, 'SESSION_COOKIE_SAMESITE', 'Lax')
+                response.set_cookie(
+                    'sessionid',
+                    request.session.session_key,
+                    max_age=cookie_age,
+                    domain=None,
+                    samesite=samesite_value,
+                    secure=settings.SESSION_COOKIE_SECURE,
+                    httponly=getattr(settings, 'SESSION_COOKIE_HTTPONLY', True)
+                )
+                logger.info(f"Куки сессии установлены для Login Widget")
+            
+            return response
             
         except json.JSONDecodeError as e:
             logger.error(f"Ошибка декодирования JSON: {str(e)}")
@@ -594,6 +789,71 @@ def get_logistics_for_event(request):
     }
 
     return JsonResponse(data)
+
+
+@csrf_exempt
+@login_required
+def support_request(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        data = request.POST
+
+    question = (data.get('question') or '').strip()
+    if not question:
+        return JsonResponse({'success': False, 'error': 'Опишите ваш вопрос'}, status=400)
+
+    try:
+        support_request_obj = SupportRequest.objects.create(user=request.user, question=question)
+    except Exception as exc:
+        logger.error(f"Не удалось сохранить обращение в техподдержку: {exc}")
+        return JsonResponse({'success': False, 'error': 'Не удалось сохранить запрос'}, status=500)
+
+    full_name_parts = [request.user.last_name, request.user.first_name, request.user.middle_name]
+    full_name = " ".join(part for part in full_name_parts if part).strip() or request.user.username
+    full_name_html = escape(full_name)
+    question_html = escape(question)
+    vip_prefix = "\U0001F451 " if request.user.vip else ""
+
+    if request.user.telegram_id:
+        profile_reference = f'<a href="tg://user?id={request.user.telegram_id}">{full_name_html}</a>'
+    else:
+        profile_reference = full_name_html
+
+    support_message_lines = [
+        f"Новый запрос в техподдержку от {vip_prefix}{full_name_html}:",
+        "",
+        f"<pre>{question_html}</pre>",
+        "",
+    ]
+    if request.user.telegram_id:
+        support_message_lines.append(f"Профиль пользователя: {profile_reference}")
+    else:
+        support_message_lines.append("Пользователь не привязан к Telegram.")
+
+    support_message = "\n".join(support_message_lines)
+
+    try:
+        send_message_to_support_chat(support_message, parse_mode='HTML')
+    except Exception as exc:
+        logger.error(f"Ошибка отправки сообщения в чат поддержки: {exc}")
+        support_request_obj.delete()
+        return JsonResponse({'success': False, 'error': 'Не удалось отправить сообщение в поддержку'}, status=502)
+
+    if request.user.telegram_id:
+        try:
+            send_message_to_telegram(
+                request.user.telegram_id,
+                "Ваш запрос принят, с вами свяжется техническая поддержка портала."
+            )
+        except Exception as exc:
+            logger.warning(f"Не удалось отправить подтверждение пользователю {request.user.username}: {exc}")
+
+    return JsonResponse({'success': True})
+
 
 @csrf_exempt
 @login_required
