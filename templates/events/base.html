@@ -175,13 +175,13 @@
                             {% if name_page != "Достопримечательности" %}
                                 {% if show_all %}
                                     <a class="btn btn-outline-light ms-2 show-all-button" href="?{% change_params show_all='' page=1 %}">
-                                        <span class="show-all-label-desktop">Скрыть прошедшие мероприятия</span>
-                                        <span class="show-all-label-mobile">Скрыть</span>
+                                        <span class="show-all-label-desktop">Показать все мероприятия</span>
+                                        <span class="show-all-label-mobile">Показать</span>
                                     </a>
                                 {% else %}
                                     <a class="btn btn-outline-light ms-2 show-all-button" href="?{% change_params show_all='1' page=1 %}">
-                                        <span class="show-all-label-desktop">Показать все мероприятия</span>
-                                        <span class="show-all-label-mobile">Показать</span>
+                                        <span class="show-all-label-desktop">Скрыть прошедшие мероприятия</span>
+                                        <span class="show-all-label-mobile">Скрыть</span>
                                     </a>
                                 {% endif %}
                             {% endif %}
